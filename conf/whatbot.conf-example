@@ -1,0 +1,25 @@
+<whatbot>
+	<io interface="IRC">
+		<host>localhost</host>
+		<port>11666</port>
+		<hostpassword/>
+		<nick>whatbot</nick>
+		<nickservpassword/>
+		<username>whatbot</username>
+		<realname>whatbot</realname>
+		<quitmessage>whatbot</quitmessage>
+		<charactersperline>460</charactersperline>
+		<channel>
+			<name>#whatbot</name>
+			<channelpassword/>
+			<chanservpassword/>
+			<joinmessage>hello, children.</joinmessage>
+		</channel>
+	</io>
+	<store>
+		<handler>SQLite</handler>
+		<database>/etc/whatbot/whatbot.db</database>
+	</store>
+	<log directory="/var/log/whatbot" />
+</whatbot>
+

@@ -1,0 +1,74 @@
+###########################################################################
+# whatbot/Command.pm
+###########################################################################
+#
+# Base class for whatbot commands
+#
+###########################################################################
+# the whatbot project - http://www.whatbot.org
+###########################################################################
+
+package whatbot::Command;
+use Moose;
+extends 'whatbot::Component';
+
+# commandPriority determines at what point in the processing order this
+# parseMessage will fire.
+# Valid entries are 'Primary', 'Core' and 'Extension'.
+has 'commandPriority' => (
+	is	=> 'rw',
+	isa	=> 'Str',
+	default => 'Extension'
+);
+# listenFor can contain a string or a compiled regex with the match
+# string/pattern of the incoming message object. If listenFor is
+# blank, all messages will be parsed by this module.
+has 'listenFor' => (
+	is	=> 'rw',
+	isa	=> 'Any'
+);
+# requireDirect forces the module to only respond if the name of the
+# bot is used in the message as a direction.
+has 'requireDirect' => (
+	is	=> 'rw',
+	isa	=> 'Int',
+	default => 0
+);
+# passThrough, if set to 1, will pass through for further Command
+# processing, even if the command outputs text to IO. Commands will
+# automatically pass through if undef or an empty string is passed.
+has 'passThrough' => (
+	is	=> 'rw',
+	isa	=> 'Int',
+	default	=> 0
+);
+# myConfig contains the configuration for this module from the
+# whatbot config file, if any.
+has 'myConfig' => (
+	is	=> 'ro',
+	isa	=> 'HashRef'
+);
+
+sub BUILD {
+	my ($self) = @_;
+	
+	$self->register();
+}
+
+# register is called after class instantiation to set properties and
+# instantiate any persistent objects required by the Command.
+sub register {
+	my ($self) = @_;
+	
+	$self->log->write(ref($self) . " does not have a register method.");
+}
+
+# parseMessage is called with the message object for parsing.
+sub parseMessage {
+	my ($self, $messageRef, $matchIndex, @matches) = @_;
+	
+	$self->log->write(ref($self) . " is useless without a parseMessage method, but received a message anyway.");
+	return undef;
+}
+
+1;

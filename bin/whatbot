@@ -1,0 +1,99 @@
+#!/usr/bin/perl
+###########################################################################
+# whatbot
+###########################################################################
+#
+# executable bootstrap for whatbot.pm
+#
+###########################################################################
+# the whatbot project - http://www.whatbot.org
+###########################################################################
+
+$|++;
+use strict;
+use warnings;
+use Cwd qw(realpath);
+use Getopt::Long;
+
+# Get basedir
+my $basedir = realpath($0);
+my $appname = $0;
+$appname =~ s/.*?\///g;
+$basedir =~ s/\/$appname$//;
+$basedir =~ s/\/bin$//;
+
+our $VERSION = "0.9.2";
+
+# Check command line options
+my $configPath = $basedir . "/conf/whatbot.conf";
+my $daemon = 0;
+my $help;
+GetOptions(
+	'config=s'	=> \$configPath,
+	'daemon' 	=> \$daemon,
+	'help' 		=> \$help
+);
+usage() if ($help);
+unless ($configPath and -e $configPath) {
+	my @tryConfig = (
+		$basedir . "/conf/whatbot.conf",
+		"/etc/whatbot/whatbot.conf",
+		"/etc/whatbot.conf",
+		"/usr/local/etc/whatbot/whatbot.conf",
+		"/usr/local/etc/whatbot.conf"
+	);
+	foreach (@tryConfig) {
+		$configPath = $_ if (-e $_);
+	}
+	unless ($configPath and -e $configPath) {
+		print "ERROR: Configuration file not found.\n";
+		usage();
+	}
+}
+
+# Initial requirements check
+eval { require 5.008_001; };
+if ($@) {
+	print "ERROR: whatbot requires perl 5.8 or higher.";
+	exit(-1);
+}
+my @requirements = qw(DBI Module::Pluggable XML::Simple Net::IRC Moose Digest::SHA1);
+foreach my $req (@requirements) {
+	eval { 
+		eval "require $req";
+		if ($@) {
+			print "ERROR: The perl module $req is required for whatbot to continue.\n";
+			exit(-1);
+		}
+	};	
+}
+
+# Daemonize
+if ($daemon) {
+	fork and exit;
+} else {
+	print "whatbot " . $VERSION . "\n";
+	print "Running in interactive mode.\n";
+}
+
+# Start application
+# Import whatbot
+push(@INC, "$basedir/lib") if (-e "$basedir/lib");
+require whatbot;
+my $whatbot = whatbot->new;
+$SIG{'KILL'} = sub { $whatbot->{killSelf} = 1; };
+$SIG{'QUIT'} = sub { $whatbot->{killSelf} = 1; };
+$SIG{'INT'} = sub { $whatbot->{killSelf} = 1; };
+$whatbot->run($configPath);
+
+sub usage {
+	print qq!whatbot $VERSION:
+
+ -c --config  Path to configuration file (default: conf/whatbot.conf)
+ -D --daemon  Daemonize on successful launch
+ -h --help	  Print this help screen\n\n!;
+	exit(0);
+}
+
+1;
+
