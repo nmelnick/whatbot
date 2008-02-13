@@ -16,16 +16,16 @@ sub register {
 	my ($self) = @_;
 	
 	$self->commandPriority("Extension");
-	$self->listenFor(qr/^(?:calc|\d+[\*\/+\-\^\%]\d+)\??/oi);
+	$self->listenFor(qr/(?:calc|\d+[\*\/+\-\^\%]\d+)\??/oi);
 	$self->requireDirect(0);
 }
 
 sub parseMessage {
 	my ($self, $messageRef) = @_;
 
-	my ($expression) = ($messageRef->content =~ /^(?:calc\s+)?(.*?)\??$/oi);
+	my ($expression) = ($messageRef->content =~ /^(?:calc\s+(.*))|([\d\Q*+-^%\E]+)\??$/oi);
 
-	return "what" unless $expression;
+	return undef unless $expression;
 
 	return $messageRef->from . ": " . $self->_parse($expression);
 }
