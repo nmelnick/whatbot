@@ -11,6 +11,7 @@ CREATE TABLE factoid (
   is_plural   INTEGER,
   created     INTEGER,
   updated     INTEGER,
+  silent      INTEGER,
   subject     VARCHAR (255)
 );
 
