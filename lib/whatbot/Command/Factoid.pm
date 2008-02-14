@@ -30,6 +30,8 @@ sub register {
 sub parseMessage {
 	my ($self, $messageRef, $matchIndex, @matches) = @_;
 	
+	$messageRef->{matchIndex} = $matchIndex;
+	
 	if ($matchIndex == 0) {
 		# Retrieve
 		return $self->retrieve($matches[2], $messageRef);
@@ -144,7 +146,7 @@ sub retrieve {
 			return $subject . " " . ($factoid->{factoid}->{is_plural} ? "are" : "is") . " " . join(" or ", @facts);
 		}
 		
-	} elsif ($messageRef->isDirect) {
+	} elsif ($messageRef->{matchIndex} == 0 and $messageRef->isDirect) {
 		return "I have no idea what '" . $subject . "' could be, " . $messageRef->from . ".";
 		
 	}
