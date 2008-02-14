@@ -144,7 +144,6 @@ sub retrieve {
 	my ($self, $subject, $messageRef) = @_;
 	
 	$subject =~ s/[\?\!\. ]*$//;
-	warn $subject;
 	my $factoid = $self->store->factoid($subject);
 	if (defined $factoid and ($factoid->{factoid}->{silent} != 1 or $messageRef->{matchIndex} == 0)) {
 		my @facts;
@@ -167,6 +166,8 @@ sub retrieve {
 		return "I have no idea what '" . $subject . "' could be, " . $messageRef->from . ".";
 		
 	}
+	
+	return "lastRun";
 }
 
 1;
