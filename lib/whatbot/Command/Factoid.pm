@@ -22,6 +22,7 @@ sub register {
 		qr/^forget (.*)/i,
 		qr/^(random fact|jerk it)/i,
 		qr/^who said that/i,
+		qr/^(shut up|stfu) about (.*)/,
 		qr/(.*)/
 	]);
 	$self->requireDirect(0);
@@ -54,7 +55,7 @@ sub parseMessage {
 	} elsif ($matchIndex == 2) {
 		# Delete forever
 		$self->store->forget($matches[0]);
-		$self->store->ignore($matches[0]);
+		$self->store->ignore($matches[0], 1);
 		return "I will permanently forget '" . $matches[0] . "', " . $messageRef->from . ".";
 		
 	} elsif ($matchIndex == 3) {
@@ -111,11 +112,26 @@ sub parseMessage {
 		}
 	
 	} elsif ($matchIndex == 5) {
+		# Who Said
 		if (defined $self->{lastRandomFactWhoSaid}) {
 			return $messageRef->from . ": " . $self->{lastRandomFactWhoSaid};
 		}
 
 	} elsif ($matchIndex == 6) {
+		# STFU about
+		my $silent = $self->store->silentFactoid($matches[1], 1);
+		if (defined $silent) {
+			if ($silent == 1) {
+				return "I will shut up about '" . $matches[1] . "', " . $messageRef->from . ".";
+			} else {
+				return "I will keep talking about '" . $matches[1] . "', " . $messageRef->from . ".";
+			}
+		} else {
+			return "I don't have any facts for '" . $matches[1] . "', " . $messageRef->from . ".";
+		}
+		
+
+	} elsif ($matchIndex == 7) {
 		# Retrieve
 		return $self->retrieve($matches[0], $messageRef);
 		
@@ -128,8 +144,9 @@ sub retrieve {
 	my ($self, $subject, $messageRef) = @_;
 	
 	$subject =~ s/[\?\!\. ]*$//;
+	warn $subject;
 	my $factoid = $self->store->factoid($subject);
-	if (defined $factoid) {
+	if (defined $factoid and ($factoid->{factoid}->{silent} != 1 or $messageRef->{matchIndex} == 0)) {
 		my @facts;
 		if (defined $factoid->{factoid}->{is_or} and $factoid->{factoid}->{is_or} == 1) {
 			push(@facts, $factoid->{facts}->[rand @{$factoid->{facts}}]);
@@ -150,7 +167,6 @@ sub retrieve {
 		return "I have no idea what '" . $subject . "' could be, " . $messageRef->from . ".";
 		
 	}
-	return "lastRun";
 }
 
 1;

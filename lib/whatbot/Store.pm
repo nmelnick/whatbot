@@ -22,12 +22,10 @@ sub connect {
 
 sub store {
 	my ($self, $table, $assignRef) = @_;
-	
 }
 
 sub retrieve {
 	my ($self, $table, $columnRef, $queryRef, $numberItems) = @_;
-
 }
 
 sub delete {
@@ -46,7 +44,7 @@ sub factoid {
 	$subject = lc($subject);
 	
 	# Get existing factoid info, if available
-	my ($factoid) = @{ $self->retrieve("factoid", [qw/factoid_id is_or is_plural/], { subject => $subject }) };
+	my ($factoid) = @{ $self->retrieve("factoid", [qw/factoid_id is_or is_plural silent/], { subject => $subject }) };
 	return undef if (!defined($factoid) and !$is);
 	
 	# Assign fact info if defined
@@ -79,7 +77,7 @@ sub factoid {
 				updated		=> time,
 				subject		=> $subject
 			});
-			($factoid) = @{ $self->retrieve("factoid", [qw/factoid_id is_or is_plural/], { subject => $subject }) };
+			($factoid) = @{ $self->retrieve("factoid", [qw/factoid_id is_or is_plural silent/], { subject => $subject }) };
 		}
 		
 		# Remove also, because we don't care
@@ -93,7 +91,7 @@ sub factoid {
 		if ($is =~ /^ *\|\| ?/) {
 			$is =~ s/^ *\|\| ?//;
 			$self->update("factoid", { is_or => 1 }, { factoid_id => $factoid->{factoid_id} });
-			($factoid) = @{ $self->retrieve("factoid", [qw/factoid_id is_or is_plural/], { subject => $subject }) };
+			($factoid) = @{ $self->retrieve("factoid", [qw/factoid_id is_or is_plural silent/], { subject => $subject }) };
 		}
 		
 		# Nuke <reply> if not or and more than one fact
@@ -196,6 +194,26 @@ sub seen {
 	}
 	
 	return $itemRef;
+}
+
+sub silentFactoid {
+	my ($self, $subject, $store) = @_;
+	
+	return undef if (!$subject);
+	$subject = lc($subject);
+	
+	my ($factoid) = @{ $self->retrieve("factoid", [qw/factoid_id silent/], { subject => $subject }) };
+	
+	if ($store and defined $factoid and $factoid->{factoid_id} > 0) {
+		if ($factoid->{silent} == 1) {
+			$self->update("factoid", { silent => 0 }, { factoid_id => $factoid->{factoid_id} });
+		} else {
+			$self->update("factoid", { silent => 1 }, { factoid_id => $factoid->{factoid_id} });
+		}
+		($factoid) = @{ $self->retrieve("factoid", [qw/factoid_id silent/], { subject => $subject }) };
+	}
+	
+	return (defined $factoid ? $factoid->{silent} : undef);
 }
 
 sub karma {
