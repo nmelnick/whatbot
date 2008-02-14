@@ -22,7 +22,7 @@ sub register {
 sub parseMessage {
 	my ($self, $messageRef) = @_;
 	
-	return undef unless ($messageRef->from eq $self->myConfig->{user});
+	return undef unless (defined $self->myConfig and $messageRef->from eq $self->myConfig->{user});
 	my ($command, @args) = split(/ /, $messageRef->content);
 	$command =~ s/^!//;
 	if ($command eq 'refreshCommands') {
