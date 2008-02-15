@@ -12,8 +12,9 @@ use Moose;
 extends 'whatbot::Command';
 
 has 'stfu' => (
-	is	=> 'rw',
-	isa	=> 'HashRef'
+	is		=> 'rw',
+	isa		=> 'HashRef',
+	default	=> sub { { subject => '', time => '' }; }
 );
 
 sub register {
@@ -124,23 +125,24 @@ sub parseMessage {
 
 	} elsif ($matchIndex == 6) {
 		# STFU about
-		if (defined $self->stfu and $self->stfu->{subject} eq $matches[1] and time - $self->stfu->{time} < 45) {
+		if ($self->stfu->{subject} eq $matches[1] and (time - $self->stfu->{time}) < 45) {
 			return undef;
 		} elsif (defined $self->stfu) {
-			$self->stfu(undef);
+			$self->stfu({ subject => '', time => '' });
 		}
 		
 		my $silent = $self->store->silentFactoid($matches[1], 1);
 		if (defined $silent) {
+			$self->stfu({
+				subject	=> $matches[1],
+				time	=> time
+			});
+			
 			if ($silent == 1) {
 				return "I will shut up about '" . $matches[1] . "', " . $messageRef->from . ".";
 			} else {
 				return "I will keep talking about '" . $matches[1] . "', " . $messageRef->from . ".";
 			}
-			$self->stfu({
-				subject	=> $matches[1],
-				time	=> time
-			});
 		} else {
 			return "I don't have any facts for '" . $matches[1] . "', " . $messageRef->from . ".";
 		}
