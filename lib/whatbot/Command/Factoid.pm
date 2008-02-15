@@ -11,10 +11,10 @@ package whatbot::Command::Factoid;
 use Moose;
 extends 'whatbot::Command';
 
-has 'stfu' => {
+has 'stfu' => (
 	is	=> 'rw',
 	isa	=> 'HashRef'
-};
+);
 
 sub register {
 	my ($self) = @_;
