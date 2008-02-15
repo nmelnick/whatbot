@@ -11,6 +11,11 @@ package whatbot::Command::Factoid;
 use Moose;
 extends 'whatbot::Command';
 
+has 'stfu' => {
+	is	=> 'rw',
+	isa	=> 'HashRef'
+};
+
 sub register {
 	my ($self) = @_;
 	
@@ -119,6 +124,12 @@ sub parseMessage {
 
 	} elsif ($matchIndex == 6) {
 		# STFU about
+		if (defined $self->stfu and $self->stfu->{subject} eq $matches[1] and time - $self->stfu->{time} < 45) {
+			return undef;
+		} elsif (defined $self->stfu) {
+			$self->stfu(undef);
+		}
+		
 		my $silent = $self->store->silentFactoid($matches[1], 1);
 		if (defined $silent) {
 			if ($silent == 1) {
@@ -126,6 +137,10 @@ sub parseMessage {
 			} else {
 				return "I will keep talking about '" . $matches[1] . "', " . $messageRef->from . ".";
 			}
+			$self->stfu({
+				subject	=> $matches[1],
+				time	=> time
+			});
 		} else {
 			return "I don't have any facts for '" . $matches[1] . "', " . $messageRef->from . ".";
 		}
