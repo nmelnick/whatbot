@@ -171,7 +171,9 @@ sub retrieve {
 	if (defined $factoid and ($factoid->{factoid}->{silent} != 1 or $messageRef->{matchIndex} == 0)) {
 		my @facts;
 		if (defined $factoid->{factoid}->{is_or} and $factoid->{factoid}->{is_or} == 1) {
-			push(@facts, $factoid->{facts}->[int(rand(scalar(@{$factoid->{facts}}))) - 1]);
+			my $factCount = scalar(@{$factoid->{facts}});
+			warn $factCount;
+			push(@facts, $factoid->{facts}->[int(rand($factCount))]);
 		} else {
 			@facts = @{$factoid->{facts}};
 		}
