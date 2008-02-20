@@ -160,8 +160,13 @@ sub parseMessage {
 
 sub retrieve {
 	my ($self, $subject, $messageRef) = @_;
-	
+
+	my $everything = 0;	
 	$subject =~ s/[\?\!\. ]*$//;
+	if ($subject =~ /^everything for/) {
+		$subject =~ s/^everything for +//;
+		$everything++;
+	}
 	my $factoid = $self->store->factoid($subject);
 	if (defined $factoid and ($factoid->{factoid}->{silent} != 1 or $messageRef->{matchIndex} == 0)) {
 		my @facts;
@@ -178,9 +183,7 @@ sub retrieve {
 			$subject = "you" if (lc($subject) eq lc($messageRef->from));
 			$subject = $messageRef->from . ", $subject" if ($messageRef->isDirect);
 			my $factoidData = join(" or ", @facts);
-			if ($subject =~ /^everything for/) {
-				$subject =~ s/^everything for +//;
-			} elsif (length($factoidData) > 400) {
+			if (!$everything and length($factoidData) > 400) {
 				$factoidData = "summarized as " . summarize($factoidData, maxlength => 380);
 			}
 			return $subject . " " . ($factoid->{factoid}->{is_plural} ? "are" : "is") . " " . $factoidData;
