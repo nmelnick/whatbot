@@ -184,7 +184,7 @@ sub retrieve {
 			$subject = $messageRef->from . ", $subject" if ($messageRef->isDirect);
 			my $factoidData = join(" or ", @facts);
 			if (!$everything and length($factoidData) > 400) {
-				$factoidData = "summarized as " . summarize($factoidData, maxlength => 380);
+				$factoidData = "summarized as " . summarize($factoidData, maxlength => 370);
 			}
 			return $subject . " " . ($factoid->{factoid}->{is_plural} ? "are" : "is") . " " . $factoidData;
 		}
