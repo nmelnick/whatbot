@@ -10,6 +10,7 @@
 package whatbot::Command::Factoid;
 use Moose;
 extends 'whatbot::Command';
+use Lingua::EN::Summarize qw(summarize);
 
 has 'stfu' => (
 	is		=> 'rw',
@@ -176,7 +177,13 @@ sub retrieve {
 		} else {
 			$subject = "you" if (lc($subject) eq lc($messageRef->from));
 			$subject = $messageRef->from . ", $subject" if ($messageRef->isDirect);
-			return $subject . " " . ($factoid->{factoid}->{is_plural} ? "are" : "is") . " " . join(" or ", @facts);
+			my $factoidData = join(" or ", @facts);
+			if ($subject =~ /^everything for/) {
+				$subject =~ s/^everything for +//;
+			} elsif (length($factoidData) > 400) {
+				$factoidData = "summarized as " . summarize($factoidData, maxlength => 400);
+			}
+			return $subject . " " . ($factoid->{factoid}->{is_plural} ? "are" : "is") . " " . $factoidData;
 		}
 		
 	} elsif ($messageRef->{matchIndex} == 0 and $messageRef->isDirect) {
