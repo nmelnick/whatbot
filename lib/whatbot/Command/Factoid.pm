@@ -181,7 +181,7 @@ sub retrieve {
 			if ($subject =~ /^everything for/) {
 				$subject =~ s/^everything for +//;
 			} elsif (length($factoidData) > 400) {
-				$factoidData = "summarized as " . summarize($factoidData, maxlength => 400);
+				$factoidData = "summarized as " . summarize($factoidData, maxlength => 380);
 			}
 			return $subject . " " . ($factoid->{factoid}->{is_plural} ? "are" : "is") . " " . $factoidData;
 		}
