@@ -21,21 +21,31 @@ sub register {
 
 sub parseMessage {
 	my ($self, $messageRef) = @_;
-	
-	return undef unless (defined $self->myConfig and $messageRef->from eq $self->myConfig->{user});
+
+        my $prefix = "";
+        unless ($messageRef->content =~ /^!!/) {	
+	    return undef unless (defined $self->myConfig and $messageRef->from eq $self->myConfig->{user});
+        }
+        else {
+            $prefix = "hacks! ";
+        }
 	my ($command, @args) = split(/ /, $messageRef->content);
-	$command =~ s/^!//;
+	$command =~ s/^!+//;
+
+        my $result;
 	if ($command eq 'refreshCommands') {
-		return $self->refreshCommands(@args);
+		$result = $self->refreshCommands(@args);
 	} elsif ($command eq 'version') {
-		return $self->version(@args);
+		$result = $self->version(@args);
 	} elsif ($command eq 'rehash') {
-		return $self->rehash(@args);
+		$result = $self->rehash(@args);
 	} elsif ($command eq 'svnup') {
-		return $self->svnup(@args);
+		$result = $self->svnup(@args);
 	} elsif ($command eq 'retrieve') {
-		return $self->retrieve(@args);
+		$result = $self->retrieve(@args);
 	}
+
+        return $prefix.$result if defined($result);
 	return undef;
 }
 
