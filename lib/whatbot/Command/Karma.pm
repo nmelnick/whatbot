@@ -31,10 +31,9 @@ sub parseMessage {
                 # summarize someone's like/hates
                 my $who = $1;
                 my $verb = $2;
-                my $find = ($verb eq "like" ? 1 : -1);
                 my $nick = $messageRef->from;
 
-                my $karmas = $self->store->retrieve("karma", [ "subject", "amount" ], { user => $who, amount => $find });
+                my $karmas = $self->store->retrieve("karma", [ "subject", "amount" ], { user => $who });
 
                 if (!$karmas || !@$karmas) {
                     return "$nick: I don't know what $who ${verb}s.";
@@ -46,7 +45,6 @@ sub parseMessage {
                     $_ = shift @$karmas;
                     $karma{$_->{subject}} += $_->{amount};
                 }
-                $self->log->write("$who -- $_ -- $karma{$_}") foreach keys %karma;
 
                 # find top (or bottom) 5
                 my @sorted;
