@@ -18,15 +18,52 @@ sub register {
 	$self->listenFor([
 		qr/\+\+/,
 		qr/\-\-/,
-		qr/karma/i
+		qr/karma/i,
+                qr/what does (\w+) (like|hate)\??$/io,
 	]);
 	$self->requireDirect(0);
 }
 
 sub parseMessage {
 	my ($self, $messageRef) = @_;
-	
-	if ($messageRef->content =~ /\((.*?)\)([\+\-][\+\-])/) {
+
+        if ($messageRef->content =~ /what does (\w+) (like|hate)/) {
+                # summarize someone's like/hates
+                my $who = $1;
+                my $verb = $2;
+                my $find = ($verb eq "like" ? 1 : -1);
+                my $nick = $messageRef->from;
+
+                my $karmas = $self->store->retrieve("karma", [ "subject", "amount" ], { user => $who, amount => $find });
+
+                if (!$karmas || !@$karmas) {
+                    return "$nick: I don't know what $who ${verb}s.";
+                }
+
+                my %karma;
+                # use shift to hopefully minimize memory usage
+                while (@$karmas) {
+                    $_ = shift @$karmas;
+                    $karma{$_->{subject}} += $_->{amount};
+                }
+                $self->log->write("$who -- $_ -- $karma{$_}") foreach keys %karma;
+
+                # find top (or bottom) 5
+                my @sorted;
+                if ($verb eq "like") { 
+                    @sorted = sort { $karma{$b} <=> $karma{$a} } keys %karma;
+                }
+                else {
+                    @sorted = sort { $karma{$a} <=> $karma{$b} } keys %karma;
+                }
+                @sorted = @sorted[ 0 .. ($#sorted < 4 ? $#sorted : 4) ];
+
+                my @results;
+                push @results, "$_ (" . $karma{$_} . ")" foreach @sorted;
+                undef %karma;
+
+                return "$who ${verb}s: " . join (', ', @results);
+	} elsif ($messageRef->content =~ /\((.*?)\)([\+\-][\+\-])/) {
 		# more than one word
 		my $phrase = $1;
 		my $op = $2;
