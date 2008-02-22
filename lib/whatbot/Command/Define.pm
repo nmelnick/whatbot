@@ -105,10 +105,6 @@ RETRY:
 
 	my $def = $sentences->[0];
 
-	if ($def =~ /may refer to:/) {
-		return "Multiple definitions found for $phrase - you'll have to be more specific.";
-	}
-	
 	# footnotes suck
 	$def =~ s/\[\d+\]//g;
 
@@ -167,7 +163,7 @@ sub _parse {
 	my ($self, $phrase) = @_;
 
 	my ($def, $error);
-        foreach my $func (qw(wikipedia)) {  # google
+        foreach my $func (qw(wikipedia google)) {
 		{ 
 			no strict 'refs';
                 	$def = $self->$func($phrase);
