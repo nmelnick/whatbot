@@ -11,6 +11,8 @@ package whatbot::Command::Karma;
 use Moose;
 extends 'whatbot::Command';
 
+my $LIKE_NUM = 10;
+
 sub register {
 	my ($self) = @_;
 	
@@ -54,10 +56,13 @@ sub parseMessage {
                 else {
                     @sorted = sort { $karma{$a} <=> $karma{$b} } keys %karma;
                 }
-                @sorted = @sorted[ 0 .. ($#sorted < 4 ? $#sorted : 4) ];
+                @sorted = @sorted[ 0 .. (@sorted < $LIKE_NUM ? $#sorted : $LIKE_NUM - 1) ];
 
                 my @results;
-                push @results, "$_ (" . $karma{$_} . ")" foreach @sorted;
+                foreach (@sorted) {
+                    last if ($verb eq "like" ? $karma{$_} < 0 : $karma{$_} > 0);
+                    push @results, "$_ (" . $karma{$_} . ")";
+                }
                 undef %karma;
 
                 return "$who ${verb}s: " . join (', ', @results);
