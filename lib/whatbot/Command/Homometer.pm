@@ -45,6 +45,7 @@ sub getHomometer {
 	my ($self) = @_;
 	
 	my %scale = (
+                'nuts.jpg'      => 40,
 		'moo'		=> 20,
 		'gay'		=> 15,
 		'homo'		=> 15,
