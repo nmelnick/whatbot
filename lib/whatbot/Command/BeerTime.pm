@@ -47,7 +47,7 @@ sub parseMessage {
 	
 	if ($messageRef->content =~ /\d\d?\:\d\d/) {
 		foreach my $msg (@{$self->lineCache->{$nick}}) {
-			if ($msg =~ /beer/i or $msg =~ /home/i) {
+			if ($msg =~ /\bbeer/i or $msg =~ /\bhome\b/i) {
 				return $insults[rand @insults];
 			}
 		}
