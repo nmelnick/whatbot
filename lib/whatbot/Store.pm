@@ -50,6 +50,7 @@ sub factoid {
 	# Assign fact info if defined
 	if ($is) {
 		
+		warn $is;
 		# Nuke all factoids if user says no
 		if ($subject =~ /no, /i) {
 			$subject =~ s/no, //i;
