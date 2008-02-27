@@ -10,7 +10,6 @@
 package whatbot::Command::Factoid;
 use Moose;
 extends 'whatbot::Command';
-use Lingua::EN::Summarize qw(summarize);
 
 has 'stfu' => (
 	is		=> 'rw',
@@ -185,7 +184,26 @@ sub retrieve {
 			$subject = $messageRef->from . ", $subject" if ($messageRef->isDirect);
 			my $factoidData = join(" or ", @facts);
 			if (!$everything and length($factoidData) > 400) {
-				$factoidData = "summarized as " . summarize($factoidData, maxlength => 370);
+				$factoidData = "summarized as ";
+				my $start = 0;
+				my $bigTries = 0;
+				my $totalTries = 0;
+				my %usedFacts;
+				while (length($factoidData) < 380 and $bigTries < 5 and $totalTries < 10) {
+					my $factNum = int(rand(scalar(@facts)));
+					if (defined $usedFacts{$factNum}) {
+						$totalTries++;
+					} else {
+						$usedFacts{$factNum} = 1;
+						if (length($factoidData . $facts[$factNum]) > 410) {
+							$bigTries++;
+							next;
+						}
+						$factoidData .= " or " unless ($start == 0);
+						$factoidData .= $facts[$factNum];
+						$start++;
+					}
+				}
 			}
 			return $subject . " " . ($factoid->{factoid}->{is_plural} ? "are" : "is") . " " . $factoidData;
 		}
