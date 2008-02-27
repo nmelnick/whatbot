@@ -40,6 +40,7 @@ sub parseMessage {
 		$result = $self->retrieve(@args);
 	}
 
+	return $result if (defined $result);
     return undef;
 }
 
