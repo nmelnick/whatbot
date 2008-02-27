@@ -49,7 +49,7 @@ sub parseMessage {
 		my $isPlural = ($matches[1] =~ /are/i ? 1 : 0);
 		$matches[2] =~ s/[\. ]$//g;	# remove trailing punctuation
 		unless ($messageRef->isDirect) {
-			$matches[2] =~ s/\. .*$//g;		# if capturing flyby, only grab one sentence
+			$matches[2] =~ s/\[\.,] .*$//g;		# if capturing flyby, only grab one sentence
 		}
 		if ($messageRef->isDirect and lc($matches[0]) eq 'you') {
 			$matches[0] = $messageRef->me;
@@ -172,7 +172,6 @@ sub retrieve {
 		my @facts;
 		if (defined $factoid->{factoid}->{is_or} and $factoid->{factoid}->{is_or} == 1) {
 			my $factCount = scalar(@{$factoid->{facts}});
-			warn $factCount;
 			push(@facts, $factoid->{facts}->[int(rand($factCount))]);
 		} else {
 			@facts = @{$factoid->{facts}};

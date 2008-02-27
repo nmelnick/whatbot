@@ -22,17 +22,12 @@ sub register {
 sub parseMessage {
 	my ($self, $messageRef) = @_;
 
-        my $prefix = "";
-        unless ($messageRef->content =~ /^!!/) {	
-	    return undef unless (defined $self->myConfig and $messageRef->from eq $self->myConfig->{user});
-        }
-        else {
-            $prefix = "hacks! ";
-        }
+	return undef unless (defined $self->myConfig and $messageRef->from eq $self->myConfig->{user});
+	
 	my ($command, @args) = split(/ /, $messageRef->content);
 	$command =~ s/^!+//;
 
-        my $result;
+    my $result;
 	if ($command eq 'refreshCommands') {
 		$result = $self->refreshCommands(@args);
 	} elsif ($command eq 'version') {
@@ -45,8 +40,7 @@ sub parseMessage {
 		$result = $self->retrieve(@args);
 	}
 
-        return $prefix.$result if defined($result);
-	return undef;
+    return undef;
 }
 
 sub refreshCommands {

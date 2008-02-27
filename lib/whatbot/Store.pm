@@ -87,13 +87,6 @@ sub factoid {
 			$is =~ s/^also //;
 		}
 		
-		# Check for or
-		if ($is =~ /^ *\|\| ?/) {
-			$is =~ s/^ *\|\| ?//;
-			$self->update("factoid", { is_or => 1 }, { factoid_id => $factoid->{factoid_id} });
-			($factoid) = @{ $self->retrieve("factoid", [qw/factoid_id is_or is_plural silent/], { subject => $subject }) };
-		}
-		
 		# Nuke <reply> if not or and more than one fact
 		if ($is =~ /^<reply>/) {
 			my ($factoidCount) = @{ $self->retrieve("factoid_description", [ "COUNT(*) AS count" ], { factoid_id => $factoid->{factoid_id}}) };
@@ -119,13 +112,27 @@ sub factoid {
 			return undef;
 		}
 		
-		my $result = $self->store("factoid_description", {
-			factoid_id	=> $factoid->{factoid_id},
-			description	=> $is,
-			hash		=> sha1_hex($is),
-			user		=> $from,
-			updated		=> time
-		});
+		if ($is =~ /\|\|/) {
+			$self->update("factoid", { is_or => 1 }, { factoid_id => $factoid->{factoid_id} });
+			($factoid) = @{ $self->retrieve("factoid", [qw/factoid_id is_or is_plural silent/], { subject => $subject }) };
+			foreach my $fact (split(/ \|\| /, $is)) {
+				$self->store("factoid_description", {
+					factoid_id	=> $factoid->{factoid_id},
+					description	=> $fact,
+					hash		=> sha1_hex($fact),
+					user		=> $from,
+					updated		=> time
+				});
+			}
+		} else {
+			my $result = $self->store("factoid_description", {
+				factoid_id	=> $factoid->{factoid_id},
+				description	=> $is,
+				hash		=> sha1_hex($is),
+				user		=> $from,
+				updated		=> time
+			});
+		}
 	}
 	
 	# Retrieve factoid description
