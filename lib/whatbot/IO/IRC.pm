@@ -234,7 +234,7 @@ sub cbPing {
 sub cbPrivateMessage {
 	my ($self, $event) = @_;
 	my ($nick, $message) = ($event->args);
-	$self->{_whatbot}->eventMessage($event->nick, $message, 2);
+	#$self->{_whatbot}->eventMessage($event->nick, $message, 2);
 }
 
 # Event: Channel topic change
