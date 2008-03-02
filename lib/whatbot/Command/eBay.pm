@@ -36,7 +36,7 @@ my @IGNORE_KEYS = (
     'Seller guarantee', 'Deposit type', 'Limited warranty',
     'VIN Number', 'Warranty', 'Vehicle Identification Number (VIN)',
     'Purchase protection', 'Search year', 'Title', 'VIN  Number',
-    'Brand'
+    'Brand', 'Computed RE Message',
 );
 
 my @SELF_DESCRIPTIVE = (
