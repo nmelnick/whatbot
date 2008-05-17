@@ -14,7 +14,7 @@ extends 'whatbot::Component';
 
 # commandPriority determines at what point in the processing order this
 # parseMessage will fire.
-# Valid entries are 'Primary', 'Core' and 'Extension'.
+# Valid entries are 'Primary', 'Core', 'Hook', and 'Extension'.
 has 'commandPriority' => (
 	is	=> 'rw',
 	isa	=> 'Str',
@@ -69,6 +69,13 @@ sub parseMessage {
 	
 	$self->log->write(ref($self) . " is useless without a parseMessage method, but received a message anyway.");
 	return undef;
+}
+
+# help is returned when a user asks for help on a command.
+sub help {
+    my ($self) = @_;
+    
+    return 'Help is not available.';
 }
 
 1;

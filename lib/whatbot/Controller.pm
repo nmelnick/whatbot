@@ -15,6 +15,10 @@ has 'Commands' => (
 	is	=> 'rw',
 	isa	=> 'ArrayRef'
 );
+has 'CommandNames' => (
+    is  => 'rw',
+    isa => 'HashRef'
+);
 has 'skipExtensions' => (
 	is	=> 'rw',
 	isa	=> 'Int'
@@ -29,8 +33,9 @@ sub BUILD {
 sub buildCommandArray {
 	my ($self) = @_;
 	
-	my @commands;	# Ordered list of commands
-	my %commandMap;	# Maps command priority
+	my @commands;	    # Ordered list of commands
+	my %commandNames;   # Maps command names to commands
+	my %commandMap;	    # Maps command priority
 	my $commandNamespace = "whatbot::Command";
 	
 	my $rootDir = $INC{'whatbot/Controller.pm'};
@@ -76,6 +81,10 @@ sub buildCommandArray {
 		foreach my $command (keys %commandMap) {
 			if (lc($commandMap{$command}->commandPriority) eq $priority) {
 				push(@commands, $commandMap{$command});
+				
+				my $commandName = lc( (split(/::/, $command))[2] );
+				$commandNames{$commandName} = $commandMap{$command};
+				
 				delete($commandMap{$command});
 			}
 		}
@@ -89,16 +98,19 @@ sub buildCommandArray {
 	}
 	%commandMap = ();
 	$self->Commands(\@commands);
+	$self->CommandNames(\%commandNames);
 }
 
 sub handle {
 	my ($self, $messageObj, $me) = @_;
 	
 	foreach my $command (@{$self->Commands}) {
+	    next if ($command->requireDirect and !$messageObj->isDirect);
 		my $listenFor = $command->listenFor;
 		$listenFor = [ $listenFor ] unless (ref($command->listenFor) eq 'ARRAY');
 		my $index = 0;
 		foreach my $listen (@$listenFor) {
+		    next unless ($listen);
 			if (my (@matches) = $messageObj->content =~ $listen or $listen eq '') {
 				my $result;
 				eval {
