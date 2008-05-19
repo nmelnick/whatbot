@@ -114,8 +114,13 @@ sub storeUrl {
     unless (defined $db_url and defined $db_url->{url_id}) {
         my $title;
         my $response = $self->agent->get($url);
-        if ($response->is_success) {
-            $title = $self->agent->title();
+        warn $self->agent->status;
+        if ($response->is_success and $self->agent->success) {
+            if ($self->agent->status < 400) {
+                $title = ($self->agent->title() or "No parsable title");
+            } else {
+                $title = "! Error " . $self->agent->status;
+            }
         } else {
             $title = "! Unable to retrieve";
         }
@@ -127,7 +132,7 @@ sub storeUrl {
                 title       => $title,
                 domain_id   => $domain->{domain_id},
                 protocol_id => $protocol->{protocol_id},
-                path        => $uri->path
+                path        => $uri->path . ($uri->query ? '&' . $uri->query : '')
             }
         );
         ($db_url) = @{ $self->store->retrieve(
@@ -136,7 +141,7 @@ sub storeUrl {
             {
                 domain_id   => $domain->{domain_id},
                 protocol_id => $protocol->{protocol_id},
-                path        => $uri->path
+                path        => $uri->path . ($uri->query ? '&' . $uri->query : '')
             }
         ) };
     }
