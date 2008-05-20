@@ -22,7 +22,7 @@ sub register {
 	
 	$self->commandPriority("Core");
 	$self->listenFor([
-		qr/^(wtf|what) (is|are) (.*)/i,
+		qr/^(wtf|what|who) (is|are) (.*)/i,
 		qr/^(.*) (is|are) (.*)/i,
 		qr/^never remember (.*)/i,
 		qr/^forget (.*)/i,
@@ -120,7 +120,11 @@ sub parseMessage {
 	} elsif ($matchIndex == 5) {
 		# Who Said
 		if (defined $self->{lastRandomFactWhoSaid}) {
-			return $messageRef->from . ": " . $self->{lastRandomFactWhoSaid};
+			if ($messageRef->from eq $self->{lastRandomFactWhoSaid}) {
+			    return $messageRef->from . ": it was YOU!";
+			} else {
+			    return $messageRef->from . ": " . $self->{lastRandomFactWhoSaid};
+		    }
 		}
 
 	} elsif ($matchIndex == 6) {
