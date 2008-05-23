@@ -27,17 +27,28 @@ sub parseMessage {
 	            return $self->controller->CommandNames->{$1}->help();
 	        } else {	            
     	        return
-    	            'No such command: "' . $1 . '". Help is available for: ' .
-    	            join(', ', keys %{$self->controller->CommandNames});
+    	            'No such command: "' . $1 . '". ' . $self->available();
 	        }
 	    } else {
 	        return
 	            'Whatbot is a modular, extensible, buzzword-compliant chat bot ' .
-	            'written in Perl and tears. Help is available for: ' .
-	            join(', ', keys %{$self->controller->CommandNames});
+	            'written in Perl and tears. ' . $self->available();
 	    }
 	}
     return undef;
 }
 
+sub available {
+    my ($self) = @_;
+    return 'Help is available for: ' .
+        join('', map {
+            if ($_ ne 'help') {
+                if ($self->controller->CommandNames->{$_}->help() =~ /Help is not/) {
+                    '';
+                } else {
+                    $_ . ' ';
+                }
+            }
+        } keys %{$self->controller->CommandNames} );
+}
 1;
