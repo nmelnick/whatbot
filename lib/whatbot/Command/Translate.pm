@@ -45,6 +45,12 @@ sub parseMessage {
 	}
 }
 
+sub help {
+    my ($self) = @_;
+    
+    return "Translate uses Babelfish to machine translate text in other languages. " . languages();
+}
+
 sub getTranslator {
 	my ($using) = @_;
 	
