@@ -32,26 +32,22 @@ sub register {
 sub parseMessage {
 	my ($self, $messageRef) = @_;
 	
-	my %candidates = (
-	    'jameth'        => '',
-	    'legomymalfoy'  => '',
-	    'rm'            => '',
-	);
+	my %candidates;
 	my %candidates_percentages;
 	my $response = $self->agent->get('http://www.livejournal.com/poll/?id=1192389');
     if ($response->is_success and $self->agent->success) {
-    	foreach my $who_cares (keys %candidates) {
-    	    if ($self->agent->content =~ m{<p>$who_cares<br /><span style='white-space: nowrap'><img src=.*?width='7' alt='' /> <b>(\d+)</b> \(([\d\.]+)%\)</span>}) {
-    	        warn join(' ', $who_cares, $1, $2);
-    	        $candidates{$who_cares} = $1;
-    	        $candidates_percentages{$who_cares} = $2;
-    	    }
+        my @candidate_matches = ($self->agent->content =~/<p>(\w+)<br \/><span style='white-space: nowrap'><img src='http:\/\/p-stat.livejournal.com\/img\/poll\/leftbar.gif' style='vertical-align:middle' height='14' alt='' \/><img src='http:\/\/p-stat.livejournal.com\/img\/poll\/mainbar.gif' style='vertical-align:middle' height='14' width='\d+' alt='' \/><img src='http:\/\/p-stat.livejournal.com\/img\/poll\/rightbar.gif' style='vertical-align:middle' height='14' width='7' alt='' \/> <b>(\d+)<\/b> \(([\d\.]+)%\)<\/span><\/p>/gc);
+    	for (my $i = 0; $i < scalar(@candidate_matches); $i += 3) {
+    	    my ($who, $votes, $pct) = ($candidate_matches[$i], $candidate_matches[$i + 1], $candidate_matches[$i + 2]);
+    	    last if (defined $candidates{$who});
+	        $candidates{$who} = $votes;
+	        $candidates_percentages{$who} = $pct;
     	}
     	my @ordered;
-    	foreach my $who_cares (sort { $candidates{$b} cmp $candidates{$a} } keys %candidates) {
+    	foreach my $who_cares (sort { $candidates{$b} <=> $candidates{$a} } keys %candidates) {
     	    push(@ordered, $who_cares . ': ' . $candidates{$who_cares} . ' votes, ' . $candidates_percentages{$who_cares} . '%');
 	    }
-	    return join(' | ', @ordered);
+	    return join(' | ', @ordered[0..4]);
 	} else {
 	    return "Something's fucked with the poll URL.";
 	}
