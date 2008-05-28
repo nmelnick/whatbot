@@ -42,7 +42,7 @@ sub available {
     my ($self) = @_;
     return 'Help is available for: ' .
         join('', map {
-            if ($_ ne 'help') {
+            if ($_ and $_ ne 'help') {
                 if ($self->controller->CommandNames->{$_}->help() =~ /Help is not/) {
                     '';
                 } else {

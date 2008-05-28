@@ -114,7 +114,6 @@ sub storeUrl {
     unless (defined $db_url and defined $db_url->{url_id}) {
         my $title;
         my $response = $self->agent->get($url);
-        warn $self->agent->status;
         if ($response->is_success and $self->agent->success) {
             if ($self->agent->status < 400) {
                 $title = ($self->agent->title() or "No parsable title");
