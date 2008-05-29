@@ -9,8 +9,9 @@
 package whatbot::Command::URL;
 use Moose;
 extends 'whatbot::Command';
-use WWW::Mechanize;
+use Image::Size qw(imgsize);
 use URI;
+use WWW::Mechanize;
 
 has 'version' => (
     is      => 'ro',
@@ -112,11 +113,18 @@ sub storeUrl {
         }
     ) };
     unless (defined $db_url and defined $db_url->{url_id}) {
-        my $title;
+        my $title = "No parsable title";
         my $response = $self->agent->get($url);
         if ($response->is_success and $self->agent->success) {
             if ($self->agent->status < 400) {
-                $title = ($self->agent->title() or "No parsable title");
+                if ($self->agent->title()) {
+                    $title = $self->agent->title();
+                } elsif ($self->agent->ct =~ /^image/) {
+                    my ($width, $height, $type) = imgsize(\$self->agent->content);
+                    if ($type) {
+                        $title = $type . ' Image: ' . $width . 'x' . $height;
+                    }
+                }
             } else {
                 $title = "! Error " . $self->agent->status;
             }
