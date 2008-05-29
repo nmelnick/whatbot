@@ -23,9 +23,11 @@ has 'agent' => (
     is      => 'ro',
     isa     => 'Any',
     default => sub {
-        my $ua = new WWW::Mechanize;
-        $ua->timeout(5);
-        return $ua;
+        my $mech = new WWW::Mechanize;
+        $mech->timeout(5);
+        $mech->add_header( Referer => undef );
+        $mech->stack_depth(0);
+        return $mech;
     }
 );
 
