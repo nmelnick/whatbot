@@ -16,15 +16,19 @@ sub register {
 	my ($self) = @_;
 	
 	$self->commandPriority("Extension");
-	$self->listenFor(qr/(?:calc|\d+[\*\/+\-\^\%]\d+)\??/oi);
+	$self->listenFor([
+	    qr/^calc/i,
+	    qr/^[\d\+\-\*\/ ]+$/
+	]);
 	$self->requireDirect(0);
 }
 
 sub parseMessage {
 	my ($self, $messageRef) = @_;
 
-	my ($expression) = ($messageRef->content =~ /^(?:calc\s+(.*))|([\d\Q*+-^%\E]+)\??$/oi);
-
+	my $expression = $messageRef->content;
+    $expression =~ s/^calc\s*//i;
+    
 	return undef unless $expression;
 
 	return $messageRef->from . ": " . $self->_parse($expression);
@@ -40,7 +44,12 @@ sub _parse {
 
 	my @errbuf;
 
-	$env->SetOpt( PrintErrFunc => sub { my $format = shift; push @errbuf, sprintf($format, @_); } );
+	$env->SetOpt(
+	    PrintErrFunc => sub { 
+	        my $format = shift;
+	        push(@errbuf, sprintf($format, @_)); 
+	    } 
+	);
 
 	my $line_n = 0;
 	my @result;
