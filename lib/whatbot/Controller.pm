@@ -110,7 +110,6 @@ sub handle {
 		$listenFor = [ $listenFor ] unless (ref($command->listenFor) eq 'ARRAY');
 		my $index = 0;
 		foreach my $listen (@$listenFor) {
-		    next unless ($listen);
 			if (my (@matches) = $messageObj->content =~ $listen or $listen eq '') {
 				my $result;
 				eval {

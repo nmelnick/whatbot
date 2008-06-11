@@ -10,6 +10,7 @@ package whatbot::Command::Admin;
 use Moose;
 extends 'whatbot::Command';
 use Cwd qw(realpath);
+use Data::Dumper;
 
 sub register {
 	my ($self) = @_;
@@ -38,6 +39,8 @@ sub parseMessage {
 		$result = $self->svnup(@args);
 	} elsif ($command eq 'retrieve') {
 		$result = $self->retrieve(@args);
+	} elsif ($command eq 'dumpCommands') {
+		$result = $self->dumpCommands(@args);
 	}
 
 	return $result if (defined $result);
@@ -49,6 +52,25 @@ sub refreshCommands {
 	
 	$self->controller->buildCommandArray();
 	return "Rebuilt command set: " . scalar(@{$self->controller->Commands}) . " commands loaded.";
+}
+
+sub dumpCommands {
+	my ($self) = @_;
+	
+	my %commands;
+	my $listeners = 0;
+	foreach my $command (@{$self->controller->Commands}) {
+	    $commands{ref($command)} = [] unless ( defined $commands{ref($command)} );
+		my $listenFor = $command->listenFor;
+		$listenFor = [ $listenFor ] unless (ref($command->listenFor) eq 'ARRAY');
+		my $index = 0;
+		foreach my $listen (@$listenFor) {
+		    push( @{$commands{ref($command)}}, $listen );
+		}
+	}
+	warn Dumper(%commands);
+	
+	return "Recording " . $listeners .  " listening activities. Details at console.";
 }
 
 sub version {
