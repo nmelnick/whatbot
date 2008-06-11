@@ -65,6 +65,7 @@ sub dumpCommands {
 		$listenFor = [ $listenFor ] unless (ref($command->listenFor) eq 'ARRAY');
 		my $index = 0;
 		foreach my $listen (@$listenFor) {
+		    $listeners++;
 		    push( @{$commands{ref($command)}}, $listen );
 		}
 	}
