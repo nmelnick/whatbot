@@ -11,6 +11,22 @@
 package whatbot::Command;
 use Moose;
 extends 'whatbot::Component';
+no warnings 'redefine';
+
+use Attribute::Handlers;
+use Data::Dumper 'Dumper';
+
+sub MODIFY_CODE_ATTRIBUTES {
+    my ( $class, $code, @attrs ) = @_;
+    warn Data::Dumper::Dumper(@_);
+    return ();
+}
+
+sub FETCH_CODE_ATTRIBUTES {
+    my ( $class, $code, @attrs ) = @_;
+    warn Data::Dumper::Dumper(@_);
+    return ();
+}
 
 # commandPriority determines at what point in the processing order this
 # parseMessage will fire.
@@ -59,8 +75,6 @@ sub BUILD {
 # instantiate any persistent objects required by the Command.
 sub register {
 	my ($self) = @_;
-	
-	$self->log->write(ref($self) . " does not have a register method.");
 }
 
 # parseMessage is called with the message object for parsing.

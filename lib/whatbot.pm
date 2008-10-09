@@ -15,30 +15,31 @@ use whatbot::Controller;
 use whatbot::Config;
 use whatbot::Log;
 
-our $VERSION = "0.9.2";
+our $VERSION = "0.9.5";
 
-has 'baseComponent' => ( is => 'rw', isa => 'whatbot::Component' );
-has 'killSelf' => ( is => 'rw', isa => 'Int', default => 0 );
-has 'version' => ( is => 'ro', isa => 'Str', default => $VERSION );
-has 'skipExtensions' => ( is => 'rw', isa => 'Int', default => 0 );
+has 'baseComponent'     => ( is => 'rw', isa => 'whatbot::Component' );
+has 'killSelf'          => ( is => 'rw', isa => 'Int', default => 0 );
+has 'version'           => ( is => 'ro', isa => 'Str', default => $VERSION );
+has 'skipExtensions'    => ( is => 'rw', isa => 'Int', default => 0 );
 
 sub run {
-	my ($self, $configPath, $overrideIo) = @_;
+	my ( $self, $configPath, $overrideIo ) = @_;
 	
 	# Initialize configuration
 	my $config = new whatbot::Config(
 		configFile	=> $configPath
 	);
-	$self->reportError("Invalid configuration") unless (defined $config and $config->configHash);
-	if (defined $overrideIo) {
-		$config->{io} = [$overrideIo];
-	}
+	$self->reportError('Invalid configuration')
+	    unless (defined $config and $config->configHash);
+	    
+	$config->{io} = [$overrideIo] if (defined $overrideIo);
 	
 	# Start Logger
 	my $log = new whatbot::Log(
 		logDirectory	=> $config->logDirectory
 	);
-	$self->reportError("Invalid configuration") unless (defined $log and $log->logDirectory);
+	$self->reportError('Invalid configuration')
+	    unless (defined $log and $log->logDirectory);
 	
 	# Build base component
 	my $baseComponent = new whatbot::Component(
@@ -49,8 +50,10 @@ sub run {
 	$self->baseComponent($baseComponent);
 	
 	# Start Store module
-	$self->reportError("Invalid store type") if (!defined $config->store or !defined $config->store->{handler});
-	my $storage = "whatbot::Store::" . $config->store->{handler};
+	$self->reportError('Invalid store type')
+	    if (!defined $config->store or !defined $config->store->{handler});
+	    
+	my $storage = 'whatbot::Store::' . $config->store->{handler};
 	eval "require $storage";
 	if ($@) {
 		$self->reportError($@);
@@ -59,7 +62,7 @@ sub run {
 		baseComponent => $baseComponent
 	);
 	$store->connect;
-	$self->reportError("Configured store failed to load properly") unless (defined $store and defined $store->handle);
+	$self->reportError('Configured store failed to load properly') unless (defined $store and defined $store->handle);
 	$self->baseComponent->store($store);
 	
 	# Parse Commands
@@ -84,7 +87,7 @@ sub run {
 			myConfig		=> $ioModule,
 			baseComponent 	=> $baseComponent
 		);
-		$self->reportError("IO interface '" . $ioModule->{interface} . "' failed to load properly") unless (defined $ioObject);
+		$self->reportError('IO interface '" . $ioModule->{interface} . "' failed to load properly') unless (defined $ioObject);
 		push(@io, $ioObject);
 	}
 	

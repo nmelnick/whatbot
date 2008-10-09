@@ -15,14 +15,13 @@ use warnings;
 use Cwd qw(realpath);
 use Getopt::Long;
 
+our $VERSION = "0.9.5";
+
 # Get basedir
 my $basedir = realpath($0);
+$basedir =~ s/\/($appname|bin)$//g;
 my $appname = $0;
 $appname =~ s/.*?\///g;
-$basedir =~ s/\/$appname$//;
-$basedir =~ s/\/bin$//;
-
-our $VERSION = "0.9.2";
 
 # Check command line options
 my $configPath = $basedir . "/conf/whatbot.conf";
@@ -52,12 +51,14 @@ unless ($configPath and -e $configPath) {
 }
 
 # Initial requirements check
-eval { require 5.008_001; };
+eval {
+    require 5.008_001;
+};
 if ($@) {
 	print "ERROR: whatbot requires perl 5.8 or higher.";
 	exit(-1);
 }
-my @requirements = qw(DBI Module::Pluggable XML::Simple Net::IRC Moose Digest::SHA1);
+my @requirements = qw(DBI XML::Simple Moose Digest::SHA1);
 foreach my $req (@requirements) {
 	eval { 
 		eval "require $req";
@@ -77,21 +78,24 @@ if ($daemon) {
 }
 
 # Start application
-# Import whatbot
 push(@INC, "$basedir/lib") if (-e "$basedir/lib");
-require whatbot;
-my $whatbot = whatbot->new;
-$SIG{'KILL'} = sub { $whatbot->{killSelf} = 1; };
-$SIG{'QUIT'} = sub { $whatbot->{killSelf} = 1; };
-$SIG{'INT'} = sub { $whatbot->{killSelf} = 1; };
-$whatbot->run($configPath);
+eval {
+    require whatbot;
+};
+if ($@) {
+    print 'ERROR: An error occurred launching whatbot. (' . $@ . ")\n";
+    exit(-1);
+}
+my $whatbot = whatbot->new()->run($configPath);
 
 sub usage {
-	print qq!whatbot $VERSION:
+	print qq{
+whatbot $VERSION:
 
  -c --config  Path to configuration file (default: conf/whatbot.conf)
  -D --daemon  Daemonize on successful launch
- -h --help	  Print this help screen\n\n!;
+ -h --help	  Print this help screen\n
+};
 	exit(0);
 }
 

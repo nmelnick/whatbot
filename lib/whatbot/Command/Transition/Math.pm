@@ -29,7 +29,7 @@ sub parseMessage {
 	my $expression = $messageRef->content;
     $expression =~ s/^calc\s*//i;
     
-	return undef unless $expression;
+	return undef unless ( $expression and $expression =~ /\d/ );
 
 	return $messageRef->from . ": " . $self->_parse($expression);
 }

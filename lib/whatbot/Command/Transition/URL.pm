@@ -35,32 +35,15 @@ sub register {
 	my ($self) = @_;
 	
 	$self->commandPriority("Extension");
-	$self->listenFor([
-	    '(https|http|ftp|news|feed|telnet)://',
-	    '^url (search|who)'
-	]);
 	$self->requireDirect(0);
     
     $self->getDatabase();
 }
 
-sub parseMessage {
-	my ($self, $messageRef) = @_;
+sub storeUrl : GlobalRegEx('.*?((https|http|ftp|news|feed|telnet):\/\/[^\s]+).*') {
+    my ($self) = @_;
     
-    if ($messageRef->content =~ $self->listenFor->[0]) {
-        return $self->storeUrl($messageRef);
-    } elsif ($messageRef->content =~ $self->listenFor->[1]) {
-        return $self->searchUrl($1);
-    }
-	
-	return undef;
-}
-
-sub storeUrl {
-    my ($self, $messageRef) = @_;
-    
-    my $url = $messageRef->content;
-    $url =~ s/.*?((https|http|ftp|news|feed|telnet):\/\/[^\s]+).*/$1/;
+    my $url = $self->captures()->[0];
     my $uri = new URI($url);
     
     # Get/Set Protocol
@@ -137,7 +120,7 @@ sub storeUrl {
             "url",
             {
                 timestamp   => time,
-                user        => $messageRef->from,
+                user        => $self->message()->from(),
                 title       => $title,
                 domain_id   => $domain->{domain_id},
                 protocol_id => $protocol->{protocol_id},
@@ -160,7 +143,7 @@ sub storeUrl {
     }
 }
 
-sub searchUrl {
+sub searchUrl : Command {
     my ($self, $urlFragment) = @_;
     
 }
