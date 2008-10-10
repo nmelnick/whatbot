@@ -200,7 +200,7 @@ sub seen {
 	return $itemRef;
 }
 
-sub silentFactoid {
+sub silent_factoid {
 	my ($self, $subject, $store) = @_;
 	
 	return undef if (!$subject);
