@@ -26,10 +26,10 @@ has 'strip' => (
 sub BUILD {
 	my ($self) = @_;
 	
-	my $name = "AIM_" . $self->myConfig->{screenname};
+	my $name = "AIM_" . $self->my_config->{screenname};
 	$name =~ s/ /_/g;
 	$self->name($name);
-	$self->me($self->myConfig->{screenname});
+	$self->me($self->my_config->{screenname});
 }
 
 sub connect {
@@ -44,7 +44,7 @@ sub connect {
 	$oscar->set_callback_error(\&cbError);
 	
 	# Sign on
-	$oscar->signon($self->myConfig->{screenname}, $self->myConfig->{password});
+	$oscar->signon($self->my_config->{screenname}, $self->my_config->{password});
 	$oscar->{_whatbot} = $self;
 	$self->aimHandle($oscar);
 	$self->aimHandle->do_one_loop();
@@ -56,7 +56,7 @@ sub disconnect {
 	$self->aimHandle->signoff();
 }
 
-sub eventLoop {
+sub event_loop {
 	my ($self) = @_;
 	
 	$self->aimHandle->do_one_loop();
@@ -68,9 +68,9 @@ sub sendMessage {
 	
 	# We're going to try and be smart.
 	my $charactersPerLine = "1024";
-	if (defined($self->myConfig->{charactersperline}) 
-	    and ref($self->myConfig->{charactersperline}) ne 'HASH') {
-		$charactersPerLine = $self->myConfig->{charactersperline};
+	if (defined($self->my_config->{charactersperline}) 
+	    and ref($self->my_config->{charactersperline}) ne 'HASH') {
+		$charactersPerLine = $self->my_config->{charactersperline};
 	}
 	my @lines;
 	my @messageWords = split(/\s/, $messageObj->content);

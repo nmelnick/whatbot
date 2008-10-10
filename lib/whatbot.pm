@@ -10,115 +10,143 @@
 
 package whatbot;
 use Moose;
+
 use whatbot::Component;
 use whatbot::Controller;
 use whatbot::Config;
 use whatbot::Log;
 
-our $VERSION = "0.9.5";
+our $VERSION = '0.9.5';
 
-has 'baseComponent'     => ( is => 'rw', isa => 'whatbot::Component' );
-has 'killSelf'          => ( is => 'rw', isa => 'Int', default => 0 );
+has 'base_component'    => ( is => 'rw', isa => 'whatbot::Component' );
+has 'initial_config'    => ( is => 'rw', isa => 'whatbot::Config' );
+has 'kill_self'         => ( is => 'rw', isa => 'Int', default => 0 );
 has 'version'           => ( is => 'ro', isa => 'Str', default => $VERSION );
-has 'skipExtensions'    => ( is => 'rw', isa => 'Int', default => 0 );
+has 'skip_extensions'   => ( is => 'rw', isa => 'Int', default => 0 );
 
-sub run {
-	my ( $self, $configPath, $overrideIo ) = @_;
-	
+sub config {
+    my ( $self, $basedir, $config_path ) = @_;
+    
+    # Find configuration file
+    unless ($config_path and -e $config_path) {
+    	my @try_config = (
+    		$basedir . '/conf/whatbot.conf',
+    		'/etc/whatbot/whatbot.conf',
+    		'/etc/whatbot.conf',
+    		'/usr/local/etc/whatbot/whatbot.conf',
+    		'/usr/local/etc/whatbot.conf'
+    	);
+    	foreach (@try_config) {
+    		$config_path = $_ if (-e $_);
+    	}
+    	unless ($config_path and -e $config_path) {
+    		print 'ERROR: Configuration file not found.' . "\n";
+    		return;
+    	}
+    }
 	# Initialize configuration
 	my $config = new whatbot::Config(
-		configFile	=> $configPath
+		'config_file' => $config_path
 	);
-	$self->reportError('Invalid configuration')
-	    unless (defined $config and $config->configHash);
+	$self->initial_config($config);
+}
+
+sub run {
+	my ( $self, $override_io ) = @_;
+	
+	$self->report_error('Invalid configuration')
+	    unless ( defined $self->initial_config and $self->initial_config->config_hash );
 	    
-	$config->{io} = [$overrideIo] if (defined $overrideIo);
+	$self->initial_config->{'io'} = [$override_io] if (defined $override_io);
 	
 	# Start Logger
 	my $log = new whatbot::Log(
-		logDirectory	=> $config->logDirectory
+		'log_directory' => $self->initial_config->log_directory
 	);
-	$self->reportError('Invalid configuration')
-	    unless (defined $log and $log->logDirectory);
+	$self->report_error('Invalid configuration')
+	    unless ( defined $log and $log->log_directory );
 	
 	# Build base component
-	my $baseComponent = new whatbot::Component(
-		parent	=> $self,
-		config	=> $config,
-		log		=> $log
+	my $base_component = new whatbot::Component(
+		'parent'	=> $self,
+		'config'	=> $self->initial_config,
+		'log'		=> $log
 	);
-	$self->baseComponent($baseComponent);
+	$self->base_component($base_component);
 	
 	# Start Store module
-	$self->reportError('Invalid store type')
-	    if (!defined $config->store or !defined $config->store->{handler});
+	$self->report_error('Invalid store type')
+	    unless ( $self->initial_config->store and $self->initial_config->store->{'handler'} );
 	    
-	my $storage = 'whatbot::Store::' . $config->store->{handler};
+	my $storage = 'whatbot::Store::' . $self->initial_config->store->{'handler'};
 	eval "require $storage";
-	if ($@) {
-		$self->reportError($@);
-	}
+	$self->report_error($@) if ($@);
+	
 	my $store = $storage->new(
-		baseComponent => $baseComponent
+		'base_component' => $base_component
 	);
-	$store->connect;
-	$self->reportError('Configured store failed to load properly') unless (defined $store and defined $store->handle);
-	$self->baseComponent->store($store);
+	$store->connect();
+	$self->report_error('Configured store failed to load properly')
+	    unless ( defined $store and defined $store->handle );
+	$self->base_component->store($store);
 	
 	# Parse Commands
 	my $controller = new whatbot::Controller(
-		baseComponent 	=> $baseComponent,
-		skipExtensions	=> $self->skipExtensions
+		'base_component' 	=> $base_component,
+		'skip_extensions'	=> $self->skip_extensions
 	);
-	$self->baseComponent->controller($controller);
+	$self->base_component->controller($controller);
 	$store->controller($controller);
+	$controller->dump_command_map();
 	
 	# Create IO modules
 	my @io;
-	foreach my $ioModule (@{$config->io}) {
-		$log->write("ERROR: No interface designated for one or more IO modules") unless (defined $ioModule->{interface});
+	foreach my $io_module ( @{$self->initial_config->io} ) {
+		$log->write('ERROR: No interface designated for one or more IO modules')
+		    unless ( defined $io_module->{'interface'} );
 		
-		my $ioClass = "whatbot::IO::" . $ioModule->{interface};
-		eval "require $ioClass";
-		if ($@) {
-			$self->reportError($@);
-		}
-		my $ioObject = $ioClass->new(
-			myConfig		=> $ioModule,
-			baseComponent 	=> $baseComponent
+		my $io_class = 'whatbot::IO::' . $io_module->{'interface'};
+		eval "require $io_class";
+		$self->report_error($@) if ($@);
+		my $io_object = $io_class->new(
+			'my_config'		    => $io_module,
+			'base_component' 	=> $base_component
 		);
-		$self->reportError('IO interface '" . $ioModule->{interface} . "' failed to load properly') unless (defined $ioObject);
-		push(@io, $ioObject);
+		$self->report_error('IO interface "' . $io_module->{'interface'} . '" failed to load properly') 
+	        unless ( defined $io_object );
+
+		push(@io, $io_object);
 	}
 	
 	# Connect to IO
-	foreach my $ioObject (@io) {
-		$log->write("Sending connect to " . ref($ioObject));
-		$ioObject->connect;
+	foreach my $io_object (@io) {
+		$log->write('Sending connect to ' . ref($io_object));
+		$io_object->connect;
 	}
 	
 	# Start Event Loop
-	$log->write("whatbot initialized successfully.");
-	while (!$self->killSelf) {
-		foreach my $ioObject (@io) {
-			$ioObject->eventLoop();
+	$log->write('whatbot initialized successfully.');
+	while ( !$self->kill_self ) {
+		foreach my $io_object (@io) {
+			$io_object->event_loop();
 		}
 	}
 	
-	# Ding
-	$log->write("whatbot exiting.");
-	foreach my $ioObject (@io) {
-		$log->write("Sending disconnect to " . ref($ioObject));
-		$ioObject->disconnect;
+	# Upon kill or interrupt, exit gracefully.
+	$log->write('whatbot exiting.');
+	foreach my $io_object (@io) {
+		$log->write('Sending disconnect to ' . ref($io_object));
+		$io_object->disconnect;
 	}
 }
 
-sub reportError {
-	my ($self, $error) = @_;
-	if (defined $self->baseComponent and defined $self->baseComponent->log) {
-		$self->baseComponent->log->write("ERROR: " . $error);
+sub report_error {
+	my ( $self, $error ) = @_;
+	
+	if ( defined $self->base_component and defined $self->base_component->log ) {
+		$self->base_component->log->write('ERROR: ' . $error);
 	}
-	die "ERROR: " . $error;
+	die 'ERROR: ' . $error;
 }
 
 1;

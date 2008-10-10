@@ -109,7 +109,7 @@ sub item_detail {
 
    my $xml = <<"XML";
 <?xml version="1.0" encoding="utf-8"?>
-<GetSingleItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+<GetSingleItemRequest xmlns="urn:ebay:apis:eBLbase_components">
     <ItemID>$id</ItemID>
     <IncludeSelector>Details,ItemSpecifics</IncludeSelector>
 </GetSingleItemRequest>
@@ -177,7 +177,7 @@ sub find_item {
 
    my $xml = <<"XML";
 <?xml version="1.0" encoding="utf-8"?>
-<FindItemsRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+<FindItemsRequest xmlns="urn:ebay:apis:eBLbase_components">
     <QueryKeywords>$query</QueryKeywords>
     <MaxEntries>1</MaxEntries>
 </FindItemsRequest>
@@ -264,13 +264,13 @@ sub _hash_to_price {
 sub register {
 	my ($self) = @_;
 	
-	$self->commandPriority("Extension");
-	$self->listenFor(qr/^ebay (.+)/i);
-	$self->requireDirect(0);
+	$self->command_priority("Extension");
+	$self->listen_for(qr/^ebay (.+)/i);
+	$self->require_direct(0);
 	$self->ua->agent('Mozilla/5.0');
 }
 
-sub parseMessage {
+sub parse_message {
 	my ($self, $messageRef) = @_;
 
 	my ($query) = ($messageRef->content =~ /^ebay (.+)/i);

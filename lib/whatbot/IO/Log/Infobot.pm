@@ -32,7 +32,7 @@ sub parseLine {
 			content			=> $message,
 			timestamp		=> $date,
 			me				=> $self->me,
-			baseComponent	=> $self->parent->baseComponent
+			base_component	=> $self->parent->base_component
 		);
 		
 		$self->eventMessagePublic(

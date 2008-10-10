@@ -8,30 +8,32 @@
 
 package whatbot::Command::Math;
 use Moose;
-extends 'whatbot::Command';
+BEGIN { extends 'whatbot::Command' }
 
 use Math::Expression;
 
 sub register {
 	my ($self) = @_;
 	
-	$self->commandPriority("Extension");
-	$self->listenFor([
-	    qr/^calc/i,
-	    qr/^[\d\+\-\*\/ ]+$/
-	]);
-	$self->requireDirect(0);
+	$self->command_priority('Extension');
+	$self->require_direct(0);
 }
 
-sub parseMessage {
-	my ($self, $messageRef) = @_;
+sub free_form : GlobalRegEx('^[\d\+\-\*\/ ]+[\d\+\-\*\/ ]+$') {
+	my ( $self, $message ) = @_;
+	
+	return $self->parse_message($message);
+}
 
-	my $expression = $messageRef->content;
+sub parse_message : CommandRegEx('') {
+	my ( $self, $message ) = @_;
+
+	my $expression = $message->content;
     $expression =~ s/^calc\s*//i;
     
 	return undef unless ( $expression and $expression =~ /\d/ );
 
-	return $messageRef->from . ": " . $self->_parse($expression);
+	return $message->from . ": " . $self->_parse($expression);
 }
 
 sub _parse {

@@ -20,8 +20,8 @@ has 'stfu' => (
 sub register {
 	my ($self) = @_;
 	
-	$self->commandPriority("Core");
-	$self->listenFor([
+	$self->command_priority("Core");
+	$self->listen_for([
 		qr/^(wtf|what|who) (is|are) (.*)/i,
 		qr/^(.*) (is|are) (.*)/i,
 		qr/^never remember (.*)/i,
@@ -31,10 +31,10 @@ sub register {
 		qr/^(shut up|stfu) about (.*)/,
 		qr/(.*)/
 	]);
-	$self->requireDirect(0);
+	$self->require_direct(0);
 }
 
-sub parseMessage {
+sub parse_message {
 	my ($self, $messageRef, $matchIndex, @matches) = @_;
 	
 	$messageRef->{matchIndex} = $matchIndex;
@@ -47,10 +47,10 @@ sub parseMessage {
 		# Assign
 		my $isPlural = ($matches[1] =~ /are/i ? 1 : 0);
 		$matches[2] =~ s/[\. ]$//g;	# remove trailing punctuation
-		unless ($messageRef->isDirect) {
+		unless ($messageRef->is_direct) {
 			$matches[2] =~ s/\[\.,] .*$//g;		# if capturing flyby, only grab one sentence
 		}
-		if ($messageRef->isDirect and lc($matches[0]) eq 'you') {
+		if ($messageRef->is_direct and lc($matches[0]) eq 'you') {
 			$matches[0] = $messageRef->me;
 		}
 		foreach my $factoid (split(/ or /, $matches[2])) {
@@ -93,7 +93,7 @@ sub parseMessage {
 				return $description;
 			} else {
 				$subject = "you" if (lc($subject) eq lc($messageRef->from));
-				$subject = $messageRef->from . ", $subject" if ($messageRef->isDirect);
+				$subject = $messageRef->from . ", $subject" if ($messageRef->is_direct);
 				return $subject . " " . ($factoid->{is_plural} ? "are" : "is") . " " . $description;
 			}
 			return "lastRun";
@@ -185,7 +185,7 @@ sub retrieve {
 			return $facts[0];
 		} else {
 			$subject = "you" if (lc($subject) eq lc($messageRef->from));
-			$subject = $messageRef->from . ", $subject" if ($messageRef->isDirect);
+			$subject = $messageRef->from . ", $subject" if ($messageRef->is_direct);
 			my $factoidData = join(" or ", @facts);
 			if (!$everything and length($factoidData) > 400) {
 				$factoidData = "summarized as ";
@@ -212,7 +212,7 @@ sub retrieve {
 			return $subject . " " . ($factoid->{factoid}->{is_plural} ? "are" : "is") . " " . $factoidData;
 		}
 		
-	} elsif ($messageRef->{matchIndex} == 0 and $messageRef->isDirect) {
+	} elsif ($messageRef->{matchIndex} == 0 and $messageRef->is_direct) {
 		return "I have no idea what '" . $subject . "' could be, " . $messageRef->from . ".";
 		
 	}

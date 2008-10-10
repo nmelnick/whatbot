@@ -34,8 +34,8 @@ has 'agent' => (
 sub register {
 	my ($self) = @_;
 	
-	$self->commandPriority("Extension");
-	$self->requireDirect(0);
+	$self->command_priority("Extension");
+	$self->require_direct(0);
     
     $self->getDatabase();
 }

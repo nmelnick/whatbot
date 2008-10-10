@@ -10,86 +10,129 @@
 
 package whatbot::Command;
 use Moose;
-extends 'whatbot::Component';
 no warnings 'redefine';
+BEGIN { extends 'whatbot::Component' };
 
-use Attribute::Handlers;
 use Data::Dumper 'Dumper';
+
+has 'command_priority'  => ( is => 'rw', isa => 'Str', default => 'Extension' );
+has 'require_direct'    => ( is => 'rw', isa => 'Int', default => 0 );
+has 'my_config'         => ( is => 'ro', isa => 'HashRef' );
+
+our $_attribute_cache = {};
 
 sub MODIFY_CODE_ATTRIBUTES {
     my ( $class, $code, @attrs ) = @_;
-    warn Data::Dumper::Dumper(@_);
+    
+    $_attribute_cache = { %{ $_attribute_cache }, $code => [@attrs] };
     return ();
 }
 
 sub FETCH_CODE_ATTRIBUTES {
-    my ( $class, $code, @attrs ) = @_;
-    warn Data::Dumper::Dumper(@_);
-    return ();
+    $_attribute_cache->{ $_[1] } || ();
 }
-
-# commandPriority determines at what point in the processing order this
-# parseMessage will fire.
-# Valid entries are 'Primary', 'Core', 'Hook', and 'Extension'.
-has 'commandPriority' => (
-	is	=> 'rw',
-	isa	=> 'Str',
-	default => 'Extension'
-);
-# listenFor can contain a string or a compiled regex with the match
-# string/pattern of the incoming message object. If listenFor is
-# blank, all messages will be parsed by this module.
-has 'listenFor' => (
-	is	=> 'rw',
-	isa	=> 'Any'
-);
-# requireDirect forces the module to only respond if the name of the
-# bot is used in the message as a direction.
-has 'requireDirect' => (
-	is	=> 'rw',
-	isa	=> 'Int',
-	default => 0
-);
-# passThrough, if set to 1, will pass through for further Command
-# processing, even if the command outputs text to IO. Commands will
-# automatically pass through if undef or an empty string is passed.
-has 'passThrough' => (
-	is	=> 'rw',
-	isa	=> 'Int',
-	default	=> 0
-);
-# myConfig contains the configuration for this module from the
-# whatbot config file, if any.
-has 'myConfig' => (
-	is	=> 'ro',
-	isa	=> 'HashRef'
-);
 
 sub BUILD {
-	my ($self) = @_;
-	
-	$self->register();
+    my ( $self ) = @_;
+ 
+    $self->register();
 }
 
-# register is called after class instantiation to set properties and
-# instantiate any persistent objects required by the Command.
 sub register {
-	my ($self) = @_;
+    my ($self) = @_;
+    
+    $self->log->write(ref($self) . ' works without a register method, but it is recommended to make one.');
 }
 
-# parseMessage is called with the message object for parsing.
-sub parseMessage {
-	my ($self, $messageRef, $matchIndex, @matches) = @_;
-	
-	$self->log->write(ref($self) . " is useless without a parseMessage method, but received a message anyway.");
-	return undef;
-}
 
-# help is returned when a user asks for help on a command.
 sub help {
     my ($self) = @_;
     
-    return 'Help is not available.';
+    return 'Help is not available for this module.';
 }
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::Command - Base class for whatbot commands
+
+=head1 SYNOPSIS
+
+ package whatbot::Command::Example;
+ use Moose;
+ BEGIN { extends 'whatbot::Command' }
+ 
+ sub register {
+     my ($self) = @_;
+     
+     $self->require_direct(0);
+ }
+
+=head1 DESCRIPTION
+
+whatbot::Command is a base class, meant to be subclassed by any additional
+whatbot command or extension. It provides a skeleton structure to create a
+new command, parses command attributes, and gives the warnings necessary when
+a command is not implemented properly.
+
+To create a new command, subclass this module using Moose's 'extends' pragma,
+and override the given methods with your own.
+
+=head1 PUBLIC ACCESSORS
+
+=over 4
+
+=item command_priority
+
+Determines at what point in the processing order this command will fire.
+Valid entries are 'Primary', 'Core', 'Extension', and defaults to
+Extension. Primary are first runners, Core are components considered
+essential, and Extension is parsed in order after those components. 
+
+=item require_direct
+
+Forces the module to only respond if the name of the bot is used in the message.
+
+=item my_config
+
+Contains the configuration for this module from the whatbot config file, if any.
+
+=back
+
+=head1 PUBLIC METHODS
+
+=over 4
+
+=item register()
+
+Called after class instantiation to set properties and instantiate any
+persistent objects required by the Command.
+
+=item help()
+
+Returned when a user asks for help on a command.
+
+=back
+
+=head1 INHERITANCE
+
+=over 4
+
+=item whatbot::Component
+
+=over 4
+
+=item whatbot::Command
+
+=back
+
+=back
+
+=head1 LICENSE/COPYRIGHT
+
+Undetermined at this time. :)
+
+=cut

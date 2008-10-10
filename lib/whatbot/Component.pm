@@ -10,38 +10,24 @@
 package whatbot::Component;
 use Moose;
 
-has 'parent' => (
-	is	=> 'rw'
-);
-
-has 'config' => (
-	is	=> 'rw'
-);
-
-has 'store' => (
-	is	=> 'rw'
-);
-
-has 'log' => (
-	is	=> 'rw'
-);
-
-has 'controller' => (
-	is	=> 'rw'
-);
+has 'parent'     => ( is => 'rw' );
+has 'config'     => ( is => 'rw' );
+has 'store'      => ( is => 'rw' );
+has 'log'        => ( is => 'rw' );
+has 'controller' => ( is => 'rw' );
 
 sub BUILD {
 	my ($self, $params) = @_;
 	
-	if ($params->{baseComponent}) {
-		$self->parent($params->{baseComponent}->parent);
-		$self->config($params->{baseComponent}->config);
-		$self->store($params->{baseComponent}->store);
-		$self->log($params->{baseComponent}->log);
-		$self->controller($params->{baseComponent}->controller);
+	if ( $params->{'base_component'} ) {
+		$self->parent( $params->{'base_component'}->parent );
+		$self->config( $params->{'base_component'}->config );
+		$self->store( $params->{'base_component'}->store );
+		$self->log( $params->{'base_component'}->log );
+		$self->controller( $params->{'base_component'}->controller );
 		
-		unless (ref($self) =~ /Message/ or ref($self) =~ /Command::/) {
-			$self->log->write(ref($self) . " loaded.") ;
+		unless ( ref($self) =~ /Message/ or ref($self) =~ /Command::/ ) {
+			$self->log->write(ref($self) . ' loaded.') ;
 		}
 	}
 }

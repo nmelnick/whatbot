@@ -8,36 +8,40 @@
 
 package whatbot::Command::Excuse;
 use Moose;
-extends 'whatbot::Command';
+BEGIN { extends 'whatbot::Command' }
+
 use Net::Telnet;
 
 sub register {
-	my ($self) = @_;
+	my ( $self ) = @_;
 	
-	$self->commandPriority("Extension");
-	$self->listenFor(qr/^excuse/i);
-	$self->requireDirect(0);
+	$self->command_priority('Extension');
+	$self->require_direct(0);
 }
 
-sub parseMessage {
-	my ($self, $messageRef) = @_;
+sub parse_message : CommandRegEx('') {
+	my ( $self, $message ) = @_;
 	
 	my $excuseServer = Net::Telnet->new(
-		Host 	=> "bob.bob.bofh.org",
-		Port 	=> "666",
-		Errmode => "return"
+		Host 	=> 'bob.bob.bofh.org',
+		Port 	=> '666',
+		Errmode => 'return'
 	);
 	if (defined $excuseServer) {
-		$excuseServer->waitfor("/Your excuse is: /");
+		$excuseServer->waitfor('/Your excuse is: /');
 		my $excuse = $excuseServer->get;
 		foreach (split(/\n/, $excuse)) {
 			$excuse = $_ if (/Your excuse is/);
 		}
 		chomp($excuse);
-		return $messageRef->from . ": " . $excuse;
+		return $message->from . ': ' . $excuse;
 	} else {
-		return "The excuse server is down.";
+		return 'The excuse server is down.';
 	}
+}
+
+sub help {
+    return 'Excuse uses an excuse server to deliver a random response to your inquiry. Even better, the inquiry is optional.';
 }
 
 1;

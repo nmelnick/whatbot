@@ -13,7 +13,7 @@ use Moose;
 extends 'whatbot::Component';
 use whatbot::Message;
 
-has 'myConfig' => (
+has 'my_config' => (
 	is	=> 'rw',
 	isa	=> 'HashRef'
 );
@@ -29,36 +29,37 @@ has 'me' => (
 );
 
 sub BUILD {
-	my ($self) = @_;
+	my ( $self ) = @_;
 	
-	unless (defined $self->myConfig) {
+	unless (defined $self->my_config) {
 		die "No configuration found for " . ref($self);
 	}
 }
 
 sub notify {
-	my ($self, $message) = @_;
+	my ( $self, $message ) = @_;
 	
-	$self->log->write("(" . $self->name . ") " . $message) unless (defined $self->myConfig->{silent});
+	$self->log->write( '(' . $self->name . ') ' . $message )
+	    unless ( defined $self->my_config->{'silent'} );
 }
 
 sub connect {
-	my ($self) = @_;
+	my ( $self ) = @_;
 	
 }
 
 sub disconnect {
-	my ($self) = @_;
+	my ( $self ) = @_;
 	
 }
 
 sub eventUserEnter {
-	my ($self) = @_;
+	my ( $self ) = @_;
 	
 }
 
 sub eventUserLeave {
-	my ($self) = @_;
+	my ( $self ) = @_;
 	
 }
 
@@ -78,10 +79,10 @@ sub eventMessagePublic {
 				content			=> $content,
 				timestamp		=> time,
 				me				=> $self->me,
-				baseComponent	=> $self->parent->baseComponent
+				base_component	=> $self->parent->base_component
 			);
 		}
-		$self->parseResponse($self->controller->handle($message));
+		$self->parseResponse( $self->controller->handle($message) );
 	}
 }
 
@@ -95,11 +96,11 @@ sub eventMessagePrivate {
 			to				=> $self->me,
 			content			=> $content,
 			timestamp		=> time,
-			isPrivate		=> 1,
+			is_private		=> 1,
 			me				=> $self->me,
-			baseComponent	=> $self->parent->baseComponent
+			base_component	=> $self->parent->base_component
 		);
-		$self->parseResponse($self->controller->handle($message));
+		$self->parseResponse( $self->controller->handle($message) );
 	}
 	
 }
@@ -116,10 +117,12 @@ sub sendMessage {
 }
 
 sub parseResponse {
-	my ($self, $messageObj) = @_;
+	my ($self, $messages) = @_;
 	
-	return undef unless (defined $messageObj);
-	$self->sendMessage($messageObj);
+	return undef unless ( defined $messages );
+	foreach my $message ( @{$messages} ) {
+	    $self->sendMessage($message);
+	}
 }
 
 1;

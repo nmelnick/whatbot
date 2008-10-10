@@ -14,12 +14,12 @@ use POSIX qw(strftime);
 sub register {
 	my ($self) = @_;
 	
-	$self->commandPriority("Core");
-	$self->listenFor("");
-	$self->requireDirect(0);
+	$self->command_priority("Core");
+	$self->listen_for("");
+	$self->require_direct(0);
 }
 
-sub parseMessage {
+sub parse_message {
 	my ($self, $messageRef) = @_;
 	
 	if ($messageRef->content =~ /^seen (.*)/i) {

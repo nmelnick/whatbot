@@ -15,15 +15,15 @@ use Data::Dumper;
 sub register {
 	my ($self) = @_;
 	
-	$self->commandPriority("Primary");
-	$self->listenFor(qr/^!/);
-	$self->requireDirect(0);
+	$self->command_priority("Primary");
+	$self->listen_for(qr/^!/);
+	$self->require_direct(0);
 }
 
-sub parseMessage {
+sub parse_message {
 	my ($self, $messageRef) = @_;
 
-	return undef unless (defined $self->myConfig and $messageRef->from eq $self->myConfig->{user});
+	return undef unless (defined $self->my_config and $messageRef->from eq $self->my_config->{user});
 	
 	my ($command, @args) = split(/ /, $messageRef->content);
 	$command =~ s/^!+//;
@@ -50,7 +50,7 @@ sub parseMessage {
 sub refreshCommands {
 	my ($self) = @_;
 	
-	$self->controller->buildCommandArray();
+	$self->controller->build_command_map();
 	return "Rebuilt command set: " . scalar(@{$self->controller->Commands}) . " commands loaded.";
 }
 
@@ -61,10 +61,10 @@ sub dumpCommands {
 	my $listeners = 0;
 	foreach my $command (@{$self->controller->Commands}) {
 	    $commands{ref($command)} = [] unless ( defined $commands{ref($command)} );
-		my $listenFor = $command->listenFor;
-		$listenFor = [ $listenFor ] unless (ref($command->listenFor) eq 'ARRAY');
+		my $listen_for = $command->listen_for;
+		$listen_for = [ $listen_for ] unless (ref($command->listen_for) eq 'ARRAY');
 		my $index = 0;
-		foreach my $listen (@$listenFor) {
+		foreach my $listen (@$listen_for) {
 		    $listeners++;
 		    push( @{$commands{ref($command)}}, $listen );
 		}

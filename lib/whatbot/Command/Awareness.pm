@@ -8,34 +8,36 @@
 
 package whatbot::Command::Awareness;
 use Moose;
-extends 'whatbot::Command';
+BEGIN { extends 'whatbot::Command' }
 
 sub register {
 	my ($self) = @_;
 	
-	$self->commandPriority("Primary");
-	$self->listenFor("");
-	$self->requireDirect(0);
+	$self->command_priority('Primary');
+	$self->require_direct(0);
 }
 
-sub parseMessage {
-	my ($self, $messageRef) = @_;
-	
+sub message : Monitor {
+    my ( $self, $message_ref ) = @_;
+    
 	# Self-awareness
-	my $me = $messageRef->me;
-	return "what" if ($messageRef->content =~ /^$me[\?\!\.]?$/i);
+	my $me = $message_ref->me;
+	return 'what' if ( $message_ref->content =~ /^$me[\?\!\.]?$/i );
 	
 	# Greeting
 	my @greetings = (
-		"hey",
-		"sup",
+		'hey',
+		'sup',
 		"what's up",
-		"yo",
-		"word",
-		"hi"
+		'yo',
+		'word',
+		'hi'
 	);
-	if ($messageRef->isDirect and $messageRef->content =~ /^(hey|hi|hello|word|sup|morning|good morning)[\?\!\. ]*?$/) {
-		return $greetings[rand @greetings] . ", " . $messageRef->from . ".";
+	if (
+	    $message_ref->is_direct
+	    and $message_ref->content =~ /^(hey|hi|hello|word|sup|morning|good morning)[\?\!\. ]*?$/
+	) {
+		return $greetings[rand @greetings] . ', ' . $message_ref->from . '.';
 	}
 
 	return undef;

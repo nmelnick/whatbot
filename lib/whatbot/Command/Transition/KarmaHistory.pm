@@ -13,15 +13,15 @@ extends 'whatbot::Command';
 sub register {
 	my ($self) = @_;
 	
-	$self->commandPriority("Extension");
-	$self->listenFor(qr/^[\. ]*?who (hates|likes|loves|doesn't like|plussed|minused) (.*)/i);
-	$self->requireDirect(0);
+	$self->command_priority("Extension");
+	$self->listen_for(qr/^[\. ]*?who (hates|likes|loves|doesn't like|plussed|minused) (.*)/i);
+	$self->require_direct(0);
 }
 
-sub parseMessage {
+sub parse_message {
 	my ($self, $messageRef) = @_;
 	
-	if ($messageRef->content =~ $self->listenFor) {
+	if ($messageRef->content =~ $self->listen_for) {
 		my $what = lc($1);
 		my $subject = lc($2);
 		$subject =~ s/[\.\?\! ]+$//;	# Remove punctuation

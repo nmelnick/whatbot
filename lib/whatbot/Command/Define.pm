@@ -8,7 +8,7 @@
 
 package whatbot::Command::Define;
 use Moose;
-extends 'whatbot::Command';
+BEGIN { extends 'whatbot::Command' }
 
 # modules! CPAN! I don't even have to code anymore.
 use LWP::UserAgent ();
@@ -35,21 +35,33 @@ has 'stripper' => (
 has 'error' => (
 	is		=> 'rw',
 	isa		=> 'Str',
-	default		=> undef,
-	reader		=> 'get_error',
+	default	=> undef,
+	reader	=> 'get_error',
 );
 
 sub register {
 	my ($self) = @_;
 	
-	$self->commandPriority("Extension");
-	$self->listenFor(qr/^define (.*)/i);
-	$self->requireDirect(0);
+	$self->command_priority('Extension');
+	$self->require_direct(0);
 	$self->ua->agent('Mozilla/5.0');
 }
 
+sub parse_message : CommandRegEx('(.*)') {
+	my ( $self, $message, $captures ) = @_;
+
+	my ($phrase) = ( @$captures );
+	return "what" unless $phrase;
+
+	my $def = $self->_parse($phrase);
+
+	return $def if $def;
+
+	return $message->from . ": No definition for $phrase.";
+}
+
 sub google {
-	my ($self, $phrase) = @_;
+	my ( $self, $phrase ) = @_;
 
 	my $content = $self->get("http://www.google.com/search?q=define:!dongs!", $phrase);
 	return undef unless $content;
@@ -61,7 +73,7 @@ sub google {
 }
 
 sub wikipedia {
-	my ($self, $phrase) = @_;
+	my ( $self, $phrase ) = @_;
 
 	my $content = $self->get("http://en.wikipedia.org/wiki/Special:Search?search=!dongs!", $phrase);
 	return undef unless $content;
@@ -119,7 +131,7 @@ RETRY:
 }
 
 sub get {
-	my ($self, $url, $phrase) = @_;
+	my ( $self, $url, $phrase ) = @_;
 
 	$phrase = uri_escape($phrase);
 	$phrase =~ s/\%20/+/g;
@@ -139,38 +151,26 @@ sub get {
 
 # copy value, clear error, return.
 sub get_error {
-	my ($self) = shift;
+	my ( $self ) = shift;
 
-	my $tmp = $self->{error};
-	$self->{error} = undef;
+	my $tmp = $self->{'error'};
+	$self->{'error'} = undef;
 	return $tmp;
 }
 
-sub parseMessage {
-	my ($self, $messageRef) = @_;
-
-	my ($phrase) = ($messageRef->content =~ /^define (.*)/i);
-	return "what" unless $phrase;
-
-	my $def = $self->_parse($phrase);
-
-	return $def if $def;
-
-	return $messageRef->from . ": No definition for $phrase.";
-}
-
 sub _parse {
-	my ($self, $phrase) = @_;
+	my ( $self, $phrase ) = @_;
 
 	my ($def, $error);
-        foreach my $func (qw(wikipedia google)) {
-		{ 
-			no strict 'refs';
-                	$def = $self->$func($phrase);
-		}
-                return $def if $def;
-                $error = $self->error; return $error if $error;
+    foreach my $func ( qw( wikipedia google ) ) {
+        { 
+        	no strict 'refs';
+            $def = $self->$func($phrase);
         }
+        return $def if $def;
+        $error = $self->error;
+        return $error if $error;
+    }
 	
 	return undef;
 }

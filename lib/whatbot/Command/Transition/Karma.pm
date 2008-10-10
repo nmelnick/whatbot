@@ -16,17 +16,17 @@ my $LIKE_NUM = 10;
 sub register {
 	my ($self) = @_;
 	
-	$self->commandPriority("Core");
-	$self->listenFor([
+	$self->command_priority("Core");
+	$self->listen_for([
 		qr/\+\+/,
 		qr/\-\-/,
 		qr/karma/i,
                 qr/what does (\w+) (like|hate)\??$/io,
 	]);
-	$self->requireDirect(0);
+	$self->require_direct(0);
 }
 
-sub parseMessage {
+sub parse_message {
 	my ($self, $messageRef) = @_;
 
         if ($messageRef->content =~ /what does (\w+) (like|hate)/) {

@@ -11,28 +11,28 @@
 
 package whatbot::Command::Nickometer;
 use Moose;
-extends 'whatbot::Command';
+BEGIN { extends 'whatbot::Command' }
+
 use Math::Trig;
 
 sub register {
-	my ($self) = @_;
+	my ( $self ) = @_;
 	
-	$self->commandPriority("Extension");
-	$self->listenFor(qr/^nickometer/i);
-	$self->requireDirect(0);
+	$self->command_priority("Extension");
+	$self->require_direct(0);
 }
 
-sub parseMessage {
-	my ($self, $messageRef) = @_;
+sub parse_message : CommandRegEx('(.+)') {
+	my ( $self, $message, $captures ) = @_;
 	
-	my ($nickometer) = $messageRef->content =~ m/^nickometer (.*)/i;
+	my ($nickometer) = $captures->[0];
 	if ($nickometer) {
-		return $messageRef->from . ": '" . $nickometer . "' is " . $self->doNickometer($nickometer) . "% lame.";
+		return $message->from . ": '" . $nickometer . "' is " . $self->do_nickometer($nickometer) . "% lame.";
 	}
 	return undef;
 }
 
-sub doNickometer {
+sub do_nickometer {
 	my $self = shift;
 	$_ = shift;
 
@@ -165,10 +165,8 @@ sub doNickometer {
 }
 
 sub case_shifts {
-	my $self = shift;
+	my ( $self, $shifts ) = @_;
 	# This is a neat trick suggested by freeside.	Thanks freeside!
-
-	my $shifts = shift;
 
 	$shifts =~ tr/A-Za-z//cd;
 	$shifts =~ tr/A-Z/U/s;
@@ -178,8 +176,7 @@ sub case_shifts {
 }
 
 sub number_shifts {
-	my $self = shift;
-	my $shifts = shift;
+	my ( $self, $shifts ) = @_;
 
 	$shifts =~ tr/A-Za-z0-9//cd;
 	$shifts =~ tr/A-Za-z/l/s;
@@ -189,33 +186,28 @@ sub number_shifts {
 }
 
 sub slow_pow {
-	my $self = shift;
-	my ($x, $y) = @_;
+	my ( $self, $x, $y ) = @_;
 
 	return $x ** $self->slow_exponent($y);
 }
 
 sub slow_exponent {
-	my $self = shift;
-	my $x = shift;
+	my ( $self, $x ) = @_;
 
 	return 1.3 * $x * (1 - atan($x/6) *2/pi);
 }
 
 sub round_up {
-	my $self = shift;
-	my $float = shift;
+	my ( $self, $float ) = @_;
 
 	return int($float) + ((int($float) == $float) ? 0 : 1);
 }
 
 sub punish {
-	my $self = shift;
-	my ($damage, $reason) = @_;
+	my ( $self, $damage, $reason ) = @_;
 
 	return unless $damage;
-
-	$self->{score} += $damage;
+	$self->{'score'} += $damage;
 }
 
 1;

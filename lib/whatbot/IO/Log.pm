@@ -34,22 +34,22 @@ sub BUILD {
 	
 	my $name = "Log";
 	$self->name($name);
-	$self->me($self->myConfig->{me});
+	$self->me($self->my_config->{me});
 }
 
 sub connect {
 	my ($self) = @_;
 	
 	# Open log file, store scalar filehandle
-	$self->log->write("Opening " . $self->myConfig->{filepath});
+	$self->log->write("Opening " . $self->my_config->{filepath});
 	my $fh;
-	open ($fh, $self->myConfig->{filepath});
+	open ($fh, $self->my_config->{filepath});
 	$self->fileHandle($fh);
 	
 	# Get File Count
 	my $lines = 0;
 	my $buffer;
-    open(FILE, $self->myConfig->{filepath}) or die "Can't open: $!";
+    open(FILE, $self->my_config->{filepath}) or die "Can't open: $!";
     while (sysread FILE, $buffer, 4096) {
         $lines += ($buffer =~ tr/\n//);
     }
@@ -60,11 +60,11 @@ sub connect {
 sub disconnect {
 	my ($self) = @_;
 	
-	$self->log->write("Closing " . $self->myConfig->{filepath});
+	$self->log->write("Closing " . $self->my_config->{filepath});
 	close($self->fileHandle);
 }
 
-sub eventLoop {
+sub event_loop {
 	my ($self) = @_;
 	
 	my $fh = $self->fileHandle;

@@ -29,10 +29,10 @@ has 'forceDisconnect' => (
 sub BUILD {
 	my ($self) = @_;
 	
-	my $name = "IRC_" . $self->myConfig->{host} . "_" . $self->myConfig->{channel}->{name};
+	my $name = "IRC_" . $self->my_config->{host} . "_" . $self->my_config->{channel}->{name};
 	$name =~ s/ /_/g;
 	$self->name($name);
-	$self->me($self->myConfig->{nick});
+	$self->me($self->my_config->{nick});
 }
 
 sub connect {
@@ -42,17 +42,17 @@ sub connect {
 	$self->handle($handle);
 	$self->log->write(
 		"Connecting to " . 
-		$self->myConfig->{host} . ":" . $self->myConfig->{port} . 
+		$self->my_config->{host} . ":" . $self->my_config->{port} . 
 		".");
 	
 	# Net::IRC Connection Parameters
 	$self->{ircHandle} = $self->handle->newconn(
-		Server		=> $self->myConfig->{host},
-		Port		=> $self->myConfig->{port},
-		Username	=> $self->myConfig->{username},
-		Ircname		=> $self->myConfig->{realname},
-		Password	=> $self->myConfig->{hostpassword},
-		Nick		=> $self->myConfig->{nick},
+		Server		=> $self->my_config->{host},
+		Port		=> $self->my_config->{port},
+		Username	=> $self->my_config->{username},
+		Ircname		=> $self->my_config->{realname},
+		Password	=> $self->my_config->{hostpassword},
+		Nick		=> $self->my_config->{nick},
 	);
 	
 	# Everything's event based, so we set up all the callbacks
@@ -86,10 +86,10 @@ sub disconnect {
 	my ($self) = @_;
 	
 	$self->forceDisconnect(1);
-	$self->ircHandle->quit($self->myConfig->{quitmessage});
+	$self->ircHandle->quit($self->my_config->{quitmessage});
 }
 
-sub eventLoop {
+sub event_loop {
 	my ($self) = @_;
 	
 	$self->handle->do_one_loop();
@@ -101,9 +101,9 @@ sub sendMessage {
 	
 	# We're going to try and be smart.
 	my $charactersPerLine = "450";
-	if (defined($self->myConfig->{charactersperline}) 
-	    and ref($self->myConfig->{charactersperline}) ne 'HASH') {
-		$charactersPerLine = $self->myConfig->{charactersperline};
+	if (defined($self->my_config->{charactersperline}) 
+	    and ref($self->my_config->{charactersperline}) ne 'HASH') {
+		$charactersPerLine = $self->my_config->{charactersperline};
 	}
 	my @lines;
 	my @messageWords = split(/\s/, $messageObj->content);
@@ -135,11 +135,11 @@ sub sendMessage {
 	
 	# Send messages
 	if ($messageObj->content =~ /^\/me (.*)/) {
-		$self->ircHandle->me($self->myConfig->{channel}->{name}, $1);
+		$self->ircHandle->me($self->my_config->{channel}->{name}, $1);
 		$self->eventAction($self->me, $messageObj->content);
 	} else {
 		foreach my $outLine (@lines) {
-			$self->ircHandle->privmsg($self->myConfig->{channel}->{name}, $outLine);
+			$self->ircHandle->privmsg($self->my_config->{channel}->{name}, $outLine);
 			$self->eventMessagePublic($self->me, $outLine);
 			sleep(int(rand(2)));
 		}
@@ -163,8 +163,8 @@ sub cbConnect {
 	$self->{_whatbot}->me($self->nick);
 	
 	# Join default channel
-	$self->join($self->{_whatbot}->myConfig->{channel}->{name},
-				$self->{_whatbot}->myConfig->{channel}->{channelpassword});
+	$self->join($self->{_whatbot}->my_config->{channel}->{name},
+				$self->{_whatbot}->my_config->{channel}->{channelpassword});
 }
 
 # Event: Disconnected from server
@@ -201,17 +201,17 @@ sub cbNames {
 	
 	# When we get names, we've joined a room. If we have a join message, 
 	# display it.
-	if (defined $self->{_whatbot}->myConfig->{channel}->{joinmessage}
-		and ref($self->{_whatbot}->myConfig->{channel}->{joinmessage}) ne 'HASH') {
-		$self->privmsg($channel, $self->{_whatbot}->myConfig->{channel}->{joinmessage});
+	if (defined $self->{_whatbot}->my_config->{channel}->{joinmessage}
+		and ref($self->{_whatbot}->my_config->{channel}->{joinmessage}) ne 'HASH') {
+		$self->privmsg($channel, $self->{_whatbot}->my_config->{channel}->{joinmessage});
 	}
 }
 
 # Event: Attempted nick is taken
 sub cbNickTaken {
 	my ($self, $event) = @_;
-	$self->{_whatbot}->myConfig->{username} .= "_";
-	$self->nick($self->{_whatbot}->myConfig->{username});
+	$self->{_whatbot}->my_config->{username} .= "_";
+	$self->nick($self->{_whatbot}->my_config->{username});
 	$self->{_whatbot}->me($self->nick);
 }
 

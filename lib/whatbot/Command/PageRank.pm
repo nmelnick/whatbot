@@ -8,28 +8,32 @@
 
 package whatbot::Command::PageRank;
 use Moose;
-extends 'whatbot::Command';
+BEGIN { extends 'whatbot::Command' }
+
 use WWW::Google::PageRank;
 
 sub register {
-	my ($self) = @_;
+	my ( $self ) = @_;
 	
-	$self->commandPriority("Extension");
-	$self->listenFor(qr/^pagerank( for)? (.*)[\?\s]?/i);
-	$self->requireDirect(0);
+	$self->command_priority('Extension');
+	$self->require_direct(0);
 }
 
-sub parseMessage {
-	my ($self, $messageRef) = @_;
+sub parse_message : CommandRegEx('(for)? (.*)[\?\s]?') {
+	my ( $self, $message, $captures ) = @_;
 	
-	if ($messageRef->content =~ $self->listenFor) {
+	if ($captures) {
 		my $pr = new WWW::Google::PageRank;
-		my $site = $2;
+		my $site = $captures->[1];
 		unless ($site =~ /^https?:\/\//) {
 			$site = "http://" . $site;
 		}
-		return "The PageRank for '$site' is " . ($pr->get($site) or "not found") . ".";
+		return 'The PageRank for "' . $site . '" is ' . ( $pr->get($site) or 'not found' ) . '.';
 	}
+}
+
+sub help {
+    return 'PageRank provides the Google PageRank for a given site. Use by entering "pagerank www.example.com".';
 }
 
 1;

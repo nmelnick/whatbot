@@ -2,9 +2,7 @@
 ###########################################################################
 # whatbot
 ###########################################################################
-#
 # executable bootstrap for whatbot.pm
-#
 ###########################################################################
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
@@ -12,81 +10,51 @@
 $|++;
 use strict;
 use warnings;
-use Cwd qw(realpath);
+
+use Cwd qw(realpath getcwd);
 use Getopt::Long;
 
-our $VERSION = "0.9.5";
+use lib realpath(getcwd()) . '/../lib';
+use whatbot;
 
-# Get basedir
-my $basedir = realpath($0);
-$basedir =~ s/\/($appname|bin)$//g;
-my $appname = $0;
-$appname =~ s/.*?\///g;
+our $VERSION = '0.9.5';
+my $basedir = realpath( getcwd() . '/..' );
 
 # Check command line options
-my $configPath = $basedir . "/conf/whatbot.conf";
+my $config_path = $basedir . "/conf/whatbot.conf";
 my $daemon = 0;
 my $help;
+
 GetOptions(
-	'config=s'	=> \$configPath,
+	'config=s'	=> \$config_path,
 	'daemon' 	=> \$daemon,
 	'help' 		=> \$help
 );
 usage() if ($help);
-unless ($configPath and -e $configPath) {
-	my @tryConfig = (
-		$basedir . "/conf/whatbot.conf",
-		"/etc/whatbot/whatbot.conf",
-		"/etc/whatbot.conf",
-		"/usr/local/etc/whatbot/whatbot.conf",
-		"/usr/local/etc/whatbot.conf"
-	);
-	foreach (@tryConfig) {
-		$configPath = $_ if (-e $_);
-	}
-	unless ($configPath and -e $configPath) {
-		print "ERROR: Configuration file not found.\n";
-		usage();
-	}
-}
 
 # Initial requirements check
 eval {
     require 5.008_001;
 };
 if ($@) {
-	print "ERROR: whatbot requires perl 5.8 or higher.";
+	print 'ERROR: whatbot requires perl 5.8 or higher.' . "\n";
 	exit(-1);
-}
-my @requirements = qw(DBI XML::Simple Moose Digest::SHA1);
-foreach my $req (@requirements) {
-	eval { 
-		eval "require $req";
-		if ($@) {
-			print "ERROR: The perl module $req is required for whatbot to continue.\n";
-			exit(-1);
-		}
-	};	
-}
-
-# Daemonize
-if ($daemon) {
-	fork and exit;
-} else {
-	print "whatbot " . $VERSION . "\n";
-	print "Running in interactive mode.\n";
 }
 
 # Start application
-push(@INC, "$basedir/lib") if (-e "$basedir/lib");
-eval {
-    require whatbot;
-};
-if ($@) {
-    print 'ERROR: An error occurred launching whatbot. (' . $@ . ")\n";
+my $whatbot = whatbot->new();
+if ( $whatbot->config( $basedir, $config_path ) ) {
+    if ($daemon) {
+    	fork and exit;
+    } else {
+    	print 'whatbot ' . $VERSION . "\n";
+    	print 'Running in interactive mode.' . "\n";
+    }
+    $whatbot->run();
+} else {
+    usage();
     exit(-1);
 }
-my $whatbot = whatbot->new()->run($configPath);
 
 sub usage {
 	print qq{
@@ -100,4 +68,3 @@ whatbot $VERSION:
 }
 
 1;
-

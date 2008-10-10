@@ -8,21 +8,20 @@
 
 package whatbot::Command::Nslookup;
 use Moose;
-extends 'whatbot::Command';
+BEGIN { extends 'whatbot::Command' }
 
 sub register {
-	my ($self) = @_;
+	my ( $self ) = @_;
 	
-	$self->commandPriority("Extension");
-	$self->listenFor(qr/^nslookup (.*?)$/i);
-	$self->requireDirect(0);
+	$self->command_priority("Extension");
+	$self->require_direct(0);
 }
 
-sub parseMessage {
-	my ($self, $messageRef) = @_;
+sub parse_message : CommandRegEx('(.+)') {
+	my ( $self, $message, $captures ) = @_;
 	
-	if ($messageRef->content =~ $self->listenFor) {
-		my $host = $1;
+	if ( $captures->[0] ) {
+		my $host = $captures->[0];
 		my $nslookup = `host $host`;
 		if ($nslookup =~ /has address ([\d\.]+)/) {
 			return $host . " is at " . $1;

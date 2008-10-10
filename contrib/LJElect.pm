@@ -24,12 +24,12 @@ has 'agent' => (
 sub register {
 	my ($self) = @_;
 	
-	$self->commandPriority("Extension");
-	$self->listenFor(qr/^lj election/);
-	$self->requireDirect(0);
+	$self->command_priority("Extension");
+	$self->listen_for(qr/^lj election/);
+	$self->require_direct(0);
 }
 
-sub parseMessage {
+sub parse_message {
 	my ($self, $messageRef) = @_;
 	
 	my %candidates;

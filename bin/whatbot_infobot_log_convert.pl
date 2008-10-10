@@ -84,7 +84,7 @@ print "Running in interactive mode.\n";
 # Import whatbot
 push(@INC, "$basedir/lib") if (-e "$basedir/lib");
 require whatbot;
-my $whatbot = whatbot->new( skipExtensions => 1 );
+my $whatbot = whatbot->new( skip_extensions => 1 );
 $whatbot->run($configPath, {
 	interface	=> 'Log::Infobot',
 	filepath	=> $logFile,
