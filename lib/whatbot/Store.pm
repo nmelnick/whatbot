@@ -11,10 +11,7 @@ use Moose;
 extends 'whatbot::Component';
 use Digest::SHA1 qw(sha1_hex);
 
-has 'handle' => (
-	is	=> 'rw',
-	isa	=> 'Any'
-);
+has 'handle' => ( is => 'rw', isa => 'Any' );
 
 sub connect {
 	my ($self) = @_;

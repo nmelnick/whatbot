@@ -8,39 +8,42 @@
 
 package whatbot::Command::Seen;
 use Moose;
-extends 'whatbot::Command';
+BEGIN { extends 'whatbot::Command'; }
+
 use POSIX qw(strftime);
 
 sub register {
 	my ($self) = @_;
 	
-	$self->command_priority("Core");
-	$self->listen_for("");
+	$self->command_priority('Core');
 	$self->require_direct(0);
 }
 
-sub parse_message {
-	my ($self, $messageRef) = @_;
+sub store_user : Monitor {
+	my ( $self, $message ) = @_;
 	
-	if ($messageRef->content =~ /^seen (.*)/i) {
-		my $user = $1;
+	$self->store->seen( lc($message->from), $message->content );
+	return;
+}
+
+sub seen : CommandRegEx('(.+)') {
+    my ( $self, $message, $captures ) = @_;
+	
+	if ($captures) {
+		my $user = $captures->[0];
 		$user =~ s/[\?\!\.]+$//;
-		my $ret = $self->store->seen(lc($user));
-		if (defined $ret and $ret->{user}) {
+		my $ret = $self->store->seen( lc($user) );
+		if ( defined $ret and $ret->{'user'} ) {
 			return join(" ",
 				$user,
-				"was last seen",
-				strftime("on %Y-%m-%d at %H:%M:%S", localtime($ret->{timestamp})),
-				"saying, \"" . $ret->{message} . "\"."
+				'was last seen on ',
+				strftime('%Y-%m-%d at %H:%M:%S', localtime( $ret->{'timestamp'} )),
+				'saying, "' . $ret->{'message'} . '".'
 			);
 		} else {
-			return "I haven't seen $user yet.";
+			return 'I have not seen ' . $user . ' yet.';
 		}
-	} else {
-		$self->store->seen(lc($messageRef->from), $messageRef->content);
 	}
-	
-	return undef;
 }
 
 1;

@@ -66,42 +66,38 @@ sub eventUserLeave {
 sub eventMessagePublic {
 	my ($self, $from, $content) = @_;
 	
-	if ($from ne $self->me) {
-		my $message;
-		if (ref($content) eq 'whatbot::Message') {
-			$message = $content;
-			$self->notify("[PUB] <$from> " . $content->content);
-		} else {
-			$self->notify("[PUB] <$from> $content");
-			$message = new whatbot::Message(
-				from			=> $from,
-				to				=> "public",
-				content			=> $content,
-				timestamp		=> time,
-				me				=> $self->me,
-				base_component	=> $self->parent->base_component
-			);
-		}
-		$self->parseResponse( $self->controller->handle($message) );
+	my $message;
+	if (ref($content) eq 'whatbot::Message') {
+		$message = $content;
+		$self->notify("[PUB] <$from> " . $content->content);
+	} else {
+		$self->notify("[PUB] <$from> $content");
+		$message = new whatbot::Message(
+			from			=> $from,
+			to				=> "public",
+			content			=> $content,
+			timestamp		=> time,
+			me				=> $self->me,
+			base_component	=> $self->parent->base_component
+		);
 	}
+	$self->parseResponse( $self->controller->handle($message) );
 }
 
 sub eventMessagePrivate {
 	my ($self, $from, $content) = @_;
 	
 	$self->notify("[PRI] <$from> $content");
-	if ($from ne $self->me) {
-		my $message = new whatbot::Message(
-			from			=> $from,
-			to				=> $self->me,
-			content			=> $content,
-			timestamp		=> time,
-			is_private		=> 1,
-			me				=> $self->me,
-			base_component	=> $self->parent->base_component
-		);
-		$self->parseResponse( $self->controller->handle($message) );
-	}
+	my $message = new whatbot::Message(
+		from			=> $from,
+		to				=> $self->me,
+		content			=> $content,
+		timestamp		=> time,
+		is_private		=> 1,
+		me				=> $self->me,
+		base_component	=> $self->parent->base_component
+	);
+	$self->parseResponse( $self->controller->handle($message) );
 	
 }
 

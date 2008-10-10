@@ -68,7 +68,7 @@ sub build_command_map {
 				        foreach my $attribute ( @{$attributes} ) {
 				            my ( $command, $arguments ) = split( /\s*\(/, $attribute, 2 );
 				            if ( $command eq 'Command' ) {
-				                my $register = '^' . $command_root . ' *' . $function;
+				                my $register = '^' . $command_root . ' *' . $function . ' *([^\b]+)*';
 				                if ( $command_name{$register} ) {
 				                    $self->error_override( $class_name, $register )
 			                    } else {
@@ -246,3 +246,48 @@ sub error_regex {
 }
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::Controller - Command processor and dispatcher
+
+=head1 SYNOPSIS
+
+ use whatbot::Controller;
+ 
+ my $controller = new whatbot::Controller;
+ $controller->build_command_map();
+ 
+ ...
+ 
+ my $messages = $controller->handle( $incoming_message );
+
+=head1 DESCRIPTION
+
+whatbot::Controller is the master command dispatcher for whatbot. When whatbot
+is started, Controller builds the run paths based on the attributes in the
+whatbot::Command namespace. When a message event is fired during runtime,
+Controller parses the message and directs the event to each appropriate
+command.
+
+=head1 INHERITANCE
+
+=over 4
+
+=item whatbot::Component
+
+=over 4
+
+=item whatbot::Controller
+
+=back
+
+=back
+
+=head1 LICENSE/COPYRIGHT
+
+Undetermined at this time. :)
+
+=cut
