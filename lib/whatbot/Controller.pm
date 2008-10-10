@@ -43,12 +43,13 @@ sub build_command_map {
 		my $class_name = 'whatbot::Command::' . $name;
 		eval "require $class_name";
 		if ($@) {
-			$self->log->write('ERROR: ' . $class_name . ' failed to load: ' . $@);
+			$self->log->error( $class_name . ' failed to load: ' . $@ );
 		} else {
 			unless ( $class_name->can('register') ) {
-				$self->log->write('ERROR: ' . $class_name . ' failed to load due to missing methods');
+				$self->log->error( $class_name . ' failed to load due to missing methods' );
 			} else {
 			    my @run_paths;
+			    my %end_paths;
 			    my $command_root = $class_name;
 			    $command_root =~ s/$command_namespace\:\://;
 			    $command_root = lc($command_root);
@@ -67,6 +68,7 @@ sub build_command_map {
 				    if ( my $attributes = $new_command->FETCH_CODE_ATTRIBUTES($coderef) ) {
 				        foreach my $attribute ( @{$attributes} ) {
 				            my ( $command, $arguments ) = split( /\s*\(/, $attribute, 2 );
+				            
 				            if ( $command eq 'Command' ) {
 				                my $register = '^' . $command_root . ' *' . $function . ' *([^\b]+)*';
 				                if ( $command_name{$register} ) {
@@ -130,10 +132,20 @@ sub build_command_map {
 				                    }
 				                );
 				                
+				            } elsif ( $command eq 'StopAfter' ) {
+				                $end_paths{$function} = 1;
+				                
 				            } else {
-				                $self->log->write('ERROR: ' . $class_name . ': Invalid attribute "' . $command . '" on method "' . $function . '", ignoring.');
+				                $self->log->error( $class_name . ': Invalid attribute "' . $command . '" on method "' . $function . '", ignoring.' );
 				            }
 				        }
+				    }
+				}
+				
+				# Insert end paths
+				for ( my $i = 0; $i < scalar(@run_paths); $i++ ) {
+				    if ( $end_paths{ $run_paths[$i]->{'function'} } ) {
+				        $run_paths[$i]->{'stop'} = 1;
 				    }
 				}
 				
@@ -180,7 +192,7 @@ sub handle {
     					$result = $command->$function( $message, \@matches );
     				};
     				if ($@) {
-    					$self->log->write( 'ERROR: Failure in ' . $command_name . ': ' . $@ );
+    					$self->log->error( 'Failure in ' . $command_name . ': ' . $@ );
     					my $return_message = new whatbot::Message(
     						'from'			 => '',
     						'to'			 => ($message->is_private == 0 ? 'public' : $message->from),
@@ -195,16 +207,23 @@ sub handle {
 					
     					$self->log->write('%%% Message handled by ' . $command_name)
     					    unless ( defined $self->config->io->[0]->{'silent'} );
-    					push( @messages, $result ) if ( ref($result) eq 'whatbot::Message' );
-    					my $message = new whatbot::Message(
-    						from			=> '',
-    						to				=> ($message->to eq 'public' ? 'public' : $message->from),
-    						content			=> $result,
-    						timestamp		=> time,
-    						base_component	=> $self->parent->base_component
-    					);
-    					push( @messages, $message );
+    					$result = [ $result ] if ( ref($result) ne 'ARRAY' );
+    					
+    					foreach my $result_single ( @$result ) {
+        					push( @messages, $result_single ) if ( ref($result_single) eq 'whatbot::Message' );
+        					my $message = new whatbot::Message(
+        						'from'			    => '',
+        						'to'				=> ( $message->to eq 'public' ? 'public' : $message->from ),
+        						'content'			=> $result_single,
+        						'timestamp'		    => time,
+        						'base_component'	=> $self->parent->base_component
+        					);
+        					push( @messages, $message );
+					    }
     				}
+    				
+    				# End processing for this command if StopAfter was called.
+    				last if $run_path->{'stop'};
 				
     			}
     		}
@@ -224,25 +243,25 @@ sub dump_command_map {
 	    
     	foreach my $command_name ( keys %{ $self->command->{$priority} } ) {
     		foreach my $run_path ( @{ $self->command->{$priority}->{$command_name} } ) {
-    	        $self->log->write( '  /' . $run_path->{'match'} . '/ -> ' . $command_name . '::' . $run_path->{'function'} );
+    	        $self->log->write( ' /' . $run_path->{'match'} . '/ => ' . $command_name . '->' . $run_path->{'function'} );
     	        $commands++;
 	        }
 	    }
 	    
-	    $self->log->write('  none') unless ($commands);
+	    $self->log->write(' none') unless ($commands);
     }
 }
 
 sub error_override {
     my ( $self, $class, $name ) = @_;
     
-    $self->log->write( 'ERROR: ' . $class . ': More than one command being registered for "' . $name . '".' )
+    $self->log->error( $class . ': More than one command being registered for "' . $name . '".' )
 }
 
 sub error_regex {
     my ( $self, $class, $function, $regex ) = @_;
     
-    $self->log->write( 'ERROR: ' . $class . ': Invalid arguments (' . $regex . ') in method "' . $function . '".' )
+    $self->log->error( $class . ': Invalid arguments (' . $regex . ') in method "' . $function . '".' )
 }
 
 1;

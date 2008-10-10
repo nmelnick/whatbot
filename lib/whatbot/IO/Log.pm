@@ -86,7 +86,7 @@ sub event_loop {
 }
 
 # Send a message
-sub sendMessage {
+sub send_message {
 	my ($self, $messageObj) = @_;
 	
 }

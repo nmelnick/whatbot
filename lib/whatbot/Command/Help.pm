@@ -39,15 +39,15 @@ sub parse_message : CommandRegEx('(.*)') {
 sub available {
     my ( $self ) = @_;
     
-    return 'Help is available for: ' .
-        join('', map {
-            if ($_ and $_ ne 'help') {
-                if ($self->controller->command_short_name->{$_}->help() =~ /Help is not/) {
-                    '';
-                } else {
-                    $_ . ' ';
-                }
+    my @modules;
+    map {
+        if ( $_ and $_ ne 'help' ) {
+            unless ($self->controller->command_short_name->{$_}->help() =~ /Help is not/) {
+                push( @modules, $_ ) unless ( $_ =~ /^\s*$/ );
             }
-        } keys %{$self->controller->command_short_name} );
+        }
+    } keys %{$self->controller->command_short_name};
+    return 'Help is available for: ' . join( ', ', @modules );
 }
+
 1;

@@ -29,12 +29,19 @@ sub BUILD {
 	$self->write('whatbot::Log loaded successfully.');
 }
 
+
+sub error {
+    my ( $self, $entry ) = @_;
+    
+    $self->write( '*ERROR: ' . $entry );
+}
+
 sub write {
-	my ($self, $entry) = @_;
+	my ( $self, $entry ) = @_;
 	
 	my $output = '[' . strftime( '%Y-%m-%d %H:%M:%S', localtime(time) ) . '] ' . $entry . "\n";
 	print $output;
-    open(LOG, '>>' . $self->log_directory . '/whatbot.log')
+    open( LOG, '>>' . $self->log_directory . '/whatbot.log' )
         or die 'Cannot open logfile for writing: ' . $!;
     print LOG $output;
     close(LOG);

@@ -102,7 +102,7 @@ sub run {
 	# Create IO modules
 	my @io;
 	foreach my $io_module ( @{$self->initial_config->io} ) {
-		$log->write('ERROR: No interface designated for one or more IO modules')
+		$log->error('No interface designated for one or more IO modules')
 		    unless ( defined $io_module->{'interface'} );
 		
 		my $io_class = 'whatbot::IO::' . $io_module->{'interface'};
@@ -144,7 +144,7 @@ sub report_error {
 	my ( $self, $error ) = @_;
 	
 	if ( defined $self->base_component and defined $self->base_component->log ) {
-		$self->base_component->log->write('ERROR: ' . $error);
+		$self->base_component->log->error($error);
 	}
 	die 'ERROR: ' . $error;
 }

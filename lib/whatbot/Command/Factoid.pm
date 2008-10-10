@@ -11,11 +11,7 @@ package whatbot::Command::Factoid;
 use Moose;
 BEGIN { extends 'whatbot::Command'; }
 
-has 'stfu' => (
-	is		=> 'rw',
-	isa		=> 'HashRef',
-	default	=> sub { { subject => '', time => '' }; }
-);
+has 'stfu' => ( is => 'rw', isa => 'HashRef', default => sub { { 'subject' => '', 'time' => '' }; } );
 
 sub register {
 	my ($self) = @_;
@@ -24,13 +20,13 @@ sub register {
 	$self->require_direct(0);
 }
 
-sub what_is : GlobalRegEx('^(wtf|what|who) (is|are) (.*)') {
+sub what_is : GlobalRegEx('^(wtf|what|who) (is|are) (.*)') : StopAfter {
     my ( $self, $message, $captures ) = @_;
     
 	return $self->retrieve( $captures->[2], $message, 1 );
 }
 
-sub assign : GlobalRegEx('^(^wtf|^what|^who) (is|are) (.*)') {
+sub assign : GlobalRegEx('^(.*) (is|are) (.*)') {
     my ( $self, $message, $captures ) = @_;
     
 	my $is_plural = ( $captures->[1] =~ /are/i ? 1 : 0 );
@@ -47,7 +43,7 @@ sub assign : GlobalRegEx('^(^wtf|^what|^who) (is|are) (.*)') {
 	return;
 }
 
-sub never_remember : GlobalRegEx('^never remember (.*)') {
+sub never_remember : GlobalRegEx('^never remember (.*)') : StopAfter {
     my ( $self, $message, $captures ) = @_;
     
 	# Delete forever
@@ -56,7 +52,7 @@ sub never_remember : GlobalRegEx('^never remember (.*)') {
 	return 'I will permanently forget "' . $captures->[0] . '", ' . $message->from . '.';
 }
 
-sub forget : GlobalRegEx('^forget (.*)') {
+sub forget : GlobalRegEx('^forget (.*)') : StopAfter {
     my ( $self, $message, $captures ) = @_;
     
 	# Delete
@@ -67,7 +63,7 @@ sub forget : GlobalRegEx('^forget (.*)') {
 	return;
 }
 
-sub random_fact : GlobalRegEx('^(random fact|jerk it)') {
+sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
     my ( $self, $message, $captures ) = @_;
 
 	# Random fact
@@ -118,7 +114,7 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') {
 
 }
 
-sub who_said : GlobalRegEx('^who said that') {
+sub who_said : GlobalRegEx('^who said that') : StopAfter {
     my ( $self, $message, $captures ) = @_;
     
 	if ( defined $self->{'last_random_fact_who_said'} ) {
@@ -132,7 +128,7 @@ sub who_said : GlobalRegEx('^who said that') {
 	return;
 }
 
-sub stfu : GlobalRegEx('^(shut up|stfu) about (.*)') {
+sub stfu : GlobalRegEx('^(shut up|stfu) about (.*)') : StopAfter {
     my ( $self, $message, $captures ) = @_;
     
 	# STFU about
@@ -168,7 +164,7 @@ sub stfu : GlobalRegEx('^(shut up|stfu) about (.*)') {
 sub parse_message : GlobalRegEx('(.+)') {
 	my ( $self, $message, $captures ) = @_;
 	
-	return $self->retrieve($captures->[0], $message);
+	return $self->retrieve( $captures->[0], $message );
 }
 
 sub retrieve {

@@ -81,23 +81,27 @@ sub eventMessagePublic {
 			base_component	=> $self->parent->base_component
 		);
 	}
-	$self->parseResponse( $self->controller->handle($message) );
+	unless ( $from eq $self->me ) {
+	    $self->parseResponse( $self->controller->handle($message) );
+    }
 }
 
 sub eventMessagePrivate {
 	my ($self, $from, $content) = @_;
 	
 	$self->notify("[PRI] <$from> $content");
-	my $message = new whatbot::Message(
-		from			=> $from,
-		to				=> $self->me,
-		content			=> $content,
-		timestamp		=> time,
-		is_private		=> 1,
-		me				=> $self->me,
-		base_component	=> $self->parent->base_component
-	);
-	$self->parseResponse( $self->controller->handle($message) );
+	unless ( $from eq $self->me ) {
+    	my $message = new whatbot::Message(
+    		from			=> $from,
+    		to				=> $self->me,
+    		content			=> $content,
+    		timestamp		=> time,
+    		is_private		=> 1,
+    		me				=> $self->me,
+    		base_component	=> $self->parent->base_component
+    	);
+    	$self->parseResponse( $self->controller->handle($message) );
+    }
 	
 }
 
@@ -107,7 +111,7 @@ sub eventAction {
 	$self->notify("[ACT] $from $content");
 }
 
-sub sendMessage {
+sub send_message {
 	my ($self, $messageObj) = @_;
 	
 }
@@ -117,7 +121,7 @@ sub parseResponse {
 	
 	return undef unless ( defined $messages );
 	foreach my $message ( @{$messages} ) {
-	    $self->sendMessage($message);
+	    $self->send_message($message);
 	}
 }
 

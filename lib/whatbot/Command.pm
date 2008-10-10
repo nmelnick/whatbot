@@ -79,7 +79,8 @@ new command, parses command attributes, and gives the warnings necessary when
 a command is not implemented properly.
 
 To create a new command, subclass this module using Moose's 'extends' pragma,
-and override the given methods with your own.
+and override the given methods with your own. Set attributes to your methods
+to hook into events.
 
 =head1 PUBLIC ACCESSORS
 
