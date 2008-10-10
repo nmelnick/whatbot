@@ -96,8 +96,9 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
 		my ($count) = @{$self->store->retrieve('factoid', ['COUNT(*) as Count'])};
 		$count = $count->{'Count'};
 		my $factoid_id = int(rand($count));
+		$factoid_id = 1 unless ($factoid_id);
 		($factoid) = @{$self->store->retrieve('factoid', [qw/subject/], { 'factoid_id' => $factoid_id })};
-		
+
 		# Who said
 		my $users = $self->store->retrieve('factoid_description', [qw/user/], { 'factoid_id' => $factoid_id });
 		my $response;
@@ -106,10 +107,8 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
 			$response .= $user->{'user'};
 		}
 		$self->{'last_random_fact_who_said'} = $response;
+		return $self->retrieve( $factoid->{'subject'}, $message );
 		
-	}
-	if (defined $factoid) {
-		return $self->retrieve($factoid->{'subject'}, $message);
 	}
 
 }
@@ -161,10 +160,10 @@ sub stfu : GlobalRegEx('^(shut up|stfu) about (.*)') : StopAfter {
 	return;
 }
 
-sub parse_message : GlobalRegEx('(.+)') {
+sub z : GlobalRegEx('(.+)') {
 	my ( $self, $message, $captures ) = @_;
 	
-	return $self->retrieve( $captures->[0], $message );
+	return $self->retrieve( $captures->[0], $message ) if ( length( $captures->[0] ) > 5 );
 }
 
 sub retrieve {
@@ -179,7 +178,10 @@ sub retrieve {
 	my $factoid = $self->store->factoid($subject);
 	if (
 	    defined $factoid
-	    and ( ($factoid->{'factoid'}->{'silent'} and $factoid->{'factoid'}->{'silent'} != 1) or $direct )
+	    and (
+	        !( $factoid->{'factoid'}->{'silent'} and $factoid->{'factoid'}->{'silent'} == 1 )
+	        or $direct
+	    )
 	) {
 		my @facts;
 		if ( defined $factoid->{'factoid'}->{'is_or'} and $factoid->{'factoid'}->{'is_or'} == 1 ) {
