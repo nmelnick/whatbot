@@ -150,7 +150,7 @@ sub build_command_map {
 				}
 				
 				$new_command->command_priority('Extension') unless ( $new_command->command_priority );
-				unless ( lc($new_command->command_priority) eq 'extension' and $self->skip_extensions ) {
+				unless ( lc($new_command->command_priority) =~ /(extension|last)/ and $self->skip_extensions ) {
 					# Send configuration if one exists
 					if (defined $self->config->commands->{lc($name)}) {
 						$new_command->{'my_config'} = $self->config->commands->{lc($name)};
@@ -177,7 +177,7 @@ sub handle {
 	my ( $self, $message, $me ) = @_;
 	
 	my @messages;
-	foreach my $priority ( qw( primary core extension ) ) {
+	foreach my $priority ( qw( primary core extension last ) ) {
     	foreach my $command_name ( keys %{ $self->command->{$priority} } ) {
     	    my $command = $self->command_name->{$command_name};
     	    next if ( $command->require_direct and !$message->is_direct );

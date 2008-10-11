@@ -160,12 +160,6 @@ sub stfu : GlobalRegEx('^(shut up|stfu) about (.*)') : StopAfter {
 	return;
 }
 
-sub z : GlobalRegEx('(.+)') {
-	my ( $self, $message, $captures ) = @_;
-	
-	return $self->retrieve( $captures->[0], $message ) if ( length( $captures->[0] ) > 5 );
-}
-
 sub retrieve {
 	my ( $self, $subject, $message, $direct ) = @_;
 
@@ -195,7 +189,10 @@ sub retrieve {
 			$facts[0] =~ s/^<reply> +//;
 			return $facts[0];
 		} else {
-			$subject = 'you' if ( lc($subject) eq lc($message->from) );
+			if ( lc($subject) eq lc($message->from) ) {
+			    $subject = 'you';
+			    $factoid->{'factoid'}->{'is_plural'} = 1;
+			}
 			$subject = $message->from . ', ' . $subject if ( $message->is_direct );
 			my $factoidData = join( ' or ', @facts );
 			if ( !$everything and length($factoidData) > 400 ) {
