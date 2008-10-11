@@ -178,6 +178,8 @@ sub handle {
 	
 	my @messages;
 	foreach my $priority ( qw( primary core extension last ) ) {
+	    last if ( scalar(@messages) and $priority =~ /(extension|last)/ );
+	    
     	foreach my $command_name ( keys %{ $self->command->{$priority} } ) {
     	    my $command = $self->command_name->{$command_name};
     	    next if ( $command->require_direct and !$message->is_direct );
