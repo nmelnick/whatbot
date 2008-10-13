@@ -65,12 +65,13 @@ sub build_command_map {
 				    my $full_function = $class_name . '::' . $function;
 				    my $coderef = \&$full_function;
 				    
+				    # Get subroutine attributes
 				    if ( my $attributes = $new_command->FETCH_CODE_ATTRIBUTES($coderef) ) {
 				        foreach my $attribute ( @{$attributes} ) {
 				            my ( $command, $arguments ) = split( /\s*\(/, $attribute, 2 );
 				            
 				            if ( $command eq 'Command' ) {
-				                my $register = '^' . $command_root . ' *' . $function . ' *([^\b]+)*';
+				                my $register = '^' . $command_root . ' +' . $function . ' *([^\b]+)*';
 				                if ( $command_name{$register} ) {
 				                    $self->error_override( $class_name, $register )
 			                    } else {
@@ -90,7 +91,7 @@ sub build_command_map {
 				                    $self->error_regex( $class_name, $function, $arguments );
 				                } else {
     				                $arguments =~ s/^'(.*?)'$/$1/;
-    				                my $register = '^' . $command_root . ' *' . $arguments;
+    				                my $register = '^' . $command_root . ' +' . $arguments;
     				                if ( $command_name{$register} ) {
     				                    $self->error_override( $class_name, $register )
     			                    } else {
