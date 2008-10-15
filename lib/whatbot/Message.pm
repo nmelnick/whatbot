@@ -44,6 +44,86 @@ sub BUILD {
 			
 		}
 	}
+	
+	$self->timestamp(time) unless ( $self->timestamp );
 }
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::Message - Wrapper class for whatbot message passing
+
+=head1 SYNOPSIS
+
+ use whatbot::Message;
+ 
+ my $message = new whatbot::Message (
+    'from'    => $me,
+    'to'      => 'a_user',
+    'content' => 'test message'
+ );
+
+=head1 DESCRIPTION
+
+whatbot::Message is a container class for incoming and outgoing messages. Each
+whatbot component, when sending or receiving a message via a whatbot::IO class
+will pass these objects, and messages sent through a whatbot::Command is
+encouraged to use these objects. Messages sent without this class will be
+converted during the IO transaction.
+
+=head1 PUBLIC ACCESSORS
+
+=over 4
+
+=item from
+
+User or entity the message is from
+
+=item to
+
+User or entity the message is to
+
+=item content
+
+Content of the message
+
+=item timestamp
+
+Timestamp of the message, in unix time.
+
+=item is_private
+
+Boolean (1/0), if the message was private or posted in a public channel.
+
+=item is_direct
+
+Boolean (1/0), if the message called the bot out by name
+
+=item me
+
+String value of the bot's username.
+
+=back
+
+=head1 INHERITANCE
+
+=over 4
+
+=item whatbot::Component
+
+=over 4
+
+=item whatbot::Message
+
+=back
+
+=back
+
+=head1 LICENSE/COPYRIGHT
+
+Undetermined at this time. :)
+
+=cut

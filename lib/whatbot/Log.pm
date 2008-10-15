@@ -16,19 +16,16 @@ has 'log_directory' => ( is	=> 'rw', isa => 'Str', required => 1 );
 sub BUILD {
 	my ( $self, $log_dir ) = @_;
 	
-	unless (-e $self->log_directory) {
+	unless ( -e $self->log_directory ) {
 	    if ( $self->log_directory and length( $self->log_directory ) > 3 ) {
 	        my $result = mkdir( $self->log_directory );
-	        if ($result) {
-	            $self->write('Created directory "' . $self->log_directory . '".');
-	        }
+	        $self->write('Created directory "' . $self->log_directory . '".') if ($result);
 	    }
 	    die 'ERROR: Cannot find log directory "' . $self->log_directory . '", could not create.';
 	}
 	
 	$self->write('whatbot::Log loaded successfully.');
 }
-
 
 sub error {
     my ( $self, $entry ) = @_;

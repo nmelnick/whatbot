@@ -34,7 +34,13 @@ sub BUILD {
 		$self->config_hash($config);
 		
 		# Verify we have IO modules, and convert a single module to an array if necessary
-		if (!$config->{'io'} or (ref($config->{'io'}) eq 'HASH' and scalar(keys %{$config->{'io'}}) == 0)) {
+		if (
+		    !$config->{'io'}
+		    or (
+		        ref($config->{'io'}) eq 'HASH'
+		        and scalar(keys %{$config->{'io'}}) == 0
+		    )
+		) {
 			die 'ERROR: No IO modules defined';
 		}
 		$config->{'io'} = [ $config->{'io'} ] if (ref($config->{'io'}) eq 'HASH');
