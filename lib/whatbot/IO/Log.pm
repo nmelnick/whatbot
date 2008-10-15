@@ -1,9 +1,7 @@
 ###########################################################################
 # whatbot/IO/Log.pm
 ###########################################################################
-#
 # whatbot logfile connector
-#
 ###########################################################################
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
@@ -11,89 +9,80 @@
 package whatbot::IO::Log;
 use Moose;
 extends 'whatbot::IO';
+
 use whatbot::Progress;
 
-has 'fileHandle' => (
-	is	=> 'rw'
-);
-
-has 'lineCount' => (
-	is	=> 'rw'
-);
-
-has 'currentLine' => (
-	is	=> 'rw'
-);
-
-has 'Progress' => (
-	is	=> 'rw'
-);
+has 'file_handle'   => ( is => 'rw' );
+has 'line_count'    => ( is => 'rw' );
+has 'current_line'  => ( is => 'rw' );
+has 'progress'      => ( is => 'rw' );
 
 sub BUILD {
-	my ($self) = @_;
+	my ( $self ) = @_;
 	
-	my $name = "Log";
+	my $name = 'Log';
 	$self->name($name);
-	$self->me($self->my_config->{me});
+	$self->me( $self->my_config->{'me'} );
 }
 
 sub connect {
-	my ($self) = @_;
+	my ( $self ) = @_;
 	
-	# Open log file, store scalar filehandle
-	$self->log->write("Opening " . $self->my_config->{filepath});
+	# Open log file, store scalar file_handle
+	$self->log->write( 'Opening ' . $self->my_config->{'filepath'} );
 	my $fh;
-	open ($fh, $self->my_config->{filepath});
-	$self->fileHandle($fh);
+	open ( $fh, $self->my_config->{'filepath'} );
+	$self->file_handle($fh);
 	
 	# Get File Count
 	my $lines = 0;
 	my $buffer;
-    open(FILE, $self->my_config->{filepath}) or die "Can't open: $!";
-    while (sysread FILE, $buffer, 4096) {
-        $lines += ($buffer =~ tr/\n//);
+    open( FILE, $self->my_config->{'filepath'} ) or die "Can't open: $!";
+    while ( sysread FILE, $buffer, 4096 ) {
+        $lines += ( $buffer =~ tr/\n// );
     }
     close (FILE);
-	$self->lineCount($lines);
+	$self->line_count($lines);
 }
 
 sub disconnect {
-	my ($self) = @_;
+	my ( $self ) = @_;
 	
-	$self->log->write("Closing " . $self->my_config->{filepath});
-	close($self->fileHandle);
+	$self->log->write( 'Closing ' . $self->my_config->{'filepath'} );
+	close( $self->file_handle );
 }
 
 sub event_loop {
-	my ($self) = @_;
+	my ( $self ) = @_;
 	
-	my $fh = $self->fileHandle;
-	$self->Progress(
+	my $fh = $self->file_handle;
+	$self->progress(
 		new whatbot::Progress( 
-			restrictUpdates => 1000,
-			max 			=> $self->lineCount,
-			showCount 		=> 1 )
-	) unless (defined $self->Progress);
+			'restrict_updates'  => 1000,
+			'max'               => $self->line_count,
+			'show_count'        => 1
+		)
+	) unless ( defined $self->progress );
 	
-	if (my $line = <$fh>) {
-		$self->{currentLine}++;
+	if ( my $line = <$fh> ) {
+		$self->{'current_line'}++;
 		$self->parseLine($line);
-		$self->Progress->update($self->currentLine);
+		$self->progress->update( $self->current_line );
 	} else {
-		$self->Progress->finish;
-		$self->parent->killSelf(1);
+		$self->progress->finish;
+		$self->parent->kill_self(1);
 	}
 }
 
 # Send a message
 sub send_message {
-	my ($self, $messageObj) = @_;
+	my ( $self, $message ) = @_;
 	
 }
 
 
-sub parseLine {
-	my ($self, $line);
+sub parse_line {
+	my ( $self, $line ) = @_;
 }
 
 1;

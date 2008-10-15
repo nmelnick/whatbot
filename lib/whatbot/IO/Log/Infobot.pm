@@ -35,7 +35,7 @@ sub parseLine {
 			base_component	=> $self->parent->base_component
 		);
 		
-		$self->eventMessagePublic(
+		$self->event_message_public(
 			$user,
 			$messageObj
 		);

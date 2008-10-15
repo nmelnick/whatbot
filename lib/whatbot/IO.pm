@@ -1,9 +1,7 @@
 ###########################################################################
 # whatbot/IO.pm
 ###########################################################################
-#
 # Base class for whatbot IO classes
-#
 ###########################################################################
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
@@ -11,28 +9,18 @@
 package whatbot::IO;
 use Moose;
 extends 'whatbot::Component';
+
 use whatbot::Message;
 
-has 'my_config' => (
-	is	=> 'rw',
-	isa	=> 'HashRef'
-);
-
-has 'name' => (
-	is	=> 'rw',
-	isa	=> 'Str'
-);
-
-has 'me' => (
-	is	=> 'rw',
-	isa	=> 'Str'
-);
+has 'my_config' => ( is => 'rw', isa => 'HashRef' );
+has 'name'      => ( is => 'rw', isa => 'Str' );
+has 'me'        => ( is => 'rw', isa => 'Str' );
 
 sub BUILD {
 	my ( $self ) = @_;
 	
-	unless (defined $self->my_config) {
-		die "No configuration found for " . ref($self);
+	unless ( defined $self->my_config ) {
+		die 'No configuration found for ' . ref($self);
 	}
 }
 
@@ -53,71 +41,72 @@ sub disconnect {
 	
 }
 
-sub eventUserEnter {
+sub event_user_enter {
 	my ( $self ) = @_;
 	
 }
 
-sub eventUserLeave {
+sub event_user_leave {
 	my ( $self ) = @_;
 	
 }
 
-sub eventMessagePublic {
-	my ($self, $from, $content) = @_;
+sub event_message_public {
+	my ( $self, $from, $content ) = @_;
 	
 	my $message;
-	if (ref($content) eq 'whatbot::Message') {
+	if ( ref($content) eq 'whatbot::Message' ) {
 		$message = $content;
-		$self->notify("[PUB] <$from> " . $content->content);
+		$self->notify('[PUB] <$from> ' . $content->content);
+		
 	} else {
-		$self->notify("[PUB] <$from> $content");
+		$self->notify('[PUB] <$from> $content');
 		$message = new whatbot::Message(
-			from			=> $from,
-			to				=> "public",
-			content			=> $content,
-			timestamp		=> time,
-			me				=> $self->me,
-			base_component	=> $self->parent->base_component
+			'from'			    => $from,
+			'to'				=> 'public',
+			'content'			=> $content,
+			'timestamp'		    => time,
+			'me'				=> $self->me,
+			'base_component'	=> $self->parent->base_component
 		);
 	}
 	unless ( $from eq $self->me ) {
-	    $self->parseResponse( $self->controller->handle($message) );
+	    $self->parse_response( $self->controller->handle($message) );
     }
 }
 
-sub eventMessagePrivate {
-	my ($self, $from, $content) = @_;
+sub event_message_private {
+	my ( $self, $from, $content ) = @_;
 	
-	$self->notify("[PRI] <$from> $content");
+	$self->notify('[PRI] <$from> $content');
 	unless ( $from eq $self->me ) {
     	my $message = new whatbot::Message(
-    		from			=> $from,
-    		to				=> $self->me,
-    		content			=> $content,
-    		timestamp		=> time,
-    		is_private		=> 1,
-    		me				=> $self->me,
-    		base_component	=> $self->parent->base_component
+    		'from'			    => $from,
+    		'to'				=> $self->me,
+    		'content'			=> $content,
+    		'timestamp'		    => time,
+    		'is_private'		=> 1,
+    		'me'				=> $self->me,
+    		'base_component'	=> $self->parent->base_component
     	);
-    	$self->parseResponse( $self->controller->handle($message) );
+    	$self->parse_response( $self->controller->handle($message) );
     }
 	
 }
 
-sub eventAction {
-	my ($self, $from, $content) = @_;
+sub event_action {
+	my ( $self, $from, $content ) = @_;
 	
-	$self->notify("[ACT] $from $content");
+	$self->notify('[ACT] $from $content');
 }
 
 sub send_message {
-	my ($self, $messageObj) = @_;
+	my ( $self, $message ) = @_;
 	
 }
 
-sub parseResponse {
-	my ($self, $messages) = @_;
+sub parse_response {
+	my ( $self, $messages ) = @_;
 	
 	return undef unless ( defined $messages );
 	foreach my $message ( @{$messages} ) {
