@@ -92,31 +92,31 @@ sub send_message {
 	my ($self, $message) = @_;
 	
 	# We're going to try and be smart.
-	my $charactersPerLine = 450;
+	my $characters_per_line = 450;
 	if (
 	    defined( $self->my_config->{'charactersperline'} ) 
 	    and ref( $self->my_config->{'charactersperline'} ) ne 'HASH'
 	) {
-		$charactersPerLine = $self->my_config->{'charactersperline'};
+		$characters_per_line = $self->my_config->{'charactersperline'};
 	}
 	my @lines;
-	my @messageWords = split(/\s/, $message->content);
+	my @message_words = split(/\s/, $message->content);
 	
 	# If any of the words are over our maxlength, then let Net::IRC split it.
 	# Otherwise, it's probably actual conversation, so we should split words.
 	my $line = '';
-	foreach my $word (@messageWords) {
-		if ( length($word) > $charactersPerLine ) {
+	foreach my $word (@message_words) {
+		if ( length($word) > $characters_per_line ) {
 			my $msg = $message->content;
 			$line = '';
 			@lines = ();
 			while ( length($msg) > 0 ) {
-				push( @lines, substr($msg, 0, $charactersPerLine) );
-				$msg = substr( $msg, $charactersPerLine );
+				push( @lines, substr($msg, 0, $characters_per_line) );
+				$msg = substr( $msg, $characters_per_line );
 			}
-			@messageWords = undef;
+			@message_words = undef;
 		} else {
-			if ( length($line) + length($word) + 1 > $charactersPerLine ) {
+			if ( length($line) + length($word) + 1 > $characters_per_line ) {
 				push(@lines, $line);
 				$line = '';
 			}
@@ -230,6 +230,7 @@ sub cb_part {
 sub cb_ping {
     my ( $self, $event ) = @_;
     
+    my $nick = $event->nick;
     $self->ctcp_reply( $nick, join ( ' ', ($event->args) ) );
     $self->{'_whatbot'}->notify('*** CTCP PING request from $nick received');
 }

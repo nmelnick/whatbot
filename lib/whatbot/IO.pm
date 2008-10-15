@@ -57,10 +57,10 @@ sub event_message_public {
 	my $message;
 	if ( ref($content) eq 'whatbot::Message' ) {
 		$message = $content;
-		$self->notify('[PUB] <$from> ' . $content->content);
+		$self->notify('[PUB] <' . $from . '> ' . $content->content);
 		
 	} else {
-		$self->notify('[PUB] <$from> $content');
+		$self->notify( '[PUB] <' . $from . '> ' . $content );
 		$message = new whatbot::Message(
 			'from'			    => $from,
 			'to'				=> 'public',
@@ -78,7 +78,7 @@ sub event_message_public {
 sub event_message_private {
 	my ( $self, $from, $content ) = @_;
 	
-	$self->notify('[PRI] <$from> $content');
+	$self->notify( '[PRI] <' . $from . '> ' . $content );
 	unless ( $from eq $self->me ) {
     	my $message = new whatbot::Message(
     		'from'			    => $from,
@@ -97,7 +97,7 @@ sub event_message_private {
 sub event_action {
 	my ( $self, $from, $content ) = @_;
 	
-	$self->notify('[ACT] $from $content');
+	$self->notify( '[ACT] ' . $from . ' ' . $content );
 }
 
 sub send_message {
