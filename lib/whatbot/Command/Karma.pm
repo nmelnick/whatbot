@@ -57,7 +57,7 @@ sub what_does : GlobalRegEx('(what|who) does (\w+) (like|hate)') {
     }
     undef %karma;
 
-    return $who . ' ' . ${'verb'} . 's: ' . join ( ', ', @results );
+    return "$who ${verb}s: " . join ( ', ', @results );
 }
 
 sub info : Command {
