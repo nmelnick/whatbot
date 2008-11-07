@@ -127,7 +127,7 @@ sub who_said : GlobalRegEx('^who said that') : StopAfter {
 	return;
 }
 
-sub stfu : GlobalRegEx('^(shut up|stfu) about (.*)') : StopAfter {
+sub shut_up : GlobalRegEx('^(shut up|stfu) about (.*)') : StopAfter {
     my ( $self, $message, $captures ) = @_;
     
 	# STFU about
