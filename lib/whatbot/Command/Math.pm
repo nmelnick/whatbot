@@ -12,6 +12,9 @@ BEGIN { extends 'whatbot::Command' }
 
 use Math::Expression;
 
+my $OP = qr/[\+\-\*\/]/;
+my $NUM = qr/\d[\d\.]*+/;
+
 sub register {
 	my ($self) = @_;
 	
@@ -19,19 +22,19 @@ sub register {
 	$self->require_direct(0);
 }
 
-sub free_form : GlobalRegEx('^[\d\+\-\*\/ ]+[\d\+\-\*\/ ]+$') {
+sub free_form : GlobalRegEx('^\(*\-?\d[\d\.]*+[\+\-\*\/][\d\(\)\+\-\*\/\.]*\d\)*$') {
 	my ( $self, $message ) = @_;
 	
 	return $self->parse_message($message);
 }
 
-sub parse_message : CommandRegEx('') {
+sub parse_message : Monitor {
 	my ( $self, $message ) = @_;
 
 	my $expression = $message->content;
-    $expression =~ s/^calc\s*//i;
+        $expression =~ s/^calc\s*//i;
     
-	return undef unless ( $expression and $expression =~ /\d/ );
+	return undef unless $expression;
 
 	return $message->from . ": " . $self->_parse($expression);
 }
