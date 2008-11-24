@@ -100,11 +100,12 @@ sub parse_message : GlobalRegEx('[\+\-]{2}') {
 	return undef;
 }
 
-sub karma : CommandRegEx('(^info)') {
+sub karma : CommandRegEx('(.*)') {
     my ( $self, $message, $captures ) = @_;
     
     if ($captures) {
 		my $phrase = $captures->[0];
+		return if ( $phrase =~ /^info/ );   # Hack to pass through if requesting info
 		my $karma = $self->store->karma($phrase);
 		if (defined $karma and $karma != 0) {
 			return "$phrase has a karma of $karma";
