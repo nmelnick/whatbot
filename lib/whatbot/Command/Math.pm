@@ -12,9 +12,6 @@ BEGIN { extends 'whatbot::Command' }
 
 use Math::Expression;
 
-my $OP = qr/[\+\-\*\/]/;
-my $NUM = qr/\d[\d\.]*+/;
-
 sub register {
 	my ($self) = @_;
 	
@@ -22,17 +19,22 @@ sub register {
 	$self->require_direct(0);
 }
 
-sub free_form : GlobalRegEx('^\(*\-?\d[\d\.]*+[\+\-\*\/][\d\(\)\+\-\*\/\.]*\d\)*$') {
+sub free_form : GlobalRegEx('^\(*\-?\d[\d\.]*\+[\+\-\*\/][\d\(\)\+\-\*\/\.]*\d\)*$') {
 	my ( $self, $message ) = @_;
 	
-	return $self->parse_message($message);
+	return $self->parse_message( $message, [ $message->content ]);
 }
 
-sub parse_message : Monitor {
+sub what_the_hell_mike : GlobalRegEx('^\s*\d+\s*[\+\-\*\/]\s*\d+$') {
 	my ( $self, $message ) = @_;
+	
+	return $self->parse_message( $message, [ $message->content ]);
+}
 
-	my $expression = $message->content;
-        $expression =~ s/^calc\s*//i;
+sub parse_message : GlobalRegEx('^calc (.*)') {
+	my ( $self, $message, $captures ) = @_;
+
+	my $expression = $captures->[0];
     
 	return undef unless $expression;
 
@@ -40,7 +42,7 @@ sub parse_message : Monitor {
 }
 
 sub _parse {
-	my ($self, $expression) = @_;
+	my ( $self, $expression ) = @_;
 
 	my @lines = split(/;/, $expression);
 	my $multiline = (@lines > 1);
