@@ -17,9 +17,6 @@ use HTML::Entities qw(decode_entities);
 use Lingua::EN::Sentence qw(get_sentences);
 use HTML::Strip ();
 
-# fuck soap
-# my $URBANDICTIONARY_API_KEY = "993b46494e8f7600a464efb135dd452e";
-
 has 'ua' => (
 	is		=> 'ro',
 	isa		=> 'LWP::UserAgent',
@@ -60,17 +57,60 @@ sub parse_message : CommandRegEx('(.*)') {
 	return $message->from . ": No definition for $phrase.";
 }
 
-sub google {
-	my ( $self, $phrase ) = @_;
+sub urbandictionary {
+        my ( $self, $phrase ) = @_;
 
-	my $content = $self->get("http://www.google.com/search?q=define:!dongs!", $phrase);
-	return undef unless $content;
-	
-	my ($def) = ($content =~ m/<ul type="disc"><font size=-1><li>([^<]+)/);
-	return "$phrase: $def" if $def;
+        my $content = $self->get("http://www.urbandictionary.com/define.php?term=!dongs!", $phrase);
+        return undef unless $content;
 
-	return undef;
+RETRY:
+        my $found = ($content =~ m!\G.*?<div class='definition'>(.*?)</div>!gcs);
+        return undef unless $found;
+        my $first_p = $1;
+
+        # get rid of <sup></sup> before the tags are gone, because <sup>?</sup>
+        # (for example) messes with sentence structure
+        $first_p =~ s!<sup>.*?</sup>!!g;
+
+        $first_p = $self->stripper->parse($first_p);
+        $self->stripper->eof;
+
+        goto RETRY unless $first_p;
+        
+        my $sentences = get_sentences($first_p);
+
+        if (!$sentences || (@$sentences < 1)) {
+                $self->error("get_sentences failed on first paragraph from urban dictionary");
+                return undef;
+        }
+
+        my $def = $sentences->[0];
+
+        # things that suck
+        $def =~ s/  / /g;
+        $def =~ s/ ,/,/g;
+
+        return $def . " (U)";
 }
+
+sub google {
+        my ( $self, $phrase ) = @_;
+
+        my $content = $self->get("http://www.google.com/search?q=define:!dongs!", $phrase);
+        return undef unless $content;
+
+        my $found = ($content =~ m!\G.*?<li>(.*?)<li>!gcs);
+        return undef unless $found;
+
+        my $def = $1;
+
+        # things that suck
+        $def =~ s/  / /g;
+        $def =~ s/ ,/,/g;
+
+        return $def . " (G)";
+}
+
 
 sub wikipedia {
 	my ( $self, $phrase ) = @_;
@@ -127,7 +167,7 @@ RETRY:
 
 	$def =~ s/\[citation needed\]//g; # this makes me want to stab people, just for the record
 
-	return $def;
+	return $def . " (W)";
 }
 
 sub get {
@@ -162,7 +202,7 @@ sub _parse {
 	my ( $self, $phrase ) = @_;
 
 	my ($def, $error);
-    foreach my $func ( qw( wikipedia google ) ) {
+        foreach my $func ( qw( urbandictionary wikipedia google ) ) {
         { 
         	no strict 'refs';
             $def = $self->$func($phrase);
