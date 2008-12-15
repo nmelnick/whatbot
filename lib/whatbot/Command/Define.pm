@@ -85,6 +85,10 @@ RETRY:
         }
 
         my $def = $sentences->[0];
+        if ($def =~ /^\d+\.\s+$/) {
+           # Lingua::EN thinks "1." is a sentence. It is not.
+           $def .= " " . $sentences->[1];
+        }
 
         # things that suck
         $def =~ s/  / /g;
