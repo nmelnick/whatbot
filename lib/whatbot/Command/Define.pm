@@ -207,16 +207,17 @@ sub _parse {
 
     my @default_sources = qw( wikipedia urbandictionary google );
     my @sources;
+    $_ = $phrase;
 
-    foreach my $s (@default_sources) {
-        if ($phrase =~ /\($s\)$/) {
-            @sources = ($s);
+    foreach my $src (@default_sources) {
+        if (s/\s*\(\s*$src\s*\)\s*$//) {
+            @sources = ($src);
             last;
         }
-        unless ($phrase =~ /!$s/) {
-            push @sources, $s;
-        }
+        push @sources, $src unless (s/\s*!$src\s*//);
     }
+
+    $phrase = $_;
 
     my ($def, $error);
     foreach my $func (@sources) {
