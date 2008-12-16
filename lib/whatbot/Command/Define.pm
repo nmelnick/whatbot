@@ -221,13 +221,14 @@ sub _parse {
 
     my ($def, $error);
     foreach my $func (@sources) {
-    { 
-        no strict 'refs';
-        $def = $self->$func($phrase);
-    }
-    return $def if $def;
-    $error = $self->error;
-    return $error if $error;
+        { 
+            no strict 'refs';
+            $def = $self->$func($phrase);
+        }
+        return $def if $def;
+
+        $error = $self->error;
+        return $error if $error;
     }
     
     return undef;
