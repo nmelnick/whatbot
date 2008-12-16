@@ -206,7 +206,7 @@ sub _parse {
 	my ( $self, $phrase ) = @_;
 
 	my ($def, $error);
-        foreach my $func ( qw( wikipedia google urbandictionary ) ) {
+        foreach my $func ( qw( wikipedia urbandictionary google ) ) {
         { 
         	no strict 'refs';
             $def = $self->$func($phrase);
