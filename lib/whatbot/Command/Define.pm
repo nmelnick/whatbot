@@ -103,7 +103,7 @@ sub google {
         my $content = $self->get("http://www.google.com/search?q=define:!dongs!", $phrase);
         return undef unless $content;
 
-        my $found = ($content =~ m!\G.*?<li>(.*?)<li>!gcs);
+        my $found = ($content =~ m!\G.*?<li>(.*?)<br>!gcs);
         return undef unless $found;
 
         my $def = $1;
@@ -206,7 +206,7 @@ sub _parse {
 	my ( $self, $phrase ) = @_;
 
 	my ($def, $error);
-        foreach my $func ( qw( urbandictionary wikipedia google ) ) {
+        foreach my $func ( qw( wikipedia google urbandictionary ) ) {
         { 
         	no strict 'refs';
             $def = $self->$func($phrase);
