@@ -30,11 +30,12 @@ sub superlative : GlobalRegEx('^[\. ]*?what(?: is|'s)(?: the)? (best|worst)') {
 	my $out = "The " . ($best ? "best" : "worst") . " of everything is: ";
 
 	my $row;
+	my @stuff;
 	while ($row = $sth->fetchrow_arrayref) {
 		my ($subject, $total) = @$row;
-		$out .= "$subject ($total) ";
+		push @stuff, "$subject ($total)";
         }
-	return $out;
+	return join(', ', @stuff);
 }
 
 sub parse_message : GlobalRegEx('^[\. ]*?who (hates|likes|loves|doesn\'t like|plussed|minused) (.*)') {
@@ -76,8 +77,8 @@ sub parse_message : GlobalRegEx('^[\. ]*?who (hates|likes|loves|doesn\'t like|pl
 				return $message->from . ': It was ' . $people[0]->{'user'} . ", $howmuch.";
 			}
 			
-		} elsif (scalar(@people) > 10) {
-			return $message->from . ': More than 10 people, so nearly everyone.';
+		#} elsif (scalar(@people) > 10) {
+		#	return $message->from . ': More than 10 people, so nearly everyone.';
 			
 		} elsif (scalar(@people) > 0) {
 			my $peopleText = join ', ', map { $_->{user} . " (" . $_->{total} . ")" } @people;
