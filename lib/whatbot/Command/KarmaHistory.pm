@@ -45,7 +45,7 @@ sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
 		my @others = grep { $_ ne $who } map { $_->{user} } @$karma_detail;
 		next if @others;
 		
-		return "$nick: $who ${verb}s $what.";
+		return "$who ${verb}s $what.";
 	}
 
 	return "$nick: $who doesn't ${verb} anything weird. :(";
