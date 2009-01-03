@@ -25,7 +25,7 @@ sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
 	my $nick = $message->from;
 	my $op	 = ($verb eq 'likes' ? 1 : -1);
 
-	my $karmas = $self->store->retrieve('karma', [ 'subject' ], { 'user' => $who, 'amount' => $op });
+	my $karmas = $self->store->retrieve('karma', [ 'subject' ], { 'user' => $who, 'amount' => $op }, "ORDER BY rand()");
 
 	if (!$karmas or !@$karmas) {
 		return "$nick: I don't know what $who ${verb}s.";
