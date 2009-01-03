@@ -17,6 +17,40 @@ sub register {
 	$self->require_direct(0);
 }
 
+sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
+	my ( $self, $message, $captures ) = @_;
+	
+	my ( $who, $verb ) = @$captures;
+	
+	my $nick = $message->from;
+	my $op	 = ($verb eq 'likes' ? 1 : -1);
+
+	my $karmas = $self->store->retrieve('karma', [ 'subject' ], { 'user' => $who, 'amount' => $op });
+
+	if (!$karmas or !@$karmas) {
+		return "$nick: I don't know what $who ${verb}s.";
+	}
+
+	# loop through karmas, check for other people who like it. if none, return!
+	my %already_done;
+	while (@$karmas) {
+		$_ = shift(@$karmas);
+		my $what = $_->{subject};
+		
+		next if $already_done{$what};
+		
+		my $karma_detail = $self->store->retrieve('karma', [ 'user' ], { 'subject' => $what });
+		$already_done{$what}++;
+		
+		my @others = grep { $_ ne $who } map { $_->{user} } @$karma_detail;
+		next if @others;
+		
+		return "$nick: $who ${verb}s $what.";
+	}
+
+	return "$nick: $who doesn't ${verb} anything weird. :(";
+}
+
 sub superlative : GlobalRegEx('^[\. ]*?what(?: is|'s)(?: the)? (best|worst)') {
 	my ( $self, $message, $captures ) = @_;
 
@@ -34,7 +68,7 @@ sub superlative : GlobalRegEx('^[\. ]*?what(?: is|'s)(?: the)? (best|worst)') {
 	while ($row = $sth->fetchrow_arrayref) {
 		my ($subject, $total) = @$row;
 		push @stuff, "$subject ($total)";
-        }
+	}
 	return join(', ', @stuff);
 }
 
@@ -82,7 +116,9 @@ sub parse_message : GlobalRegEx('^[\. ]*?who (hates|likes|loves|doesn\'t like|pl
 			
 		} elsif (scalar(@people) > 0) {
 			my $peopleText = join ', ', map { $_->{user} . " (" . $_->{total} . ")" } @people;
-			return $message->from . ': ' . $peopleText;
+			my $sum = 0;
+			$sum += $_->{total} foreach @people;
+			return $message->from . ": $peopleText = $sum";
 			
 		} else {
 			return $message->from . ': Nobody!';
