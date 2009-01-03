@@ -23,7 +23,7 @@ sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
 	my ( $who, $verb ) = @$captures;
 	
 	my $nick = $message->from;
-	my $op	 = ($verb eq 'likes' ? 1 : -1);
+	my $op	 = ($verb eq 'like' ? 1 : -1);
 
 	my $karmas = $self->store->retrieve('karma', [ 'subject' ], { 'user' => $who, 'amount' => $op }, "random()");
 
