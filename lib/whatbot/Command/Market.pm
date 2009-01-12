@@ -12,11 +12,18 @@ BEGIN { extends 'whatbot::Command' }
 
 use Finance::Quote;
 use String::IRC; # for colors!
+use LWP::UserAgent ();
 
 has 'quote' => (
 	is		=> 'ro',
 	isa		=> 'Finance::Quote',
 	default => sub { Finance::Quote->new; }
+);
+
+has 'ua' => (
+	is		=> 'ro',
+	isa		=> 'LWP::UserAgent',
+	default => sub { LWP::UserAgent->new; }
 );
 
 has 'default_exchange' => (
@@ -25,6 +32,10 @@ has 'default_exchange' => (
 	default => 'nyse'
 );
 
+my $SEARCH_URL = "http://finance.yahoo.com/search?s=!repl!&b=1&v=s";
+my $SEARCH_ROW_RE = qr!<tr bgcolor="ffffff">(.+?)</tr>!o;
+my $SEARCH_COL_RE = qr!<a\s?.*?>(.+?)</a>!o;
+
 sub register {
 	my ( $self ) = @_;
 	
@@ -32,6 +43,39 @@ sub register {
 	$self->require_direct(0);
 	$self->quote->timeout(15);
 	$self->quote->require_labels(qw/last p_change name/);
+	$self->ua->timeout(15);
+}
+
+sub search : GlobalRegEx('^stockfind (.+)$') {
+	my ( $self, $message, $captures ) = @_;
+	
+	my $query = $captures->[0];
+	
+	my $url = $SEARCH_URL;
+	$url =~ s/!repl!/$query/;
+	
+	my $response = $self->ua->get($url);
+	
+	unless ($response->is_success) {
+		return ("Bad response from Yahoo! Finance: " . $response->status_line);
+	}
+	
+	$_ = $response->content;
+	foreach (split /\n/) {
+		if (/$SEARCH_ROW_RE/) {
+			$_ = $1;
+			
+			my @items = /$SEARCH_COL_RE/g;
+			unless (@items == 4) {
+				return ("Failed to parse columns from Yahoo! Finance result row: " . @items);
+			}
+            
+			my ($company, $ticker, $sector, $industry) = @items;
+			
+			return "$query: $company ($ticker) -- $sector, $industry";
+		}
+	}
+	return ("No companies found matching '$query'.");
 }
 
 sub process {
