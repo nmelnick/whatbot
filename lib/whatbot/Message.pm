@@ -17,6 +17,7 @@ has 'timestamp'     => ( is => 'rw', isa => 'Int', default => time );
 has 'is_private'    => ( is => 'rw', isa => 'Int', default => 0 );
 has 'is_direct'     => ( is => 'rw', isa => 'Int', default => 0 );
 has 'me'            => ( is => 'rw', isa => 'Str' );
+has 'origin'            => ( is => 'rw' );
 
 sub BUILD {
 	my ( $self ) = @_;
@@ -105,6 +106,11 @@ Boolean (1/0), if the message called the bot out by name
 =item me
 
 String value of the bot's username.
+
+=item origin
+
+Reference to the IO subclass through which this message was from, if it
+originated from outside whatbot.
 
 =back
 

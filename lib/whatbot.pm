@@ -15,6 +15,7 @@ use whatbot::Component;
 use whatbot::Controller;
 use whatbot::Config;
 use whatbot::Log;
+use whatbot::Timer;
 
 our $VERSION = '0.9.5';
 
@@ -90,6 +91,12 @@ sub run {
 	    unless ( defined $store and defined $store->handle );
 	$self->base_component->store($store);
 	
+	# RANDOMIZE TIMER
+	my $timer = new whatbot::Timer(
+		'base_component' 	=> $base_component
+	);
+	$self->base_component->timer($timer);
+	
 	# Parse Commands
 	my $controller = new whatbot::Controller(
 		'base_component' 	=> $base_component,
@@ -130,6 +137,7 @@ sub run {
 		foreach my $io_object (@io) {
 			$io_object->event_loop();
 		}
+		$timer->tick();
 	}
 	
 	# Upon kill or interrupt, exit gracefully.

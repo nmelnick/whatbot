@@ -15,6 +15,7 @@ has 'config'     => ( is => 'rw' );
 has 'store'      => ( is => 'rw' );
 has 'log'        => ( is => 'rw' );
 has 'controller' => ( is => 'rw' );
+has 'timer'      => ( is => 'rw' );
 
 sub BUILD {
 	my ($self, $params) = @_;
@@ -25,6 +26,7 @@ sub BUILD {
 		$self->store( $params->{'base_component'}->store );
 		$self->log( $params->{'base_component'}->log );
 		$self->controller( $params->{'base_component'}->controller );
+		$self->timer( $params->{'base_component'}->timer );
 		
 		unless ( ref($self) =~ /Message/ or ref($self) =~ /Command::/ ) {
 			$self->log->write(ref($self) . ' loaded.') ;

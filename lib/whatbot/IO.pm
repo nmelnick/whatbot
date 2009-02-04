@@ -67,7 +67,8 @@ sub event_message_public {
 			'content'			=> $content,
 			'timestamp'		    => time,
 			'me'				=> $self->me,
-			'base_component'	=> $self->parent->base_component
+			'base_component'	=> $self->parent->base_component,
+			'origin'			=> $self,
 		);
 	}
 	unless ( $from eq $self->me ) {
@@ -87,7 +88,8 @@ sub event_message_private {
     		'timestamp'		    => time,
     		'is_private'		=> 1,
     		'me'				=> $self->me,
-    		'base_component'	=> $self->parent->base_component
+    		'base_component'	=> $self->parent->base_component,
+			'origin'			=> $self,
     	);
     	$self->parse_response( $self->controller->handle($message) );
     }

@@ -213,15 +213,21 @@ sub handle {
     					$result = [ $result ] if ( ref($result) ne 'ARRAY' );
     					
     					foreach my $result_single ( @$result ) {
-        					push( @messages, $result_single ) if ( ref($result_single) eq 'whatbot::Message' );
-        					my $message = new whatbot::Message(
-        						'from'			    => '',
-        						'to'				=> ( $message->to eq 'public' ? 'public' : $message->from ),
-        						'content'			=> $result_single,
-        						'timestamp'		    => time,
-        						'base_component'	=> $self->parent->base_component
-        					);
-        					push( @messages, $message );
+							my $outmessage;
+							if ( ref($result_single) eq 'whatbot::Message' ) {
+								$outmessage = $result_single;
+								$outmessage->content =~ s/!who/$message->from/;
+							} else {
+								$result_single =~ s/!who/$message->from/;
+								$outmessage = new whatbot::Message(
+	        						'from'			    => '',
+	        						'to'				=> ( $message->to eq 'public' ? 'public' : $message->from ),
+	        						'content'			=> $result_single,
+	        						'timestamp'		    => time,
+	        						'base_component'	=> $self->parent->base_component
+	        					);
+							}
+        					push( @messages, $outmessage );
 					    }
     				}
     				
