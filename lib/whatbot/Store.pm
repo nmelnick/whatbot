@@ -135,19 +135,25 @@ sub factoid {
 	# Retrieve factoid description
 	my @facts = @{ $self->retrieve(
 		"factoid_description",
-		[qw/description/],
+		[qw/description user/],
 		{ factoid_id => $factoid->{factoid_id} }
 	) };
 	
 	# If facts are given, return hashref of factoid data and facts
-	if (scalar(@facts) > 0) {
-		for (my $i = 0; $i < scalar(@facts); $i++) {
-			$facts[$i] = $facts[$i]->{description};
+	if (@facts) {
+		if (scalar(@facts) == 1) {
+			return {
+				user => $facts[0]->{user},
+				factoid => $factoid,
+				facts => [ $facts[0]->{description} ],
+			};
+		} else {
+			$_ = $_->{description} foreach @facts;
+			return {
+				factoid	=> $factoid,
+				facts	=> \@facts
+			};
 		}
-		return {
-			factoid	=> $factoid,
-			facts	=> \@facts
-		};
 	}
 	
 	return undef;

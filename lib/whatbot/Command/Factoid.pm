@@ -122,6 +122,8 @@ sub who_said : GlobalRegEx('^who said that') : StopAfter {
 		} else {
 		    return $message->from . ': ' . $self->{'last_random_fact_who_said'};
 	    }
+	} else {
+		print STDERR "haha fags\n";
 	}
 	
 	return;
@@ -183,6 +185,12 @@ sub retrieve {
 			push( @facts, $factoid->{'facts'}->[int(rand($fact_count))] );
 		} else {
 			@facts = @{$factoid->{'facts'}};
+		}
+		
+		if (scalar(@facts) == 1) {
+			print STDERR "user: " . $factoid->{'user'} . "\n";
+			$self->{'last_random_fact_who_said'} = $factoid->{'user'};
+			print STDERR $self->{'last_random_fact_who_said'}, "\n";
 		}
 		
 		if ( scalar(@facts) == 1 and $facts[0] =~ /^<reply>/ ) {
