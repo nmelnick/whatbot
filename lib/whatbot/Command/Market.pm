@@ -42,7 +42,7 @@ sub register {
 	$self->command_priority('Extension');
 	$self->require_direct(0);
 	$self->quote->timeout(15);
-	$self->quote->require_labels(qw/last p_change name/);
+	$self->quote->require_labels(qw/last p_change name net/);
 	$self->ua->timeout(15);
 }
 
@@ -116,15 +116,9 @@ sub process {
 			my $value = $info->{$symbol,$field};
 			
 			if ($field eq "p_change") {
-				$value = String::IRC->new("$value%");
-				if ($value =~ /^\-/) {
-					$value->red;
-				} else {
-					$value->green;
-				}
-			} elsif ($field eq "eps" && $value =~ /^-/) {
-				$value = String::IRC->new("$value");
-				$value->red;
+				$value = colorize("$value%");
+			} elsif ($field eq "net" || $field eq "eps") {
+				$value = colorize($value);
 			}
 			$data{$field} = $value;
 		}
@@ -133,6 +127,18 @@ sub process {
 	}
 	
 	return join(" - ", @out);
+}
+
+sub colorize {
+	my $string = shift;
+	
+	$string = String::IRC->new($string);
+	if ($string =~ /^\-/) {
+		$string->red;
+	} else {
+		$string->green;
+	}
+	return $string;
 }
 
 sub do_currency {
@@ -185,7 +191,7 @@ sub parse_message : CommandRegEx('(.+)') {
 	# from here on we're dealing with stocks
 	my @stocks = map { s/\s//g; uc } split /,/, $target;
 	
-	my $results = $self->process(\@stocks, [qw(name last p_change)]);
+	my $results = $self->process(\@stocks, [qw(name last p_change net)]);
 	
 	if (!$results) {
 		return "I couldn't find anything for $target.";
