@@ -27,7 +27,7 @@ sub BUILD {
 	if ( defined $me ) {
 		if ( $self->content =~ /, ?$me[\?\!\. ]*?$/i ) {
 			my $content = $self->content;
-			$content =~ s/, ?$me[\?\!\. ]*?$//;
+			$content =~ s/, ?$me[\?\!\. ]*?$//i;
 			$self->content($content);
 			$self->is_direct(1);
 			

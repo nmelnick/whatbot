@@ -17,7 +17,7 @@ sub register {
 	$self->require_direct(1);
 }
 
-sub parse_message : CommandRegEx('help ?(.*)') {
+sub parse_message : GlobalRegEx('^help ?(.*)?') {
 	my ( $self, $message, $captures ) = @_;
     
     if ( $captures and $captures->[0] ) {
@@ -25,7 +25,7 @@ sub parse_message : CommandRegEx('help ?(.*)') {
             return $self->controller->command_short_name->{$captures->[0]}->help();
         } else {	            
 	        return
-	            'No such command: "' . $1 . '". ' . $self->available();
+	            'No such command: "' . $captures->[0] . '". ' . $self->available();
         }
     } else {
         return

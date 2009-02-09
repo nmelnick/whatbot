@@ -43,12 +43,17 @@ sub register {
     };
 }
 
-sub help {
+sub help : Command {
     my ( $self ) = @_;
     
-    return 'Blackjack is a game of blackjack for whatbot. Hello, obvious. To ' .
-           'begin, give the command "blackjack play". Blackjack will prompt ' .
-           'you from there.';
+    return [
+        'Blackjack is a game of blackjack for whatbot. Hello, obvious. To ' .
+        'begin, give the command "blackjack play". Blackjack will prompt ' .
+        'you from there.',
+        'As a quick reference, once you initiate a game, hit "bj me" to add ' .
+        'yourself to a game, and the initater can do "bj start" to start ' .
+        'the game. At any time, you can type "bj amounts" to see your money.'
+    ];
 }
 
 sub play : Command {
