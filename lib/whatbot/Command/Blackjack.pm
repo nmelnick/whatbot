@@ -175,7 +175,12 @@ sub deal : Command {
     if ( $self->{'dealer_hand'}->first->{'value'} eq 'A' ) {
         # Insurance
     } elsif ( $self->{'dealer_hand'}->blackjack ) {
-        return $self->new_hand([ 'Dealer has Blackjack. Thank you for all of your money, ' . $self->insult . ( keys %{ $self->bets } > 1 ? 's' : '' ) . '.' ]);
+        my @messages;
+        foreach my $hand ( @{$self->hands} ) {
+            push( @messages, $self->show_hand($hand) );
+        }
+        push( @messages, 'Dealer has Blackjack. Thank you for all of your money, ' . $self->insult . ( keys %{ $self->bets } > 1 ? 's' : '' ) . '.' );
+        return $self->new_hand( \@messages );
     }
     my $dealer_view = 'Dealer shows ' . $self->{'dealer_hand'}->first->{'value'} . $self->suits->{ $self->{'dealer_hand'}->first->{'suit'} } . '.';
     return $self->next_hand([ $dealer_view ]);
