@@ -68,7 +68,7 @@ sub play : Command {
 sub add_player : GlobalRegEx('^bj me$') {
     my ( $self, $message ) = @_;
     
-    return unless ( $self->game and !$self->game->players );
+    return unless ( $self->game and $self->game->active_shoe != 1 );
     if ( $self->game->add_player( $message->from, $self->buyin ) ) {
         return 'Gotcha, ' . $message->from . '.';
     } else {
