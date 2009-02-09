@@ -13,6 +13,7 @@ BEGIN { extends 'whatbot::Command' }
 use whatbot::Command::Blackjack::Game;
 
 has 'game'        => ( is => 'ro', isa => 'whatbot::Command::Blackjack::Game' );
+has 'game_admin'  => ( is => 'rw', isa => 'Str' );
 has 'bets'        => ( is => 'ro', isa => 'HashRef' );
 has 'dealer_hand' => ( is => 'ro' );
 has 'active_hand' => ( is => 'ro' );
@@ -55,6 +56,8 @@ sub play : Command {
     
     return 'Blackjack game already active.' if ( $self->game );
     
+    $self->game_admin( $message->from );
+    
     $buy_in = shift( @$buy_in );
     $self->{'game'} = new whatbot::Command::Blackjack::Game;
     $self->buyin($buy_in) if ($buy_in);
@@ -88,10 +91,11 @@ sub start : GlobalRegEx('^bj start$') {
     return $self->new_hand();
 }
 
-sub end_game {
+sub end_game : Command {
     my ( $self ) = @_;
     
     $self->{'game'} = undef;
+    $self->{'game_admin'} = undef;
     $self->{'bets'} = undef;
     $self->{'dealer_hand'} = undef;
     $self->{'active_hand'} = undef;
@@ -100,7 +104,7 @@ sub end_game {
     $self->{'buyin'} = 100;
     $self->{'last_insult'} = 'rand';
     
-    return;
+    return 'Alright, fine, no more game for you.';
 }
 
 sub new_hand {
@@ -236,7 +240,7 @@ sub hand_action {
     } else {
         $output .= ' Start with "bj", then h/hit s/stand';
         $output .= ' d/double' if ( $self->game->can_double($hand) );
-        $output .= ' p/split' if ( $hand->can_split );
+        $output .= ' p/split' if ( $self->game->can_split($hand) );
         $output .= '.';
         push( @messages, $output );
         return \@messages;
@@ -286,11 +290,11 @@ sub stand : GlobalRegEx('^bj (s|stand)$') {
 sub split : GlobalRegEx('^bj (p|split)$') {
     my ( $self ) = @_;
     
-    return unless ( $self->active_hand and $self->active_hand->can_split );
+    return unless ( $self->active_hand and $self->game->can_split( $self->active_hand ) );
     
     my @hands = $self->game->split( $self->active_hand );
     $self->{'active_hand'} = $hands[0];
-    splice( @{$self->hands}, 2, 0, $hands[1] );
+    splice( @{$self->hands}, 1, 0, $hands[1] );
     return $self->hand_action();
 }
 

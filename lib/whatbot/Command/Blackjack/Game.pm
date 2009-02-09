@@ -104,22 +104,22 @@ sub finish_hand {
     my $dealer = shift(@{ $self->hands });
     return unless $dealer;
     
-    warn Data::Dumper::Dumper( $self->players );
     my $dealer_score = $dealer->score;
     $dealer_score += 10 if ( $dealer->has_ace and $dealer->score < 12 );
     foreach my $hand (@{ $self->hands }) {
         my $score = $hand->score;
         warn $score;
         $score += 10 if ( $hand->has_ace and $hand->score < 12 );
-        if ( ( $hand->blackjack and $dealer->blackjack ) or $score == $dealer_score ) {
+        if ( $hand->busted ) {
+            next;
+        } elsif ( $score == $dealer_score ) {
             $self->players->{ $hand->player } += $self->bets->{ $hand->player };
-        } elsif ( $score > $dealer_score and !$hand->busted ) {
+        } elsif ( $score > $dealer_score ) {
             $self->players->{ $hand->player } += $self->bets->{ $hand->player } * 2;
         } elsif ( $hand->blackjack ) {
             $self->players->{ $hand->player } += $self->bets->{ $hand->player } * 2.5;
         }
     }
-    warn Data::Dumper::Dumper( $self->players );
     return 1;
 }
 
@@ -129,8 +129,19 @@ sub hit {
     $hand->give( $self->shoe->take() );
 }
 
+sub can_split {
+    my ( $self, $hand ) = @_;
+    
+    return 1 if ( $hand->can_split and $self->players->{ $hand->player } >= $self->bets->{ $hand->player } );
+    return;
+}
+
 sub split {
     my ( $self, $hand ) = @_;
+    
+    return unless ( $self->can_split );
+    $self->players->{ $hand->player } -= $self->bets->{ $hand->player };
+    $self->bets->{ $hand->player } *= 2;
     
     # Create first hand with first card
     my $first_hand = $hand->clone();
@@ -143,8 +154,7 @@ sub split {
     $self->hit( $second_hand );
     
     # Insert new hand into cached hands
-    my $index = $self->find_hand($hand);
-    splice( @{$self->hands}, $index + 1, 0, $second_hand );
+    push( @{$self->hands}, $second_hand );
     
     return ( $first_hand, $second_hand );
 }
@@ -159,6 +169,7 @@ sub can_double {
 sub double {
     my ( $self, $hand ) = @_;
     
+    return unless ( $self->can_double );
     $self->players->{ $hand->player } -= $self->bets->{ $hand->player };
     $self->bets->{ $hand->player } *= 2;
     $self->hit($hand);
