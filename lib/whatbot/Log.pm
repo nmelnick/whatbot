@@ -16,6 +16,7 @@ has 'log_directory' => ( is	=> 'rw', isa => 'Str', required => 1 );
 sub BUILD {
 	my ( $self, $log_dir ) = @_;
 	
+	binmode( STDOUT, ':utf8' );
 	unless ( -e $self->log_directory ) {
 	    if ( $self->log_directory and length( $self->log_directory ) > 3 ) {
 	        my $result = mkdir( $self->log_directory );
@@ -40,6 +41,7 @@ sub write {
 	print $output;
     open( LOG, '>>' . $self->log_directory . '/whatbot.log' )
         or die 'Cannot open logfile for writing: ' . $!;
+    binmode( LOG, ':utf8' );
     print LOG $output;
     close(LOG);
 }

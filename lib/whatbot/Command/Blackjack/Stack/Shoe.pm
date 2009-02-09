@@ -1,8 +1,9 @@
 package whatbot::Command::Blackjack::Stack::Shoe;
 use Moose;
 extends 'whatbot::Command::Blackjack::Stack';
+use whatbot::Command::Blackjack::Stack::Deck;
 
-has 'decks' => ( is => 'rw', isa => 'Int', default => 5 );
+has 'decks'   => ( is => 'rw', isa => 'Int', default => 4 );
 
 sub BUILD {
     my ( $self ) = @_;
@@ -15,6 +16,7 @@ sub BUILD {
         }
     }
     $self->cards(\@cards);
+    $self->shuffle();
     $self->shuffle();
 }
 

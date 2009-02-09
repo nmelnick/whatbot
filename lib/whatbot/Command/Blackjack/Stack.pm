@@ -2,6 +2,7 @@ package whatbot::Command::Blackjack::Stack;
 use Moose;
 
 has 'cards' => ( is => 'rw', isa => 'ArrayRef' );
+has 'discard' => ( is => 'ro', isa => 'ArrayRef', default => sub { [] } );
 
 sub shuffle {
     my ( $self ) = @_;
@@ -18,6 +19,20 @@ sub shuffle {
         $seen{$index} = 1;
     }
     $self->cards(\@cards);
+}
+
+sub card_count {
+    my ( $self ) = @_;
+    
+    return scalar( @{ $self->cards } );
+}
+
+sub take {
+    my ( $self ) = @_;
+    
+    my $card = shift(@{ $self->cards });
+    push( @{ $self->discard }, $card );
+    return $card;
 }
 
 1;

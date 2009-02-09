@@ -30,7 +30,9 @@ sub connect {
 	my ( $self ) = @_;
 	
 	# Create Object
-	my $oscar = Net::OSCAR->new();
+	my $oscar = Net::OSCAR->new(
+	    'rate_manage' => OSCAR_RATE_MANAGE_AUTO
+	);
 	
 	# Set callbacks
 	$oscar->set_callback_im_in(\&cb_message);
@@ -137,7 +139,8 @@ sub cb_connected {
 
 sub cb_error {
 	my ( $self, $connection, $error, $description, $fatal );
-
+    
+    $self->{'_whatbot'}->notify($error);
 }
 
 1;
