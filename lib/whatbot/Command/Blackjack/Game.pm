@@ -112,7 +112,7 @@ sub finish_hand {
         warn sprintf( '%s: dealer %d, player %d', $hand->player, $dealer_score, $score );
         if ( $hand->busted ) {
             next;
-        } elsif ( $dealer_busted ) {
+        } elsif ( $dealer->busted ) {
             $self->players->{ $hand->player } += $self->bets->{ $hand->player } * 2;
         } elsif ( $score eq $dealer_score ) {
             $self->players->{ $hand->player } += $self->bets->{ $hand->player };
@@ -171,7 +171,7 @@ sub can_double {
 sub double {
     my ( $self, $hand ) = @_;
     
-    return unless ( $self->can_double );
+    return unless ( $self->can_double($hand) );
     $self->players->{ $hand->player } -= $self->bets->{ $hand->player };
     $self->bets->{ $hand->player } *= 2;
     $self->hit($hand);
