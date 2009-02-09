@@ -77,13 +77,38 @@ sub svnup : Command {
 		my $inf = `svn up $basedir`;
 		$inf = `svn info $basedir`;
 		if ($inf =~ /Revision:\s+(\d+)/) {
-			return 'Now at svn r' . $1 . '.';
+		    my $rev = $1;
+			return 'Now at svn r' . $rev . '. Changed: ' . $self->last( undef, undef, $rev);
 		}
 	} else {
 		warn $basedir;
 		return 'This is not a SVN install.';
 	}
 	return undef;
+}
+
+sub last : Command {
+    my ( $self, $message, $captures, $rev ) = @_;
+    
+    my $basedir = realpath($0);
+    my $appname = $0;
+    $appname =~ s/.*?\///g;
+    $basedir =~ s/\/$appname$//;
+    $basedir =~ s/\/bin$//;
+    unless ($rev) {
+    	if (-e $basedir . '/.svn') {
+    		my $inf = `svn up $basedir`;
+    		$inf = `svn info $basedir`;
+    		if ($inf =~ /Revision:\s+(\d+)/) {
+    		    $rev = $1;
+    		}
+    	} 
+    }
+    my $log = `svn log $basedir -r$rev`;
+    $log =~ s/\-+.*?[^\n]+(.*?)\-+/$1/s;
+    $log =~ s/\n//g;
+    
+    return ( defined $message ? 'Changed in r' . $rev . ': ' : '' ) . $log;
 }
 
 sub retrieve : Command {
