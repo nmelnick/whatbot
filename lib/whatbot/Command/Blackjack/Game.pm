@@ -113,7 +113,7 @@ sub finish_hand {
         $score += 10 if ( $hand->has_ace and $hand->score < 12 );
         if ( ( $hand->blackjack and $dealer->blackjack ) or $score == $dealer_score ) {
             $self->players->{ $hand->player } += $self->bets->{ $hand->player };
-        } elsif ( $score > $dealer_score ) {
+        } elsif ( $score > $dealer_score and !$hand->busted ) {
             $self->players->{ $hand->player } += $self->bets->{ $hand->player } * 2;
         } elsif ( $hand->blackjack ) {
             $self->players->{ $hand->player } += $self->bets->{ $hand->player } * 2.5;

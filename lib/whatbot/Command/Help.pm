@@ -17,7 +17,7 @@ sub register {
 	$self->require_direct(1);
 }
 
-sub parse_message : CommandRegEx('(.*)') {
+sub parse_message : CommandRegEx('help ?(.*)') {
 	my ( $self, $message, $captures ) = @_;
     
     if ( $captures and $captures->[0] ) {
