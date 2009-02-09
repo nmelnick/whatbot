@@ -105,7 +105,7 @@ sub last : Command {
     	} 
     }
     my $log = `svn log $basedir -r$rev`;
-    $log =~ s/\-+.*?[^\n]+(.*?)\-+/$1/s;
+    $log =~ s/\-\-\-\-+.*?[^\n]+(.*?)\-\-\-\-+/$1/s;
     $log =~ s/\n//g;
     
     return ( defined $message ? 'Changed in r' . $rev . ': ' : '' ) . $log;
