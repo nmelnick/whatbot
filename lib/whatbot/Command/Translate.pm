@@ -25,7 +25,7 @@ sub parse_message : CommandRegEx('(from [A-z]* )?to ([A-z]*?) (.*)( using [A-z]*
 	
 	if ($captures) {
 		my $from = 'English';
-		my $using = 'Babelfish';
+		my $using = 'Yahoo';
 		if ( $captures->[0] ) {
 			$from = $1;
 			$from =~ s/from //;
@@ -36,17 +36,18 @@ sub parse_message : CommandRegEx('(from [A-z]* )?to ([A-z]*?) (.*)( using [A-z]*
 			$from =~ s/using //;
 			$from =~ s/ //g;
 		}
-		return translate( $from, $captures->[1], $captures->[2], $using );
+		return $self->translate( $from, $captures->[1], $captures->[2], $using );
 	}
 }
 
 sub languages : Command {
-	my ( $using ) = @_;
+	my ( $self, $using ) = @_;
 	
-	my $translator = get_translator($using);
+	my $translator = $self->get_translator($using);
 	return 'Translation service is down' if (!defined $translator);
 	
-	my @languages = $translator->languages;
+	my @languages = $translator->languages();
+	return 'Something is not right.' unless (@languages);
 	$languages[scalar(@languages) - 1] = 'and ' . $languages[scalar(@languages) - 1];
 	return 'I can translate ' . join(', ', @languages) . '.';
 }
@@ -54,22 +55,22 @@ sub languages : Command {
 sub help {
     my ( $self ) = @_;
     
-    return 'Translate uses Babelfish to machine translate text in other languages. ' . languages();
+    return 'Translate uses Babelfish to machine translate text in other languages. ' . $self->languages();
 }
 
 sub get_translator {
-	my ( $using ) = @_;
+	my ( $self, $using ) = @_;
 	
 	return new WWW::Babelfish(
-		'service'	=> ($using or 'Babelfish'),
+		'service'	=> 'Yahoo',
 		'agent' 	=> 'Mozilla/8.0'
 	);
 }
 
 sub translate {
-	my ( $from, $to, $message, $using ) = @_;
+	my ( $self, $from, $to, $message, $using ) = @_;
 	
-	my $translator = get_translator($using);
+	my $translator = $self->get_translator($using);
 	return 'Translation service is down' if (!defined $translator);
 	
 	$from = ucfirst(lc($from));
