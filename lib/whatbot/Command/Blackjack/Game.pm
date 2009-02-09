@@ -112,6 +112,8 @@ sub finish_hand {
         warn sprintf( '%s: dealer %d, player %d', $hand->player, $dealer_score, $score );
         if ( $hand->busted ) {
             next;
+        } elsif ( $dealer_busted ) {
+            $self->players->{ $hand->player } += $self->bets->{ $hand->player } * 2;
         } elsif ( $score eq $dealer_score ) {
             $self->players->{ $hand->player } += $self->bets->{ $hand->player };
         } elsif ( $score > $dealer_score ) {
