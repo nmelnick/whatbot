@@ -108,11 +108,11 @@ sub finish_hand {
     $dealer_score += 10 if ( $dealer->has_ace and $dealer->score < 12 );
     foreach my $hand (@{ $self->hands }) {
         my $score = $hand->score;
-        warn $score;
         $score += 10 if ( $hand->has_ace and $hand->score < 12 );
+        warn sprintf( '%s: dealer %d, player %d', $hand->player, $dealer_score, $score );
         if ( $hand->busted ) {
             next;
-        } elsif ( $score == $dealer_score ) {
+        } elsif ( $score eq $dealer_score ) {
             $self->players->{ $hand->player } += $self->bets->{ $hand->player };
         } elsif ( $score > $dealer_score ) {
             $self->players->{ $hand->player } += $self->bets->{ $hand->player } * 2;
