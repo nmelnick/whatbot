@@ -31,7 +31,6 @@ sub connect {
 	
 	# Create Object
 	my $oscar = Net::OSCAR->new(
-	    'rate_manage' => OSCAR_RATE_MANAGE_AUTO
 	);
 	
 	# Set callbacks
