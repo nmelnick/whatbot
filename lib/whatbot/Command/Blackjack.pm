@@ -179,6 +179,7 @@ sub deal : Command {
         foreach my $hand ( @{$self->hands} ) {
             push( @messages, $self->show_hand($hand) );
         }
+        push( @messages, $self->show_hand( $self->{'dealer_hand'} ) );
         push( @messages, 'Dealer has Blackjack. Thank you for all of your money, ' . $self->insult . ( keys %{ $self->bets } > 1 ? 's' : '' ) . '.' );
         return $self->new_hand( \@messages );
     }
