@@ -290,7 +290,7 @@ sub hit : GlobalRegEx('^bj (h|hit)$') {
 }
 
 sub double : GlobalRegEx('^bj (d|double)$') {
-    my ( $self ) = @_;
+    my ( $self, $message ) = @_;
     
     return unless ( $self->active_hand and $self->game->can_double( $self->active_hand ) );
     if ( $message->from ne $self->active_hand->player) {
@@ -302,7 +302,7 @@ sub double : GlobalRegEx('^bj (d|double)$') {
 }
 
 sub stand : GlobalRegEx('^bj (s|stand)$') {
-    my ( $self ) = @_;
+    my ( $self, $message ) = @_;
     
     return unless ( $self->active_hand );
     if ( $message->from ne $self->active_hand->player) {
@@ -314,7 +314,7 @@ sub stand : GlobalRegEx('^bj (s|stand)$') {
 }
 
 sub split : GlobalRegEx('^bj (p|split)$') {
-    my ( $self ) = @_;
+    my ( $self, $message ) = @_;
     
     return unless ( $self->active_hand and $self->game->can_split( $self->active_hand ) );
     if ( $message->from ne $self->active_hand->player) {
