@@ -69,7 +69,7 @@ sub get_translator {
 sub translate {
 	my ( $from, $to, $message, $using ) = @_;
 	
-	my $translator = getTranslator($using);
+	my $translator = get_translator($using);
 	return 'Translation service is down' if (!defined $translator);
 	
 	$from = ucfirst(lc($from));
