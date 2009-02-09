@@ -26,7 +26,8 @@ has 'insults'     => ( is => 'ro', isa => 'ArrayRef', default => sub { [
     'wanker',
     'douchebag',
     'moron',
-    'asshat'
+    'asshat',
+    'jackass'
 ] } );
 
 sub register {
@@ -279,7 +280,10 @@ sub show_hand {
 sub hit : GlobalRegEx('^bj (h|hit)$') {
     my ( $self, $message ) = @_;
     
-    return unless ( $self->active_hand and $message->from eq $self->active_hand->player );
+    return unless ( $self->active_hand );
+    if ( $message->from ne $self->active_hand->player) {
+        return 'Not your turn, ' . $self->insult . '.';
+    }
     
     $self->game->hit( $self->active_hand );
     $self->hand_action();
@@ -288,7 +292,10 @@ sub hit : GlobalRegEx('^bj (h|hit)$') {
 sub double : GlobalRegEx('^bj (d|double)$') {
     my ( $self ) = @_;
     
-    return unless ( $self->active_hand and $self->game->can_double( $self->active_hand ) and $message->from eq $self->active_hand->player );
+    return unless ( $self->active_hand and $self->game->can_double( $self->active_hand ) );
+    if ( $message->from ne $self->active_hand->player) {
+        return 'Not your turn, ' . $self->insult . '.';
+    }
     
     $self->game->double( $self->active_hand );
     return $self->hand_action();
@@ -297,7 +304,10 @@ sub double : GlobalRegEx('^bj (d|double)$') {
 sub stand : GlobalRegEx('^bj (s|stand)$') {
     my ( $self ) = @_;
     
-    return unless ( $self->active_hand and $message->from eq $self->active_hand->player );
+    return unless ( $self->active_hand );
+    if ( $message->from ne $self->active_hand->player) {
+        return 'Not your turn, ' . $self->insult . '.';
+    }
     
     $self->game->collect_hand( $self->active_hand );
     return $self->next_hand();
@@ -306,7 +316,10 @@ sub stand : GlobalRegEx('^bj (s|stand)$') {
 sub split : GlobalRegEx('^bj (p|split)$') {
     my ( $self ) = @_;
     
-    return unless ( $self->active_hand and $self->game->can_split( $self->active_hand ) and $message->from eq $self->active_hand->player );
+    return unless ( $self->active_hand and $self->game->can_split( $self->active_hand ) );
+    if ( $message->from ne $self->active_hand->player) {
+        return 'Not your turn, ' . $self->insult . '.';
+    }
     
     my @hands = $self->game->split( $self->active_hand );
     $self->{'active_hand'} = $hands[0];
