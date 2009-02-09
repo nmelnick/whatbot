@@ -100,7 +100,6 @@ sub end_game : Command {
     $self->{'dealer_hand'} = undef;
     $self->{'active_hand'} = undef;
     $self->{'hands'} = undef;
-    $self->{'suits'} = undef;
     $self->{'buyin'} = 100;
     $self->{'last_insult'} = 'rand';
     
@@ -131,7 +130,7 @@ sub new_hand {
     }
     
     unless ( keys %{ $self->game->players } ) {
-        push( @messages, 'No more players. Good work, ' . $self->insult . 's' );
+        push( @messages, 'No more players. Good work, ' . $self->insult . 's.' );
         $self->end_game();
         return \@messages;
     }
