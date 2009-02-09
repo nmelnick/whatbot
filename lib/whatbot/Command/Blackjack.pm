@@ -77,9 +77,9 @@ sub add_player : GlobalRegEx('^bj me$') {
 }
 
 sub start : GlobalRegEx('^bj start$') {
-    my ( $self ) = @_;
+    my ( $self, $message ) = @_;
     
-    return unless ( $self->game );
+    return unless ( $self->game and $message->from eq $self->game_admin );
     unless ( keys %{ $self->game->players } ) {
         return 'I need players before you can deal, you ' . $self->insult . '.';
     }
