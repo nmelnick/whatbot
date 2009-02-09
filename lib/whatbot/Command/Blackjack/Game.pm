@@ -174,6 +174,7 @@ sub double {
     return unless ( $self->can_double($hand) );
     $self->players->{ $hand->player } -= $self->bets->{ $hand->player };
     $self->bets->{ $hand->player } *= 2;
+    $hand->last_draw(1);
     $self->hit($hand);
 }
 

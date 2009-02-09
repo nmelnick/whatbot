@@ -51,7 +51,7 @@ sub busted {
 sub blackjack {
     my ( $self ) = @_;
     
-    return 1 if ( $self->score == 21 and $self->card_count == 2 );
+    return 1 if ( ( $self->score eq 21 or ( $self->score eq 11 and $self->has_ace ) )and $self->card_count == 2 );
     return;
 }
 
