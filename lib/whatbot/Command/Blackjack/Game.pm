@@ -141,7 +141,7 @@ sub can_split {
 sub split {
     my ( $self, $hand ) = @_;
     
-    return unless ( $self->can_split );
+    return unless ( $self->can_split($hand) );
     $self->players->{ $hand->player } -= $self->bets->{ $hand->player };
     $self->bets->{ $hand->player } *= 2;
     
