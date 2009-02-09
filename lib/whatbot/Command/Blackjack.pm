@@ -109,7 +109,7 @@ sub end_game : Command {
 sub amounts : GlobalRegEx('^bj amounts') {
     my ( $self ) = @_;
     
-    return 'Players: ' . join( ', ', map { $_ . ' with $' . $self->game->players->{$_} } keys %{ $self->game->players } )
+    return 'Players: ' . join( ', ', map { $_ . ' with $' . ( $self->game->players->{$_} =~ /\./ ? sprintf( '%.02f', $self->game->players->{$_} ) : $self->game->players->{$_} ) } keys %{ $self->game->players } )
 }
 
 sub new_hand {
@@ -145,7 +145,7 @@ sub new_hand {
     return \@messages;
 }
 
-sub bet : GlobalRegEx('^bj bet \$?(\d+)$') {
+sub bet : GlobalRegEx('^bj bet \$?(\d+(\.\d\d)?)$') {
     my ( $self, $message, $captures ) = @_;
     
     return unless ( $self->{'waiting_for_bets'} );
@@ -266,7 +266,7 @@ sub show_hand {
     foreach my $card ( @{ $hand->cards } ) {
         $output .= $card->{'value'} . $self->suits->{ $card->{'suit'} } . '  ';
     }
-    $output .= '(' . ( ( $hand->has_ace and $hand->score < 12 ) ? $hand->score . ' or ' . ( $hand->score + 10 ) : $hand->score ) . ').';
+    $output .= '(' . $hand->score . ').';
     
     return $output;
 }

@@ -51,7 +51,8 @@ sub busted {
 sub blackjack {
     my ( $self ) = @_;
     
-    return 1 if ( ( $self->score eq 21 or ( $self->score eq 11 and $self->has_ace ) )and $self->card_count == 2 );
+    warn join( '-', $self->score, $self->fingerprint, $self->has_ace );
+    return 1 if ( $self->score == 21 and $self->card_count == 2 );
     return;
 }
 
@@ -92,13 +93,19 @@ sub score {
         if ( $card->{'value'} =~ /[KQJ]/ ) {
             $score += 10;
         } elsif ( $card->{'value'} eq 'A' ) {
-            $score += 1;
+            next;
         } else {
             $score += $card->{'value'}
         }
     }
-    if ( $self->card_count == 2 and $self->has_ace and $score == 11 ) {
-        return 21;
+    foreach my $card ( @{ $self->cards } ) {
+        if ( $card->{'value'} eq 'A' ) {
+            if ( $score + 11 > 21 ) {
+                $score += 1;
+            } else {
+                $score += 11;
+            }
+        }
     }
     
     return $score;
