@@ -106,6 +106,12 @@ sub end_game : Command {
     return 'Alright, fine, no more game for you.';
 }
 
+sub amounts : GlobalRegEx('^bj amounts') {
+    my ( $self ) = @_;
+    
+    return 'Players: ' . join( ', ', map { $_ . ' with $' . $self->game->players->{$_} } keys %{ $self->game->players } )
+}
+
 sub new_hand {
     my ( $self, $messages ) = @_;
     
@@ -120,7 +126,7 @@ sub new_hand {
     
     $self->{'waiting_for_bets'}++;
     $self->{'bets'} = {};
-    push( @messages, 'Players: ' . join( ', ', map { $_ . ' with $' . $self->game->players->{$_} } keys %{ $self->game->players } ) ) if ( $self->game->players );
+    push( @messages, $self->amounts ) if ( $self->game->players );
     
     foreach my $player ( keys %{ $self->game->players } ) {
         if ( $self->game->players->{$player} == 0 ) {

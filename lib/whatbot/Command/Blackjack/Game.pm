@@ -200,6 +200,8 @@ sub dealer_hand {
         $self->hit($hand);
     }
     
+    $self->collect_hand($hand);
+    
     return 1;
 }
 
