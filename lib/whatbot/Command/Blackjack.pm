@@ -110,10 +110,9 @@ sub hax : Command {
     my ( $self, $message, $captures ) = @_;
     
     return unless ( $message->from eq $self->game_admin );
-    my $player = $captures->[0];
+    my ( $player, $amount ) = split( ' ', $captures->[0] );
     return 'Player "' . $player . '" doesn\'t exist, ' . $self->insult . '.'
         unless ( $player and $self->game->players->{$player} );
-    my $amount = $captures->[1];
     return 'What the hell is "' . $amount . '", ' . $self->insult . '?'
         unless ( $amount and $amount =~ /^\d+$/ );
     
