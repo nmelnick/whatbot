@@ -62,6 +62,7 @@ sub deal {
     push( @hands, $dealer_hand );
     $self->{'bets'} = {};
     foreach my $player ( keys %{$players} ) {
+        next if ( defined $self->bets->{$player} and $self->bets->{$player} eq 0 );
         $self->bets->{$player} = $players->{$player};
         $self->players->{ $player } -= $players->{$player};
         
@@ -81,7 +82,6 @@ sub deal {
         $self->active_shoe(0);
     }
     
-    warn Data::Dumper::Dumper( $self->players );
     $self->hands(\@hands);
     return clone( \@hands );
 }
@@ -105,7 +105,6 @@ sub finish_hand {
     return unless $dealer;
     
     foreach my $hand (@{ $self->hands }) {
-        warn sprintf( '%s: dealer %d, player %d', $hand->player, $dealer->score, $hand->score );
         if ( $hand->busted ) {
             next;
         } elsif ( $dealer->busted ) {

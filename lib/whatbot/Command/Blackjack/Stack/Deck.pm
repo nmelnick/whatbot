@@ -1,34 +1,25 @@
 package whatbot::Command::Blackjack::Stack::Deck;
 use Moose;
 extends 'whatbot::Command::Blackjack::Stack';
+use whatbot::Command::Blackjack::Card;
 
 sub BUILD {
     my ( $self ) = @_;
     
     my @cards;
-    my @suits = (
-        {
-            'suit'  => 'diamonds',
-            'color' => 'red'
-        },
-        {
-            'suit'  => 'hearts',
-            'color' => 'red'
-        },
-        {
-            'suit'  => 'clubs',
-            'color' => 'black'
-        },
-        {
-            'suit'  => 'spades',
-            'color' => 'black'
-        }
-    );
+    my @suits = qw/
+        diamonds
+        hearts
+        clubs
+        spades
+    /;
     foreach my $suit (@suits) {
         foreach my $value ( 'A', 2 .. 10, qw/ J Q K / )  {
-            my %card = %{$suit};
-            $card{'value'} = $value;
-            push( @cards, \%card );
+            my $card = new whatbot::Command::Blackjack::Card(
+                'value' => $value,
+                'suit'  => $suit
+            );
+            push( @cards, $card );
         }
     }
     $self->cards(\@cards);

@@ -18,8 +18,7 @@ has 'bets'        => ( is => 'ro', isa => 'HashRef' );
 has 'dealer_hand' => ( is => 'ro' );
 has 'active_hand' => ( is => 'ro' );
 has 'hands'       => ( is => 'ro', isa => 'ArrayRef' );
-has 'suits'       => ( is => 'ro', isa => 'HashRef' );
-has 'buyin'       => ( is => 'rw', isa => 'Int', default => 100 );
+has 'buyin'       => ( is => 'rw', isa => 'Int', default => 10000 );
 has 'last_insult' => ( is => 'rw', isa => 'Str', default => 'rand' );
 has 'insults'     => ( is => 'ro', isa => 'ArrayRef', default => sub { [
     'retard',
@@ -35,13 +34,6 @@ sub register {
 	
 	$self->command_priority('Extension');
 	$self->require_direct(0);
-	
-	$self->{'suits'} = {
-        'hearts'    => "\x{2665}",
-        'diamonds'  => "\x{2666}",
-        'clubs'     => "\x{2663}",
-        'spades'    => "\x{2660}"
-    };
 }
 
 sub help : Command {
@@ -52,8 +44,10 @@ sub help : Command {
         'begin, give the command "blackjack play". Blackjack will prompt ' .
         'you from there.',
         'As a quick reference, once you initiate a game, hit "bj me" to add ' .
-        'yourself to a game, and the initater can do "bj start" to start ' .
-        'the game. At any time, you can type "bj amounts" to see your money.'
+        'yourself to a game, and the initater can do "bj start" to start the ' .
+        'game. At any time, you can type "bj amounts" to see your holdings.',
+        'You can add yourself to an existing game at any time by saying "bj ' .
+        'me".'
     ];
 }
 
@@ -66,15 +60,15 @@ sub play : Command {
     
     $buy_in = shift( @$buy_in );
     $self->{'game'} = new whatbot::Command::Blackjack::Game;
-    $self->buyin($buy_in) if ($buy_in);
+    $self->buyin( $buy_in * 100 ) if ($buy_in);
     
-    return 'Blackjack time, buy in is $' . $self->buyin . '. Anyone who wants to play, type "bj me". ' . $message->from . ', type "bj start" when everyone is ready.';
+    return 'Blackjack time, buy in is $' . ( $self->buyin / 100 ) . '. Anyone who wants to play, type "bj me". ' . $message->from . ', type "bj start" when everyone is ready.';
 }
 
 sub add_player : GlobalRegEx('^bj me$') {
     my ( $self, $message ) = @_;
     
-    return unless ( $self->game and $self->game->active_shoe != 1 );
+    return unless ( $self->game );
     if ( $self->game->add_player( $message->from, $self->buyin ) ) {
         return 'Gotcha, ' . $message->from . '.';
     } else {
@@ -106,7 +100,7 @@ sub end_game : Command {
     $self->{'dealer_hand'} = undef;
     $self->{'active_hand'} = undef;
     $self->{'hands'} = undef;
-    $self->{'buyin'} = 100;
+    $self->{'buyin'} = 10000;
     $self->{'last_insult'} = 'rand';
     
     return 'Alright, fine, no more game for you.';
@@ -115,7 +109,7 @@ sub end_game : Command {
 sub amounts : GlobalRegEx('^bj amounts') {
     my ( $self ) = @_;
     
-    return 'Players: ' . join( ', ', map { $_ . ' with $' . ( $self->game->players->{$_} =~ /\./ ? sprintf( '%.02f', $self->game->players->{$_} ) : $self->game->players->{$_} ) } keys %{ $self->game->players } )
+    return 'Players: ' . join( ', ', map { $_ . ' with $' . ( $self->game->players->{$_} !~ /00$/ ? sprintf( '%.02f', $self->game->players->{$_} / 100 ) : $self->game->players->{$_} / 100 ) } keys %{ $self->game->players } )
 }
 
 sub new_hand {
@@ -157,7 +151,8 @@ sub bet : GlobalRegEx('^bj bet \$?(\d+(\.\d\d)?)$') {
     return unless ( $self->{'waiting_for_bets'} );
     
     my $bet = $captures->[0];
-    return unless ( $bet and $bet > 0 );
+    return unless ( defined $bet );
+    $bet *= 100;
     return 'You have not bought in, ' . $message->from . '.'
         unless ( $self->game->players->{ $message->from } );
     return 'You cannot bet $' . $bet . ', ' . $message->from . ', you only have $' . $self->game->players->{ $message->from } . '.' unless ( $self->game->players->{$message->from} >= $bet );
@@ -178,30 +173,19 @@ sub deal : Command {
     
     $self->{'hands'} = $self->game->deal( $self->bets );
     $self->{'dealer_hand'} = shift( @{ $self->{'hands'} } );
-    if ( $self->{'dealer_hand'}->first->{'value'} eq 'A' ) {
+    if ( $self->dealer_hand->first->value eq 'A' ) {
         # Insurance
-    } elsif ( $self->{'dealer_hand'}->blackjack ) {
+    } elsif ( $self->dealer_hand->blackjack ) {
         my @messages;
         foreach my $hand ( @{$self->hands} ) {
             push( @messages, $self->show_hand($hand) );
         }
-        push( @messages, $self->show_hand( $self->{'dealer_hand'} ) );
+        push( @messages, $self->show_hand( $self->dealer_hand ) );
         push( @messages, 'Dealer has Blackjack. Thank you for all of your money, ' . $self->insult . ( keys %{ $self->bets } > 1 ? 's' : '' ) . '.' );
         return $self->new_hand( \@messages );
     }
-    my $dealer_view = 'Dealer shows ' . $self->{'dealer_hand'}->first->{'value'} . $self->suits->{ $self->{'dealer_hand'}->first->{'suit'} } . '.';
+    my $dealer_view = 'Dealer shows ' . $self->dealer_hand->first->ircize . '.';
     return $self->next_hand([ $dealer_view ]);
-}
-
-sub buyin : Command {
-    my ( $self, $message ) = @_;
-    
-    return unless ( $self->game );
-    if ( $self->game->add_player( $message->from, $self->buyin ) ) {
-        return 'Gotcha, ' . $message->from . '.';
-    } else {
-        return 'Already got you, ' . $message->from . ', you ' . $self->insult . '.';
-    }
 }
 
 sub next_hand {
@@ -213,8 +197,8 @@ sub next_hand {
     unless ($hand) {
         $messages = [] unless ($messages);
         $self->game->dealer_hand( $self->{'dealer_hand'} );
-        my $output = 'Dealer: ' . $self->show_hand( $self->{'dealer_hand'} );
-        if ( $self->{'dealer_hand'}->busted ) {
+        my $output = 'Dealer: ' . $self->show_hand( $self->dealer_hand );
+        if ( $self->dealer_hand->busted ) {
             $output .= ' Dealer busts.';
         } elsif ( $self->{'dealer_hand'}->score == 21 ) {
             $output .= ' Good luck.';
@@ -270,7 +254,7 @@ sub show_hand {
     
     my $output;
     foreach my $card ( @{ $hand->cards } ) {
-        $output .= $card->{'value'} . $self->suits->{ $card->{'suit'} } . '  ';
+        $output .= $card->ircize . '  ';
     }
     $output .= '(' . $hand->score . ').';
     
@@ -281,7 +265,7 @@ sub hit : GlobalRegEx('^bj (h|hit)$') {
     my ( $self, $message ) = @_;
     
     return unless ( $self->active_hand );
-    if ( $message->from ne $self->active_hand->player) {
+    if ( $message->from ne $self->active_hand->player ) {
         return 'Not your turn, ' . $self->insult . '.';
     }
     

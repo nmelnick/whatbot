@@ -17,10 +17,10 @@ sub fingerprint {
     
     return join( '',
         $self->player,
-        $self->first->{'value'},
-        $self->first->{'suit'},
-        $self->second->{'value'},
-        $self->second->{'suit'}
+        $self->first->value,
+        $self->first->suit,
+        $self->second->value,
+        $self->second->suit
     );
 }
 sub first {
@@ -51,7 +51,6 @@ sub busted {
 sub blackjack {
     my ( $self ) = @_;
     
-    warn join( '-', $self->score, $self->fingerprint, $self->has_ace );
     return 1 if ( $self->score == 21 and $self->card_count == 2 );
     return;
 }
@@ -66,7 +65,7 @@ sub has_ace {
     my ( $self ) = @_;
     
     foreach my $card ( @{ $self->cards } ) {
-        return 1 if ( $card->{'value'} eq 'A' );
+        return 1 if ( $card->value eq 'A' );
     }
     return;
 }
@@ -81,7 +80,7 @@ sub can_double {
 sub can_split {
     my ( $self ) = @_;
     
-    return 1 if ( $self->card_count == 2 and $self->first->{'value'} eq $self->second->{'value'} );
+    return 1 if ( $self->card_count == 2 and $self->first->value eq $self->second->value );
     return;
 }
 
@@ -90,16 +89,16 @@ sub score {
     
     my $score = 0;
     foreach my $card ( @{ $self->cards } ) {
-        if ( $card->{'value'} =~ /[KQJ]/ ) {
+        if ( $card->value =~ /[KQJ]/ ) {
             $score += 10;
-        } elsif ( $card->{'value'} eq 'A' ) {
+        } elsif ( $card->value eq 'A' ) {
             next;
         } else {
-            $score += $card->{'value'}
+            $score += $card->value
         }
     }
     foreach my $card ( @{ $self->cards } ) {
-        if ( $card->{'value'} eq 'A' ) {
+        if ( $card->value eq 'A' ) {
             if ( $score + 11 > 21 ) {
                 $score += 1;
             } else {
