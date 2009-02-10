@@ -106,6 +106,21 @@ sub end_game : Command {
     return 'Alright, fine, no more game for you.';
 }
 
+sub hax : Command {
+    my ( $self, $message, $captures ) = @_;
+    
+    return unless ( $message->from eq $self->game_admin );
+    my $player = $captures->[0];
+    return 'Player "' . $player . '" doesn\'t exist, ' . $self->insult . '.'
+        unless ( $player and $self->game->players->{$player} );
+    my $amount = $captures->[1];
+    return 'What the hell is "' . $amount . '", ' . $self->insult . '?'
+        unless ( $amount and $amount =~ /^\d+$/ );
+    
+    $self->game->players->{$player} = $amount * 100;
+    return 'Hax enabled. ' . $self->amounts();
+}
+
 sub amounts : GlobalRegEx('^bj amounts') {
     my ( $self ) = @_;
     
@@ -229,7 +244,7 @@ sub hand_action {
         $self->game->collect_hand($hand);
         return $self->next_hand(\@messages);
     } elsif ( $hand->score == 21 ) {
-        $output .= ' Hey, you didn\t bust.';
+        $output .= ' Hey, you didn\'t bust.';
         push( @messages, $output );
         $self->game->collect_hand($hand);
         return $self->next_hand(\@messages);
