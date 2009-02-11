@@ -117,6 +117,10 @@ sub finish_hand {
             $self->players->{ $hand->player } += $self->bets->{ $hand->player } * 2;
         }
     }
+    
+    foreach my $player (@{ $self->players }) {
+        $self->players->{$player} = 0 if ( $self->players->{$player} < 1 );
+    }
     return 1;
 }
 
