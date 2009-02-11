@@ -118,7 +118,7 @@ sub finish_hand {
         }
     }
     
-    foreach my $player (@{ $self->players }) {
+    foreach my $player ( keys %{ $self->players } ) {
         $self->players->{$player} = 0 if ( $self->players->{$player} < 1 );
     }
     return 1;
