@@ -169,7 +169,7 @@ sub bet : GlobalRegEx('^bj bet \$?(\d+(\.\d\d)?)$') {
     $bet *= 100;
     return 'You have not bought in, ' . $message->from . '.'
         unless ( $self->game->players->{ $message->from } );
-    return 'You cannot bet $' . $bet . ', ' . $message->from . ', you only have $' . $self->game->players->{ $message->from } . '.' unless ( $self->game->players->{$message->from} >= $bet );
+    return 'You cannot bet $' . ( $bet / 100 ) . ', ' . $message->from . ', you only have $' . ( $self->game->players->{ $message->from } / 100 ) . '.' unless ( $self->game->players->{$message->from} >= $bet );
     
     $self->bets->{ $message->from } = $bet;
     
