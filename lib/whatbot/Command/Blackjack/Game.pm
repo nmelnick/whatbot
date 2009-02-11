@@ -142,7 +142,7 @@ sub split {
     
     return unless ( $self->can_split($hand) );
     $self->players->{ $hand->player } -= $self->bets->{ $hand->player };
-    $self->bets->{ $hand->player } *= 2;
+    $self->bets->{ $hand->player } += $self->bets->{ $hand->player };
     
     # Create first hand with first card
     my $first_hand = $hand->clone();
