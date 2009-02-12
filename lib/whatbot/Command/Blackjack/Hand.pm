@@ -68,7 +68,7 @@ sub has_ace {
     foreach my $card ( @{ $self->cards } ) {
         return 1 if ( $card->value eq 'A' );
     }
-    warn join( ',', @{ $self->cards ) );
+    warn join( ',', @{ $self->cards } );
     return;
 }
 
@@ -92,7 +92,8 @@ sub score {
     my ( $self ) = @_;
     
     my $score = 0;
-    foreach my $card ( @{ $self->cards } ) {
+    my $card;
+    foreach $card ( @{ $self->cards } ) {
         if ( $card->value =~ /[KQJ]/ ) {
             $score += 10;
         } elsif ( $card->value eq 'A' ) {
@@ -101,6 +102,7 @@ sub score {
             $score += $card->value
         }
     }
+    $card = undef;
     foreach my $card ( @{ $self->cards } ) {
         if ( $card->value eq 'A' ) {
             if ( $score + 11 > 21 ) {
