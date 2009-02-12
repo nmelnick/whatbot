@@ -187,9 +187,7 @@ sub deal : Command {
     
     $self->{'hands'} = $self->game->deal( $self->bets );
     $self->{'dealer_hand'} = shift( @{ $self->{'hands'} } );
-    if ( $self->dealer_hand->first->value eq 'A' ) {
-        # Insurance
-    } elsif ( $self->dealer_hand->blackjack ) {
+    if ( $self->dealer_hand->blackjack ) {
         my @messages;
         foreach my $hand ( @{$self->hands} ) {
             push( @messages, $self->show_hand($hand) );
