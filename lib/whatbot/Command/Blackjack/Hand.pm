@@ -68,7 +68,7 @@ sub has_ace {
     foreach my $card ( @{ $self->cards } ) {
         return 1 if ( $card->value eq 'A' );
     }
-    warn join( ',', @{ $self->cards );
+    warn join( ',', @{ $self->cards ) );
     return;
 }
 

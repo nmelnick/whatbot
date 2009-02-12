@@ -67,8 +67,7 @@ sub deal {
         $self->players->{ $player } -= $players->{$player};
         
         my $hand = new whatbot::Command::Blackjack::Hand (
-            'player'    => $player,
-            'game'      => $self
+            'player'    => $player
         );
         push( @hands, $hand );
     }
