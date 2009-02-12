@@ -57,7 +57,9 @@ sub disconnect {
 sub event_loop {
 	my ($self) = @_;
 	
-	$self->aim_handle->do_one_loop();
+	eval {
+	    $self->aim_handle->do_one_loop();
+    };
 }
 
 # Send a message
