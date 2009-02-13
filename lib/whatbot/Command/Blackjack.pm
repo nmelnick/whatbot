@@ -118,7 +118,7 @@ sub hax : Command {
     return 'What the hell is "' . $amount . '", ' . $self->insult . '?'
         unless ( $amount and $amount =~ /^\d+$/ );
     
-    $self->game->players->{$player} = $amount;
+    $self->game->players->{$player} = int( $amount * 100 );
     return 'Hax enabled. ' . $self->amounts();
 }
 
