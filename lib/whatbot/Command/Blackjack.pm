@@ -18,7 +18,7 @@ has 'bets'        => ( is => 'ro', isa => 'HashRef' );
 has 'dealer_hand' => ( is => 'ro' );
 has 'active_hand' => ( is => 'ro' );
 has 'hands'       => ( is => 'ro', isa => 'ArrayRef' );
-has 'buyin'       => ( is => 'rw', isa => 'Int', default => 10000 );
+has 'buyin'       => ( is => 'rw', isa => 'Int', default => 100 );
 has 'last_insult' => ( is => 'rw', isa => 'Str', default => 'rand' );
 has 'insults'     => ( is => 'ro', isa => 'ArrayRef', default => sub { [
     'retard',
@@ -60,9 +60,9 @@ sub play : Command {
     
     $buy_in = shift( @$buy_in );
     $self->{'game'} = new whatbot::Command::Blackjack::Game;
-    $self->buyin( $buy_in * 100 ) if ($buy_in);
+    $self->buyin($buy_in) if ($buy_in);
     
-    return 'Blackjack time, buy in is $' . ( $self->buyin / 100 ) . '. Anyone who wants to play, type "bj me". ' . $message->from . ', type "bj start" when everyone is ready.';
+    return 'Blackjack time, buy in is $' . $self->buyin . '. Anyone who wants to play, type "bj me". ' . $message->from . ', type "bj start" when everyone is ready.';
 }
 
 sub add_player : GlobalRegEx('^bj me$') {
@@ -100,7 +100,7 @@ sub end_game : Command {
     $self->{'dealer_hand'} = undef;
     $self->{'active_hand'} = undef;
     $self->{'hands'} = undef;
-    $self->{'buyin'} = 10000;
+    $self->{'buyin'} = 100;
     $self->{'last_insult'} = 'rand';
     
     return 'Alright, fine, no more game for you.';
@@ -112,18 +112,18 @@ sub hax : Command {
     return unless ( $message->from eq $self->game_admin );
     my ( $player, $amount ) = split( ' ', $captures->[0] );
     return 'Player "' . $player . '" doesn\'t exist, ' . $self->insult . '.'
-        unless ( $player and $self->game->players->{$player} );
+        unless ( $player and $self->game->player($player) );
     return 'What the hell is "' . $amount . '", ' . $self->insult . '?'
         unless ( $amount and $amount =~ /^\d+$/ );
     
-    $self->game->players->{$player} = $amount * 100;
+    $self->game->players->{$player} = $amount;
     return 'Hax enabled. ' . $self->amounts();
 }
 
 sub amounts : GlobalRegEx('^bj amounts') {
     my ( $self ) = @_;
     
-    return 'Players: ' . join( ', ', map { $_ . ' with $' . ( $self->game->players->{$_} !~ /00$/ ? sprintf( '%.02f', $self->game->players->{$_} / 100 ) : $self->game->players->{$_} / 100 ) } keys %{ $self->game->players } )
+    return 'Players: ' . join( ', ', map { $_ . ' with $' . ( $self->game->player($_) =~ /00$/ ? sprintf( '%.02f', $self->game->player($_) ) : $self->game->player($_) ) } keys %{ $self->game->players } )
 }
 
 sub new_hand {
@@ -166,10 +166,10 @@ sub bet : GlobalRegEx('^bj bet \$?(\d+(\.\d\d)?)$') {
     
     my $bet = $captures->[0];
     return unless ( defined $bet );
-    $bet *= 100;
+    $bet = 0 if ( $bet < 0.01 );
     return 'You have not bought in, ' . $message->from . '.'
         unless ( $self->game->players->{ $message->from } );
-    return 'You cannot bet $' . ( $bet / 100 ) . ', ' . $message->from . ', you only have $' . ( $self->game->players->{ $message->from } / 100 ) . '.' unless ( $self->game->players->{$message->from} >= $bet );
+    return 'You cannot bet $' . $bet . ', ' . $message->from . ', you only have $' . $self->game->player($message->from) . '.' unless ( $self->game->player($message->from) >= $bet );
     
     $self->bets->{ $message->from } = $bet;
     
@@ -186,13 +186,14 @@ sub deal : Command {
     $self->{'waiting_for_bets'} = 0;
     
     $self->{'hands'} = $self->game->deal( $self->bets );
+    return $self->new_hand() unless ( $self->{'hands'} );
     $self->{'dealer_hand'} = shift( @{ $self->{'hands'} } );
     if ( $self->dealer_hand->blackjack ) {
         my @messages;
         foreach my $hand ( @{$self->hands} ) {
-            push( @messages, $self->show_hand($hand) );
+            push( @messages, $hand->ircize() );
         }
-        push( @messages, $self->show_hand( $self->dealer_hand ) );
+        push( @messages, $self->dealer_hand->ircize() );
         push( @messages, 'Dealer has Blackjack. Thank you for all of your money, ' . $self->insult . ( keys %{ $self->bets } > 1 ? 's' : '' ) . '.' );
         return $self->new_hand( \@messages );
     }
@@ -208,12 +209,12 @@ sub next_hand {
     # Check if last hand, if so, show dealer hand and cycle
     unless ($hand) {
         $messages = [] unless ($messages);
-        $self->game->dealer_hand( $self->{'dealer_hand'} );
-        my $output = 'Dealer: ' . $self->show_hand( $self->dealer_hand );
+        $self->game->dealer_hand( $self->dealer_hand );
+        my $output = $self->dealer_hand->ircize();
         if ( $self->dealer_hand->busted ) {
             $output .= ' Dealer busts.';
-        } elsif ( $self->{'dealer_hand'}->score == 21 ) {
-            $output .= ' Good luck.';
+        } elsif ( $self->dealer_hand->score == 21 ) {
+            $output .= ' WOO.';
         }
         push( @$messages, $output );
         return $self->new_hand($messages);
@@ -228,8 +229,7 @@ sub hand_action {
     my @messages;
     @messages = @$messages if ($messages);
     my $hand = $self->active_hand;
-    my $output = $hand->player . ': ';
-    $output .= $self->show_hand($hand);
+    my $output = $hand->ircize();
     if ( $hand->blackjack ) {
         $output .= ' Congratulations, you got blackjack.';
         push( @messages, $output );
@@ -259,18 +259,6 @@ sub hand_action {
         return \@messages;
     }
     
-}
-
-sub show_hand {
-    my ( $self, $hand ) = @_;
-    
-    my $output;
-    foreach my $card ( @{ $hand->cards } ) {
-        $output .= $card->ircize . '  ';
-    }
-    $output .= '(' . $hand->score . ').';
-    
-    return $output;
 }
 
 sub hit : GlobalRegEx('^bj (h|hit)$') {

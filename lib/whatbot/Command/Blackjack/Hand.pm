@@ -12,6 +12,7 @@ sub clone {
         'player'    => $self->player
     );
 }
+
 sub fingerprint {
     my ( $self ) = @_;
     
@@ -23,6 +24,19 @@ sub fingerprint {
         $self->second->suit
     );
 }
+
+sub ircize {
+    my ( $self ) = @_;
+    
+    my $output = $self->player . ': ';
+    foreach my $card ( @{ $self->cards } ) {
+        $output .= $card->ircize . '  ';
+    }
+    $output .= '(' . $self->score . ').';
+    
+    return $output;
+}
+
 sub first {
     my ( $self ) = @_;
     
@@ -92,24 +106,21 @@ sub score {
     my ( $self ) = @_;
     
     my $score = 0;
-    my $card;
-    foreach $card ( @{ $self->cards } ) {
+    my @aces;
+    foreach my $card ( @{ $self->cards } ) {
         if ( $card->value =~ /[KQJ]/ ) {
             $score += 10;
         } elsif ( $card->value eq 'A' ) {
-            next;
+            push( @aces, $card );
         } else {
             $score += $card->value
         }
     }
-    $card = undef;
-    foreach my $card ( @{ $self->cards } ) {
-        if ( $card->value eq 'A' ) {
-            if ( $score + 11 > 21 ) {
-                $score += 1;
-            } else {
-                $score += 11;
-            }
+    foreach my $ace ( @aces ) {
+        if ( $score + 11 > 21 ) {
+            $score += 1;
+        } else {
+            $score += 11;
         }
     }
     
