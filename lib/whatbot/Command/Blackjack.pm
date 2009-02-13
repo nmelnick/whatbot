@@ -94,6 +94,8 @@ sub start : GlobalRegEx('^bj start$') {
 sub end_game : Command {
     my ( $self ) = @_;
     
+    return unless ( $self->game );
+    
     $self->{'game'} = undef;
     $self->{'game_admin'} = undef;
     $self->{'bets'} = undef;
