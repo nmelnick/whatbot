@@ -15,7 +15,6 @@ use whatbot::Message;
 has 'my_config' => ( is => 'rw', isa => 'HashRef' );
 has 'name'      => ( is => 'rw', isa => 'Str' );
 has 'me'        => ( is => 'rw', isa => 'Str' );
-has 'last_message' => ( is => 'rw', isa => 'whatbot::Message' );
 
 sub BUILD {
 	my ( $self ) = @_;
@@ -72,8 +71,9 @@ sub event_message_public {
 			'origin'			=> $self,
 		);
 	}
-	unless ( $from eq $self->me ) {
-	    $self->last_message($message);
+	if ( $from eq $self->me ) {
+	    $self->parent->last_message($message);
+    } else {
 	    $self->parse_response( $self->controller->handle($message) );
     }
 }

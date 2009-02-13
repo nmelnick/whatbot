@@ -216,7 +216,9 @@ sub handle {
 							my $outmessage;
 							if ( ref($result_single) eq 'whatbot::Message' ) {
 								$outmessage = $result_single;
-								$outmessage->content =~ s/!who/$message->from/;
+								my $content = $outmessage->content;
+								$content =~ s/!who/$message->from/;
+								$outmessage->content($content);
 							} else {
 								$result_single =~ s/!who/$message->from/;
 								$outmessage = new whatbot::Message(

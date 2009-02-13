@@ -24,6 +24,7 @@ has 'initial_config'    => ( is => 'rw', isa => 'whatbot::Config' );
 has 'kill_self'         => ( is => 'rw', isa => 'Int', default => 0 );
 has 'version'           => ( is => 'ro', isa => 'Str', default => $VERSION );
 has 'skip_extensions'   => ( is => 'rw', isa => 'Int', default => 0 );
+has 'last_message'      => ( is => 'rw', isa => 'whatbot::Message' );
 
 sub config {
     my ( $self, $basedir, $config_path ) = @_;

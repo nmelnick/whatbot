@@ -43,4 +43,10 @@ sub message : Monitor {
 	return undef;
 }
 
+sub last_message : GlobalRegEx('^show last message$') {
+    my ( $self ) = @_;
+    
+    return $self->parent->last_message;
+}
+
 1;
