@@ -58,7 +58,7 @@ sub give {
 sub busted {
     my ( $self ) = @_;
     
-    return 1 if ( $self->score > 21 );
+    return ( $self->score > 21 ? 1 : 0 );
     return;
 }
 
@@ -66,7 +66,6 @@ sub blackjack {
     my ( $self ) = @_;
     
     return 1 if ( $self->score == 21 and $self->card_count == 2 );
-    warn $self->score . ' ' . $self->card_count;
     return;
 }
 
@@ -82,24 +81,19 @@ sub has_ace {
     foreach my $card ( @{ $self->cards } ) {
         return 1 if ( $card->value eq 'A' );
     }
-    warn join( ',', @{ $self->cards } );
     return;
 }
 
 sub can_double {
     my ( $self ) = @_;
     
-    return 1 if ( $self->card_count == 2 and $self->score > 8 and $self->score < 12 );
-    warn join( ',', $self->card_count, $self->first->value, $self->second->value );
-    return;
+    return ( $self->card_count == 2 and $self->score > 8 and $self->score < 12 ? 1 : 0 );
 }
 
 sub can_split {
     my ( $self ) = @_;
     
-    return 1 if ( $self->card_count == 2 and $self->first->value eq $self->second->value );
-    warn join( ',', $self->card_count, $self->first->value, $self->second->value );
-    return;
+    return ( $self->card_count == 2 and $self->first->value eq $self->second->value ? 1 : 0 );
 }
 
 sub score {

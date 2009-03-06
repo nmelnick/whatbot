@@ -98,7 +98,6 @@ sub deal {
     }
     
     $self->hands(\@hands);
-    $self->player_dump();
     return clone( \@hands );
 }
 
@@ -128,7 +127,8 @@ sub finish_hand {
         } elsif ( $hand->score eq $dealer->score ) {
             $self->players->{ $hand->player } += int( $self->bets->{ $hand->player } );
         } elsif ( $hand->blackjack ) {
-            $self->players->{ $hand->player } += int( $self->bets->{ $hand->player } * 2.5 );
+            my $score = $self->bets->{ $hand->player } * 2.5;
+            $self->players->{ $hand->player } += int($score);
         } elsif ( $hand->score > $dealer->score ) {
             $self->players->{ $hand->player } += int( $self->bets->{ $hand->player } * 2 );
         }
@@ -137,7 +137,7 @@ sub finish_hand {
     foreach my $player ( keys %{ $self->players } ) {
         $self->players->{$player} = 0 if ( $self->players->{$player} < 1 );
     }
-    $self->player_dump();
+    
     return 1;
 }
 
