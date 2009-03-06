@@ -117,10 +117,11 @@ sub score {
         }
     }
     foreach my $ace ( @aces ) {
-        if ( $score + 11 > 21 ) {
-            $score += 1;
-        } else {
-            $score += 11;
+        $score += 1;
+    }
+    foreach my $ace ( @aces ) {
+        if ( $score + 10 <= 21 ) {
+            $score += 10;
         }
     }
     
