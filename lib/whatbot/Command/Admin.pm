@@ -58,7 +58,7 @@ sub rehash : Command {
 	
 	return undef unless ( defined $self->my_config and $message->from eq $self->my_config->{'user'} );
 	
-	system( $ENV{_} . ' ' . join( ' ', @ARGV ) . ' &' );
+	system( 'nice ' . $ENV{_} . ' ' . join( ' ', @ARGV ) . ' &' );
 	exit(1);
 }
 
