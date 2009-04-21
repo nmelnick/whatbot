@@ -68,7 +68,7 @@ sub get {
         '_select' => 'SUM(amount)',
         'subject' => $topic
     });
-    return ( $row ? $row->a : '' );
+    return ( $row ? $row->column_data->[0] : '' );
 }
 
 sub get_extended {
@@ -91,8 +91,8 @@ sub get_extended {
     });
     
     return {
-        'Increments' => $increment_row->a,
-        'Decrements' => $decrement_row->a,
+        'Increments' => $increment_row->column_data->[0],
+        'Decrements' => $decrement_row->column_data->[0],
         'Last'       => [
             $last_row->user,
             $last_row->amount
