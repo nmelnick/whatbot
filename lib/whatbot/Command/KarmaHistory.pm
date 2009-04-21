@@ -63,7 +63,7 @@ sub controversy : GlobalRegEx('^[\. ]*?fightin(?:'|g)? words\??$') {
     my $limit = 10;
 
     my $sth = $self->store->handle->prepare("select subject, votes - votesum as score from (select subject, sum(amount) as votesum, sum(abs(amount)) as votes from karma group by subject) order by score desc limit $limit");
-    $sth->excute();
+    $sth->execute();
 
     my $row;
     my @stuff;
