@@ -11,7 +11,8 @@ package whatbot::Command::Factoid;
 use Moose;
 BEGIN { extends 'whatbot::Command'; }
 
-has 'stfu' => ( is => 'rw', isa => 'HashRef', default => sub { { 'subject' => '', 'time' => '' }; } );
+has 'stfu'     => ( is => 'rw', isa => 'HashRef', default => sub { { 'subject' => '', 'time' => '' }; } );
+has 'who_said' => ( is => 'rw', isa => 'Str' );
 
 sub register {
 	my ($self) = @_;
@@ -77,7 +78,7 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
 		($factoid) = @{$self->store->retrieve('factoid', [qw/subject is_plural/], { 'factoid_id' => $factoid_desc->{'factoid_id'} })};
 		
 		# Who said
-		$self->{'last_random_fact_who_said'} = $factoid_desc->{'user'};
+		$self->who_said( $factoid_desc->{'user'} );
 		
 		# Override retrieve
 		my $subject = $factoid->{'subject'};
@@ -106,7 +107,7 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
 			$response .= ', ' if ( defined $response );
 			$response .= $user->{'user'};
 		}
-		$self->{'last_random_fact_who_said'} = $response;
+		$self->who_said($response);
 		return $self->retrieve( $factoid->{'subject'}, $message );
 		
 	}
@@ -116,14 +117,12 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
 sub who_said : GlobalRegEx('^who said that') : StopAfter {
     my ( $self, $message, $captures ) = @_;
     
-	if ( defined $self->{'last_random_fact_who_said'} ) {
-		if ( $message->from eq $self->{'last_random_fact_who_said'} ) {
+	if ( $self->who_said ) {
+		if ( $message->from eq $self->who_said ) {
 		    return $message->from . ': it was YOU!';
 		} else {
-		    return $message->from . ': ' . $self->{'last_random_fact_who_said'};
+		    return $message->from . ': ' . $self->who_said;
 	    }
-	} else {
-		print STDERR "haha fags\n";
 	}
 	
 	return;
@@ -133,7 +132,7 @@ sub shut_up : GlobalRegEx('^(shut up|stfu) about (.*)') : StopAfter {
     my ( $self, $message, $captures ) = @_;
     
 	# STFU about
-	if ( $self->stfu->{'subject'} eq $captures->[1] and (time - $self->stfu->{'time'}) < 45 ) {
+	if ( $self->stfu->{'subject'} eq $captures->[1] and ( time - $self->stfu->{'time'} ) < 45 ) {
 		return undef;
 		
 	} elsif ( defined $self->stfu ) {
@@ -143,20 +142,20 @@ sub shut_up : GlobalRegEx('^(shut up|stfu) about (.*)') : StopAfter {
 		});
 	}
 	
-	my $silent = $self->store->silent_factoid( $captures->[1], 1 );
-	if ( defined $silent ) {
+	my $silent = $self->model('factoid')->toggle_silence( $captures->[1] );
+	if ($silent) {
 		$self->stfu({
 			'subject' => $captures->[1],
 			'time'    => time
 		});
 		
-		if ($silent == 1) {
-			return "I will shut up about '" . $captures->[1] . "', " . $message->from . ".";
+		if ( $silent == 1 ) {
+			return 'I will shut up about "' . $captures->[1] . '", ' . $message->from . '.';
 		} else {
-			return "I will keep talking about '" . $captures->[1] . "', " . $message->from . ".";
+			return 'I will keep talking about "' . $captures->[1] . '", ' . $message->from . '.';
 		}
 	} else {
-		return "I don't have any facts for '" . $captures->[1] . "', " . $message->from . ".";
+		return 'I do not have any facts for "' . $captures->[1] . '", ' . $message->from . '.';
 	}
 	
 	return;
@@ -187,10 +186,8 @@ sub retrieve {
 			@facts = @{$factoid->{'facts'}};
 		}
 		
-		if (scalar(@facts) == 1) {
-			print STDERR "user: " . $factoid->{'user'} . "\n";
-			$self->{'last_random_fact_who_said'} = $factoid->{'user'};
-			print STDERR $self->{'last_random_fact_who_said'}, "\n";
+		if (scalar( @facts) == 1 ) {
+			$self->who_said( $factoid->{'user'} );
 		}
 		
 		if ( scalar(@facts) == 1 and $facts[0] =~ /^<reply>/ ) {

@@ -206,24 +206,4 @@ sub seen {
 	return $itemRef;
 }
 
-sub silent_factoid {
-	my ($self, $subject, $store) = @_;
-	
-	return undef if (!$subject);
-	$subject = lc($subject);
-	
-	my ($factoid) = @{ $self->retrieve("factoid", [qw/factoid_id silent/], { subject => $subject }) };
-	
-	if ($store and defined $factoid and $factoid->{factoid_id} > 0) {
-		if ($factoid->{silent} == 1) {
-			$self->update("factoid", { silent => 0 }, { factoid_id => $factoid->{factoid_id} });
-		} else {
-			$self->update("factoid", { silent => 1 }, { factoid_id => $factoid->{factoid_id} });
-		}
-		($factoid) = @{ $self->retrieve("factoid", [qw/factoid_id silent/], { subject => $subject }) };
-	}
-	
-	return (defined $factoid ? $factoid->{silent} : undef);
-}
-
 1;

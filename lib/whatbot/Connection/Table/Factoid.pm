@@ -96,6 +96,42 @@ sub BUILD {
     $self->ignore($ignore);
 }
 
+sub is_silent {
+    my ( $self, $subject ) = @_;
+    
+    return unless ($subject);
+    $subject = lc($subject);
+    
+    my $factoid = $self->search_one({
+        'subject' => $subject
+    });
+    if ($factoid) {
+        return $factoid->silent;
+    }
+    
+    return;
+}
+
+sub silence {
+    my ( $self, $subject ) = @_;
+    
+    return unless ($subject);
+    $subject = lc($subject);
+    
+    my $factoid = $self->search_one({
+        'subject' => $subject
+    });
+    if ($factoid) {
+        if ( $factoid->silent ) {
+            $factoid->silent(0);
+        } else {
+            $factoid->silent(1);
+        }
+        $factoid->save();
+    }
+    
+    return $self->is_silent($subject);
+}
 
 1;
 
