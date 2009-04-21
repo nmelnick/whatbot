@@ -96,7 +96,7 @@ sub last : Command {
     $basedir =~ s/\/$appname$//;
     $basedir =~ s/\/bin$//;
     unless ($rev) {
-    	if (-e $basedir . '/.svn') {
+    	if ( -e $basedir . '/.svn' ) {
     		my $inf = `svn up $basedir`;
     		$inf = `svn info $basedir`;
     		if ($inf =~ /Revision:\s+(\d+)/) {
