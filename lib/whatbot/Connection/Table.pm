@@ -73,10 +73,9 @@ sub search {
     if ( $search_data->{'_select'} ) {
         $query .= $search_data->{'_select'};
         $columns = [];
-        # my $col_name = 1;
-        # foreach my $select ( split( /\s*,\s*/, $search_data->{'_select'} ) ) {
-        #     push( @$columns, 'column_' . $col_name++ );
-        # }
+        foreach my $select ( split( /\s*,\s*/, $search_data->{'_select'} ) ) {
+            push( @$columns, 'column_' . ( @$columns + 1 ) );
+        }
     } else {
         $query .= join( ', ', @{ $self->columns } );
     }
@@ -164,3 +163,73 @@ sub _make_table {
 }
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::Connection::Table - Class wrapper for a database table
+
+=head1 SYNOPSIS
+
+ my $table = new whatbot::Connection::Table;
+ $table->init_table({});
+ $table->create({});
+
+=head1 DESCRIPTION
+
+whatbot::Connection::Table wraps a database table into a simple class to add
+and return data from. To generate a class for a given table, pass 'init_table'
+to a new Table object with the table name and column definitions. If the table
+doesn't exist in the database, it will be auto created for you. Once the object
+is live, 'create' and 'search' methods are available to add and retrieve rows
+(L<whatbot::Connection::Table::Row>) from the database. To delete or update data,
+perform those actions directly on the returned rows.
+
+=head1 METHODS
+
+=over 4
+
+=item init_table( \%table_params )
+
+Create a new table definition.
+
+=item create( \%column_data )
+
+Create a new row in this table. The passed hashref should contain the column
+names as keys, with the desired data in values. Any column not listed in the
+hashref will be filled by the corresponding entry in init_table's 'defaults' if
+available, or will be left to the database to decide. Returns a
+L<whatbot::Connection::Table::Row> object if successful, undef on failure.
+
+=item delete()
+
+Delete this record from the database.
+
+=back
+
+=head1 INHERITANCE
+
+=over 4
+
+=item whatbot::Component
+
+=over 4
+
+=item whatbot::Connection
+
+=over 4
+
+=item whatbot::Connection::Table
+
+=back
+
+=back
+
+=back
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut
