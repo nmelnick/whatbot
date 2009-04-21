@@ -104,7 +104,7 @@ sub search {
                 new whatbot::Connection::Table::Row(
                     'base_component' => $self->parent->base_component,
                     'primary_key'    => $self->primary_key,
-                    'table'          => $self->table,
+                    'table'          => $self->table_name,
                     'columns'        => $columns,
                     'column_data'    => \@record
                 )
@@ -117,7 +117,7 @@ sub search {
                 new whatbot::Connection::Table::Row(
                     'base_component' => $self->parent->base_component,
                     'primary_key'    => $self->primary_key,
-                    'table'          => $self->table,
+                    'table'          => $self->table_name,
                     'columns'        => $columns,
                     'column_data'    => [ map { $record->{$_} } @$columns ]
                 )
