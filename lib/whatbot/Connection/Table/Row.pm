@@ -43,6 +43,7 @@ sub save {
         warn 'Sorry, I suck, I am not sure how to delete a row without a pkey.';
         return;
     }
+    delete ( $self->changed->{ $self->primary_key } );
     my $sth = $self->connection->handle->do(
         'UPDATE ' . $self->table . 
         ' SET ' . join( ', ', map { $_ . ' = ' . $self->connection->handle->quote( $self->column_hash->{$_} ) } keys %{ $self->changed } ) .
@@ -80,3 +81,56 @@ sub _create_column_accessor {
 }
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::Connection::Table::Row - Class wrapper for a database table row
+
+=head1 SYNOPSIS
+
+ my $row = $table->get(1);
+ $row->row_id;
+
+=head1 DESCRIPTION
+
+whatbot::Connection::Table::Row wraps a record/row from a database result in
+an easy to use class. Each column in the record will auto-generate an accessor
+to be able to retrieve and set values. Call 'delete' to delete the given row,
+and call 'save' to update the row with new values. You cannot change the
+primary key at this time.
+
+=head1 METHODS
+
+=over 4
+
+=item save
+
+Saves changes made back to the database.
+
+=item delete
+
+Delete this record from the database.
+
+=back
+
+=head1 INHERITANCE
+
+=over 4
+
+=item whatbot::Component
+
+=over 4
+
+=item whatbot::Connection::Table::Row
+
+=back
+
+=back
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut
