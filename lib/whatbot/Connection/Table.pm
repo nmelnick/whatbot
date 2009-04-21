@@ -73,9 +73,9 @@ sub search {
     if ( $search_data->{'_select'} ) {
         $query .= $search_data->{'_select'};
         $columns = [];
-        my $col_name = 'a';
+        my $col_name = 1;
         foreach my $select ( split( /\s*,\s*/, $search_data->{'_select'} ) ) {
-            push( @$columns, $col_name++ );
+            push( @$columns, 'column_' . $col_name++ );
         }
     } else {
         $query .= join( ', ', @{ $self->columns } );
