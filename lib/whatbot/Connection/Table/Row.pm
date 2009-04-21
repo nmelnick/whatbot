@@ -76,7 +76,7 @@ sub _create_column_accessor {
     my ( $self, $name ) = @_;
     
     no warnings 'redefine';
-    eval "sub $name { my ( \$self, \$value ) = \@_; if ( $name eq \$self->primary_key and \$value ) { warn 'Cannot change primary key value, sorry.'; return \$self->column_hash->{$name}; } if (\$value) { \$self->column_hash->{$name} = \$value; \$self->changed->{$name} = 1; } \$self->_fill_array(); return \$self->column_hash->{$name}; }";
+    eval "sub $name { my ( \$self, \$value ) = \@_; if (\$value) { \$self->column_hash->{$name} = \$value; \$self->changed->{$name} = 1; } \$self->_fill_array(); return \$self->column_hash->{$name}; }";
 }
 
 1;
