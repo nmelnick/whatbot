@@ -28,7 +28,9 @@ sub what_does : GlobalRegEx('(what|who) does (\w+) (like|hate)') {
     my $verb = $captures->[2];
     my $nick = $message->from;
 
-    my $karmas = $self->store->retrieve('karma', [ 'subject', 'amount' ], { 'user' => $who });
+    my $karmas = $self->model('karma')->search({
+        'user' => $who
+    });
 
     if (!$karmas or !@$karmas) {
         return "$nick: I don't know what $who ${verb}s.";
@@ -37,7 +39,7 @@ sub what_does : GlobalRegEx('(what|who) does (\w+) (like|hate)') {
     my %karma;
     while (@$karmas) {
         $_ = shift(@$karmas);
-        $karma{ $_->{'subject'} } += $_->{'amount'};
+        $karma{ $_->subject } += $_->amount;
     }
 
     # find top (or bottom) 5
