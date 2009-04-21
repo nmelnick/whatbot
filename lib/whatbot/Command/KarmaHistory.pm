@@ -57,6 +57,23 @@ sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
 	return "$nick: $who doesn't ${verb} anything weird. :(";
 }
 
+sub controversy : GlobalRegEx('^[\. ]*?fightin(?:'|g)? words\??$') {
+    my ( $self, $message, $captures ) = @_;
+
+    my $limit = 10;
+
+    my $sth = $self->store->handle->prepare("select subject, votes - votesum as score from (select subject, sum(amount) as votesum, sum(abs(amount)) as votes from karma group by subject) order by score desc limit $limit");
+    $sth->excute();
+
+    my $row;
+    my @stuff;
+    while ( $row = $sth->fetchrow_arrayref ) {
+        my ( $subject, $score ) = @$row;
+        push @stuff, "$subject ($score)";
+    }
+    return join(', ', @stuff);
+}
+
 sub superlative : GlobalRegEx('^[\. ]*?what(?: is|\'s)(?: the)? (best|worst)') {
 	my ( $self, $message, $captures ) = @_;
 
