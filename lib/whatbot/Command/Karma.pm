@@ -65,7 +65,7 @@ sub info : Command {
     
     if ($captures) {
 		my $phrase = join( ' ', @$captures );
-		my $karmaInfo = $self->store->karma( $phrase, 1 );
+		my $karmaInfo = $self->model('karma')->get_extended( $phrase );
 		if (
 		    defined $karmaInfo
 		    and ( $karmaInfo->{'Increments'} != 0 or $karmaInfo->{'Decrements'} != 0 )
