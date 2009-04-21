@@ -58,7 +58,6 @@ sub _fill {
         my $column = $self->columns->[$i];
         $self->_create_column_accessor($column); 
         if ( $self->column_data->[$i] ) {
-            $self->$column( $self->column_data->[$i] );
             $self->column_hash->{$column} = $self->column_data->[$i];
         }
     }

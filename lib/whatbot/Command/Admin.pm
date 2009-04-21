@@ -118,19 +118,21 @@ sub retrieve : Command {
 	
 	my $content = $message->content;
 	$content =~ s/^admin *retrieve *//;
-	my ( $table, $columns, @where ) = split( //, $content );
+	my ( $model ) = split( / /, $content );
+	$content =~ s/.*?(\{.*?\})$/$1/;
 	
-	my %where_hash;
-	foreach my $w (@where) {
-		my ($k, $v) = split(/=/, $w);
-		$where_hash{$k} = $v;
+	my $params = eval "$content";
+	my $row;
+	eval {
+    	$row = $self->model($model)->search_one($params);
+	};
+	if ($@) {
+	    return 'Error executing: ' . $@;
+	} else {
+	    return join( ', ', map { $row->columns->[$_] . ' => "' . $row->column_data->[$_] . '"' } 0..( scalar(@{ $row->column_data }) - 1) );
 	}
-	my ($result) = @{ $self->store->retrieve($table, [split(/\|/, $columns)], \%where_hash) };
-	my $response;
-	foreach my $key (keys %$result) {
-		$response .= $key . ' => "' . $result->{$key} . '" ';
-	}
-	return $response;
+	
+	return;
 }
 
 1;

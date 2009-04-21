@@ -10,6 +10,7 @@ package whatbot::Connection::Table;
 use Moose;
 extends 'whatbot::Connection';
 
+use Data::Dumper;
 use whatbot::Connection::Table::Row;
 
 has 'table_name'    => ( is => 'rw', isa => 'Str' );
@@ -123,7 +124,6 @@ sub search {
             );
         }
     }
-    
     return \@results;
 }
 
