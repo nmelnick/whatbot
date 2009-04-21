@@ -87,13 +87,13 @@ sub parse_message : GlobalRegEx('[\+\-]{2}') {
 		# more than one word
 		my $phrase = $1;
 		my $op = $2;
-		return $self->parseOperator( $phrase, $op, $message->from );
+		return $self->parse_operator( $phrase, $op, $message->from );
 		
 	} elsif  ( $message->content =~ /([^ ]+)([\+\-][\+\-])/ ) {
 		# one word
 		my $word = $1;
 		my $op = $2;
-		return $self->parseOperator( $word, $op, $message->from );
+		return $self->parse_operator( $word, $op, $message->from );
 
 	}
 	
@@ -106,8 +106,8 @@ sub karma : CommandRegEx('(.*)') {
     if ($captures) {
 		my $phrase = $captures->[0];
 		return if ( $phrase =~ /^info/ );   # Hack to pass through if requesting info
-		my $karma = $self->store->karma($phrase);
-		if (defined $karma and $karma != 0) {
+		my $karma = $self->model('karma')->get($phrase);
+		if ( $karma and $karma != 0 ) {
 			return "$phrase has a karma of $karma";
 		} else {
 			return "$phrase has no karma";
@@ -115,7 +115,7 @@ sub karma : CommandRegEx('(.*)') {
     }
 }
 
-sub parseOperator {
+sub parse_operator {
 	my ( $self, $subject, $operator, $from ) = @_;
 	
 	$subject =~ s/\++$//;
@@ -136,13 +136,13 @@ sub parseOperator {
 sub increment {
 	my ( $self, $subject, $from ) = @_;
 	
-	return $self->store->karmaIncrement($subject, $from);
+	return $self->model('karma')->increment( $subject, $from );
 }
 
 sub decrement {
 	my ( $self, $subject, $from ) = @_;
 	
-	return $self->store->karmaDecrement($subject, $from);
+	return $self->model('karma')->decrement( $subject, $from );
 }
 
 1;

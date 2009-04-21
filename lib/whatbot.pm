@@ -59,7 +59,7 @@ sub run {
 	$self->report_error('Invalid configuration')
 	    unless ( defined $self->initial_config and $self->initial_config->config_hash );
 	    
-	$self->initial_config->{'io'} = [$override_io] if (defined $override_io);
+	$self->initial_config->{'io'} = [$override_io] if ($override_io);
 	
 	# Start Logger
 	my $log = new whatbot::Log(
@@ -75,6 +75,47 @@ sub run {
 		'log'		=> $log
 	);
 	$self->base_component($base_component);
+	
+	# Find and store models
+	$self->report_error( 'Invalid connection type: ' . $self->initial_config->connection->{'handler'} )
+	    unless ( $self->initial_config->connection and $self->initial_config->connection->{'handler'} );
+	    
+	my $connection_class = 'whatbot::Connection::' . $self->initial_config->connection->{'handler'};
+	eval "require $connection_class";
+	$self->report_error($@) if ($@);
+	
+	my $connection = $connection_class->new(
+	    'base_component' => $base_component
+	);
+	$connection->connect();
+	$self->report_error('Configured connection failed to load properly')
+	    unless ( defined $connection and defined $connection->handle );
+	$base_component->connection($connection);
+	
+	my %model;
+	my $root_dir = $INC{'whatbot/Controller.pm'};
+	$root_dir =~ s/Controller\.pm$/Connection\/Table/;
+	opendir( MODEL_DIR, $root_dir );
+	while ( my $name = readdir(MODEL_DIR) ) {
+		next unless ( $name =~ /^[A-z0-9]+\.pm$/ and $name ne 'Row.pm' );
+		
+		my $command_path = $root_dir . '/' . $name;
+		$name =~ s/\.pm//;
+		my $class_name = 'whatbot::Connection::Table::' . $name;
+		eval {
+		    eval "require $class_name";
+    		$model{ lc($name) } = $class_name->new(
+    		    'base_component' => $base_component,
+    		    'handle'         => $connection->handle
+    		);
+    	};
+    	if ($@) {
+    	    warn 'Error loading ' . $class_name . ': ' . $@;
+    	} else {
+			$log->write('-> ' . $class_name . ' loaded.');
+    	}
+	};
+	$base_component->models(\%model);
 	
 	# Start Store module
 	$self->report_error('Invalid store type')
@@ -92,7 +133,7 @@ sub run {
 	    unless ( defined $store and defined $store->handle );
 	$self->base_component->store($store);
 	
-	# RANDOMIZE TIMER
+	# Start and Randomize Timer
 	my $timer = new whatbot::Timer(
 		'base_component' 	=> $base_component
 	);

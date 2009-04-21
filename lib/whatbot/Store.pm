@@ -226,48 +226,4 @@ sub silent_factoid {
 	return (defined $factoid ? $factoid->{silent} : undef);
 }
 
-sub karma {
-	my ($self, $subject, $extended) = @_;
-	
-	if ($extended) {
-		my %return;
-		my ($incRef) = @{$self->retrieve("karma", ["COUNT(amount) AS inc"], { subject => $subject, amount => 1 })};
-		$return{Increments} = $incRef->{inc};
-		my ($decRef) = @{$self->retrieve("karma", ["COUNT(amount) AS dec"], { subject => $subject, amount => -1 })};
-		$return{Decrements} = $decRef->{dec};
-		my ($lastRef) = @{$self->retrieve("karma", [qw/amount user/], { subject => $subject }, "karma_id DESC", 1)};
-		$return{Last} = [$lastRef->{user}, $lastRef->{amount}];
-		return \%return;
-	} else {
-		my ($karmaRef) = @{$self->retrieve("karma", ["SUM(amount) AS karma"], { subject => $subject })};
-		return $karmaRef->{karma};
-	}
-}
-
-sub karmaIncrement {
-	my ($self, $subject, $from) = @_;
-	
-	return undef if (!$subject or $subject eq '' or $subject =~ /[\-\(\)\[\]\$]/);
-	$subject = lc($subject);
-	
-	$self->store("karma", {
-		subject	=> $subject,
-		user	=> $from,
-		amount	=> 1
-	});
-}
-
-sub karmaDecrement {
-	my ($self, $subject, $from) = @_;
-	
-	return undef if (!$subject or $subject eq '' or $subject =~ /[\-\(\)\[\]\$]/);
-	$subject = lc($subject);
-	
-	$self->store("karma", {
-		subject	=> $subject,
-		user	=> $from,
-		amount	=> -1
-	});
-}
-
 1;

@@ -34,11 +34,11 @@ sub build_command_map {
 	my $root_dir = $INC{'whatbot/Controller.pm'};
 	$root_dir =~ s/Controller\.pm/Command/;
 	
-	opendir(COMMAND_DIR, $root_dir);
-	while (my $name = readdir(COMMAND_DIR)) {
-		next unless ($name =~ /^[A-z0-9]+\.pm$/);
+	opendir( COMMAND_DIR, $root_dir );
+	while ( my $name = readdir(COMMAND_DIR) ) {
+		next unless ( $name =~ /^[A-z0-9]+\.pm$/ );
 		
-		my $commandPath = $root_dir . '/' . $name;
+		my $command_path = $root_dir . '/' . $name;
 		$name =~ s/\.pm//;
 		my $class_name = 'whatbot::Command::' . $name;
 		eval "require $class_name";
@@ -318,6 +318,6 @@ command.
 
 =head1 LICENSE/COPYRIGHT
 
-Undetermined at this time. :)
+Be excellent to each other and party on, dudes.
 
 =cut

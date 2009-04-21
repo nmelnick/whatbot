@@ -58,6 +58,6 @@ Number of decks in the shoe.
 
 =head1 LICENSE/COPYRIGHT
 
-Undetermined at this time. :)
+Be excellent to each other and party on, dudes.
 
 =cut

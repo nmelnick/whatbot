@@ -66,10 +66,18 @@ Array reference containing each card in the stack.
 
 Shuffles the cards in the cards array reference.
 
+=item card_count()
+
+Returns the current number of cards left in the stack.
+
+=item take()
+
+Pulls a card from the stack and returns it.
+
 =back
 
 =head1 LICENSE/COPYRIGHT
 
-Undetermined at this time. :)
+Be excellent to each other and party on, dudes.
 
 =cut

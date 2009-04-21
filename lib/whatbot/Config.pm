@@ -17,6 +17,7 @@ has 'config_file'   => ( is => 'rw', isa => 'Str' );
 has 'config_hash'   => ( is => 'rw', isa => 'HashRef' );
 has 'io'            => ( is => 'ro', isa => 'Any' );
 has 'store'         => ( is => 'ro', isa => 'Any' );
+has 'connection'    => ( is => 'ro', isa => 'Any' );
 has 'commands'      => ( is => 'ro', isa => 'Any' );
 has 'log_directory' => ( is => 'ro', isa => 'Any' );
 
@@ -46,9 +47,10 @@ sub BUILD {
 		$config->{'io'} = [ $config->{'io'} ] if (ref($config->{'io'}) eq 'HASH');
 		$self->{'io'} = $config->{'io'};
 		
-		$self->{'store'} = ($config->{'store'} or {});
-		$self->{'commands'} = ($config->{'commands'} or {});
-		$self->{'log_directory'} = ($config->{'log'}->{'directory'} or '.');
+		$self->{'store'} = ( $config->{'store'} or {} );
+		$self->{'connection'} = ( $config->{'connection'} or {} );
+		$self->{'commands'} = ( $config->{'commands'} or {} );
+		$self->{'log_directory'} = ( $config->{'log'}->{'directory'} or '.' );
 		$self->{'log_directory'} =~ s/\/$//;
 	}
 }

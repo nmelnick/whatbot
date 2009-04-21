@@ -140,6 +140,6 @@ Returned when a user asks for help on a command.
 
 =head1 LICENSE/COPYRIGHT
 
-Undetermined at this time. :)
+Be excellent to each other and party on, dudes.
 
 =cut
