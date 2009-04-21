@@ -47,3 +47,51 @@ sub write {
 }
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::Log - Provides logging from within whatbot
+
+=head1 SYNOPSIS
+
+ extends 'whatbot::Component';
+ 
+ $self->log->write('This is a message.');
+ $self->log->error('This is an error!');
+
+=head1 DESCRIPTION
+
+whatbot::Log provides basic log functionality from within whatbot. whatbot
+loads this class during startup, and is available under the 'log' accessor
+in any module subclassed from whatbot::Component and loaded properly,
+including Commands.
+
+=head1 METHODS
+
+=over 4
+
+=item write( $line )
+
+Writes message to standard out / log file.
+
+=item error( $line )
+
+Writes message to standard out / log file and 'die's to STDERR.
+
+=back
+
+=head1 INHERITANCE
+
+=over 4
+
+=item whatbot::Log
+
+=back
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut

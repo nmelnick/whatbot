@@ -208,6 +208,10 @@ for this second. If called multiple times per second, only runs once.
 
 =item whatbot::Component
 
+=over 4
+
+=item whatbot::Timer
+
 =back
 
 =back

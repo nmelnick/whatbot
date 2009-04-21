@@ -124,11 +124,22 @@ whatbot::Connection::Table::Karma provides database functionality for karma.
 
 =item increment( $topic, $user )
 
+Increment the karma on a topic.
+
 =item decrement( $topic, $user )
+
+Decrement the karma on a topic.
 
 =item get( $topic )
 
+Retrieve the karma on a topic.
+
 =item get_extended( $topic )
+
+Retrieve extended info on a topic's karma. Returns a hashref containing
+'Increments', which is the total volume of increments, 'Decrements',
+containing the total volume of decrements, and 'Last', which is an arrayref
+containing the last changing user and the amount of karma given.
 
 =back
 
