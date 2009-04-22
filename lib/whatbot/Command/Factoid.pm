@@ -27,7 +27,7 @@ sub what_is : GlobalRegEx('^(wtf|what|who) (is|are) (.*)') : StopAfter {
 	return $self->retrieve( $captures->[2], $message, 1 );
 }
 
-sub assign : GlobalRegEx('^(.*) (is|are) (.*)') {
+sub assign : GlobalRegEx('^(.*?) (is|are) (.*)') {
     my ( $self, $message, $captures ) = @_;
     
 	my $is_plural = ( $captures->[1] =~ /are/i ? 1 : 0 );
