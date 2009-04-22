@@ -78,7 +78,7 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
 		($factoid) = @{$self->store->retrieve('factoid', [qw/subject is_plural/], { 'factoid_id' => $factoid_desc->{'factoid_id'} })};
 		
 		# Who said
-		$self->who_said( $factoid_desc->{'user'} );
+		$self->who_said( $factoid_desc->{'user'} or '' );
 		
 		# Override retrieve
 		my $subject = $factoid->{'subject'};
@@ -107,7 +107,7 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
 			$response .= ', ' if ( defined $response );
 			$response .= $user->{'user'};
 		}
-		$self->who_said($response);
+		$self->who_said( $response or '' );
 		return $self->retrieve( $factoid->{'subject'}, $message );
 		
 	}
