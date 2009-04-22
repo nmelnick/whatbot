@@ -114,9 +114,9 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
 
 }
 
-sub who_said : GlobalRegEx('^who said that') : StopAfter {
+sub who_said_that : GlobalRegEx('^(who said that)') : StopAfter {
     my ( $self, $message, $captures ) = @_;
-    
+
 	if ( $self->who_said ) {
 		if ( $message->from eq $self->who_said ) {
 		    return $message->from . ': it was YOU!';
