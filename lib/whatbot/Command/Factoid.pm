@@ -74,23 +74,27 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
 		$look_for =~ s/[\.\?\! ]$//;
 		
 		my $factoid_facts = $self->store->retrieve('factoid_description', [qw/factoid_id description user/], { 'description' => 'LIKE %' . $look_for . '%' });
-		my $factoid_desc = $factoid_facts->[int(rand(scalar(@{$factoid_facts}))) - 1];
-		($factoid) = @{$self->store->retrieve('factoid', [qw/subject is_plural/], { 'factoid_id' => $factoid_desc->{'factoid_id'} })};
+		if (@$factoid_facts) {
+    		my $factoid_desc = $factoid_facts->[int(rand(scalar(@{$factoid_facts}))) - 1];
+    		($factoid) = @{$self->store->retrieve('factoid', [qw/subject is_plural/], { 'factoid_id' => $factoid_desc->{'factoid_id'} })};
 		
-		# Who said
-		$self->who_said( $factoid_desc->{'user'} or '' );
+    		# Who said
+    		$self->who_said( $factoid_desc->{'user'} or '' );
 		
-		# Override retrieve
-		my $subject = $factoid->{'subject'};
-		my $description = $factoid_desc->{'description'};
-		if ( $description =~ /^<reply>/ ) {
-			$description =~ s/^<reply> +//;
-			return $description;
-		} else {
-			$subject = 'you' if ( lc($subject) eq lc($message->from) );
-			$subject = $message->from . ', ' . $subject if ( $message->is_direct );
-			return $subject . ' ' . ( $factoid->{'is_plural'} ? 'are' : 'is' ) . ' ' . $description;
-		}
+    		# Override retrieve
+    		my $subject = $factoid->{'subject'};
+    		my $description = $factoid_desc->{'description'};
+    		if ( $description =~ /^<reply>/ ) {
+    			$description =~ s/^<reply> +//;
+    			return $description;
+    		} else {
+    			$subject = 'you' if ( lc($subject) eq lc($message->from) );
+    			$subject = $message->from . ', ' . $subject if ( $message->is_direct );
+    			return $subject . ' ' . ( $factoid->{'is_plural'} ? 'are' : 'is' ) . ' ' . $description;
+    		}
+    	} else {
+    	    return 'Nothing found for "' . $look_for . '".';
+    	}
 		return;
 		
 	} else {
