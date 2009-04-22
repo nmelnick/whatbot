@@ -191,7 +191,7 @@ sub retrieve {
 		}
 		
 		if (scalar( @facts) == 1 ) {
-			$self->who_said( $factoid->{'user'} );
+			$self->who_said( $factoid->{'user'} ) if ( $factoid and $factoid->{'user'} );
 		}
 		
 		if ( scalar(@facts) == 1 and $facts[0] =~ /^<reply>/ ) {
