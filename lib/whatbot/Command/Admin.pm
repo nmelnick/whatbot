@@ -129,7 +129,11 @@ sub retrieve : Command {
 	if ($@) {
 	    return 'Error executing: ' . $@;
 	} else {
-	    return join( ', ', map { $row->columns->[$_] . ' => "' . $row->column_data->[$_] . '"' } 0..( scalar(@{ $row->column_data }) - 1) );
+	    if ($row) {
+	        return join( ', ', map { $row->columns->[$_] . ' => "' . $row->column_data->[$_] . '"' } 0..( scalar(@{ $row->column_data }) - 1) );
+	    } else {
+	        return 'Nothing found for that query.';
+	    }
 	}
 	
 	return;
