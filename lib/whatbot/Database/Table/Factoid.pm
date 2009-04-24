@@ -1,17 +1,17 @@
 ###########################################################################
-# whatbot/Connection/Table/Factoid.pm
+# whatbot/Database/Table/Factoid.pm
 ###########################################################################
 #
 ###########################################################################
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-package whatbot::Connection::Table::Factoid;
+package whatbot::Database::Table::Factoid;
 use Moose;
-extends 'whatbot::Connection::Table';
+extends 'whatbot::Database::Table';
 
-has 'description' => ( is => 'rw', isa => 'whatbot::Connection::Table' );
-has 'ignore'      => ( is => 'rw', isa => 'whatbot::Connection::Table' );
+has 'description' => ( is => 'rw', isa => 'whatbot::Database::Table' );
+has 'ignore'      => ( is => 'rw', isa => 'whatbot::Database::Table' );
 
 sub BUILD {
     my ( $self ) = @_;
@@ -20,8 +20,8 @@ sub BUILD {
         'name'        => 'factoid',
         'primary_key' => 'factoid_id',
         'defaults'    => {
-            'created'   => { 'connection' => 'now' },
-            'updated'   => { 'connection' => 'now' }
+            'created'   => { 'database' => 'now' },
+            'updated'   => { 'database' => 'now' }
         },
         'columns'     => {
             'factoid_id' => {
@@ -49,14 +49,14 @@ sub BUILD {
         }
     });
 
-    my $description = new whatbot::Connection::Table(
+    my $description = new whatbot::Database::Table(
         'base_component' => $self->parent->base_component
     );
     $description->init_table({
         'name'        => 'factoid_description',
         'defaults'    => {
-            'created'   => { 'connection' => 'now' },
-            'updated'   => { 'connection' => 'now' }
+            'created'   => { 'database' => 'now' },
+            'updated'   => { 'database' => 'now' }
         },
         'columns'     => {
             'factoid_id' => {
@@ -78,7 +78,7 @@ sub BUILD {
             }
         }
     });
-    my $ignore = new whatbot::Connection::Table(
+    my $ignore = new whatbot::Database::Table(
         'base_component' => $self->parent->base_component
     );
     $ignore->init_table({
@@ -139,15 +139,15 @@ sub silence {
 
 =head1 NAME
 
-whatbot::Connection::Table::Factoid - Database functionality for factoids.
+whatbot::Database::Table::Factoid - Database functionality for factoids.
 
 =head1 SYNOPSIS
 
- use whatbot::Connection::Table::Factoid;
+ use whatbot::Database::Table::Factoid;
 
 =head1 DESCRIPTION
 
-whatbot::Connection::Table::Factoid provides database functionality for factoids.
+whatbot::Database::Table::Factoid provides database functionality for factoids.
 
 =head1 PUBLIC ACCESSORS
 
@@ -177,11 +177,11 @@ whatbot::Connection::Table::Factoid provides database functionality for factoids
 
 =over 4
 
-=item whatbot::Connection::Table
+=item whatbot::Database::Table
 
 =over 4
 
-=item whatbot::Connection::Table::Factoid
+=item whatbot::Database::Table::Factoid
 
 =back
 

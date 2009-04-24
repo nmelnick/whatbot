@@ -10,33 +10,22 @@
 package whatbot::Component;
 use Moose;
 
-has 'parent'     => ( is => 'rw' );
-has 'config'     => ( is => 'rw' );
-has 'store'      => ( is => 'rw' );
-has 'ios'        => ( is => 'rw' );
-has 'connection' => ( is => 'rw' );
-has 'log'        => ( is => 'rw' );
-has 'controller' => ( is => 'rw' );
-has 'timer'      => ( is => 'rw' );
-has 'models'     => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
+has 'base_component' => ( is => 'rw', default => sub { new whatbot::Component::Base } );
+has 'parent'         => ( is => 'rw', default => sub { $_[0]->base_component->parent } );
+has 'config'         => ( is => 'rw', default => sub { $_[0]->base_component->config } );
+has 'ios'            => ( is => 'rw', default => sub { $_[0]->base_component->ios } );
+has 'database'       => ( is => 'rw', default => sub { $_[0]->base_component->database } );
+has 'log'            => ( is => 'rw', default => sub { $_[0]->base_component->log } );
+has 'controller'     => ( is => 'rw', default => sub { $_[0]->base_component->controller } );
+has 'timer'          => ( is => 'rw', default => sub { $_[0]->base_component->timer } );
+has 'models'         => ( is => 'rw', default => sub { $_[0]->base_component->models } );
+has 'store'          => ( is => 'rw', default => sub { $_[0]->base_component->store } ); # deprecated
 
 sub BUILD {
 	my ( $self, $params ) = @_;
 	
-	if ( $params->{'base_component'} ) {
-		$self->parent( $params->{'base_component'}->parent );
-		$self->config( $params->{'base_component'}->config );
-		$self->store( $params->{'base_component'}->store );
-		$self->connection( $params->{'base_component'}->connection );
-		$self->log( $params->{'base_component'}->log );
-		$self->controller( $params->{'base_component'}->controller );
-		$self->timer( $params->{'base_component'}->timer );
-		$self->models( $params->{'base_component'}->models );
-		$self->ios( $params->{'base_component'}->ios );
-		
-		unless ( ref($self) =~ /Message/ or ref($self) =~ /Command::/ or ref($self) =~ /::Table/ ) {
-			$self->log->write(ref($self) . ' loaded.') ;
-		}
+	unless ( ref($self) =~ /Message/ or ref($self) =~ /Command::/ or ref($self) =~ /::Table/ ) {
+		$self->log->write(ref($self) . ' loaded.') ;
 	}
 }
 
@@ -61,7 +50,7 @@ whatbot::Component - Base component for all whatbot modules.
  use Moose;
  extends 'whatbot::Component';
  
- $self->log('I am so awesome.');
+ $self->log->write('I am so awesome.');
 
 =head1 DESCRIPTION
 

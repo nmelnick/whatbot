@@ -1,12 +1,12 @@
 ###########################################################################
-# whatbot/Connection.pm
+# whatbot/Database.pm
 ###########################################################################
-# Base class for whatbot Connection
+# Base class for whatbot Database
 ###########################################################################
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-package whatbot::Connection;
+package whatbot::Database;
 use Moose;
 extends 'whatbot::Component';
 

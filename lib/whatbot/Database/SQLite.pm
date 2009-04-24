@@ -1,22 +1,22 @@
 ###########################################################################
-# whatbot/Connection/SQLite.pm
+# whatbot/Database/SQLite.pm
 ###########################################################################
 # SQLite Connection
 ###########################################################################
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-package whatbot::Connection::SQLite;
+package whatbot::Database::SQLite;
 use Moose;
-extends 'whatbot::Connection::DBI';
+extends 'whatbot::Database::DBI';
 
 before 'connect' => sub {
 	my ( $self ) = @_;
 	
-	die 'SQLite requires a database name.' unless ( $self->config->connection->{'database'} );
+	die 'SQLite requires a database name.' unless ( $self->config->database->{'database'} );
 	
 	$self->connect_array([
-		'DBI:SQLite:dbname=' . $self->config->connection->{'database'},
+		'DBI:SQLite:dbname=' . $self->config->database->{'database'},
 		'',
 		''
 	]);

@@ -12,6 +12,7 @@ use Moose;
 use POSIX qw(strftime);
 
 has 'log_directory' => ( is	=> 'rw', isa => 'Str', required => 1 );
+has 'last_error'    => ( is	=> 'rw', isa => 'Str' );
 
 sub BUILD {
 	my ( $self, $log_dir ) = @_;
@@ -31,7 +32,9 @@ sub BUILD {
 sub error {
     my ( $self, $entry ) = @_;
     
+    $self->last_error($entry);
     $self->write( '*ERROR: ' . $entry );
+    warn $entry;
 }
 
 sub write {
@@ -78,7 +81,7 @@ Writes message to standard out / log file.
 
 =item error( $line )
 
-Writes message to standard out / log file and 'die's to STDERR.
+Writes message to standard out / log file and 'warn's to STDERR.
 
 =back
 

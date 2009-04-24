@@ -1,14 +1,14 @@
 ###########################################################################
-# whatbot/Connection/Table/Karma.pm
+# whatbot/Database/Table/Karma.pm
 ###########################################################################
 #
 ###########################################################################
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-package whatbot::Connection::Table::Karma;
+package whatbot::Database::Table::Karma;
 use Moose;
-extends 'whatbot::Connection::Table';
+extends 'whatbot::Database::Table';
 
 sub BUILD {
     my ( $self ) = @_;
@@ -17,7 +17,7 @@ sub BUILD {
         'name'        => 'karma',
         'primary_key' => 'karma_id',
         'defaults'    => {
-            'created'   => { 'connection' => 'now' }
+            'created'   => { 'database' => 'now' }
         },
         'columns'     => {
             'karma_id' => {
@@ -106,17 +106,17 @@ sub get_extended {
 
 =head1 NAME
 
-whatbot::Connection::Table::Karma - Database functionality for karma.
+whatbot::Database::Table::Karma - Database functionality for karma.
 
 =head1 SYNOPSIS
 
- use whatbot::Connection::Table::Karma;
- my $model = new whatbot::Connection::Table::Karma;
+ use whatbot::Database::Table::Karma;
+ my $model = new whatbot::Database::Table::Karma;
  $model->increment( 'whatbot', 'awesome_guy' );
 
 =head1 DESCRIPTION
 
-whatbot::Connection::Table::Karma provides database functionality for karma.
+whatbot::Database::Table::Karma provides database functionality for karma.
 
 =head1 METHODS
 
@@ -151,15 +151,15 @@ containing the last changing user and the amount of karma given.
 
 =over 4
 
-=item whatbot::Connection
+=item whatbot::Database
 
 =over 4
 
-=item whatbot::Connection::Table
+=item whatbot::Database::Table
 
 =over 4
 
-=item whatbot::Connection::Table::Karma
+=item whatbot::Database::Table::Karma
 
 =back
 

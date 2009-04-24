@@ -1,6 +1,6 @@
-package whatbot::Connection::Table::Seen;
+package whatbot::Database::Table::Seen;
 use Moose;
-extends 'whatbot::Connection::Table';
+extends 'whatbot::Database::Table';
 
 sub BUILD {
     my ( $self ) = @_;
@@ -9,7 +9,7 @@ sub BUILD {
         'name'        => 'seen',
         'primary_key' => 'seen_id',
         'defaults'    => {
-            'timestamp' => { 'connection' => 'now' }
+            'timestamp' => { 'database' => 'now' }
         },
         'columns'     => {
             'seen_id' => {
@@ -55,15 +55,15 @@ sub seen {
 
 =head1 NAME
 
-whatbot::Connection::Table::Seen - Database model for seen
+whatbot::Database::Table::Seen - Database model for seen
 
 =head1 SYNOPSIS
 
- use whatbot::Connection::Table::Seen;
+ use whatbot::Database::Table::Seen;
 
 =head1 DESCRIPTION
 
-whatbot::Connection::Table::Seen does stuff.
+whatbot::Database::Table::Seen does stuff.
 
 =head1 METHODS
 
@@ -89,11 +89,11 @@ the database.
 
 =over 4
 
-=item whatbot::Connection::Table
+=item whatbot::Database::Table
 
 =over 4
 
-=item whatbot::Connection::Table::Seen
+=item whatbot::Database::Table::Seen
 
 =back
 

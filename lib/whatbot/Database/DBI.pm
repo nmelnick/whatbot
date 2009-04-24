@@ -1,14 +1,14 @@
 ###########################################################################
-# whatbot/Connection/DBI.pm
+# whatbot/Database/DBI.pm
 ###########################################################################
 # Base for any DBI connection
 ###########################################################################
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-package whatbot::Connection::DBI;
+package whatbot::Database::DBI;
 use Moose;
-extends 'whatbot::Connection';
+extends 'whatbot::Database';
 use DBI;
 
 has 'connect_array' => ( is => 'rw', isa => 'ArrayRef' );

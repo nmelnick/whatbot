@@ -16,10 +16,10 @@
 			<joinmessage>hello, everybody.</joinmessage>
 		</channel>
 	</io>
-	<connection>
+	<database>
 		<handler>SQLite</handler>
 		<database>/etc/whatbot/whatbot.db</database>
-	</connection>
+	</database>
 	<store>
 		<handler>SQLite</handler>
 		<database>/etc/whatbot/whatbot.db</database>

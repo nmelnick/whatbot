@@ -89,6 +89,8 @@ sub svnup : Command {
 
 sub last : Command {
     my ( $self, $message, $captures, $rev ) = @_;
+	
+	return undef unless ( defined $self->my_config and $message->from eq $self->my_config->{'user'} );
     
     my $basedir = realpath($0);
     my $appname = $0;
@@ -109,6 +111,13 @@ sub last : Command {
     $log =~ s/\n//g;
     
     return ( defined $message ? 'Changed in r' . $rev . ': ' : '' ) . $log;
+}
+
+sub error : Command {
+    my ( $self, $message ) = @_;
+	
+	return undef unless ( defined $self->my_config and $message->from eq $self->my_config->{'user'} );
+	return $self->log->last_error;
 }
 
 sub retrieve : Command {

@@ -22,7 +22,7 @@ sub register {
 sub store_user : Monitor {
 	my ( $self, $message ) = @_;
 	
-	$self->store->seen( lc($message->from), $message->content );
+	$self->model('seen')->seen( lc( $message->from ), $message->content );
 	return;
 }
 
@@ -32,13 +32,13 @@ sub seen : CommandRegEx('(.+)') {
 	if ($captures) {
 		my $user = $captures->[0];
 		$user =~ s/[\?\!\.]+$//;
-		my $ret = $self->store->seen( lc($user) );
-		if ( defined $ret and $ret->{'user'} ) {
+		my $ret = $self->model('seen')->seen( lc($user) );
+		if ( $ret and $ret->user ) {
 			return join(" ",
 				$user,
 				'was last seen on ',
-				strftime('%Y-%m-%d at %H:%M:%S', localtime( $ret->{'timestamp'} )),
-				'saying, "' . $ret->{'message'} . '".'
+				strftime('%Y-%m-%d at %H:%M:%S', localtime( $ret->timestamp )),
+				'saying, "' . $ret->message . '".'
 			);
 		} else {
 			return 'I have not seen ' . $user . ' yet.';

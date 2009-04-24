@@ -12,7 +12,7 @@ package whatbot;
 use Moose;
 
 use Data::Dumper;
-use whatbot::Component;
+use whatbot::Component::Base;
 use whatbot::Controller;
 use whatbot::Config;
 use whatbot::Log;
@@ -20,7 +20,7 @@ use whatbot::Timer;
 
 our $VERSION = '0.9.5';
 
-has 'base_component'    => ( is => 'rw', isa => 'whatbot::Component' );
+has 'base_component'    => ( is => 'rw', isa => 'whatbot::Component::Base' );
 has 'initial_config'    => ( is => 'rw', isa => 'whatbot::Config' );
 has 'kill_self'         => ( is => 'rw', isa => 'Int', default => 0 );
 has 'version'           => ( is => 'ro', isa => 'Str', default => $VERSION );
@@ -70,7 +70,7 @@ sub run {
 	    unless ( defined $log and $log->log_directory );
 	
 	# Build base component
-	my $base_component = new whatbot::Component(
+	my $base_component = new whatbot::Component::Base(
 		'parent'	=> $self,
 		'config'	=> $self->initial_config,
 		'log'		=> $log
@@ -78,36 +78,36 @@ sub run {
 	$self->base_component($base_component);
 	
 	# Find and store models
-	$self->report_error( 'Invalid connection type: ' . $self->initial_config->connection->{'handler'} )
-	    unless ( $self->initial_config->connection and $self->initial_config->connection->{'handler'} );
+	$self->report_error( 'Invalid connection type: ' . $base_component->config->database->{'handler'} )
+	    unless ( $base_component->config->database and $base_component->config->database->{'handler'} );
 	    
-	my $connection_class = 'whatbot::Connection::' . $self->initial_config->connection->{'handler'};
+	my $connection_class = 'whatbot::Database::' . $base_component->config->database->{'handler'};
 	eval "require $connection_class";
 	$self->report_error($@) if ($@);
 	
-	my $connection = $connection_class->new(
+	my $database = $connection_class->new(
 	    'base_component' => $base_component
 	);
-	$connection->connect();
+	$database->connect();
 	$self->report_error('Configured connection failed to load properly')
-	    unless ( defined $connection and defined $connection->handle );
-	$base_component->connection($connection);
+	    unless ( defined $database and defined $database->handle );
+	$base_component->database($database);
 	
 	my %model;
 	my $root_dir = $INC{'whatbot/Controller.pm'};
-	$root_dir =~ s/Controller\.pm$/Connection\/Table/;
+	$root_dir =~ s/Controller\.pm$/Database\/Table/;
 	opendir( MODEL_DIR, $root_dir );
 	while ( my $name = readdir(MODEL_DIR) ) {
 		next unless ( $name =~ /^[A-z0-9]+\.pm$/ and $name ne 'Row.pm' );
 		
 		my $command_path = $root_dir . '/' . $name;
 		$name =~ s/\.pm//;
-		my $class_name = 'whatbot::Connection::Table::' . $name;
+		my $class_name = 'whatbot::Database::Table::' . $name;
 		eval {
 		    eval "require $class_name";
     		$model{ lc($name) } = $class_name->new(
     		    'base_component' => $base_component,
-    		    'handle'         => $connection->handle
+    		    'handle'         => $database->handle
     		);
     	};
     	if ($@) {
@@ -132,13 +132,13 @@ sub run {
 	$store->connect();
 	$self->report_error('Configured store failed to load properly')
 	    unless ( defined $store and defined $store->handle );
-	$self->base_component->store($store);
+	$base_component->store($store);
 	
 	# 10 RANDOMIZE TIMER
 	my $timer = new whatbot::Timer(
 		'base_component' 	=> $base_component
 	);
-	$self->base_component->timer($timer);
+	$base_component->timer($timer);
 	
 	# Create IO modules
 	my @io;
@@ -167,8 +167,7 @@ sub run {
 		'base_component' 	=> $base_component,
 		'skip_extensions'	=> $self->skip_extensions
 	);
-	$self->base_component->controller($controller);
-	$store->controller($controller);
+	$base_component->controller($controller);
 	$controller->dump_command_map();
 	
 	# Connect to IO

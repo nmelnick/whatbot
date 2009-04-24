@@ -81,7 +81,7 @@ sub superlative : GlobalRegEx('^[\. ]*?what(?: is|\'s)(?: the)? (best|worst)') {
 	my $limit = 10;
 
 	my $sort = ( $best ? "desc" : "asc" );
-	my $sth = $self->connection->handle->prepare("select subject, total from (select subject, sum(amount) as total from karma group by subject) order by total $sort limit $limit");
+	my $sth = $self->database->handle->prepare("select subject, total from (select subject, sum(amount) as total from karma group by subject) order by total $sort limit $limit");
 	$sth->execute();
 
 	my $out = "The " . ($best ? "best" : "worst") . " of everything is: ";
@@ -111,7 +111,7 @@ sub parse_message : GlobalRegEx('^[\. ]*?who (hates|likes|loves|doesn\'t like|pl
 			$op = "-1";
 		}
 
-        my $sth = $self->connection->handle->prepare("select user, total from (select user, sum(amount) as total from karma where subject = '$subject' and amount = $op group by user) order by total $sort");
+        my $sth = $self->database->handle->prepare("select user, total from (select user, sum(amount) as total from karma where subject = '$subject' and amount = $op group by user) order by total $sort");
 		$sth->execute;
 
 		my @people;
