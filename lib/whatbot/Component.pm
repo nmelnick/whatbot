@@ -13,6 +13,7 @@ use Moose;
 has 'parent'     => ( is => 'rw' );
 has 'config'     => ( is => 'rw' );
 has 'store'      => ( is => 'rw' );
+has 'ios'        => ( is => 'rw' );
 has 'connection' => ( is => 'rw' );
 has 'log'        => ( is => 'rw' );
 has 'controller' => ( is => 'rw' );
@@ -31,6 +32,7 @@ sub BUILD {
 		$self->controller( $params->{'base_component'}->controller );
 		$self->timer( $params->{'base_component'}->timer );
 		$self->models( $params->{'base_component'}->models );
+		$self->ios( $params->{'base_component'}->ios );
 		
 		unless ( ref($self) =~ /Message/ or ref($self) =~ /Command::/ or ref($self) =~ /::Table/ ) {
 			$self->log->write(ref($self) . ' loaded.') ;
