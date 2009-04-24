@@ -94,8 +94,11 @@ sub store_url : GlobalRegEx('.*?((https|http|ftp|news|feed|telnet):\/\/[^\s]+).*
     ) };
     unless ( defined $db_url and defined $db_url->{'url_id'} ) {
         my $title = 'No parsable title';
-        my $response = $self->agent->get($url);
-        if ( $response->is_success and $self->agent->success ) {
+        my $response;
+        eval {
+            $response = $self->agent->get($url);
+        };
+        if ( !$@ and $response->is_success and $self->agent->success ) {
             if ( $self->agent->status < 400 ) {
                 if ( $self->agent->title() ) {
                     $title = $self->agent->title();
