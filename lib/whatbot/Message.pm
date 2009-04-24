@@ -17,7 +17,7 @@ has 'timestamp'     => ( is => 'rw', isa => 'Int', default => time );
 has 'is_private'    => ( is => 'rw', isa => 'Int', default => 0 );
 has 'is_direct'     => ( is => 'rw', isa => 'Int', default => 0 );
 has 'me'            => ( is => 'rw', isa => 'Str' );
-has 'origin'            => ( is => 'rw' );
+has 'origin'        => ( is => 'rw' );
 
 sub BUILD {
 	my ( $self ) = @_;

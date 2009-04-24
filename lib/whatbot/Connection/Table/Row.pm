@@ -89,7 +89,7 @@ whatbot::Connection::Table::Row - Class wrapper for a database table row
 
 =head1 SYNOPSIS
 
- my $row = $table->get(1);
+ my $row = $table->find(1);
  $row->row_id;
 
 =head1 DESCRIPTION

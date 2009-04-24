@@ -17,7 +17,7 @@ use Data::Dumper 'Dumper';
 
 has 'command_priority'  => ( is => 'rw', isa => 'Str', default => 'Extension' );
 has 'require_direct'    => ( is => 'rw', isa => 'Int', default => 0 );
-has 'my_config'         => ( is => 'ro', isa => 'HashRef' );
+has 'my_config'         => ( is => 'ro', isa => 'Maybe[HashRef]' );
 
 our $_attribute_cache = {};
 

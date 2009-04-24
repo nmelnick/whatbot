@@ -55,8 +55,13 @@ sub build_command_map {
 			    $command_root = lc($command_root);
 			    
 				# Instantiate
+				my $config;
+				if (defined $self->config->commands->{lc($name)}) {
+					$config = $self->config->commands->{lc($name)};
+				}
 				my $new_command = $class_name->new(
-					'base_component' => $self->parent->base_component
+					'base_component' => $self->parent->base_component,
+					'my_config'      => $config
 				);
 				$new_command->controller($self);
 				
@@ -152,10 +157,6 @@ sub build_command_map {
 				
 				$new_command->command_priority('Extension') unless ( $new_command->command_priority );
 				unless ( lc($new_command->command_priority) =~ /(extension|last)/ and $self->skip_extensions ) {
-					# Send configuration if one exists
-					if (defined $self->config->commands->{lc($name)}) {
-						$new_command->{'my_config'} = $self->config->commands->{lc($name)};
-					}
 				
 					# Add to command structure and name to command map
 					$command{ lc($new_command->command_priority) }->{$class_name} = \@run_paths;

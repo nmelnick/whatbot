@@ -175,14 +175,7 @@ whatbot::Timer - Timer functionality for whatbot.
 
 =head1 DESCRIPTION
 
-whatbot::Command is a base class, meant to be subclassed by any additional
-whatbot command or extension. It provides a skeleton structure to create a
-new command, parses command attributes, and gives the warnings necessary when
-a command is not implemented properly.
-
-To create a new command, subclass this module using Moose's 'extends' pragma,
-and override the given methods with your own. Set attributes to your methods
-to hook into events.
+whatbot::Timer - Timer functionality for whatbot.
 
 =head1 PUBLIC METHODS
 

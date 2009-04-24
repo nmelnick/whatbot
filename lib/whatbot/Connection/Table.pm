@@ -51,18 +51,17 @@ sub create {
     my $query = 'INSERT INTO ' . $self->table_name .
                 ' (' . join( ', ', keys %$params ) . ') ' .
                 'VALUES ' .
-                ' (' . join( ', ', map { if ( ref($_) eq 'SCALAR' ) { $$_ } elsif ( ref($_) eq 'HASH' ) { my ($module) = keys(%$_); my ($method) = values(%$_); $self->$module->$method(); } else { $self->handle->quote($_) } } values %$params ) . ')';
-    $self->handle->do($query) or warn $DBI::errstr;
-    
-    return $self->get( $self->connection->last_insert_id() );
+                ' (' . join( ', ', map { if ( ref($_) eq 'SCALAR' ) { $$_ } elsif ( ref($_) eq 'HASH' ) { my ($module) = keys(%$_); my ($method) = values(%$_); $self->$module->$method(); } else { $self->connection->handle->quote($_) } } values %$params ) . ')';
+    $self->connection->handle->do($query) or warn $DBI::errstr;
+
+    return $self->find( $self->connection->last_insert_id() );
 }
 
-sub get {
+sub find {
     my ( $self, $key_id ) = @_;
     
-    $_ = $self->primary_key;
     return $self->search_one({
-        $_ => $key_id
+        $self->primary_key => $key_id
     });
 }
 

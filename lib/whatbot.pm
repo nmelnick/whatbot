@@ -11,6 +11,7 @@
 package whatbot;
 use Moose;
 
+use Data::Dumper;
 use whatbot::Component;
 use whatbot::Controller;
 use whatbot::Config;
@@ -133,23 +134,15 @@ sub run {
 	    unless ( defined $store and defined $store->handle );
 	$self->base_component->store($store);
 	
-	# Start and Randomize Timer
+	# 10 RANDOMIZE TIMER
 	my $timer = new whatbot::Timer(
 		'base_component' 	=> $base_component
 	);
 	$self->base_component->timer($timer);
 	
-	# Parse Commands
-	my $controller = new whatbot::Controller(
-		'base_component' 	=> $base_component,
-		'skip_extensions'	=> $self->skip_extensions
-	);
-	$self->base_component->controller($controller);
-	$store->controller($controller);
-	$controller->dump_command_map();
-	
 	# Create IO modules
 	my @io;
+	my %ios;
 	foreach my $io_module ( @{$self->initial_config->io} ) {
 		$log->error('No interface designated for one or more IO modules')
 		    unless ( defined $io_module->{'interface'} );
@@ -164,12 +157,24 @@ sub run {
 		$self->report_error('IO interface "' . $io_module->{'interface'} . '" failed to load properly') 
 	        unless ( defined $io_object );
 
+		$ios{ $io_object->name } = $io_object;
 		push(@io, $io_object);
 	}
+	$base_component->ios(\%ios);
+	
+	# Parse Commands
+	my $controller = new whatbot::Controller(
+		'base_component' 	=> $base_component,
+		'skip_extensions'	=> $self->skip_extensions
+	);
+	$self->base_component->controller($controller);
+	$store->controller($controller);
+	$controller->dump_command_map();
 	
 	# Connect to IO
 	foreach my $io_object (@io) {
 		$log->write('Sending connect to ' . ref($io_object));
+		$io_object->controller($controller);
 		$io_object->connect;
 	}
 	

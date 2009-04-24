@@ -83,7 +83,7 @@ sub set {
         $row->save();
     } else {
         $row = $self->create({
-            'module_id' => $self->get_module( caller() ),
+            'module_id' => $self->_get_module( caller() ),
             'subject'   => $key,
             'value'     => $value
         });
