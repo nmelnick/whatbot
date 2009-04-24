@@ -146,3 +146,66 @@ sub help {
 }
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::Command::RSS - Monitor RSS feeds
+
+=head1 SYNOPSIS
+
+Config:
+
+ <rss>
+     <interval>480</interval>
+     <feed>
+         <url><![CDATA[http://www.whatbot.org/timeline?format=rss]]></url>
+    	 <include>^Changeset</include>
+    	 <io>IRC_irc.exampleserver.com_#example</io>
+    </feed>
+ </rss>
+
+=head1 DESCRIPTION
+
+whatbot::Command::RSS will monitor one or more RSS feeds for you. Feeds must be
+valid XML, or they won't parse properly. Configure your RSS feeds in
+whatbot.conf under commands -> rss. The 'interval' node is the number of
+seconds between each check, and one or more feed nodes should represent each
+feed to be checked. The feed node requires the 'url' and 'io' nodes, and can
+include 'include' and 'exclude'. url is the full, valid http URL to the feed
+you want to grab, and io is the name of the io node to output the results to.
+If you don't name your IO nodes, the name is auto-generated for you by the IO
+module, so each one would be slightly different. For instance, a IRC channel
+would be IRC_<hostname>_<channel>, like IRC_irc.efnet.org_#whatbot, or AIM
+would be AIM_<screenname>, like AIM_aimwhatbot. The include node is a regex
+to selectively include certain entries based on the title or description.
+The exclude node does the same thing, but filters items out based on the
+regex. In the synopsis, we get the whatbot change log via Trac, but only
+include SVN commits.
+
+=head1 INHERITANCE
+
+=over 4
+
+=item whatbot::Component
+
+=over 4
+
+=item whatbot::Command
+
+=over 4
+
+=item whatbot::Command::RSS
+
+=back
+
+=back
+
+=back
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut
