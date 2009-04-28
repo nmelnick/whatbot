@@ -45,6 +45,7 @@ sub connect {
 		'Ircname'	=> $self->my_config->{'realname'},
 		'Password'	=> $self->my_config->{'hostpassword'},
 		'Nick'		=> $self->my_config->{'nick'},
+		'SSL'       => ( $self->my_config->{'ssl'} ? 1 : undef )
 	);
 	
 	# Everything's event based, so we set up all the callbacks
