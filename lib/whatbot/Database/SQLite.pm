@@ -35,6 +35,8 @@ sub timestamp {
 }
 
 sub now {
+    my ( $self ) = @_;
+    
     return $self->handle->quote(time);
 }
 

@@ -39,7 +39,7 @@ sub seen {
 	    'user' => $user
 	});
 	if ( defined $message ) {
-	    $seen_row->delete();
+	    $seen_row->delete() if ( defined $seen_row );
 	    return $self->create({
 	        'user'      => $user,
 	        'message'   => $message
