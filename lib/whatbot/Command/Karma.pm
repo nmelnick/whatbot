@@ -78,6 +78,8 @@ sub info : Command {
 				"$phrase has had " . $karma_info->{'Increments'} . " increments and " . $karma_info->{'Decrements'} . " decrements, for a total of " . ($karma_info->{'Increments'} - $karma_info->{'Decrements'}) . 
 				". $phrase " . ($rocks > $sucks ? "$rocks% rocks" : "$sucks% sucks") . 
 				". Last change was by " . $karma_info->{'Last'}->[0] . ", who gave it a " . ($karma_info->{'Last'}->[1] == 1 ? '++' : '--') . ".";
+		} else {
+			return "$phrase has no karma";
 		}
 	}
 }

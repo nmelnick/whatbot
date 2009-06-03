@@ -66,7 +66,7 @@ sub get {
     
     my $row = $self->search_one({
         '_select' => 'SUM(amount)',
-        'subject' => $topic
+        'subject' => lc($topic)
     });
     return ( $row ? $row->column_data->[0] : '' );
 }
@@ -90,14 +90,14 @@ sub get_extended {
         '_limit'    => 1
     });
     
-    return {
+    return $last_row ? {
         'Increments' => $increment_row->column_data->[0],
         'Decrements' => $decrement_row->column_data->[0],
         'Last'       => [
             $last_row->user,
             $last_row->amount
         ]
-    };
+    } : undef;
 }
 
 1;

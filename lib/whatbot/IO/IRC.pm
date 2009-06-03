@@ -72,7 +72,7 @@ sub connect {
 	
 	# Now we start one event loop so we can actually connect.
 	$self->handle->do_one_loop();
-	
+	binmode( $self->irc_handle->socket, ":utf8" );
 }
 
 sub disconnect {
