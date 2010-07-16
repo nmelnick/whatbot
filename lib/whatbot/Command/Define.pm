@@ -33,7 +33,6 @@ has 'error' => (
     is        => 'rw',
     isa        => 'Str',
     default    => undef,
-    reader    => 'get_error',
 );
 
 sub register {
@@ -148,7 +147,7 @@ RETRY:
     if ($first_p =~ /may refer to:/) {
         return "Multiple definitions for $phrase - be more specific.";
     }
-    return undef if ($first_p =~ /see Wikipedia:Searching\./);
+    return undef if ( $first_p =~ /see Wikipedia:Searching\./ or $first_p =~ /You may create the page/ );
 
     goto RETRY unless $first_p =~ /\./;
 

@@ -15,7 +15,8 @@ before 'connect' => sub {
 	$self->connectArray([
 		"DBI:SQLite:dbname=" . $self->config->store->{database},
 		"",
-		""
+		"",
+		{ sqlite_unicode => 1 },
 	]);
 };
 

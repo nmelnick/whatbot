@@ -78,7 +78,7 @@ sub svnup : Command {
 		$inf = `svn info $basedir`;
 		if ($inf =~ /Revision:\s+(\d+)/) {
 		    my $rev = $1;
-			return 'Now at svn r' . $rev . '. Changed: ' . $self->last( undef, undef, $rev);
+			return 'Now at svn r' . $rev . '. Changed: ' . $self->last( $message, undef, $rev);
 		}
 	} else {
 		warn $basedir;
@@ -148,4 +148,32 @@ sub retrieve : Command {
 	return;
 }
 
+sub warnvar : Command {
+	my ( $self, $message, $var ) = @_;
+
+	warn Data::Dumper::Dumper( eval "$var" );
+	return 'Check the log.';
+}
+
+sub throw : Command {
+    my ( $self, $message, $args ) = @_;
+
+    my ( $io_search, @message_split ) = split( / /, $args->[0] );
+    my $new_message = new whatbot::Message(
+        'to'             => '',
+        'from'           => '',
+        'content'        => join( ' ', @message_split ),
+		'base_component' => $self->parent->base_component
+    );
+    foreach my $io ( keys %{ $self->ios } ) {
+        if ( $io =~ /$io_search/ ) {
+            $self->ios->{$io}->send_message($new_message);
+            last;
+        }
+    }
+    
+    return;
+}
+
 1;
+

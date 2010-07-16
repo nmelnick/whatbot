@@ -8,47 +8,38 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-package whatbot::Command;
-use Moose;
-no warnings 'redefine';
-BEGIN { extends 'whatbot::Component' };
+use MooseX::Declare;
 
-use Data::Dumper 'Dumper';
+class whatbot::Command extends whatbot::Component {    
+    has 'command_priority'  => ( is => 'rw', isa => 'Str', default => 'Extension' );
+    has 'require_direct'    => ( is => 'rw', isa => 'Int', default => 0 );
+    has 'my_config'         => ( is => 'ro', isa => 'Maybe[HashRef]' );
 
-has 'command_priority'  => ( is => 'rw', isa => 'Str', default => 'Extension' );
-has 'require_direct'    => ( is => 'rw', isa => 'Int', default => 0 );
-has 'my_config'         => ( is => 'ro', isa => 'Maybe[HashRef]' );
+    our $_attribute_cache = {};
 
-our $_attribute_cache = {};
-
-sub MODIFY_CODE_ATTRIBUTES {
-    my ( $class, $code, @attrs ) = @_;
+    sub MODIFY_CODE_ATTRIBUTES {
+        my ( $class, $code, @attrs ) = @_;
     
-    $_attribute_cache = { %{ $_attribute_cache }, $code => [@attrs] };
-    return ();
-}
+        $_attribute_cache = { %{ $_attribute_cache }, $code => [@attrs] };
+        return ();
+    }
 
-sub FETCH_CODE_ATTRIBUTES {
-    $_attribute_cache->{ $_[1] } || ();
-}
+    sub FETCH_CODE_ATTRIBUTES {
+        $_attribute_cache->{ $_[1] } || ();
+    }
 
-sub BUILD {
-    my ( $self ) = @_;
- 
-    $self->register();
-}
+    method BUILD ($) {
+        $self->register();
+    }
 
-sub register {
-    my ($self) = @_;
-    
-    $self->log->write(ref($self) . ' works without a register method, but it is recommended to make one.');
-}
+    method register {
+        $self->log->write(ref($self) . ' works without a register method, but it is recommended to make one.');
+    }
 
 
-sub help {
-    my ($self) = @_;
-    
-    return 'Help is not available for this module.';
+    method help {
+        return 'Help is not available for this module.';
+    }
 }
 
 1;

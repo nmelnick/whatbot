@@ -6,47 +6,52 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-package whatbot::Message;
-use Moose;
-extends "whatbot::Component";
+use MooseX::Declare;
 
-has 'from'          => ( is => 'rw', isa => 'Str', required => 1 );
-has 'to'            => ( is => 'rw', isa => 'Str', required => 1 );
-has 'content'       => ( is => 'rw', isa => 'Str', required => 1 );
-has 'timestamp'     => ( is => 'rw', isa => 'Int', default => time );
-has 'is_private'    => ( is => 'rw', isa => 'Int', default => 0 );
-has 'is_direct'     => ( is => 'rw', isa => 'Int', default => 0 );
-has 'me'            => ( is => 'rw', isa => 'Str' );
-has 'origin'        => ( is => 'rw' );
+class whatbot::Message extends whatbot::Component {
+    use Encode;
 
-sub BUILD {
-	my ( $self ) = @_;
-	
-	my $me = $self->me;
-	
-	if ( defined $me ) {
-		if ( $self->content =~ /, ?$me[\?\!\. ]*?$/i ) {
-			my $content = $self->content;
-			$content =~ s/, ?$me[\?\!\. ]*?$//i;
-			$self->content($content);
-			$self->is_direct(1);
+    has 'from'          => ( is => 'rw', isa => 'Str', required => 1 );
+    has 'to'            => ( is => 'rw', isa => 'Str', required => 1 );
+    has 'content'       => ( is => 'rw', isa => 'Str', required => 1 );
+    has 'timestamp'     => ( is => 'rw', isa => 'Int', default => time );
+    has 'is_private'    => ( is => 'rw', isa => 'Int', default => 0 );
+    has 'is_direct'     => ( is => 'rw', isa => 'Int', default => 0 );
+    has 'me'            => ( is => 'rw', isa => 'Str' );
+    has 'origin'        => ( is => 'rw' );
+
+    method BUILD ($) {
+    	my $me = $self->me;
+
+	    # Determine if the message is talking about me
+    	if ( defined $me ) {
+    		if ( $self->content =~ /, ?$me[\?\!\. ]*?$/i ) {
+    			my $content = $self->content;
+    			$content =~ s/, ?$me[\?\!\. ]*?$//i;
+    			$self->content($content);
+    			$self->is_direct(1);
 			
-		} elsif ( $self->content =~ /^$me[\:\,\- ]+/i ) {
-			my $content = $self->content;
-			$content =~ s/^$me[\:\,\- ]+//i;
-			$self->content($content);
-			$self->is_direct(1);
+    		} elsif ( $self->content =~ /^$me[\:\,\- ]+/i ) {
+    			my $content = $self->content;
+    			$content =~ s/^$me[\:\,\- ]+//i;
+    			$self->content($content);
+    			$self->is_direct(1);
 			
-		} elsif ( $self->content =~ /^$me \-+ /i ) {
-			my $content = $self->content;
-			$content =~ s/^$me \-+ //i;
-			$self->content($content);
-			$self->is_direct(1);
+    		} elsif ( $self->content =~ /^$me \-+ /i ) {
+    			my $content = $self->content;
+    			$content =~ s/^$me \-+ //i;
+    			$self->content($content);
+    			$self->is_direct(1);
 			
-		}
-	}
+    		}
+    	}
 	
-	$self->timestamp(time) unless ( $self->timestamp );
+    	$self->timestamp(time) unless ( $self->timestamp );
+    }
+
+    method content_utf8 {
+        return Encode::encode_utf8( $self->content );
+    }
 }
 
 1;

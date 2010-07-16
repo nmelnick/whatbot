@@ -63,7 +63,7 @@ sub get_translator {
 	
 	return new WWW::Babelfish(
 		'service'	=> 'Yahoo',
-		'agent' 	=> 'Mozilla/8.0'
+		'agent' 	=> 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_2; de-at) AppleWebKit/531.21.8 (KHTML, like Gecko) Version/4.0.4 Safari/531.21.10'
 	);
 }
 
@@ -86,14 +86,14 @@ sub translate {
 		 	   ' I can translate ' . $from . ' to ' . join(', ', @languages);
 	}
 	
-	$message = encode('utf8', $message);
 	my $text = $translator->translate(
 		'source' 		=> $from,
 		'destination' 	=> $to,
 		'text' 			=> $message
 	);
+	warn $translator->error;
 	if ($text) {
-		return 'Translation: ' . Encode::encode_utf8($text);
+		return 'Translation: ' . $text;
 	} else {
 		return 'Sorry, I had an error trying to translate that.';
 	}

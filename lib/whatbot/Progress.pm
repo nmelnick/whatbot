@@ -6,44 +6,41 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-package whatbot::Progress;
-use Moose;
+use MooseX::Declare;
 
-has 'max'              => ( is => 'rw', isa => 'Int' );
-has 'restrict_updates' => ( is => 'rw', isa => 'Int' );
-has 'show_count'       => ( is => 'rw', isa => 'Int' );
+class whatbot::Progress {
+    has 'max'              => ( is => 'rw', isa => 'Int' );
+    has 'restrict_updates' => ( is => 'rw', isa => 'Int' );
+    has 'show_count'       => ( is => 'rw', isa => 'Int' );
 
-sub update {
-    my ( $self, $current ) = @_;
+    method update ( Int $current ) {
+        return if ( $self->restrict_updates and $current % $self->restrict_updates != 0 );
+        return unless ( $self->max and $self->max > 0 );
 
-    return if ( $self->restrict_updates and $current % $self->restrict_updates != 0 );
-    return unless ( $self->max and $self->max > 0 );
-
-    my $pct = int( ( $current / $self->max ) * 100 );
-    my $line = '[';
-    for ( my $c = 0; $c < int($pct * 0.7); $c++ ) {
-        $line .= '=';
+        my $pct = int( ( $current / $self->max ) * 100 );
+        my $line = '[';
+        for ( my $c = 0; $c < int($pct * 0.7); $c++ ) {
+            $line .= '=';
+        }
+        for ( my $c = 0; $c < (65 - int($pct * 0.65)); $c++ ) {
+            $line .= '-';
+        }
+        $line .= '] ' . $pct . '% ';
+        if ( $self->show_count ) {
+            $line .= $current . '/' . $self->max;
+        }
+        for ( my $c = 0; $c < ( 80 - length($line) ); $c++ ) {
+            $line .= ' ';
+        }
+        $line .= "\r";
+        print $line;
     }
-    for ( my $c = 0; $c < (65 - int($pct * 0.65)); $c++ ) {
-        $line .= '-';
-    }
-    $line .= '] ' . $pct . '% ';
-    if ( $self->show_count ) {
-        $line .= $current . '/' . $self->max;
-    }
-    for ( my $c = 0; $c < ( 80 - length($line) ); $c++ ) {
-        $line .= ' ';
-    }
-    $line .= "\r";
-    print $line;
-}
 
-sub finish {
-    my ( $self ) = @_;
-
-    $self->restrict_updates(0);
-    $self->update( $self->max );
-    print "\n";
+    method finish {
+        $self->restrict_updates(0);
+        $self->update( $self->max );
+        print "\n";
+    }
 }
 
 1;

@@ -3,13 +3,13 @@ use Moose;
 # use String::IRC;
 
 has 'value'     => ( is => 'rw' );
+has 'color'     => ( is => 'rw', isa => 'Str' );
+has 'unicode'   => ( is => 'rw', isa => 'Str' );
 has 'suit'      => ( is => 'rw', isa => 'Str', trigger => sub {
     my $self = shift;
     $self->color( $self->suits->{ $self->suit }->{'color'} );
     $self->unicode( $self->suits->{ $self->suit }->{'uni'} );
 } );
-has 'color'     => ( is => 'rw', isa => 'Str' );
-has 'unicode'   => ( is => 'rw', isa => 'Str' );
 has 'suits'     => ( is => 'ro', isa => 'HashRef', default => sub { {
     'diamonds'  => {
         'color' => 'red',

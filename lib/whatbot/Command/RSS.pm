@@ -75,7 +75,7 @@ sub retrieve_rss : Command {
                 });
             } else {
                 my $last_entry;
-                my @items = reverse( @{ $xml_doc->{'channel'}->{'item'} } );
+                my @items = reverse( @{ $xml_doc->{'channel'}->{'item'} } ) if ( $xml_doc->{'channel'}->{'item'} and ref( $xml_doc->{'channel'}->{'item'} ) eq 'ARRAY' );
                 if ( $self->last_entry->{ $feed->{'md5'} } and $self->last_entry->{ $feed->{'md5'} }->{'guid'} ) {
                     $last_entry = $self->last_entry->{ $feed->{'md5'} }->{'guid'};
                 } else {
@@ -128,12 +128,13 @@ sub retrieve_rss : Command {
         }
     }
 	$self->timer->enqueue( ( $self->my_config->{'interval'} or 60 ), \&retrieve_rss, $self );
+	return;
 }
 
 sub status : Command {
 	my ( $self, $message ) = @_;
 	
-	return ( $self->last_check ? 'Last checked on ' . $self->last_check->{'stamp'} . ', status: ' . $self->last_check->{'status'} : undef );
+	return ( $self->last_check ? 'Last checked on ' . $self->last_check->{'stamp'} . ', status: ' . $self->last_check->{'status'} : 'No valid check found.' );
 }
 
 sub last : Command {

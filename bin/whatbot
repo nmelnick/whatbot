@@ -14,10 +14,10 @@ use warnings;
 use Cwd qw(realpath getcwd);
 use Getopt::Long;
 
-use lib realpath(getcwd()) . '/../lib';
+use lib realpath( getcwd() ) . '/../lib';
 use whatbot;
 
-our $VERSION = '0.9.5';
+our $VERSION = '0.9.6';
 my $basedir = realpath( getcwd() . '/..' );
 
 # Check command line options
@@ -38,6 +38,14 @@ eval {
 };
 if ($@) {
 	print 'ERROR: whatbot requires perl 5.8 or higher.' . "\n";
+	exit(-1);
+}
+eval {
+    require Moose;
+    require MooseX::Declare;
+};
+if ($@) {
+	print 'ERROR: whatbot requires Moose and MooseX::Declare.' . "\n";
 	exit(-1);
 }
 
