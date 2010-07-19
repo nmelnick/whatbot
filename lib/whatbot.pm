@@ -27,19 +27,23 @@ class whatbot {
     has 'skip_extensions'   => ( is => 'rw', isa => 'Int', default => 0 );
     has 'last_message'      => ( is => 'rw', isa => 'whatbot::Message' );
 
-    method config ( Str $basedir, Str $config_path ) {
+    method config ( Str $basedir, Str $config_path? ) {
     
         # Find configuration file
         unless ($config_path and -e $config_path) {
         	my @try_config = (
-        		$basedir . '/conf/whatbot.conf',
+        		'~/.whatbot/whatbot.conf',
+        		'/usr/local/etc/whatbot/whatbot.conf',
+        		'/usr/local/etc/whatbot.conf',
         		'/etc/whatbot/whatbot.conf',
         		'/etc/whatbot.conf',
-        		'/usr/local/etc/whatbot/whatbot.conf',
-        		'/usr/local/etc/whatbot.conf'
+        		$basedir . '/conf/whatbot.conf',
         	);
         	foreach (@try_config) {
-        		$config_path = $_ if (-e $_);
+        		if (-e $_) {
+        			$config_path = $_;
+        			last;
+        		}
         	}
         	unless ($config_path and -e $config_path) {
         		print 'ERROR: Configuration file not found.' . "\n";
@@ -134,7 +138,7 @@ class whatbot {
     	);
     	$store->connect();
     	$self->report_error('Configured store failed to load properly')
-    	    unless ( defined $store and defined $store->handle );
+    	    unless ( $store and defined $store->handle );
     	$base_component->store($store);
 	
     	# 10 RANDOMIZE TIMER
@@ -148,7 +152,7 @@ class whatbot {
     	my %ios;
     	foreach my $io_module ( @{$self->initial_config->io} ) {
     		$log->error('No interface designated for one or more IO modules')
-    		    unless ( defined $io_module->{'interface'} );
+    		    unless ( $io_module->{'interface'} );
 		
     		my $io_class = 'whatbot::IO::' . $io_module->{'interface'};
     		eval "require $io_class";
@@ -158,10 +162,10 @@ class whatbot {
     			'base_component' 	=> $base_component
     		);
     		$self->report_error('IO interface "' . $io_module->{'interface'} . '" failed to load properly') 
-    	        unless ( defined $io_object );
+    	        unless ($io_object);
 
     		$ios{ $io_object->name } = $io_object;
-    		push(@io, $io_object);
+    		push( @io, $io_object );
     	}
     	$base_component->ios(\%ios);
 	
@@ -177,7 +181,7 @@ class whatbot {
     	foreach my $io_object (@io) {
     		$log->write('Sending connect to ' . ref($io_object));
     		$io_object->controller($controller);
-    		$io_object->connect;
+    		$io_object->connect();
     	}
 	
     	# Start Event Loop
