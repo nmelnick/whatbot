@@ -26,6 +26,7 @@
 	</store>
 	<commands>
 	    <admin user="adminuser" />
+	    <define sourcelist="urbandictionary google wikipedia" />
 	</commands>
 	<log directory="/var/log/whatbot" />
 </whatbot>

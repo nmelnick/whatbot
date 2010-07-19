@@ -93,7 +93,7 @@ RETRY:
     $def =~ s/  / /g;
     $def =~ s/ ,/,/g;
 
-    return $def . " (U)";
+    return $def . " (UD)";
 }
 
 sub google {
@@ -111,7 +111,7 @@ sub google {
     $def =~ s/  / /g;
     $def =~ s/ ,/,/g;
 
-    return $def . " (G)";
+    return $def . " (GG)";
 }
 
 
@@ -168,9 +168,9 @@ RETRY:
     $def =~ s/ ,/,/g;
     $def =~ s/\(help·info\)//g;
 
-    $def =~ s/\[citation needed\]//g; # this makes me want to stab people, just for the record
+    $def =~ s/\[[^\]]+\]//g;
 
-    return $def . " (W)";
+    return $def . " (WP)";
 }
 
 sub get {
@@ -204,7 +204,14 @@ sub get_error {
 sub _parse {
     my ( $self, $phrase ) = @_;
 
-    my @default_sources = qw( wikipedia urbandictionary google );
+    my @default_sources;
+    if (!exists($self->my_config->{sourcelist})) {
+	@default_sources = qw(urbandictionary google wikipedia);
+    }
+    else {
+	@default_sources = split / /, $self->my_config->{sourcelist};
+    }
+
     my @sources;
     $_ = $phrase;
 
