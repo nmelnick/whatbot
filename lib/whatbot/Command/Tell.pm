@@ -47,15 +47,15 @@ sub request_tell : CommandRegEx('(.*)') : StopAfter {
 sub do_tell : Event('enter') {
 	my ( $self, $user ) = @_;
 	
-	$user = lc($user);
-	if ( my $response = $self->model('Soup')->get($user) ) {
+	my $search_user = lc($user);
+	if ( my $response = $self->model('Soup')->get($search_user) ) {
 		my @reply;
 		my @response = split( /\|\]/, $response );
 		foreach my $tell ( @response ) {
 			my ( $from, $to_tell ) = split( /\|\[/, $tell );
 			push( @reply, sprintf( '%s, %s wants you to know %s%s', $user, $from, $to_tell, ( $to_tell =~ /[\.\?!]$/ ? '' : '.' ) ) );
 		}
-		$self->model('Soup')->clear($user);
+		$self->model('Soup')->clear($search_user);
 		return \@reply;
 	}
 
