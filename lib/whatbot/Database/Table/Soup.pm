@@ -105,6 +105,19 @@ sub get {
     return;
 }
 
+sub clear {
+	my ( $self, $key ) = @_;
+    
+    my $row = $self->search_one({
+        'module_id' => $self->_get_module( caller() ),
+        'subject'   => $key
+    });
+    if ($row) {
+        $row->delete;
+    }
+    return;
+}
+
 1;
 
 =pod
