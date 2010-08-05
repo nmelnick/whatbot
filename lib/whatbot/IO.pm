@@ -32,10 +32,14 @@ class whatbot::IO extends whatbot::Component {
     method disconnect {
     }
 
-    method event_user_enter {
+    method event_user_enter ( $from? ) {
+    	$self->notify( '**' . $from . ' has entered' );
+	    $self->parse_response( $self->controller->handle_event( 'enter', $from ) );
     }
 
-    method event_user_leave {
+    method event_user_leave ( $from? ) {
+    	$self->notify( '**' . $from . ' has left' );
+	    $self->parse_response( $self->controller->handle_event( 'leave', $from ) );
     }
 
     method event_message_public ( Str $from, $content, $optional? ) {

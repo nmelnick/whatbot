@@ -134,6 +134,17 @@ class whatbot::Controller extends whatbot::Component {
     				                    }
     				                );
 				                
+    				            } elsif ( $command eq 'Event' ) {
+    				                $arguments =~ s/\)$//;
+    				                $arguments =~ s/^'(.*?)'$/$1/;
+    				                push(
+    				                    @run_paths,
+    				                    {
+    				                        'event'     => $arguments,
+    				                        'function'  => $function
+    				                    }
+    				                );
+				                
     				            } elsif ( $command eq 'StopAfter' ) {
     				                $end_paths{$function} = 1;
 				                
@@ -189,6 +200,8 @@ class whatbot::Controller extends whatbot::Component {
     	        # Check each method corresponding to a registered runpath to see
     	        # if it cares about our content
         		foreach my $run_path ( @{ $self->command->{$priority}->{$command_name} } ) {
+        			next unless ( $run_path->{'match'} );
+
         		    my $listen = $run_path->{'match'};
         		    my $function = $run_path->{'function'};
     		    
@@ -247,6 +260,76 @@ class whatbot::Controller extends whatbot::Component {
     	return \@messages;
     }
 
+	# dear god refactor
+    method handle_event ( $event, $user, $me? ) {
+    	my @messages;
+    	foreach my $priority ( qw( primary core extension last ) ) {
+    	    last if ( scalar(@messages) and $priority =~ /(extension|last)/ );
+	    
+	        # Iterate through priorities, in order, check for commands that can
+	        # receive content
+        	foreach my $command_name ( keys %{ $self->command->{$priority} } ) {
+        	    my $command = $self->command_name->{$command_name};
+
+    	        # Check each method corresponding to a registered runpath to see
+    	        # if it cares about our content
+        		foreach my $run_path ( @{ $self->command->{$priority}->{$command_name} } ) {
+        			next unless ( $run_path->{'event'} and $run_path->{'event'} eq $event );
+
+        		    my $function = $run_path->{'function'};
+    				my $result;
+    				eval {
+    					$result = $command->$function($user);
+    				};
+    				if ($@) {
+    					$self->log->error( 'Failure in ' . $command_name . ': ' . $@ );
+    					my $return_message = new whatbot::Message(
+    						'from'			 => '',
+    						'to'			 => 'public',
+    						'content'		 => $command_name . ' completely failed at that last remark.',
+    						'timestamp'		 => time,
+    						'base_component' => $self->parent->base_component
+    					);
+    					push( @messages, $return_message);
+				
+    				} elsif ( defined $result ) {
+    					last if ( $result eq 'last_run' );
+				
+    					$self->log->write('%%% Message handled by ' . $command_name)
+    					    unless ( defined $self->config->io->[0]->{'silent'} );
+    					$result = [ $result ] if ( ref($result) ne 'ARRAY' );
+					
+    					foreach my $result_single ( @$result ) {
+							my $outmessage;
+							if ( ref($result_single) eq 'whatbot::Message' ) {
+								$outmessage = $result_single;
+								my $content = $outmessage->content;
+								$content =~ s/!who/$user/;
+								$outmessage->content($content);
+							} else {
+								$result_single =~ s/!who/$user/;
+								$outmessage = new whatbot::Message(
+	        						'from'			    => '',
+	        						'to'				=> 'public',
+	        						'content'			=> $result_single,
+	        						'timestamp'		    => time,
+	        						'base_component'	=> $self->parent->base_component
+	        					);
+							}
+        					push( @messages, $outmessage );
+					    }
+    				}
+				
+    				# End processing for this command if StopAfter was called.
+    				last if $run_path->{'stop'};
+			
+    			}
+    		}
+        }
+	
+    	return \@messages;
+    }
+
     method dump_command_map {
         foreach my $priority ( qw( primary core extension ) ) {
     	    my $commands = 0;
@@ -255,7 +338,12 @@ class whatbot::Controller extends whatbot::Component {
 	    
         	foreach my $command_name ( keys %{ $self->command->{$priority} } ) {
         		foreach my $run_path ( @{ $self->command->{$priority}->{$command_name} } ) {
-        	        $self->log->write( ' /' . $run_path->{'match'} . '/ => ' . $command_name . '->' . $run_path->{'function'} );
+        			if ( $run_path->{'match'} ) {
+        				$self->log->write( ' /' . $run_path->{'match'} . '/ => ' . $command_name . '->' . $run_path->{'function'} );
+        			} elsif ( $run_path->{'event'} ) {
+        				$self->log->write( ' Event "' . $run_path->{'event'} . '" => ' . $command_name . '->' . $run_path->{'function'} );
+        			}
+        	        
         	        $commands++;
     	        }
     	    }
