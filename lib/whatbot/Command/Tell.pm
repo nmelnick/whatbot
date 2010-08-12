@@ -73,7 +73,7 @@ sub query_tell : GlobalRegEx('^what are you telling ([^\s\?]+)') {
 		my @response = split( /\|\]/, $response );
 		foreach my $tell ( @response ) {
 			my ( $from, $to_tell ) = split( /\|\[/, $tell );
-			push( @reply, sprintf( 'Telling: %s wants %s to know "%s%s"', $message->from, $captures->[0], $to_tell, ( $to_tell =~ /[\.\?!]$/ ? '' : '.' ) ) );
+			push( @reply, sprintf( 'Telling: %s wants %s to know "%s%s"', $from, $captures->[0], $to_tell, ( $to_tell =~ /[\.\?!]$/ ? '' : '.' ) ) );
 		}
 		return \@reply;
 	} else {
