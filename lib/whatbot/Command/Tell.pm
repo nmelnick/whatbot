@@ -62,4 +62,24 @@ sub do_tell : Event('enter') {
 	return;
 }
 
+sub query_tell : GlobalRegEx('^what are you telling ([^\s]+)\??') {
+	my ( $self, $message, $captures ) = @_;
+	
+	my $search_user = lc( $captures->[0] );
+	return unless ($search_user);
+	
+	
+	if ( my $response = $self->model('Soup')->get($search_user) ) {
+		my @reply;
+		my @response = split( /\|\]/, $response );
+		foreach my $tell ( @response ) {
+			my ( $from, $to_tell ) = split( /\|\[/, $tell );
+			push( @reply, sprintf( 'Telling: %s wants %s to know %s%s', $message->from, $captures->[0], $to_tell, ( $to_tell =~ /[\.\?!]$/ ? '' : '.' ) ) );
+		}
+		return \@reply;
+	} else {
+		return 'Nothing, ' . $message->from . '.';
+	}
+}
+
 1;
