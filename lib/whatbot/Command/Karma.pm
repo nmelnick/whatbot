@@ -66,7 +66,7 @@ sub info : Command {
     my ( $self, $message, $captures ) = @_;
     
     if ($captures) {
-		my $phrase = join( ' ', @$captures );
+		my $phrase = lc( join( ' ', @$captures ) );
 		my $karma_info = $self->model('karma')->get_extended( $phrase );
 		if (
 		    defined $karma_info
