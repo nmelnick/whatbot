@@ -10,6 +10,7 @@ use MooseX::Declare;
 
 class whatbot::Store extends whatbot::Component {
     use Digest::SHA1 qw(sha1_hex);
+    use Encode;
 
     has 'handle' => ( is => 'rw', isa => 'Any' );
 
