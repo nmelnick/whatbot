@@ -99,7 +99,7 @@ class whatbot::Store extends whatbot::Component {
 			
     		# Check if exists
     		if (defined $factoid
-    			and my ($desc) = @{ $self->retrieve("factoid_description", [qw/factoid_id/], { factoid_id => $factoid->{factoid_id}, hash => sha1_hex($is) }) }) {
+    			and my ($desc) = @{ $self->retrieve("factoid_description", [qw/factoid_id/], { factoid_id => $factoid->{factoid_id}, hash => sha1_hex( Encode::encode_utf8($is) ) }) }) {
     			return undef;
     		}
 		
@@ -110,7 +110,7 @@ class whatbot::Store extends whatbot::Component {
     				$self->store("factoid_description", {
     					factoid_id	=> $factoid->{factoid_id},
     					description	=> $fact,
-    					hash		=> sha1_hex($fact),
+    					hash		=> sha1_hex( Encode::encode_utf8($fact) ),
     					user		=> $from,
     					updated		=> time
     				});
@@ -119,7 +119,7 @@ class whatbot::Store extends whatbot::Component {
     			my $result = $self->store("factoid_description", {
     				factoid_id	=> $factoid->{factoid_id},
     				description	=> $is,
-    				hash		=> sha1_hex($is),
+    				hash		=> sha1_hex( Encode::encode_utf8($is) ),
     				user		=> $from,
     				updated		=> time
     			});
