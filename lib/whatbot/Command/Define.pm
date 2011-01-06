@@ -30,9 +30,8 @@ has 'stripper' => (
 );
 
 has 'error' => (
-    is        => 'rw',
-    isa        => 'Str',
-    default    => undef,
+    is         => 'rw',
+    isa        => 'Maybe[Str]',
 );
 
 sub register {

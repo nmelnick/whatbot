@@ -16,9 +16,9 @@ use LWP::UserAgent ();
 use XML::Simple qw(XMLin);
 
 has 'ua'            => ( is => 'ro', isa => 'LWP::UserAgent', default => sub { new LWP::UserAgent; } );
-has 'lasturl'       => ( is => 'rw', isa => 'Str', default => undef );
-has 'lastitemid'    => ( is => 'rw', isa => 'Str', default => undef );
-has 'lastcategory'  => ( is => 'rw', isa => 'Str', default => undef );
+has 'lasturl'       => ( is => 'rw', isa => 'Maybe[Str]' );
+has 'lastitemid'    => ( is => 'rw', isa => 'Maybe[Str]');
+has 'lastcategory'  => ( is => 'rw', isa => 'Maybe[Str]' );
 
 my $EBAY_HEADERS = HTTP::Headers->new(
     'X-EBAY-API-SITEID'            => 0, # United States
