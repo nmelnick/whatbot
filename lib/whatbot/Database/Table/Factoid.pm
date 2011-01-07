@@ -112,7 +112,7 @@ sub is_silent {
     return;
 }
 
-sub silence {
+sub toggle_silence {
     my ( $self, $subject ) = @_;
     
     return unless ($subject);
