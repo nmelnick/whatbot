@@ -147,7 +147,7 @@ sub shut_up : GlobalRegEx('^(shut up|stfu) about (.*)') : StopAfter {
 	}
 	
 	my $silent = $self->model('factoid')->toggle_silence( $captures->[1] );
-	if ($silent) {
+	if ( defined $silent ) {
 		$self->stfu({
 			'subject' => $captures->[1],
 			'time'    => time
