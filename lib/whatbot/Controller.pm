@@ -200,7 +200,7 @@ class whatbot::Controller extends whatbot::Component {
     	        # Check each method corresponding to a registered runpath to see
     	        # if it cares about our content
         		foreach my $run_path ( @{ $self->command->{$priority}->{$command_name} } ) {
-        			next unless ( $run_path->{'match'} );
+        			next unless ( $run_path->{'match'} or $run_path->{'function'} );
 
         		    my $listen = $run_path->{'match'};
         		    my $function = $run_path->{'function'};
