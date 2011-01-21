@@ -202,7 +202,7 @@ class whatbot::Controller extends whatbot::Component {
         		foreach my $run_path ( @{ $self->command->{$priority}->{$command_name} } ) {
         			next unless ( $run_path->{'match'} or $run_path->{'function'} );
 
-        		    my $listen = $run_path->{'match'};
+        		    my $listen = ( $run_path->{'match'} or '' );
         		    my $function = $run_path->{'function'};
     		    
         			if ( $listen eq '' or my (@matches) = $message->content =~ /$listen/i ) {
