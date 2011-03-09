@@ -118,6 +118,20 @@ sub clear {
     return;
 }
 
+sub get_hashref {
+    my ( $self ) = @_;
+    
+    my $rows = $self->search({
+        'module_id' => $self->_get_module( caller() )
+    });
+    my %results;
+    foreach my $row (@$rows) {
+    	$results{ $row->subject } = $row->value;
+    }
+
+    return \%results;
+}
+
 1;
 
 =pod
@@ -150,6 +164,10 @@ the existing entry.
 
 Get a value for the specified key. Returns undef if the key doesn't exist in
 the database.
+
+=item get_hashref()
+
+Get all pairs for the current module. Returns a hashref of the key-value pairs.
 
 =back
 
