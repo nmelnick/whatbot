@@ -29,7 +29,7 @@ sub what_does : GlobalRegEx('(what|who) does (\w+) (like|hate)') {
     my $nick = $message->from;
 
     my $karmas = $self->model('karma')->search({
-        'user' => $who
+	    'user'      => { 'LIKE' => $who },
     });
 
     if (!$karmas or !@$karmas) {
