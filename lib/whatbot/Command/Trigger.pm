@@ -16,7 +16,7 @@ has triggers => ( is => 'rw', isa => 'HashRef' );
 sub register {
 	my ( $self ) = @_;
 	
-	$self->command_priority('Last');
+	$self->command_priority('Extension');
 	$self->require_direct(0);
 	
 	$self->triggers( $self->model('Soup')->get_hashref() );
