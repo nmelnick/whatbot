@@ -43,13 +43,14 @@ sub set : Command {
 					$has_trigger++;
 					last;
 				}
-			} elsif ( $char eq '\\' ) {
+			} elsif ( $char eq "\\" ) {
 				$escape++;
 				next;
 			} else {
-				$trigger .= '\\' if ($escape);
+				$trigger .= "\\" if ($escape);
 				$trigger .= $char;
 			}
+			$escape = 0;
 		}
 		if ($has_trigger) {
 			$response = join( '', @set_line );
@@ -90,11 +91,22 @@ sub listener : GlobalRegEx('(.+)') {
 	my ( $self, $message ) = @_;
 	
 	foreach my $trigger ( keys %{ $self->triggers } ) {
-		if ( $message->content =~ /$trigger/ ) {
+		if ( my @captures = $message->content =~ /$trigger/ ) {
 			my $response = $self->triggers->{$trigger};
+			
+			# Capture a <reply> if necessary
 			if ( $response =~ /<reply>/ ) {
 				$response =~ s/^<reply> +//;
 			}
+
+			# Replace captures within response
+			if (@captures) {
+				for ( my $index = 1; $index <= scalar(@captures); $index++ ) {
+					my $capture = $captures[$index - 1];
+					$response =~ s/\$$index/$capture/g;
+				}
+			}
+
 			return $response;
 		}
 	}
