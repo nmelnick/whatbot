@@ -157,13 +157,6 @@ class whatbot::Controller extends whatbot::Component {
     				    }
     				}
 				
-    				# Insert end paths
-    				for ( my $i = 0; $i < scalar(@run_paths); $i++ ) {
-    				    if ( $end_paths{ $run_paths[$i]->{'function'} } ) {
-    				        $run_paths[$i]->{'stop'} = 1;
-    				    }
-    				}
-				
     				$new_command->command_priority('Extension') unless ( $new_command->command_priority );
     				unless ( 
     				    lc($new_command->command_priority) =~ /(extension|last)/
@@ -175,6 +168,13 @@ class whatbot::Controller extends whatbot::Component {
     					$command_short_name{$command_root} = $new_command;
 				
     					$self->log->write( '-> ' . ref($new_command) . ' loaded.' );
+    				}
+				
+    				# Insert end paths
+    				for ( my $i = 0; $i < scalar(@run_paths); $i++ ) {
+    				    if ( $end_paths{ $run_paths[$i]->{'function'} } ) {
+    				        $run_paths[$i]->{'stop'} = 1;
+    				    }
     				}
     			}
     		}
