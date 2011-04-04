@@ -204,7 +204,7 @@ sub _parse {
     my ( $self, $phrase ) = @_;
 
     my @default_sources;
-    if (!exists($self->my_config->{sourcelist})) {
+    if ( !$self->my_config or !exists($self->my_config->{sourcelist}) ) {
 	@default_sources = qw(urbandictionary google wikipedia);
     }
     else {
