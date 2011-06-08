@@ -27,9 +27,9 @@ sub do_convert : CommandRegEx('([\d\.,]+) ?(.*) to (.*)')  {
 	return unless ( $captures and @$captures );
 	my ( $unit, $from, $to ) = @$captures;
 	my $unit_from = $from;
-	$unit_from =~ s/re$/er/;
+	$unit_from =~ s/res?$/er/;
 	my $unit_to = $to;
-	$unit_to =~ s/re$/er/;
+	$unit_to =~ s/res?$/er/;
 	my $result = eval {
 		Math::Units::convert( $unit, $unit_from, $unit_to );
 	};
