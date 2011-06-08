@@ -21,15 +21,20 @@ sub register {
 	return;
 }
 
-sub do_convert : CommandRegEx('(\d+) ?(.*) to (.*)')  {
+sub do_convert : CommandRegEx('([\d\.,]+) ?(.*) to (.*)')  {
 	my ( $self, $message, $captures ) = @_;
 
 	return unless ( $captures and @$captures );
 	my ( $unit, $from, $to ) = @$captures;
+	my $unit_from = $from;
+	$unit_from =~ s/re$/er/;
+	my $unit_to = $to;
+	$unit_to =~ s/re$/er/;
 	my $result = eval {
-		Math::Units::convert( $unit, $from, $to );
+		Math::Units::convert( $unit, $unit_from, $unit_to );
 	};
 	if ($@) {
+		warn $@;
 		return 'I cannot convert from ' . $from . ' to ' . $to . '.';
 	}
 	unless (defined $result) {
