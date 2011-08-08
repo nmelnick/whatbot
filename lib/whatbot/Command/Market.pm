@@ -76,16 +76,8 @@ sub process {
 	my $fields = shift;
 	my $format = shift;
 	
-	# default format is:
-	# symbol (name) allotherfields spaceseparated
 	if (!defined($format)) {
-		my @formatfields = grep {$_ ne 'company'} @$fields;
-		
-		$format = "%s";
-		if (@formatfields != @$fields) {
-			$format .= " (%s)";
-		}
-		$format .=  (" %s" x @formatfields);
+		$format = join(" ", ("%s") x @$fields);
 	}
 	
 	my @out;
@@ -112,11 +104,21 @@ sub process {
 		}
 
 		$info = $info->{finance};
+
+		if ($info->{exchange} eq "UNKNOWN EXCHANGE") {
+			push @out, "no match for $symbol";
+			next;
+		}
 		
 		my %data;
 		
 		foreach my $field (@$fields) {
-			my $value = $info->{$field};
+			my $value;
+			if ($field =~ /^(\w+)\[(\d+)\]$/) {
+				$value = (split(/ +/,$info->{$1}))[$2];
+			} else {
+				$value = $info->{$field};
+			}
 			
 			if ($field eq "perc_change") {
 				$value = colorize("$value%");
@@ -126,10 +128,10 @@ sub process {
 			$data{$field} = $value;
 		}
 		
-		push @out, sprintf($format, $symbol, map { $data{$_} } @$fields);
+		push @out, sprintf($format, map { $data{$_} } @$fields);
 	}
 	
-	return join(" - ", @out);
+	return join(" || ", @out);
 }
 
 sub colorize {
@@ -184,6 +186,13 @@ sub detail : GlobalRegEx('^stockrep (.+)$') {
 	return $results;
 }
 
+sub indices : GlobalRegEx('^market$') {
+	my ( $self, $message, $captures ) = @_;
+
+	my $results = $self->process([qw(.dji .inx .ixic)], [qw(company[0] last change perc_change)], "%s %s %s (%s)");
+	return $results if $results;	
+}
+
 sub parse_message : CommandRegEx('(.+)') {
 	my ( $self, $message, $captures ) = @_;
 	
@@ -196,7 +205,7 @@ sub parse_message : CommandRegEx('(.+)') {
 	# from here on we're dealing with stocks
 	my @stocks = map { s/\s//g; uc } split /,/, $target;
 	
-	my $results = $self->process(\@stocks, [qw(company last perc_change change)]);
+	my $results = $self->process(\@stocks, [qw(symbol company last change perc_change)], "%s %s %s %s (%s)");
 	
 	if (!$results) {
 		return "I couldn't find anything for $target.";
