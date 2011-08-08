@@ -131,7 +131,7 @@ class whatbot {
 	    
     	my $storage = 'whatbot::Store::' . $self->initial_config->store->{'handler'};
     	eval "require $storage";
-    	$self->report_error($@) if ($@);
+    	$self->report_error("Problem requiring $storage: " . $@) if ($@);
 	
     	my $store = $storage->new(
     		'base_component' => $base_component
