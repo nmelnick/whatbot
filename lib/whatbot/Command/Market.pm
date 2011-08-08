@@ -10,15 +10,9 @@ package whatbot::Command::Market;
 use Moose;
 BEGIN { extends 'whatbot::Command' }
 
-use Finance::Quote;
+use XML::Simple qw(XMLin);
 use String::IRC; # for colors!
 use LWP::UserAgent ();
-
-has 'quote' => (
-	is		=> 'ro',
-	isa		=> 'Finance::Quote',
-	default => sub { Finance::Quote->new; }
-);
 
 has 'ua' => (
 	is		=> 'ro',
@@ -41,8 +35,6 @@ sub register {
 	
 	$self->command_priority('Extension');
 	$self->require_direct(0);
-	$self->quote->timeout(15);
-	$self->quote->require_labels(qw/last p_change name net/);
 	$self->ua->timeout(15);
 }
 
@@ -87,7 +79,7 @@ sub process {
 	# default format is:
 	# symbol (name) allotherfields spaceseparated
 	if (!defined($format)) {
-		my @formatfields = grep {$_ ne 'name'} @$fields;
+		my @formatfields = grep {$_ ne 'company'} @$fields;
 		
 		$format = "%s";
 		if (@formatfields != @$fields) {
@@ -96,28 +88,39 @@ sub process {
 		$format .=  (" %s" x @formatfields);
 	}
 	
-	my $info = $self->quote->fetch($self->default_exchange, @$stocks);
-	return undef unless $info;
-	
 	my @out;
 	
 	foreach my $symbol (@$stocks) {
-		# this API is weird and involves commas in hash keys...
-		# I guess this is the old way of doing things (?)
+		my $response = $self->ua->get("http://www.google.com/ig/api?stock=$symbol");
 		
-		if (! $info->{$symbol,"success"}) {
-			push @out, $info->{$symbol,"errormsg"};
+		if (! $response->is_success) {
+			push @out, "got " . $response->code . " for $symbol";
 			next;
 		}
+
+		my $info = eval { XMLin($response->decoded_content, ValueAttr => [ 'data' ] ) };
+		if (my $err = $@) {
+			$self->log->error("Decoding Google XML response for $symbol: $err");
+			push @out, "error decoding XML for $symbol";
+			next;
+		}
+
+		if (!defined($info->{finance})) {
+			$self->log->error("No finance element in Google XML response for $symbol");
+			push @out, "weird XML for $symbol";
+			next;
+		}
+
+		$info = $info->{finance};
 		
 		my %data;
 		
 		foreach my $field (@$fields) {
-			my $value = $info->{$symbol,$field};
+			my $value = $info->{$field};
 			
-			if ($field eq "p_change") {
+			if ($field eq "perc_change") {
 				$value = colorize("$value%");
-			} elsif ($field eq "net" || $field eq "eps") {
+			} elsif ($field eq "change") {
 				$value = colorize($value);
 			}
 			$data{$field} = $value;
@@ -167,8 +170,8 @@ sub detail : GlobalRegEx('^stockrep (.+)$') {
 	# from here on we're dealing with stocks
 	my @stocks = map { s/\s//g; uc } split /,/, $target;
 	
-	my $detail_fields = [qw(name eps year_range div div_yield volume)];
-	my $format = "%s - %s  eps %s - last 52w: %s - div %s (%s%y) - vol %s";
+	my $detail_fields = [qw(company high low volume avg_volume)];
+	my $format = "%s - today's hi %s - lo %s - vol %s (avg %s)";
 	
 	my $results = $self->process(\@stocks, $detail_fields, $format);
 	
@@ -191,7 +194,7 @@ sub parse_message : CommandRegEx('(.+)') {
 	# from here on we're dealing with stocks
 	my @stocks = map { s/\s//g; uc } split /,/, $target;
 	
-	my $results = $self->process(\@stocks, [qw(name last p_change net)]);
+	my $results = $self->process(\@stocks, [qw(company last perc_change change)]);
 	
 	if (!$results) {
 		return "I couldn't find anything for $target.";
