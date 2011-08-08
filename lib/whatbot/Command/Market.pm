@@ -147,6 +147,8 @@ sub colorize {
 sub do_currency {
 	my $self = shift;
 	my $target = shift;
+
+	return "google doesn't do currency :(";
 	
 	my ( $to_cur, $from_cur ) = ( $target =~ m!^([a-z]+)/([a-z]+)$!io );
 	
