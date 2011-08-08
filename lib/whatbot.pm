@@ -88,7 +88,7 @@ class whatbot {
     	my $connection_class = 'whatbot::Database::' . $base_component->config->database->{'handler'};
     	eval "require $connection_class";
     	if ( my $err = $@ ) {
-    	    $self->report_error($@);
+    	    $self->report_error("Problem loading $connection_class: " . $err);
     	}
 
     	my $database = $connection_class->new(
