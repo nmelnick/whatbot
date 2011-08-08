@@ -22,7 +22,7 @@ class whatbot::IO::Log::Infobot extends whatbot::IO::Log {
 			$message =~ s/\\what/what/g;
 			$message =~ s/\\is/is/g;
 		
-			my $message = new whatbot::Message(
+			my $message = whatbot::Message->new(
 				'from'			    => $user,
 				'to'				=> $channel,
 				'content'			=> $message,

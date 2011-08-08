@@ -103,7 +103,7 @@ sub retrieve_rss : Command {
                             next unless ( $entry->{'text'} =~ /$exclude/ );
                         }
                         $self->last_entry->{ $feed->{'md5'} } = $entry;
-                        my $message = new whatbot::Message(
+                        my $message = whatbot::Message->new(
                             'to' => '',
                             'from' => '',
                             'content' => '[RSS] ' . $xml_doc->{'channel'}->{'title'} . ': ' . $entry->{'text'} . ' (' . $entry->{'url'} . ')',

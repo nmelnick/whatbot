@@ -49,7 +49,7 @@ sub BUILD {
         }
     });
 
-    my $description = new whatbot::Database::Table(
+    my $description = whatbot::Database::Table->new(
         'base_component' => $self->parent->base_component
     );
     $description->init_table({
@@ -78,7 +78,7 @@ sub BUILD {
             }
         }
     });
-    my $ignore = new whatbot::Database::Table(
+    my $ignore = whatbot::Database::Table->new(
         'base_component' => $self->parent->base_component
     );
     $ignore->init_table({

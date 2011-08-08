@@ -15,7 +15,7 @@ use HTTP::Headers ();
 use LWP::UserAgent ();
 use XML::Simple qw(XMLin);
 
-has 'ua'            => ( is => 'ro', isa => 'LWP::UserAgent', default => sub { new LWP::UserAgent; } );
+has 'ua'            => ( is => 'ro', isa => 'LWP::UserAgent', default => sub { LWP::UserAgent->new(); } );
 has 'lasturl'       => ( is => 'rw', isa => 'Maybe[Str]' );
 has 'lastitemid'    => ( is => 'rw', isa => 'Maybe[Str]');
 has 'lastcategory'  => ( is => 'rw', isa => 'Maybe[Str]' );

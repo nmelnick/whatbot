@@ -65,7 +65,7 @@ class whatbot {
     	$self->initial_config->{'io'} = [$override_io] if ($override_io);
 	
     	# Start Logger
-    	my $log = new whatbot::Log(
+    	my $log = whatbot::Log->new(
     		'log_directory' => $self->initial_config->log_directory
     	);
     	$self->report_error('Invalid configuration')
@@ -142,7 +142,7 @@ class whatbot {
     	$base_component->store($store);
 	
     	# 10 RANDOMIZE TIMER
-    	my $timer = new whatbot::Timer(
+    	my $timer = whatbot::Timer->new(
     		'base_component' 	=> $base_component
     	);
     	$base_component->timer($timer);
@@ -170,7 +170,7 @@ class whatbot {
     	$base_component->ios(\%ios);
 	
     	# Parse Commands
-    	my $controller = new whatbot::Controller(
+    	my $controller = whatbot::Controller->new(
     		'base_component' 	=> $base_component,
     		'skip_extensions'	=> $self->skip_extensions
     	);

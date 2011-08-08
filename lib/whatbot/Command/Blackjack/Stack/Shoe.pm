@@ -10,7 +10,7 @@ sub BUILD {
     
     my @cards;
     foreach ( 1 .. $self->decks ) {
-        my $deck = new whatbot::Command::Blackjack::Stack::Deck;
+        my $deck = whatbot::Command::Blackjack::Stack::Deck->new();
         foreach my $card ( @{ $deck->cards } ) {
             push( @cards, $card );
         }

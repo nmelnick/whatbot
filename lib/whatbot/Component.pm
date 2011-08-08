@@ -10,7 +10,7 @@
 use MooseX::Declare;
 
 class whatbot::Component {
-    has 'base_component' => ( is => 'rw', default => sub { new whatbot::Component::Base } );
+    has 'base_component' => ( is => 'rw', default => sub { whatbot::Component::Base->new() } );
     has 'parent'         => ( is => 'rw', default => sub { $_[0]->base_component->parent } );
     has 'config'         => ( is => 'rw', default => sub { $_[0]->base_component->config } );
     has 'ios'            => ( is => 'rw', default => sub { $_[0]->base_component->ios } );

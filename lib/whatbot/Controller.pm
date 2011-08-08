@@ -212,7 +212,7 @@ class whatbot::Controller extends whatbot::Component {
         				};
         				if ($@) {
         					$self->log->error( 'Failure in ' . $command_name . ': ' . $@ );
-        					my $return_message = new whatbot::Message(
+        					my $return_message = whatbot::Message->new(
         						'from'			 => '',
         						'to'			 => ($message->is_private == 0 ? 'public' : $message->from),
         						'content'		 => $command_name . ' completely failed at that last remark.',
@@ -237,7 +237,7 @@ class whatbot::Controller extends whatbot::Component {
     								$outmessage->content($content);
     							} else {
     								$result_single =~ s/!who/$message->from/;
-    								$outmessage = new whatbot::Message(
+    								$outmessage = whatbot::Message->new(
     	        						'from'			    => '',
     	        						'to'				=> ( $message->to eq 'public' ? 'public' : $message->from ),
     	        						'content'			=> $result_single,
@@ -283,7 +283,7 @@ class whatbot::Controller extends whatbot::Component {
     				};
     				if ($@) {
     					$self->log->error( 'Failure in ' . $command_name . ': ' . $@ );
-    					my $return_message = new whatbot::Message(
+    					my $return_message = whatbot::Message->new(
     						'from'			 => '',
     						'to'			 => 'public',
     						'content'		 => $command_name . ' completely failed at that last remark.',
@@ -308,7 +308,7 @@ class whatbot::Controller extends whatbot::Component {
 								$outmessage->content($content);
 							} else {
 								$result_single =~ s/!who/$user/;
-								$outmessage = new whatbot::Message(
+								$outmessage = whatbot::Message->new(
 	        						'from'			    => '',
 	        						'to'				=> 'public',
 	        						'content'			=> $result_single,
@@ -375,7 +375,7 @@ whatbot::Controller - Command processor and dispatcher
 
  use whatbot::Controller;
  
- my $controller = new whatbot::Controller;
+ my $controller = whatbot::Controller->new();
  $controller->build_command_map();
  
  ...

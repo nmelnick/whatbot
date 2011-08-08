@@ -58,11 +58,11 @@ class whatbot::IO::IRC extends whatbot::IO {
 		$self->irc_handle->add_global_handler(353, 			\&cb_names);
 		$self->irc_handle->add_global_handler(433, 			\&cb_nick_taken);
 	
-		# I can't figure out how else to use this module in an OO way,
-		# so I just do hax. They say if it takes a lot of work, you aren't
-		# doing it right. Fine. Tell me how to fix this, then, and don't
-		# say POE::Component::IRC. infobot hasn't released a new version
-		# because they're moving to POE. Rapid development my behind.
+		# I can't figure out how else to use this module in an OO way, so I just do
+		# hax. They say if it takes a lot of work, you aren't doing it right.
+		# Fine. Tell me how to fix this, then, and don't say
+		# POE::Component::IRC. infobot hasn't released a new version because
+		# they're moving to POE. Rapid development my behind.
 		$self->irc_handle->{'_whatbot'} = $self;
 	
 		# Now we start one event loop so we can actually connect.

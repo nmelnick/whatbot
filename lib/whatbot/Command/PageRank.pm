@@ -23,7 +23,7 @@ sub parse_message : CommandRegEx('(for)? (.*)[\?\s]?') {
 	my ( $self, $message, $captures ) = @_;
 	
 	if ($captures) {
-		my $pr = new WWW::Google::PageRank;
+		my $pr = WWW::Google::PageRank->new();
 		my $site = $captures->[1];
 		unless ($site =~ /^https?:\/\//) {
 			$site = "http://" . $site;

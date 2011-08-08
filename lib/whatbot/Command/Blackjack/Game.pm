@@ -59,7 +59,7 @@ sub start {
 sub reshoe {
     my ( $self ) = @_;
     
-    $self->shoe( new whatbot::Command::Blackjack::Stack::Shoe ( 'decks' => 4 ) );
+    $self->shoe( whatbot::Command::Blackjack::Stack::Shoe->new( 'decks' => 4 ) );
     $self->active_shoe(1);
     
     return;
@@ -69,7 +69,7 @@ sub deal {
     my ( $self, $players ) = @_;
     
     my @hands;
-    my $dealer_hand = new whatbot::Command::Blackjack::Hand (
+    my $dealer_hand = whatbot::Command::Blackjack::Hand->new(
         'player'    => 'Dealer'
     );
     push( @hands, $dealer_hand );
@@ -80,7 +80,7 @@ sub deal {
         $self->bets->{$player} = $bet;
         $self->players->{ $player } -= $bet;
         
-        my $hand = new whatbot::Command::Blackjack::Hand (
+        my $hand = whatbot::Command::Blackjack::Hand->new(
             'player'    => $player
         );
         push( @hands, $hand );

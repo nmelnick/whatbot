@@ -8,7 +8,7 @@ has 'last_draw' => ( is => 'rw', isa => 'Int', default => 0 );
 sub clone {
     my ( $self ) = @_;
     
-    return new whatbot::Command::Blackjack::Hand(
+    return whatbot::Command::Blackjack::Hand->new(
         'player'    => $self->player
     );
 }

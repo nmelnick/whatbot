@@ -55,7 +55,7 @@ whatbot::Progress - Provides a basic progress meter
 
  use whatbot::Progress;
  
- my $progress = new whatbot::Progress (
+ my $progress = whatbot::Progress->new(
     'restrict_updates' => 10,
     'max'              => 100,
     'show_count'       => 1

@@ -35,7 +35,7 @@ sub ircize {
     my $string = $self->value . $self->unicode;
     # I think this sucks.
     # if ( $self->color eq 'red' ) {
-    #     my $irc = new String::IRC(' ' . $string . ' ');
+    #     my $irc = String::IRC->new( ' ' . $string . ' ' );
     #     $irc->red();
     #     $string = $irc->stringify();
     # }

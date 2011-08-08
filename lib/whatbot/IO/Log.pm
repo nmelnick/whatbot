@@ -48,7 +48,7 @@ class whatbot::IO::Log extends whatbot::IO {
 	method event_loop {
 		my $fh = $self->file_handle;
 		$self->progress(
-			new whatbot::Progress( 
+			whatbot::Progress->new( 
 				'restrict_updates'  => 1000,
 				'max'               => $self->line_count,
 				'show_count'        => 1

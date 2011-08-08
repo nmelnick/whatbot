@@ -15,7 +15,7 @@ sub BUILD {
     /;
     foreach my $suit (@suits) {
         foreach my $value ( 'A', 2 .. 10, qw/ J Q K / )  {
-            my $card = new whatbot::Command::Blackjack::Card(
+            my $card = whatbot::Command::Blackjack::Card->new(
                 'value' => $value,
                 'suit'  => $suit
             );

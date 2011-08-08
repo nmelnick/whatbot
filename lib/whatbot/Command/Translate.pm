@@ -61,7 +61,7 @@ sub help {
 sub get_translator {
 	my ( $self, $using ) = @_;
 	
-	return new WWW::Babelfish(
+	return WWW::Babelfish->new(
 		'service'	=> 'Yahoo',
 		'agent' 	=> 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_2; de-at) AppleWebKit/531.21.8 (KHTML, like Gecko) Version/4.0.4 Safari/531.21.10'
 	);

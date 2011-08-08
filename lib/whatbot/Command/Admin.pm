@@ -159,7 +159,7 @@ sub throw : Command {
     my ( $self, $message, $args ) = @_;
 
     my ( $io_search, @message_split ) = split( / /, $args->[0] );
-    my $new_message = new whatbot::Message(
+    my $new_message = whatbot::Message->new(
         'to'             => '',
         'from'           => '',
         'content'        => join( ' ', @message_split ),

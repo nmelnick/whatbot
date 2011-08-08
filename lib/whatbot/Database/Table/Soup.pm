@@ -34,7 +34,7 @@ sub BUILD {
             }
         }
     });
-    my $module = new whatbot::Database::Table(
+    my $module = whatbot::Database::Table->new(
         'base_component' => $self->parent->base_component
     );
     $module->init_table({

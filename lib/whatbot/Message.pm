@@ -66,7 +66,7 @@ whatbot::Message - Wrapper class for whatbot message passing
 
  use whatbot::Message;
  
- my $message = new whatbot::Message (
+ my $message = whatbot::Message->new(
     'from'    => $me,
     'to'      => 'a_user',
     'content' => 'test message'

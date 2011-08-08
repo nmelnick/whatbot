@@ -100,7 +100,7 @@ sub search {
         while ( my @record = $sth->fetchrow_array() ) {
             push(
                 @results,
-                new whatbot::Database::Table::Row(
+                whatbot::Database::Table::Row->new(
                     'base_component' => $self->base_component,
                     'primary_key'    => $self->primary_key,
                     'table'          => $self->table_name,
@@ -113,7 +113,7 @@ sub search {
         while ( my $record = $sth->fetchrow_hashref() ) {
             push(
                 @results,
-                new whatbot::Database::Table::Row(
+                whatbot::Database::Table::Row->new(
                     'base_component' => $self->base_component,
                     'primary_key'    => $self->primary_key,
                     'table'          => $self->table_name,
@@ -171,7 +171,7 @@ whatbot::Database::Table - Class wrapper for a database table
 
 =head1 SYNOPSIS
 
- my $table = new whatbot::Database::Table;
+ my $table = whatbot::Database::Table->new();
  $table->init_table({});
  $table->create({});
 

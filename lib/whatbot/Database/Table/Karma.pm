@@ -111,7 +111,7 @@ whatbot::Database::Table::Karma - Database functionality for karma.
 =head1 SYNOPSIS
 
  use whatbot::Database::Table::Karma;
- my $model = new whatbot::Database::Table::Karma;
+ my $model = whatbot::Database::Table::Karma->new();
  $model->increment( 'whatbot', 'awesome_guy' );
 
 =head1 DESCRIPTION

@@ -18,7 +18,7 @@ use WWW::Mechanize;
 has 'version' => ( is => 'ro', isa => 'Int', default => 1 );
 has 'agent' => ( is => 'ro', isa => 'Any', default =>
     sub {
-        my $mech = new WWW::Mechanize;
+        my $mech = WWW::Mechanize->new();
         $mech->timeout(5);
         $mech->add_header( 'Referer' => undef );
         $mech->stack_depth(0);
@@ -39,7 +39,7 @@ sub store_url : GlobalRegEx('.*?((https|http|ftp|news|feed|telnet):\/\/[^\s]+).*
     my ( $self, $message, $captures ) = @_;
     
     my $url = $captures->[0];
-    my $uri = new URI($url);
+    my $uri = URI->new($url);
     
     # Get/Set Protocol
     my ($protocol) = @{ $self->store->retrieve(

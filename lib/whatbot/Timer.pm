@@ -153,7 +153,7 @@ whatbot::Timer - Timer functionality for whatbot.
  sub done_later {
      my ( $self, $medium, $what ) = @_;
      
-     my $response = new whatbot::Message (
+     my $response = whatbot::Message->new(
          from    => $medium->me,
          to      => "",
          content => "I did $what"

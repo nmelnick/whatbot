@@ -50,7 +50,7 @@ class whatbot::IO extends whatbot::Component {
 		
     	} else {
     		$self->notify( '[PUB] <' . $from . '> ' . $content );
-    		$message = new whatbot::Message(
+    		$message = whatbot::Message->new(
     			'from'			    => $from,
     			'to'				=> 'public',
     			'content'			=> $content,
@@ -70,7 +70,7 @@ class whatbot::IO extends whatbot::Component {
     method event_message_private ( Str $from, Str $content ) {
     	$self->notify( '[PRI] <' . $from . '> ' . $content );
     	unless ( $from eq $self->me ) {
-        	my $message = new whatbot::Message(
+        	my $message = whatbot::Message->new(
         		'from'			    => $from,
         		'to'				=> $self->me,
         		'content'			=> $content,

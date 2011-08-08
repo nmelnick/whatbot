@@ -59,7 +59,7 @@ sub play : Command {
     $self->game_admin( $message->from );
     
     $buy_in = shift( @$buy_in );
-    $self->{'game'} = new whatbot::Command::Blackjack::Game;
+    $self->{'game'} = whatbot::Command::Blackjack::Game->new();
     $self->buyin($buy_in) if ($buy_in);
     
     return 'Blackjack time, buy in is $' . $self->buyin . '. Anyone who wants to play, type "bj me". ' . $message->from . ', type "bj start" when everyone is ready.';
