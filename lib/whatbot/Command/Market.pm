@@ -13,6 +13,7 @@ BEGIN { extends 'whatbot::Command' }
 use XML::Simple qw(XMLin);
 use String::IRC; # for colors!
 use LWP::UserAgent ();
+use HTML::Entities qw(decode_entities);
 
 has 'ua' => (
 	is		=> 'ro',
@@ -119,6 +120,8 @@ sub process {
 			} else {
 				$value = $info->{$field};
 			}
+
+			$value = decode_entities($value);
 			
 			if ($field eq "perc_change") {
 				$value = colorize("$value%");
