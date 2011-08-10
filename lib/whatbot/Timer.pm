@@ -37,38 +37,41 @@ class whatbot::Timer extends whatbot::Component {
     	my $match_item = [$time, $sub, @args];
     	my $queue = $self->time_queue;
 	
+        print STDERR "match item: (", join(', ', @$match_item), ")\n";
+
     	if (@$queue) {
-    		my $index = 0;
-		
-    		while ($index <= $match_item) {
+ITEMLOOP:   foreach my $index (0 .. $#{$queue}) {
     			my $item = $queue->[$index];
+
+                print STDERR "item $index: (", join(', ', @$item), ")\n";
 			
-    			if (@$item == @$match_item) {
-    				my $i;
-    				my $ok = 1;
-    				for ($i = 0; $i <= $#$item; $i++) {
-    					if ($item->[$i] != $match_item->[$i]) {
-    						$ok = 0;
-    					}
-    				}
-    				if ($ok) {
-    					# remove it!
-    					splice @$queue, $index, 1;
-					
-    					# if we took it off the front, adjust next_time
-    					if ($index == 0) {
-    						if (@$queue) {
-    							# next time is the time of the thing at the front
-    							$self->next_time($queue->[0]->[0]);
-    						} else {
-    							$self->next_time(0);
-    						}
-    					}
-    					return 1;
+    			next if (@$item != @$match_item);
+
+    			my $i;
+    			for ($i = 0; $i <= $#$item; $i++) {
+    				if ($item->[$i] ne $match_item->[$i]) {
+    					next ITEMLOOP;
     				}
     			}
-    		}
-    	}
+
+   				# remove it!
+   				splice @$queue, $index, 1;
+					
+ 				# if we took it off the front, adjust next_time
+ 				if ($index == 0) {
+ 					if (@$queue) {
+ 						# next time is the time of the thing at the front
+ 						$self->next_time($queue->[0]->[0]);
+ 					} else {
+ 						$self->next_time(0);
+ 					}
+ 				}
+
+ 				return 1;
+
+    		} # end foreach
+
+    	} # end if queue
 	
     	return 0;
     }
