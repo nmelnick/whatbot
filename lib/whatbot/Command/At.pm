@@ -38,9 +38,9 @@ my $next_every_id = 1;
 
 sub help {
 	return [
-		'at/every works like "whatbot, at <time>: <input>" or "whatbot, every <period>, <validity>: <input>"',
+		'at/every works like "whatbot, at <time>, <input>" or "whatbot, every <period>, <validity>, <input>"',
 		'for listing stuff, "whatbot, at/every list". delete things with "whatbot, at/every delete <#>"',
-		"<period> is like '2 minutes' or 'day', <validity> is like 'until 10pm' or '16:00 to december 12 2012'.",
+		"<period> is like '2 minutes' or 'day', <validity> is like 'until 10pm' or '16:00 to december 12 2012'. don't use commas.",
 		"for help with time parsing and more examples see: http://is.gd/YMhO7W",
 	];
 }
@@ -86,7 +86,7 @@ sub run_every {
 	$every_list{$id} = [$periodspec, $end_validity, $what, $from, $queuespec];
 }
 
-sub parse_every : GlobalRegEx('^every ([^,]+), ([^:]+): (.+)$') {
+sub parse_every : GlobalRegEx('^every ([^,]+), ([^,]+), (.+)$') {
 	my ( $self, $message, $captures ) = @_;
 	
 	my $periodspec = $captures->[0];
@@ -133,7 +133,7 @@ sub parse_every : GlobalRegEx('^every ([^,]+), ([^:]+): (.+)$') {
     return "ok, I will do that, starting at $first_time until $endvalid every $periodspec. (every #$id)";
 }
 
-sub parse_message : CommandRegEx('([^:]+): (.+)') {
+sub parse_message : CommandRegEx('([^,]+), (.+)') {
 	my ( $self, $message, $captures ) = @_;
 	
 	my $timespec = $captures->[0];
