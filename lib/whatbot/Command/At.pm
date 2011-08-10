@@ -133,7 +133,7 @@ sub parse_every : GlobalRegEx('^every ([^,]+), ([^:]+): (.+)$') {
     return "ok, I will do that, starting at $first_time until $endvalid every $periodspec. (every #$id)";
 }
 
-sub parse_message : CommandRegEx('([^,]+): (.+)') {
+sub parse_message : CommandRegEx('([^:]+): (.+)') {
 	my ( $self, $message, $captures ) = @_;
 	
 	my $timespec = $captures->[0];
