@@ -24,40 +24,11 @@ class whatbot::Timer extends whatbot::Component {
     	my $new_item = [$time, $sub, @args];
     	my $queue = $self->time_queue;
 	
-    	# ensure queue is always in ascending order, by inserting
-    	# into the proper location
-	
-    	my $index = 0;
-    	if (@$queue) {
-    		my $index = 0;
-		
-    		# look for the first time which is above new_item's
-    		while ($index <= $#{$queue}) {
-    			my $index_time = $queue->[$index]->[0];
-			
-    			if ($index_time > $time) {
-    				# our new item should go before this one
-    				my $insert_at = $index - 1;
-				
-    				splice @$queue, $insert_at, 0, $new_item;
-				
-    				if ($insert_at == 0) {
-    					$self->next_time($time);
-    				}
-				
-    				return;
-    			}
-    			$index++;
-    		}
-		
-    		# none were above new_item's time
-    		push @$queue, $new_item;
-    	} else {
-    		# this is the only one
-		
-    		push @$queue, $new_item;
-    		$self->next_time($time);
-    	}
+        # add and sort 
+        push @$queue, $new_item;
+        @$queue = sort { $a->[0] <=> $b->[0] } @$queue;
+
+    	$self->next_time($queue->[0]->[0]);
     }
 
     method remove ( Int $time, $sub, @args ) {
