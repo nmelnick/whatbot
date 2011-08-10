@@ -32,6 +32,7 @@ class whatbot::Component {
         warn ref($self) . ' tried to reference model "' . $model_name . '" even though it does not exist.';
         return;
     }
+    
 }
 
 1;
