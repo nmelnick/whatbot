@@ -63,7 +63,7 @@ class whatbot::IO extends whatbot::Component {
     	if ( $from eq $self->me ) {
     	    $self->parent->last_message($message);
         } else {
-    	    $self->parse_response( $self->controller->handle($message) );
+    	    $self->parse_response( $self->controller->handle_message($message) );
         }
     }
 
@@ -80,7 +80,7 @@ class whatbot::IO extends whatbot::Component {
         		'base_component'	=> $self->parent->base_component,
     			'origin'			=> $self,
         	);
-        	$self->parse_response( $self->controller->handle($message) );
+        	$self->parse_response( $self->controller->handle_message($message) );
         }
 	
     }

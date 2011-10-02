@@ -11,6 +11,8 @@ use MooseX::Declare;
 class whatbot::Controller extends whatbot::Component {
     use whatbot::Message;
     use Class::Inspector;
+    use Class::Load qw(load_class);
+    use Module::Pluggable::Object;
 
     has 'command'            => ( is => 'rw', isa => 'HashRef' );
     has 'command_name'       => ( is => 'rw', isa => 'HashRef' );
@@ -25,19 +27,21 @@ class whatbot::Controller extends whatbot::Component {
     	my %command;	    # Ordered list of commands
     	my %command_name;   # Maps command names to commands
     	my %command_short_name;
-    	my $command_namespace = 'whatbot::Command';
-    	my $root_dir = $INC{'whatbot/Controller.pm'};
-    	$root_dir =~ s/Controller\.pm/Command/;
 	
-	    # Scan whatbot::Command directory for loadable plugins
-    	opendir( COMMAND_DIR, $root_dir );
-    	while ( my $name = readdir(COMMAND_DIR) ) {
-    		next unless ( $name =~ /^[A-z0-9]+\.pm$/ );
-		
-    		my $command_path = $root_dir . '/' . $name;
-    		$name =~ s/\.pm//;
-    		my $class_name = 'whatbot::Command::' . $name;
-    		eval "require $class_name";
+	    # Scan whatbot::Command for loadable plugins
+        # Module::Pluggable seems to hate MooseX::Declare, so we go manual
+        my $o = Module::Pluggable::Object->new( package => 'whatbot::Controller' );
+        $o->{search_path} = 'whatbot::Command';
+    	foreach my $class_name ( $o->plugins ) {
+            my @class_split = split( /\:\:/, $class_name );
+            my $name = pop(@class_split);
+
+            # Go away unless it's a root module
+            next unless ( pop(@class_split) eq 'Command' );
+
+            eval {
+                load_class($class_name);
+            };
     		if ($@) {
     			$self->log->error( $class_name . ' failed to load: ' . $@ );
     		} else {
@@ -47,7 +51,7 @@ class whatbot::Controller extends whatbot::Component {
     			    my @run_paths;
     			    my %end_paths;
     			    my $command_root = $class_name;
-    			    $command_root =~ s/$command_namespace\:\://;
+    			    $command_root =~ s/whatbot\:\:Command\:\://;
     			    $command_root = lc($command_root);
 			    
     				# Instantiate
@@ -179,14 +183,13 @@ class whatbot::Controller extends whatbot::Component {
     			}
     		}
     	}
-    	close(COMMAND_DIR);
 	
         $self->command(\%command);
         $self->command_name(\%command_name);
         $self->command_short_name(\%command_short_name);
     }
 
-    method handle ( whatbot::Message $message, $me? ) {
+    method handle_message ( $message, $me? ) {
     	my @messages;
     	foreach my $priority ( qw( primary core extension last ) ) {
     	    last if ( scalar(@messages) and $priority =~ /(extension|last)/ );
@@ -380,7 +383,7 @@ whatbot::Controller - Command processor and dispatcher
  
  ...
  
- my $messages = $controller->handle( $incoming_message );
+ my $messages = $controller->handle_message( $incoming_message );
 
 =head1 DESCRIPTION
 

@@ -13,9 +13,7 @@ use warnings;
 
 use Cwd qw(realpath getcwd);
 use Getopt::Long;
-
 use lib realpath( getcwd() ) . '/../lib';
-use whatbot;
 
 our $VERSION = '0.9.6';
 my $basedir = realpath( getcwd() . '/..' );
@@ -48,6 +46,9 @@ if ($@) {
 	print 'ERROR: whatbot requires Moose and MooseX::Declare.' . "\n";
 	exit(-1);
 }
+
+require whatbot;
+whatbot->import;
 
 # Start application
 my $whatbot = whatbot->new();
