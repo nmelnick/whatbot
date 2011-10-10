@@ -30,16 +30,17 @@ sub what_is : GlobalRegEx('^(wtf|what|who) (is|are) (.*)') : StopAfter {
 sub assign : GlobalRegEx('^(.*?) (is|are) (.*)') {
     my ( $self, $message, $captures ) = @_;
     
-	my $is_plural = ( $captures->[1] =~ /are/i ? 1 : 0 );
-	$captures->[2] =~ s/[\. ]$//g;	        # remove trailing punctuation
+    my ( $subject, $assigner, $description ) = @$captures;
+	my $is_plural = ( $assigner =~ /are/i ? 1 : 0 );
+	$description =~ s/[\. ]$//g;	        # remove trailing punctuation
 	unless ( $message->is_direct ) {
-		$captures->[2] =~ s/\[\.,] .*$//g;  # if capturing flyby, only grab one sentence
+		$description =~ s/\[\.,] .*$//g;  # if capturing flyby, only grab one sentence
 	}
-	if ( $message->is_direct and lc( $captures->[0] ) eq 'you' ) {
-		$captures->[0] = $message->me;
+	if ( $message->is_direct and lc($subject) eq 'you' ) {
+		$subject = $message->me;
 	}
-	foreach my $factoid ( split( / or /, $captures->[2] ) ) {
-		$self->store->factoid( $captures->[0], $factoid, $message->from, $is_plural );
+	foreach my $factoid ( split( / or /, $description ) ) {
+		$self->model('Factoid')->factoid( $subject, $factoid, $message->from, $is_plural );
 	}
 	return;
 }
@@ -48,8 +49,8 @@ sub never_remember : GlobalRegEx('^never remember (.*)') : StopAfter {
     my ( $self, $message, $captures ) = @_;
     
 	# Delete forever
-	$self->store->forget( $captures->[0] );
-	$self->store->ignore( $captures->[0], 1 );
+	$self->model('Factoid')->forget( $captures->[0] );
+	$self->model('Factoid')->ignore( $captures->[0], 1 );
 	return 'I will permanently forget "' . $captures->[0] . '", ' . $message->from . '.';
 }
 
@@ -57,7 +58,7 @@ sub forget : GlobalRegEx('^forget (.*)') : StopAfter {
     my ( $self, $message, $captures ) = @_;
     
 	# Delete
-	my $result = $self->store->forget( $captures->[0] );
+	my $result = $self->model('Factoid')->forget( $captures->[0] );
 	if ($result) {
 		return 'I forgot "' . $captures->[0] . '", ' . $message->from . '.';
 	}
@@ -73,24 +74,26 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
 		my $look_for = $2;
 		$look_for =~ s/[\.\?\! ]$//;
 		
-		my $factoid_facts = $self->store->retrieve('factoid_description', [qw/factoid_id description user/], { 'description' => 'LIKE %' . $look_for . '%' });
+		my $factoid_facts = $self->model('Factoid')->table_description->search({
+			'description' => { 'LIKE' => '%' . $look_for . '%' }
+		});
 		if (@$factoid_facts) {
     		my $factoid_desc = $factoid_facts->[int(rand(scalar(@{$factoid_facts}))) - 1];
-    		($factoid) = @{$self->store->retrieve('factoid', [qw/subject is_plural/], { 'factoid_id' => $factoid_desc->{'factoid_id'} })};
+    		$factoid = $self->model('Factoid')->find( $factoid_desc->factoid_id );
 		
     		# Who said
-    		$self->who_said( $factoid_desc->{'user'} or '' );
+    		$self->who_said( $factoid_desc->user or '' );
 		
     		# Override retrieve
-    		my $subject = $factoid->{'subject'};
-    		my $description = $factoid_desc->{'description'};
+    		my $subject = $factoid->subject;
+    		my $description = $factoid_desc->description;
     		if ( $description =~ /^<reply>/ ) {
     			$description =~ s/^<reply> +//;
     			return $description;
     		} else {
-    			$subject = 'you' if ( lc($subject) eq lc($message->from) );
+    			$subject = 'you' if ( lc($subject) eq lc( $message->from ) );
     			$subject = $message->from . ', ' . $subject if ( $message->is_direct );
-    			return $subject . ' ' . ( $factoid->{'is_plural'} ? 'are' : 'is' ) . ' ' . $description;
+    			return $subject . ' ' . ( $factoid->is_plural ? 'are' : 'is' ) . ' ' . $description;
     		}
     	} else {
     	    return 'Nothing found for "' . $look_for . '".';
@@ -98,21 +101,21 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
 		return;
 		
 	} else {
-		my ($count) = @{$self->store->retrieve('factoid', ['COUNT(*) as Count'])};
-		$count = $count->{'Count'};
+		my $count = $self->model('Factoid')->count();
 		my $factoid_id = int(rand($count));
 		$factoid_id = 1 unless ($factoid_id);
-		($factoid) = @{$self->store->retrieve('factoid', [qw/subject/], { 'factoid_id' => $factoid_id })};
+		$factoid = $self->model('Factoid')->find($factoid_id);
 
 		# Who said
-		my $users = $self->store->retrieve('factoid_description', [qw/user/], { 'factoid_id' => $factoid_id });
+		my $users = [ map { $_->user } @{ $self->model('Factoid')->table_description->search({ 'factoid_id' => $factoid_id } ) } ];
+
 		my $response;
-		foreach my $user (@{$users}) {
-			$response .= ', ' if ( defined $response );
-			$response .= $user->{'user'};
+		foreach my $user (@$users) {
+			$response .= ', ' if ( $response );
+			$response .= $user;
 		}
 		$self->who_said( $response or '' );
-		return $self->retrieve( $factoid->{'subject'}, $message );
+		return $self->retrieve( $factoid->subject, $message );
 		
 	}
 
@@ -174,59 +177,60 @@ sub retrieve {
 		$subject =~ s/^everything for +//;
 		$everything++;
 	}
-	my $factoid = $self->store->factoid($subject);
+	my $factoid_package = $self->model('Factoid')->factoid($subject);
 	if (
-	    defined $factoid
+	    $factoid_package
 	    and (
-	        !( $factoid->{'factoid'}->{'silent'} and $factoid->{'factoid'}->{'silent'} == 1 )
+	        !( $factoid_package->{'factoid'}->silent and $factoid_package->{'factoid'}->silent == 1 )
 	        or $direct
 	    )
 	) {
 		my @facts;
-		if ( defined $factoid->{'factoid'}->{'is_or'} and $factoid->{'factoid'}->{'is_or'} == 1 ) {
-			my $fact_count = scalar( @{$factoid->{'facts'}} );
-			push( @facts, $factoid->{'facts'}->[int(rand($fact_count))] );
+		my $factoid = $factoid_package->{'factoid'};
+		if ( defined $factoid->is_or and $factoid->is_or == 1 ) {
+			my $fact_count = scalar( @{ $factoid_package->{'facts'} } );
+			push( @facts, $factoid_package->{'facts'}->[int(rand($fact_count))] );
 		} else {
-			@facts = @{$factoid->{'facts'}};
+			@facts = @{ $factoid_package->{'facts'} };
 		}
 		
-		if (scalar( @facts) == 1 ) {
-			$self->who_said( $factoid->{'user'} ) if ( $factoid and $factoid->{'user'} );
+		if ( scalar(@facts) == 1 ) {
+			$self->who_said( $factoid_package->{'user'} ) if ( $factoid_package->{'user'} );
 		}
 		
 		if ( scalar(@facts) == 1 and $facts[0] =~ /^<reply>/ ) {
 			$facts[0] =~ s/^<reply> +//;
 			return $facts[0];
 		} else {
-			if ( lc($subject) eq lc($message->from) ) {
+			if ( lc($subject) eq lc( $message->from ) ) {
 			    $subject = 'you';
-			    $factoid->{'factoid'}->{'is_plural'} = 1;
+			    $factoid->is_plural(1);
 			}
 			$subject = $message->from . ', ' . $subject if ( $message->is_direct );
-			my $factoidData = join( ' or ', @facts );
-			if ( !$everything and length($factoidData) > 400 ) {
-				$factoidData = 'summarized as ';
+			my $factoid_data = join( ' or ', @facts );
+			if ( !$everything and length($factoid_data) > 400 ) {
+				$factoid_data = 'summarized as ';
 				my $start = 0;
-				my $bigTries = 0;
-				my $totalTries = 0;
-				my %usedFacts;
-				while ( length($factoidData) < 380 and $bigTries < 5 and $totalTries < 10 ) {
-					my $factNum = int(rand(scalar(@facts)));
-					if ( defined $usedFacts{$factNum} ) {
-						$totalTries++;
+				my $big_tries = 0;
+				my $total_tries = 0;
+				my %used_facts;
+				while ( length($factoid_data) < 380 and $big_tries < 5 and $total_tries < 10 ) {
+					my $fact_num = int(rand(scalar(@facts)));
+					if ( defined $used_facts{$fact_num} ) {
+						$total_tries++;
 					} else {
-						$usedFacts{$factNum} = 1;
-						if ( length($factoidData . $facts[$factNum]) > 410 ) {
-							$bigTries++;
+						$used_facts{$fact_num} = 1;
+						if ( length($factoid_data . $facts[$fact_num]) > 410 ) {
+							$big_tries++;
 							next;
 						}
-						$factoidData .= ' or ' unless ( $start == 0 );
-						$factoidData .= $facts[$factNum];
+						$factoid_data .= ' or ' unless ( $start == 0 );
+						$factoid_data .= $facts[$fact_num];
 						$start++;
 					}
 				}
 			}
-			return $subject . ' ' . ($factoid->{'factoid'}->{'is_plural'} ? 'are' : 'is') . ' ' . $factoidData;
+			return $subject . ' ' . ($factoid->is_plural ? 'are' : 'is') . ' ' . $factoid_data;
 		}
 		
 	} elsif ( $direct and $message->is_direct ) {

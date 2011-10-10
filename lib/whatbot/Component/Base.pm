@@ -17,7 +17,6 @@ class whatbot::Component::Base {
 	has 'controller'     => ( is => 'rw', isa => 'whatbot::Controller' );
 	has 'timer'          => ( is => 'rw', isa => 'whatbot::Timer' );
 	has 'models'         => ( is => 'rw', isa => 'HashRef' );
-	has 'store'          => ( is => 'rw', isa => 'whatbot::Store' ); # deprecated
 }
 
 1;

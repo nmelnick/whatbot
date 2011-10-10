@@ -11,12 +11,14 @@
 use MooseX::Declare;
 
 class whatbot {
-    use Data::Dumper;
     use whatbot::Component::Base;
     use whatbot::Controller;
     use whatbot::Config;
     use whatbot::Log;
     use whatbot::Timer;
+
+    use Class::Load qw(load_class);
+    use Module::Pluggable::Object;
 
     our $VERSION = '0.9.6';
 
@@ -101,45 +103,29 @@ class whatbot {
 
         # Read in table definitions
     	my %model;
-    	my $root_dir = $INC{'whatbot/Controller.pm'};
-    	$root_dir =~ s/Controller\.pm$/Database\/Table/;
-    	opendir( MODEL_DIR, $root_dir );
-    	while ( my $name = readdir(MODEL_DIR) ) {
-    		next unless ( $name =~ /^[A-z0-9]+\.pm$/ and $name ne 'Row.pm' );
+
+        # Module::Pluggable seems to hate MooseX::Declare, so we go manual
+        my $o = Module::Pluggable::Object->new( package => 'whatbot' );
+        $o->{search_path} = 'whatbot::Database::Table';
+        foreach my $class_name ( $o->plugins ) {
+    		next if ( $class_name =~ '::Row' );
+            my @class_split = split( /\:\:/, $class_name );
+            my $name = pop(@class_split);
 		
-    		my $command_path = $root_dir . '/' . $name;
-    		$name =~ s/\.pm//;
-    		my $class_name = 'whatbot::Database::Table::' . $name;
-    		eval {
-    		    eval "require $class_name";
-        		$model{ lc($name) } = $class_name->new(
-        		    'base_component' => $base_component,
-        		    'handle'         => $database->handle
-        		);
-        	};
-        	if ($@) {
-        	    warn 'Error loading ' . $class_name . ': ' . $@;
-        	} else {
-    			$log->write('-> ' . $class_name . ' loaded.');
-        	}
+            eval {
+                load_class($class_name);
+                $model{ lc($name) } = $class_name->new({
+                    'base_component' => $base_component,
+                    'handle'         => $database->handle
+                });
+            };
+            if ($@) {
+                warn 'Error loading ' . $class_name . ': ' . $@;
+            } else {
+                $log->write('-> ' . $class_name . ' loaded.');
+            }
     	};
     	$base_component->models(\%model);
-	
-    	# Start Store module
-    	$self->report_error('Invalid store type')
-    	    unless ( $self->initial_config->store and $self->initial_config->store->{'handler'} );
-	    
-    	my $storage = 'whatbot::Store::' . $self->initial_config->store->{'handler'};
-    	eval "require $storage";
-    	$self->report_error("Problem requiring $storage: " . $@) if ($@);
-	
-    	my $store = $storage->new(
-    		'base_component' => $base_component
-    	);
-    	$store->connect();
-    	$self->report_error('Configured store failed to load properly')
-    	    unless ( $store and defined $store->handle );
-    	$base_component->store($store);
 	
     	# 10 RANDOMIZE TIMER
     	my $timer = whatbot::Timer->new(

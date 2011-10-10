@@ -19,7 +19,6 @@ class whatbot::Component {
     has 'controller'     => ( is => 'rw', default => sub { $_[0]->base_component->controller } );
     has 'timer'          => ( is => 'rw', default => sub { $_[0]->base_component->timer } );
     has 'models'         => ( is => 'rw', default => sub { $_[0]->base_component->models } );
-    has 'store'          => ( is => 'rw', default => sub { $_[0]->base_component->store } ); # deprecated
 
     method BUILD ( $params ) {
     	unless ( ref($self) =~ /Message/ or ref($self) =~ /Command::/ or ref($self) =~ /::Table/ ) {

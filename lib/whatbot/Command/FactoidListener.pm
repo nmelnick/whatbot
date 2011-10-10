@@ -21,7 +21,7 @@ sub register {
 	$self->command_priority('Last');
 	$self->require_direct(0);
 	$self->{'factoid'} = whatbot::Command::Factoid->new(
-        'store' => $self->store
+		'base_component' => $self->base_component,
     );
 }
 
