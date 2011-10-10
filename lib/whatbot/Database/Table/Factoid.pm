@@ -193,7 +193,7 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
             # Handle or (||)
             if ( $is =~ /\|\|/ ) {
                 $factoid->is_or(1);
-                $factoid->update();
+                $factoid->save();
                 foreach my $fact ( split( / \|\| /, $is ) ) {
                     $self->table_description->create({
                         'factoid_id'  => $factoid->factoid_id,

@@ -25,7 +25,7 @@ class whatbot::Config {
     	die 'ERROR: Error finding config file "' . $self->config_file . '"!' unless ( -e $self->config_file );
     	my $config;
     	eval {
-    		$config = XMLin($self->config_file);
+    		$config = XMLin( $self->config_file, KeyAttr => [] );
     	};
     	if ($@) {
     		die 'ERROR: Error in config file "' . $self->config_file . '"! Parser reported: ' . $@;

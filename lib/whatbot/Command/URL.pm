@@ -62,6 +62,29 @@ sub count : Command {
 sub search : Command {
     my ( $self, $message, $captures ) = @_;
     
+    my ($search_text) = @$captures;
+    return unless ($search_text);
+
+    my @response;
+    my $results = $self->model('URL')->search({
+        'title' => { 'LIKE' => '%' . $search_text . '%' }
+    });
+    if ( @$results > 3 ) {
+        push( @response, 'There were ' . @$results . ' result(s) found, showing the first 3.' );
+    }
+    foreach (0..2) {
+        next unless ( $results->[$_] );
+        my $row = $results->[$_];
+        my $url_domain = $self->model('URL')->table_domain->find( $row->domain_id );
+        my $url_protocol = $self->model('URL')->table_protocol->find( $row->protocol_id );
+
+        push(
+            @response,
+            sprintf( '%d) %s://%s/%s - "%s"', ( $_ + 1 ), $url_protocol->name, $url_domain->name, $row->path, $row->title )
+        );
+    }
+
+    return ( @response ? \@response : undef );
 }
 
 sub help {
@@ -72,7 +95,8 @@ sub help {
         'in any open channels or chats are stored with the title of the found ' .
         'page, user information, and timestamp. To query URLs, start the ' .
         'command with "url" and then one of the following: ',
-        ' * "last" to show the last URL given, along with the user, title and time.'
+        ' * "last" to show the last URL given, along with the user, title and time.',
+        ' * "search" (text) to search titles of past URLs.'
     ];
 }
 
