@@ -204,7 +204,6 @@ sub find_item {
     }
 
     unless ( $result->{'Item'} ) {
-        warn Data::Dumper::Dumper($result);
         return 'No eBay results for: ' . $query;
     }
 

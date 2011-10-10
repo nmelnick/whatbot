@@ -21,8 +21,8 @@ class whatbot::IO extends whatbot::Component {
     	}
     }
 
-    method notify ( Str $message ) {
-    	$self->log->write( '(' . $self->name . ') ' . $message )
+    method notify ( Str $context, Str $message ) {
+    	$self->log->write( sprintf( '(%s) [%s] %s', $self->name, $context, $message ) )
     	    unless ( defined $self->my_config->{'silent'} );
     }
 
@@ -32,57 +32,24 @@ class whatbot::IO extends whatbot::Component {
     method disconnect {
     }
 
-    method event_user_enter ( $from? ) {
-    	$self->notify( '**' . $from . ' has entered' );
+    method event_user_enter ( $context?, $from? ) {
+    	$self->notify( $context, '** ' . $from . ' has entered' );
 	    $self->parse_response( $self->controller->handle_event( 'enter', $from ) );
     }
 
-    method event_user_leave ( $from? ) {
-    	$self->notify( '**' . $from . ' has left' );
+    method event_user_leave ( $context?, $from? ) {
+    	$self->notify( $context, '**' . $from . ' has left ' );
 	    $self->parse_response( $self->controller->handle_event( 'leave', $from ) );
     }
 
-    method event_message_public ( Str $from, $content, $optional? ) {
-    	my $message;
-    	if ( ref($content) eq 'whatbot::Message' ) {
-    		$message = $content;
-    		$self->notify('[PUB] <' . $from . '> ' . $content->content);
-		
-    	} else {
-    		$self->notify( '[PUB] <' . $from . '> ' . $content );
-    		$message = whatbot::Message->new(
-    			'from'			    => $from,
-    			'to'				=> 'public',
-    			'content'			=> $content,
-    			'timestamp'		    => time,
-    			'me'				=> $self->me,
-    			'base_component'	=> $self->parent->base_component,
-    			'origin'			=> $self,
-    		);
-    	}
-    	if ( $from eq $self->me ) {
+    method event_message ( whatbot::Message $message ) {
+    	$self->notify( $message->to, '<' . $message->from . '> ' . $message->content );
+        $message->me( $self->me );
+    	if ( $message->from eq $self->me ) {
     	    $self->parent->last_message($message);
         } else {
     	    $self->parse_response( $self->controller->handle_message($message) );
         }
-    }
-
-    method event_message_private ( Str $from, Str $content ) {
-    	$self->notify( '[PRI] <' . $from . '> ' . $content );
-    	unless ( $from eq $self->me ) {
-        	my $message = whatbot::Message->new(
-        		'from'			    => $from,
-        		'to'				=> $self->me,
-        		'content'			=> $content,
-        		'timestamp'		    => time,
-        		'is_private'		=> 1,
-        		'me'				=> $self->me,
-        		'base_component'	=> $self->parent->base_component,
-    			'origin'			=> $self,
-        	);
-        	$self->parse_response( $self->controller->handle_message($message) );
-        }
-	
     }
 
     method event_action ( Str $from, Str $content ) {
@@ -93,7 +60,6 @@ class whatbot::IO extends whatbot::Component {
     }
 
     method parse_response ( $messages ) {
-    	return unless ( defined $messages );
     	foreach my $message ( @{$messages} ) {
     	    $self->send_message($message);
     	}

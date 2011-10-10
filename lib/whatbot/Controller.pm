@@ -216,8 +216,8 @@ class whatbot::Controller extends whatbot::Component {
         				if ($@) {
         					$self->log->error( 'Failure in ' . $command_name . ': ' . $@ );
         					my $return_message = whatbot::Message->new(
-        						'from'			 => '',
-        						'to'			 => ($message->is_private == 0 ? 'public' : $message->from),
+        						'from'			 => $message->me,
+        						'to'			 => ( $message->is_private == 0 ? $message->to : $message->from ),
         						'content'		 => $command_name . ' completely failed at that last remark.',
         						'timestamp'		 => time,
         						'base_component' => $self->parent->base_component
@@ -227,7 +227,7 @@ class whatbot::Controller extends whatbot::Component {
         				} elsif ( defined $result ) {
         					last if ( $result eq 'last_run' );
 					
-        					$self->log->write('%%% Message handled by ' . $command_name)
+        					$self->log->write( '%%% Message handled by ' . $command_name )
         					    unless ( defined $self->config->io->[0]->{'silent'} );
         					$result = [ $result ] if ( ref($result) ne 'ARRAY' );
     					
@@ -241,8 +241,8 @@ class whatbot::Controller extends whatbot::Component {
     							} else {
     								$result_single =~ s/!who/$message->from/;
     								$outmessage = whatbot::Message->new(
-    	        						'from'			    => '',
-    	        						'to'				=> ( $message->to eq 'public' ? 'public' : $message->from ),
+    	        						'from'			    => $message->me,
+    	        						'to'				=> ( $message->is_private == 0 ? $message->to : $message->from ),
     	        						'content'			=> $result_single,
     	        						'timestamp'		    => time,
     	        						'base_component'	=> $self->parent->base_component

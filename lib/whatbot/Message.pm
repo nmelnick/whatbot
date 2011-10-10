@@ -13,9 +13,8 @@ class whatbot::Message extends whatbot::Component {
 
     has 'from'          => ( is => 'rw', isa => 'Str', required => 1 );
     has 'to'            => ( is => 'rw', isa => 'Str', required => 1 );
-    has 'content'       => ( is => 'rw', isa => 'Str', required => 1 );
-    has 'timestamp'     => ( is => 'rw', isa => 'Int', default => time );
-    has 'is_private'    => ( is => 'rw', isa => 'Int', default => 0 );
+    has 'content'       => ( is => 'rw', isa => 'Str', required => 1, trigger => \&check_content );
+    has 'timestamp'     => ( is => 'rw', isa => 'Int', default => sub { time } );
     has 'is_direct'     => ( is => 'rw', isa => 'Int', default => 0 );
     has 'me'            => ( is => 'rw', isa => 'Str' );
     has 'origin'        => ( is => 'rw' );
@@ -45,12 +44,20 @@ class whatbot::Message extends whatbot::Component {
 			
     		}
     	}
-	
-    	$self->timestamp(time) unless ( $self->timestamp );
     }
 
     method content_utf8 {
         return Encode::encode_utf8( $self->content );
+    }
+
+    method is_private {
+        return ( $self->to eq $self->me );
+    }
+
+    method check_content ( Str $content ) {
+        $content =~ s/^\s+//;
+        $content =~ s/\s+$//;
+        $self->{'content'} = $content;
     }
 }
 

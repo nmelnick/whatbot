@@ -12,13 +12,14 @@ use MooseX::Declare;
 
 class whatbot::IO::IRC extends whatbot::IO {
 	use Net::IRC;
+	use whatbot::Message;
 
 	has 'handle'            => ( is => 'rw' );
 	has 'irc_handle'        => ( is => 'ro', isa => 'Net::IRC::Connection' );
 	has 'force_disconnect'  => ( is => 'rw', isa => 'Int' );
 
 	method BUILD {
-		my $name = 'IRC_' . $self->my_config->{'host'} . '_' . $self->my_config->{'channel'}->{'name'};
+		my $name = 'IRC_' . $self->my_config->{'host'};
 		$name =~ s/ /_/g;
 		$self->name($name);
 		$self->me( $self->my_config->{'nick'} );
@@ -44,7 +45,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 		);
 	
 		# Everything's event based, so we set up all the callbacks
-		$self->irc_handle->add_handler('msg',		\&cb_private_message);
+		$self->irc_handle->add_handler('msg',		\&cb_message);
 		$self->irc_handle->add_handler('public',	\&cb_message);
 		$self->irc_handle->add_handler('caction',	\&cb_action);
 		$self->irc_handle->add_handler('join',		\&cb_join);
@@ -115,16 +116,16 @@ class whatbot::IO::IRC extends whatbot::IO {
 			}
 		}
 		# Close out
-		push(@lines, $line) if ($line);
+		push( @lines, $line ) if ($line);
 	
 		# Send messages
 		if ( $message->content =~ /^\/me (.*)/ ) {
-			$self->irc_handle->me( $self->my_config->{'channel'}->{'name'}, $1 );
+			$self->irc_handle->me( $message->to, $1 );
 			$self->event_action( $self->me, $message->content );
 		} else {
-			foreach my $outLine (@lines) {
-				$self->irc_handle->privmsg( $self->my_config->{'channel'}->{'name'}, $outLine );
-				$self->event_message_public( $self->me, $outLine );
+			foreach my $out_line (@lines) {
+				$self->irc_handle->privmsg( $message->to, $out_line );
+				$self->event_message($message);
 				sleep( int(rand(2)) );
 			}
 		}
@@ -137,18 +138,23 @@ class whatbot::IO::IRC extends whatbot::IO {
 	# Event: Received a user action
 	method cb_action( $event ) {
 		my ($message) = ( $event->args );
-		$self->{'_whatbot'}->event_action( $event->nick, $message );
+		$self->{'_whatbot'}->event_action( $event->to->[0], $event->nick, $message );
 	}
 
 	# Event: Connected to server
 	method cb_connect( $event ) {
 		$self->{'_whatbot'}->me( $self->nick );
 	
-		# Join default channel
-		$self->join(
-			$self->{'_whatbot'}->my_config->{'channel'}->{'name'},
-			$self->{'_whatbot'}->my_config->{'channel'}->{'channelpassword'}
-		);
+		# Join default channel(s)
+		my $channels = $self->{'_whatbot'}->my_config->{'channel'};
+		$channels = [$channels] unless ( ref($channels) eq 'ARRAY' );
+		foreach my $channel (@$channels) {
+			$self->join(
+				$channel->{'name'},
+				$channel->{'channelpassword'}
+			);
+			$self->{'_wb_channels'}->{ $channel->{'name'} } = $channel;
+		}
 	}
 
 	# Event: Disconnected from server
@@ -162,13 +168,17 @@ class whatbot::IO::IRC extends whatbot::IO {
 
 	# Event: User joined channel
 	method cb_join( $event ) {
-		$self->{'_whatbot'}->event_user_enter( $event->nick );
+		$self->{'_whatbot'}->event_user_enter( $event->to->[0], $event->nick );
 	}
 
 	# Event: Received a public message
 	method cb_message( $event ) {
 		my ($message) = ( $event->args );
-		$self->{'_whatbot'}->event_message_public( $event->nick, $message, 1 );
+		$self->{'_whatbot'}->event_message( whatbot::Message->new({
+			'from'    => $event->nick,
+			'to'      => $event->to->[0],
+			'content' => $message,
+		}) );
 	}
 
 	# Event: Received channel users
@@ -176,15 +186,15 @@ class whatbot::IO::IRC extends whatbot::IO {
 		my ( @list, $channel ) = ( $event->args );
 		( $channel, @list ) = splice( @list, 2 );
 
-		$self->{'_whatbot'}->notify( $channel . ' users: ' . join(', ', @list) );
+		$self->{'_whatbot'}->notify( $channel, 'users: ' . join(', ', @list) );
 	
 		# When we get names, we've joined a room. If we have a join message, 
 		# display it.
 		if (
-			defined $self->{'_whatbot'}->my_config->{'channel'}->{'joinmessage'}
-			and ref($self->{'_whatbot'}->my_config->{'channel'}->{'joinmessage'}
+			defined $self->{'_wb_channels'}->{$channel}->{'joinmessage'}
+			and ref($self->{'_wb_channels'}->{$channel}->{'joinmessage'}
 		) ne 'HASH') {
-			$self->privmsg( $channel, $self->{'_whatbot'}->my_config->{'channel'}->{'joinmessage'} );
+			$self->privmsg( $channel, $self->{'_wb_channels'}->{$channel}->{'joinmessage'} );
 		}
 	}
 
@@ -197,7 +207,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 
 	# Event: User left a channel
 	method cb_part( $event ) {
-		$self->{'_whatbot'}->event_user_leave($event->nick);
+		$self->{'_whatbot'}->event_user_leave( $event->to->[0], $event->nick );
 	}
 
 	# Event: Received CTCP Ping request
@@ -205,12 +215,6 @@ class whatbot::IO::IRC extends whatbot::IO {
 		my $nick = $event->nick;
 		$self->ctcp_reply( $nick, join ( ' ', ($event->args) ) );
 		$self->{'_whatbot'}->notify('*** CTCP PING request from $nick received');
-	}
-
-	# Event: Received a private message
-	method cb_private_message( $event ) {
-		my ( $message ) = ( $event->args );
-		$self->{'_whatbot'}->event_message_private( $event->nick, $message );
 	}
 
 	# Event: Channel topic change
