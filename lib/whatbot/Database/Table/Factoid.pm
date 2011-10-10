@@ -55,14 +55,10 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
             'name'        => 'factoid_description',
             'primary_key' => 'hash',
             'defaults'    => {
-                'created'   => { 'database' => 'now' },
                 'updated'   => { 'database' => 'now' }
             },
             'columns'     => {
                 'factoid_id' => {
-                    'type'  => 'integer'
-                },
-                'created'      => {
                     'type'  => 'integer'
                 },
                 'updated'      => {
