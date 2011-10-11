@@ -192,7 +192,7 @@ class whatbot::Controller extends whatbot::Component {
     method handle_message ( $message, $me? ) {
     	my @messages;
     	foreach my $priority ( qw( primary core extension last ) ) {
-    	    last if ( scalar(@messages) and $priority =~ /(extension|last)/ );
+    	    last if ( @messages and $priority =~ /(extension|last)/ );
 	    
 	        # Iterate through priorities, in order, check for commands that can
 	        # receive content
@@ -209,51 +209,13 @@ class whatbot::Controller extends whatbot::Component {
         		    my $function = $run_path->{'function'};
     		    
         			if ( $listen eq '' or my (@matches) = $message->content =~ /$listen/i ) {
-        				my $result;
-        				eval {
-        					$result = $command->$function( $message, \@matches );
+        				my $result = eval {
+        					$command->$function( $message, \@matches );
         				};
-        				if ($@) {
-        					$self->log->error( 'Failure in ' . $command_name . ': ' . $@ );
-        					my $return_message = whatbot::Message->new(
-        						'from'			 => $message->me,
-        						'to'			 => ( $message->is_private == 0 ? $message->to : $message->from ),
-        						'content'		 => $command_name . ' completely failed at that last remark.',
-        						'timestamp'		 => time,
-        						'base_component' => $self->parent->base_component
-        					);
-        					push( @messages, $return_message);
-					
-        				} elsif ( defined $result ) {
-        					last if ( $result eq 'last_run' );
-					
-        					$self->log->write( '%%% Message handled by ' . $command_name )
-        					    unless ( defined $self->config->io->[0]->{'silent'} );
-        					$result = [ $result ] if ( ref($result) ne 'ARRAY' );
-    					
-        					foreach my $result_single ( @$result ) {
-    							my $outmessage;
-    							if ( ref($result_single) eq 'whatbot::Message' ) {
-    								$outmessage = $result_single;
-    								my $content = $outmessage->content;
-    								$content =~ s/!who/$message->from/;
-    								$outmessage->content($content);
-    							} else {
-    								$result_single =~ s/!who/$message->from/;
-    								$outmessage = whatbot::Message->new(
-    	        						'from'			    => $message->me,
-    	        						'to'				=> ( $message->is_private == 0 ? $message->to : $message->from ),
-    	        						'content'			=> $result_single,
-    	        						'timestamp'		    => time,
-    	        						'base_component'	=> $self->parent->base_component
-    	        					);
-    							}
-            					push( @messages, $outmessage );
-    					    }
-        				}
+                        $self->_parse_result( $command_name, $message, $result, \@messages, $@ );
     				
         				# End processing for this command if StopAfter was called.
-        				last if $run_path->{'stop'};
+        				last if ( $run_path->{'stop'} );
 				
         			}
         		}
@@ -267,7 +229,7 @@ class whatbot::Controller extends whatbot::Component {
     method handle_event ( $event, $user, $me? ) {
     	my @messages;
     	foreach my $priority ( qw( primary core extension last ) ) {
-    	    last if ( scalar(@messages) and $priority =~ /(extension|last)/ );
+    	    last if ( @messages and $priority =~ /(extension|last)/ );
 	    
 	        # Iterate through priorities, in order, check for commands that can
 	        # receive content
@@ -283,44 +245,7 @@ class whatbot::Controller extends whatbot::Component {
     				my $result = eval {
     					$command->$function($user);
     				};
-    				if ($@) {
-    					$self->log->error( 'Failure in ' . $command_name . ': ' . $@ );
-    					my $return_message = whatbot::Message->new(
-    						'from'			 => '',
-    						'to'			 => 'public',
-    						'content'		 => $command_name . ' completely failed at that last remark.',
-    						'timestamp'		 => time,
-    						'base_component' => $self->parent->base_component
-    					);
-    					push( @messages, $return_message);
-				
-    				} elsif ( defined $result ) {
-    					last if ( $result eq 'last_run' );
-				
-    					$self->log->write('%%% Message handled by ' . $command_name)
-    					    unless ( defined $self->config->io->[0]->{'silent'} );
-    					$result = [ $result ] if ( ref($result) ne 'ARRAY' );
-					
-    					foreach my $result_single ( @$result ) {
-							my $outmessage;
-							if ( ref($result_single) eq 'whatbot::Message' ) {
-								$outmessage = $result_single;
-								my $content = $outmessage->content;
-								$content =~ s/!who/$user/;
-								$outmessage->content($content);
-							} else {
-								$result_single =~ s/!who/$user/;
-								$outmessage = whatbot::Message->new(
-	        						'from'			    => '',
-	        						'to'				=> 'public',
-	        						'content'			=> $result_single,
-	        						'timestamp'		    => time,
-	        						'base_component'	=> $self->parent->base_component
-	        					);
-							}
-        					push( @messages, $outmessage );
-					    }
-    				}
+                    $self->_parse_result( $command_name, undef, $result, \@messages, $@ );
 				
     				# End processing for this command if StopAfter was called.
     				last if $run_path->{'stop'};
@@ -330,6 +255,47 @@ class whatbot::Controller extends whatbot::Component {
         }
 	
     	return \@messages;
+    }
+
+    # Parse the result from a event or message call
+    method _parse_result( $command_name, $message?, $result?, ArrayRef $messages?, $error? ) {
+        $message ||= whatbot::Message->new({
+            'from'    => '',
+            'to'      => 'public',
+            'content' => '',
+        });
+        if ($error) {
+            $self->log->error( 'Failure in ' . $command_name . ': ' . $error );
+            push(
+                @$messages,
+                $message->reply({
+                    'content' => $command_name . ' completely failed at that last remark.',
+                })
+            ) if ($message);
+    
+        } elsif ( defined $result ) {
+            last if ( $result eq 'last_run' );
+    
+            $self->log->write( '%%% Message handled by ' . $command_name )
+                unless ( defined $self->config->io->[0]->{'silent'} );
+            $result = [ $result ] if ( ref($result) ne 'ARRAY' );
+        
+            foreach my $result_single ( @$result ) {
+                my $outmessage;
+                if ( ref($result_single) eq 'whatbot::Message' ) {
+                    $outmessage = $result_single;
+                    my $content = $outmessage->content;
+                    $content =~ s/!who/$message->from/;
+                    $outmessage->content($content);
+                } else {
+                    $result_single =~ s/!who/$message->from/;
+                    $outmessage = $message->reply({
+                        'content' => $result_single,
+                    });
+                }
+                push( @$messages, $outmessage );
+            }
+        }
     }
 
     method dump_command_map {
@@ -391,6 +357,18 @@ is started, Controller builds the run paths based on the attributes in the
 whatbot::Command namespace. When a message event is fired during runtime,
 Controller parses the message and directs the event to each appropriate
 command.
+
+=head1 METHODS
+
+=over 4
+
+=item handle_message( whatbot::Message $message )
+
+Run incoming message through commands, parse responses, and deliver back to IO.
+
+=item handle_event( $event, $user )
+
+Run incoming event through commands, parse responses, and delivery back to IO.
 
 =head1 INHERITANCE
 

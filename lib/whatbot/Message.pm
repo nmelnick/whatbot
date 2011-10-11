@@ -59,6 +59,19 @@ class whatbot::Message extends whatbot::Component {
         $content =~ s/\s+$//;
         $self->{'content'} = $content;
     }
+
+    method reply ( HashRef $overrides? ) {
+        my $message = whatbot::Message->new({
+            'from'    => $self->me,
+            'to'      => ( $self->is_private ? $self->from : $self->to ),
+            'me'      => $self->me,
+            'content' => '',
+        });
+        foreach my $key ( keys %$overrides ) {
+            $message->$key( $overrides->{$key} );
+        }
+        return $message;
+    }
 }
 
 1;
@@ -123,6 +136,19 @@ String value of the bot's username.
 
 Reference to the IO subclass through which this message was from, if it
 originated from outside whatbot.
+
+=back
+
+=head1 METHODS
+
+=over 4
+
+=item reply( \%overrides )
+
+Generate a whatbot::Message in reply to the current message. If is_private is
+true, to will be set to the originator, otherwise, it will be set to the public
+context for public IO. Optionally handles an override hashref to preset fields,
+similar to the new constructor.
 
 =back
 
