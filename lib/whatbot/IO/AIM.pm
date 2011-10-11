@@ -11,6 +11,7 @@ use MooseX::Declare;
 class whatbot::IO::AIM extends whatbot::IO {
 	use HTML::Strip;
 	use Net::OSCAR qw(:standard);
+	use whatbot::Message;
 
 	has 'aim_handle' => ( is => 'rw' );
 	has 'strip'      => ( is => 'ro', default => sub { HTML::Strip->new() } );
@@ -30,6 +31,7 @@ class whatbot::IO::AIM extends whatbot::IO {
 		$oscar->set_callback_im_in(\&cb_message);
 		$oscar->set_callback_signon_done(\&cb_connected);
 		$oscar->set_callback_error(\&cb_error);
+		$oscar->set_callback_snac_unknown( sub {} );
 	
 		# Sign on
 		$oscar->signon(
@@ -94,7 +96,8 @@ class whatbot::IO::AIM extends whatbot::IO {
 		foreach my $out_line (@lines) {
 			my $result = $self->aim_handle->send_im( $message->to, $out_line );
 			if ($result > 0) {
-				$self->event_message_private( $self->me, $out_line );
+				$message->content($out_line);
+				$self->event_message($message);
 			} else {
 				$self->notify('Message could not be sent');
 			}
@@ -107,20 +110,20 @@ class whatbot::IO::AIM extends whatbot::IO {
 	#
 
 	# Event: Received a message
-	method cb_message( $from, $message, $is_away_response) {
+	method cb_message( $from?, $message?, $is_away_response? ) {
 		$message = $self->{'_whatbot'}->strip->parse($message);
 		$message =~ s/^[^A-z0-9]+//;
 		$message =~ s/[\s]+$//;
-		$self->{'_whatbot'}->event_message_private(
-			$$from,
-			$message,
-			1
-		) unless ( $is_away_response );
+		$self->{'_whatbot'}->event_message( whatbot::Message->new({
+			'from'    => $$from,
+			'to'      => $self->me,
+			'content' => $message,
+		}) ) unless ( $is_away_response );
 	}
 
 	# Event: Connected
 	method cb_connected {
-		$self->{'_whatbot'}->notify('Connected successfully.');
+		$self->{'_whatbot'}->notify( '', 'Connected successfully.' );
 	}
 
 	# Event: Error

@@ -31,10 +31,7 @@ class whatbot::IO::Log::Infobot extends whatbot::IO::Log {
 				'base_component'	=> $self->parent->base_component
 			);
 		
-			$self->event_message_public(
-				$user,
-				$message
-			);
+			$self->event_message($message);
 		}
 	}
 }

@@ -280,9 +280,8 @@ class whatbot::Controller extends whatbot::Component {
         			next unless ( $run_path->{'event'} and $run_path->{'event'} eq $event );
 
         		    my $function = $run_path->{'function'};
-    				my $result;
-    				eval {
-    					$result = $command->$function($user);
+    				my $result = eval {
+    					$command->$function($user);
     				};
     				if ($@) {
     					$self->log->error( 'Failure in ' . $command_name . ': ' . $@ );

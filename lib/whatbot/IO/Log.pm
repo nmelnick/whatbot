@@ -57,7 +57,7 @@ class whatbot::IO::Log extends whatbot::IO {
 	
 		if ( my $line = <$fh> ) {
 			$self->{'current_line'}++;
-			$self->parseLine($line);
+			$self->parse_line($line);
 			$self->progress->update( $self->current_line );
 		} else {
 			$self->progress->finish;

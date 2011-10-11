@@ -125,6 +125,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 		} else {
 			foreach my $out_line (@lines) {
 				$self->irc_handle->privmsg( $message->to, $out_line );
+				$message->content($out_line);
 				$self->event_message($message);
 				sleep( int(rand(2)) );
 			}
