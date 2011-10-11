@@ -8,16 +8,16 @@
 
 use MooseX::Declare;
 
-class whatbot::Controller extends whatbot::Component {
+class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggable {
     use whatbot::Message;
     use Class::Inspector;
     use Class::Load qw(load_class);
-    use Module::Pluggable::Object;
 
     has 'command'            => ( is => 'rw', isa => 'HashRef' );
     has 'command_name'       => ( is => 'rw', isa => 'HashRef' );
     has 'command_short_name' => ( is => 'rw', isa => 'HashRef' );
     has 'skip_extensions'    => ( is => 'rw', isa => 'Int' );
+    has 'search_base'        => ( is => 'ro', default => 'whatbot::Command' );
 
     method BUILD ($) {
     	$self->build_command_map();
@@ -29,10 +29,7 @@ class whatbot::Controller extends whatbot::Component {
     	my %command_short_name;
 	
 	    # Scan whatbot::Command for loadable plugins
-        # Module::Pluggable seems to hate MooseX::Declare, so we go manual
-        my $o = Module::Pluggable::Object->new( package => 'whatbot::Controller' );
-        $o->{search_path} = 'whatbot::Command';
-    	foreach my $class_name ( $o->plugins ) {
+    	foreach my $class_name ( $self->plugins ) {
             my @class_split = split( /\:\:/, $class_name );
             my $name = pop(@class_split);
 
@@ -271,7 +268,7 @@ class whatbot::Controller extends whatbot::Component {
                 $message->reply({
                     'content' => $command_name . ' completely failed at that last remark.',
                 })
-            ) if ($message);
+            );
     
         } elsif ( defined $result ) {
             last if ( $result eq 'last_run' );

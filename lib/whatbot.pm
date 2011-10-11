@@ -10,7 +10,7 @@
 
 use MooseX::Declare;
 
-class whatbot {
+class whatbot with whatbot::Role::Pluggable {
     use whatbot::Component::Base;
     use whatbot::Controller;
     use whatbot::Config;
@@ -18,7 +18,6 @@ class whatbot {
     use whatbot::Timer;
 
     use Class::Load qw(load_class);
-    use Module::Pluggable::Object;
 
     our $VERSION = '0.9.6';
 
@@ -28,11 +27,12 @@ class whatbot {
     has 'version'           => ( is => 'ro', isa => 'Str', default => $VERSION );
     has 'skip_extensions'   => ( is => 'rw', isa => 'Int', default => 0 );
     has 'last_message'      => ( is => 'rw', isa => 'whatbot::Message' );
+    has 'search_base'       => ( is => 'ro', default => 'whatbot::Database::Table' );
 
     method config ( Str $basedir, Str $config_path? ) {
     
         # Find configuration file
-        unless ($config_path and -e $config_path) {
+        unless ( $config_path and -e $config_path ) {
         	my @try_config = (
         		'~/.whatbot/whatbot.conf',
         		'/usr/local/etc/whatbot/whatbot.conf',
@@ -47,7 +47,7 @@ class whatbot {
         			last;
         		}
         	}
-        	unless ($config_path and -e $config_path) {
+        	unless ( $config_path and -e $config_path ) {
         		print 'ERROR: Configuration file not found.' . "\n";
         		return;
         	}
@@ -104,10 +104,7 @@ class whatbot {
         # Read in table definitions
     	my %model;
 
-        # Module::Pluggable seems to hate MooseX::Declare, so we go manual
-        my $o = Module::Pluggable::Object->new( package => 'whatbot' );
-        $o->{search_path} = 'whatbot::Database::Table';
-        foreach my $class_name ( $o->plugins ) {
+        foreach my $class_name ( $self->plugins ) {
     		next if ( $class_name =~ '::Row' );
             my @class_split = split( /\:\:/, $class_name );
             my $name = pop(@class_split);
@@ -194,3 +191,19 @@ class whatbot {
     	die 'ERROR: ' . $error;
     }
 }
+
+1;
+
+=pod
+
+=head1 NAME
+
+whatbot - an extensible, sane chat bot for pluggable chat applications
+
+=head1 DESCRIPTION
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut

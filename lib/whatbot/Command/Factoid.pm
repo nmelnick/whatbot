@@ -11,8 +11,11 @@ package whatbot::Command::Factoid;
 use Moose;
 BEGIN { extends 'whatbot::Command'; }
 
+use DateTime;
+
 has 'stfu'     => ( is => 'rw', isa => 'HashRef', default => sub { { 'subject' => '', 'time' => '' }; } );
 has 'who_said' => ( is => 'rw', isa => 'Str' );
+has 'when_was' => ( is => 'rw', isa => 'Int' );
 
 sub register {
 	my ($self) = @_;
@@ -81,8 +84,9 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
     		my $factoid_desc = $factoid_facts->[int(rand(scalar(@{$factoid_facts}))) - 1];
     		$factoid = $self->model('Factoid')->find( $factoid_desc->factoid_id );
 		
-    		# Who said
-    		$self->who_said( $factoid_desc->user or '' );
+    		# Who said/When was
+    		$self->who_said( $factoid_desc->user );
+    		$self->when_was( $factoid_desc->updated );
 		
     		# Override retrieve
     		my $subject = $factoid->subject;
@@ -115,6 +119,7 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
 			$response .= $user;
 		}
 		$self->who_said( $response or '' );
+		$self->when_was( @$users > 1 ? 0 : $factoid->updated );
 		return $self->retrieve( $factoid->subject, $message );
 		
 	}
@@ -133,6 +138,17 @@ sub who_said_that : GlobalRegEx('^(who said that)') : StopAfter {
 	}
 	
 	return;
+}
+
+sub when_was_that : GlobalRegEx('^(when was that)') : StopAfter {
+    my ( $self, $message, $captures ) = @_;
+
+	if ( $self->when_was ) {
+		my $dt = DateTime->from_epoch( epoch => $self->when_was );
+		return 'Looks like it was on ' . $dt->ymd . ' at ' . $dt->hms . '.';
+	}
+	
+	return 'No idea.';
 }
 
 sub shut_up : GlobalRegEx('^(shut up|stfu) about (.*)') : StopAfter {
