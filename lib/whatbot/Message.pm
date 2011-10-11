@@ -54,7 +54,7 @@ class whatbot::Message extends whatbot::Component {
         return ( $self->to eq $self->me );
     }
 
-    method check_content ( Str $content, $ ) {
+    method check_content ( Str $content, $? ) {
         $content =~ s/^\s+//;
         $content =~ s/\s+$//;
         $self->{'content'} = $content;
