@@ -17,7 +17,7 @@ class whatbot::Message extends whatbot::Component {
     has 'timestamp'     => ( is => 'rw', isa => 'Int', default => sub { time } );
     has 'is_direct'     => ( is => 'rw', isa => 'Int', default => 0 );
     has 'me'            => ( is => 'rw', isa => 'Str' );
-    has 'origin'        => ( is => 'rw' );
+    has 'origin'        => ( is => 'rw', isa => 'Str' );
     has 'invisible'     => ( is => 'rw', isa => 'Bool', default => 0 );
 
     method BUILD ($) {
@@ -129,18 +129,18 @@ Boolean (1/0), if the message was private or posted in a public channel.
 
 Boolean (1/0), if the message called the bot out by name
 
+=item invisible
+
+Boolean (1/0), if this message should not be processed by seen or other monitors.
+
 =item me
 
 String value of the bot's username.
 
 =item origin
 
-Reference to the IO subclass through which this message was from, if it
-originated from outside whatbot.
-
-=item invisible
-
-Boolean, set if this message should not be processed by seen or other monitors.
+String containing the IO target signature, name:to. So, for an IRC server called
+irc.example.org, channel #foo, this would be IRC_irc.example.org:#foo.
 
 =back
 

@@ -23,6 +23,8 @@ sub register {
 sub store_url : GlobalRegEx('.*?((https|http|ftp|news|feed|telnet):\/\/[^\s]+).*') {
     my ( $self, $message, $captures ) = @_;
     
+    return if ( $message->invisible );
+
     my $url = $captures->[0];
     my $row = $self->model('URL')->url( $url, $message->from );
     

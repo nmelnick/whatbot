@@ -19,7 +19,7 @@ class whatbot with whatbot::Role::Pluggable {
 
     use Class::Load qw(load_class);
 
-    our $VERSION = '0.9.6';
+    our $VERSION = '0.11.10_a';
 
     has 'base_component'    => ( is => 'rw', isa => 'whatbot::Component::Base' );
     has 'initial_config'    => ( is => 'rw', isa => 'whatbot::Config' );

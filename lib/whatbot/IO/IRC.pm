@@ -12,7 +12,6 @@ use MooseX::Declare;
 
 class whatbot::IO::IRC extends whatbot::IO {
 	use Net::IRC;
-	use whatbot::Message;
 
 	has 'handle'            => ( is => 'rw' );
 	has 'irc_handle'        => ( is => 'ro', isa => 'Net::IRC::Connection' );
@@ -175,7 +174,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 	# Event: Received a public message
 	method cb_message( $event ) {
 		my ($message) = ( $event->args );
-		$self->{'_whatbot'}->event_message( whatbot::Message->new({
+		$self->{'_whatbot'}->event_message( $self->{'_whatbot'}->get_new_message({
 			'from'    => $event->nick,
 			'to'      => $event->to->[0],
 			'content' => $message,

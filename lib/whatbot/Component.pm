@@ -31,6 +31,32 @@ class whatbot::Component {
         warn ref($self) . ' tried to reference model "' . $model_name . '" even though it does not exist.';
         return;
     }
+
+    method search_ios ( Str $io_search ) {
+        foreach my $io ( keys %{ $self->ios } ) {
+            if ( $io =~ /$io_search/ ) {
+                return $self->ios->{$io};
+            }
+        }
+        return;
+    }
+
+    method dispatch_message ( Str $io_path, whatbot::Message $message ) {
+        my ( $io_search, $target ) = split( /\:/, $io_path );
+        my $io = $self->search_ios($io_search);
+        return unless ($io);
+        $message->to($target) if ($target);
+        return $io->event_message($message);
+    }
+
+    method send_message ( Str $io_path, whatbot::Message $message ) {
+        my ( $io_search, $target ) = split( /\:/, $io_path );
+        my $io = $self->search_ios($io_search);
+        return unless ($io);
+        $message->from( $io->me );
+        $message->to($target) if ($target);
+        return $io->send_message($message);
+    }
 }
 
 1;

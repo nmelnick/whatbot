@@ -56,26 +56,30 @@ sub register {
 sub run_at {
 	my ( $self, $medium, $from, $what, $id ) = @_;
 
-    $medium->event_message( whatbot::Message->new({
-    	'from'      => $from,
-    	'to'        => 'public',
-    	'content'   => $what,
-    	'me'        => $self->me,
-    	'invisible' => 1,
-    }) );
+	$self->dispatch_message(
+		$medium,
+		whatbot::Message->new({
+	    	'from'      => $from,
+	    	'to'        => 'public',
+	    	'content'   => $what,
+	    	'invisible' => 1,
+	    })
+	);
     delete $at_list{$id};
 }
 
 sub run_every {
 	my ( $self, $medium, $from, $what, $id, $end_validity, $periodspec ) = @_;
 
-    $medium->event_message( whatbot::Message->new({
-    	'from'      => $from,
-    	'to'        => 'public',
-    	'content'   => $what,
-    	'me'        => $self->me,
-    	'invisible' => 1,
-    }) );
+	$self->dispatch_message(
+		$medium,
+		whatbot::Message->new({
+	    	'from'      => $from,
+	    	'to'        => 'public',
+	    	'content'   => $what,
+	    	'invisible' => 1,
+	    })
+	);
 
 	if ($end_validity->epoch <= time) {
 		# all done.
@@ -143,7 +147,9 @@ sub parse_every : GlobalRegEx('^every ([^,]+), ([^,]+), (.+)$') {
 	$self->timer->enqueue(@$queuespec);
 	$every_list{$id} = [$periodspec, $endvalid, $do_what, $message->from, $queuespec];
 
-    return "ok, I will do that, starting at $first_time until $endvalid every $periodspec. (every #$id)";
+	$first_time =~ s/T/ at /;
+	$endvalid =~ s/T/ at /;
+    return sprintf( 'OK, I will do that, starting on %s until %s every %s. (every #%d)', $first_time, $endvalid, $periodspec, $id );
 }
 
 sub parse_message : CommandRegEx('([^,]+), (.+)') {
@@ -175,7 +181,8 @@ sub parse_message : CommandRegEx('([^,]+), (.+)') {
 
     $at_list{$id} = [$time, $do_what, $message->from, $queuespec];
 
-    return "ok, I will do that at $time. (at #$id)";
+	$time =~ s/T/ at /;
+    return sprintf( 'OK, I will do that on %s. (at #%d)', $time, $id );
 }
 
 sub do_every_list : GlobalRegEx('^every list$') {

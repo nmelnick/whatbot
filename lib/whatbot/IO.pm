@@ -45,6 +45,7 @@ class whatbot::IO extends whatbot::Component {
     method event_message ( whatbot::Message $message ) {
     	$self->notify( $message->to, '<' . $message->from . '> ' . $message->content );
         $message->me( $self->me );
+        $message->origin( join( ':', $self->name, ( $message->is_private ? $message->from : $message->to ) ) );
     	if ( $message->from eq $self->me ) {
     	    $self->parent->last_message($message);
         } else {
@@ -63,6 +64,13 @@ class whatbot::IO extends whatbot::Component {
     	foreach my $message ( @{$messages} ) {
     	    $self->send_message($message);
     	}
+    }
+
+    method get_new_message( HashRef $params ) {
+        return whatbot::Message->new({
+            'me' => $self->me,
+            %$params
+        })
     }
 }
 
