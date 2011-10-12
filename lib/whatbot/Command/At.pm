@@ -55,14 +55,24 @@ sub register {
 sub run_at {
 	my ( $self, $medium, $from, $what, $id ) = @_;
 
-    $medium->event_message_public($from, $what);
+    $medium->event_message( whatbot::Message->new({
+    	'from'    => $from,
+    	'to'      => 'public',
+    	'content' => $what,
+    	'me'      => $self->me,
+    }) );
     delete $at_list{$id};
 }
 
 sub run_every {
 	my ( $self, $medium, $from, $what, $id, $end_validity, $periodspec ) = @_;
 
-    $medium->event_message_public($from, $what);
+    $medium->event_message( whatbot::Message->new({
+    	'from'    => $from,
+    	'to'      => 'public',
+    	'content' => $what,
+    	'me'      => $self->me,
+    }) );
 
 	if ($end_validity->epoch <= time) {
 		# all done.
