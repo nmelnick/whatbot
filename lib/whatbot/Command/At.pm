@@ -21,6 +21,7 @@ BEGIN { extends 'whatbot::Command' }
 
 use DateTime;
 use DateTime::Format::Natural;
+use whatbot::Message;
 
 has 'parser' => (
 	is		=> 'ro',
