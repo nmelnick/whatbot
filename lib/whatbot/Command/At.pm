@@ -57,10 +57,11 @@ sub run_at {
 	my ( $self, $medium, $from, $what, $id ) = @_;
 
     $medium->event_message( whatbot::Message->new({
-    	'from'    => $from,
-    	'to'      => 'public',
-    	'content' => $what,
-    	'me'      => $self->me,
+    	'from'      => $from,
+    	'to'        => 'public',
+    	'content'   => $what,
+    	'me'        => $self->me,
+    	'invisible' => 1,
     }) );
     delete $at_list{$id};
 }
@@ -69,10 +70,11 @@ sub run_every {
 	my ( $self, $medium, $from, $what, $id, $end_validity, $periodspec ) = @_;
 
     $medium->event_message( whatbot::Message->new({
-    	'from'    => $from,
-    	'to'      => 'public',
-    	'content' => $what,
-    	'me'      => $self->me,
+    	'from'      => $from,
+    	'to'        => 'public',
+    	'content'   => $what,
+    	'me'        => $self->me,
+    	'invisible' => 1,
     }) );
 
 	if ($end_validity->epoch <= time) {

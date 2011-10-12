@@ -22,6 +22,7 @@ sub register {
 sub store_user : Monitor {
 	my ( $self, $message ) = @_;
 	
+	return if ( $message->invisible );
 	$self->model('seen')->seen( lc( $message->from ), $message->content );
 	return;
 }

@@ -18,6 +18,7 @@ class whatbot::Message extends whatbot::Component {
     has 'is_direct'     => ( is => 'rw', isa => 'Int', default => 0 );
     has 'me'            => ( is => 'rw', isa => 'Str' );
     has 'origin'        => ( is => 'rw' );
+    has 'invisible'     => ( is => 'rw', isa => 'Bool', default => 0 );
 
     method BUILD ($) {
     	my $me = $self->me;
@@ -136,6 +137,10 @@ String value of the bot's username.
 
 Reference to the IO subclass through which this message was from, if it
 originated from outside whatbot.
+
+=item invisible
+
+Boolean, set if this message should not be processed by seen or other monitors.
 
 =back
 
