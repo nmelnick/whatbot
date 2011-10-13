@@ -230,7 +230,7 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
             } else {
                 return {
                     'factoid' => $factoid,
-                    'facts'   => $facts
+                    'facts'   => [ map { $_->description } @$facts ]
                 };
             }
         }
