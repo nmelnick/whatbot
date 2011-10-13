@@ -53,8 +53,8 @@ class whatbot::IO extends whatbot::Component {
         }
     }
 
-    method event_action ( Str $from, Str $content ) {
-    	$self->notify( '[ACT] ' . $from . ' ' . $content );
+    method event_action ( Str $to, Str $from, Str $content ) {
+    	$self->notify( $to, '[ACT] ' . $from . ' ' . $content );
     }
 
     method send_message ( $message ) {
