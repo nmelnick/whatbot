@@ -160,9 +160,10 @@ class whatbot::IO::IRC extends whatbot::IO {
 	# Event: Disconnected from server
 	method cb_disconnect( $event ) {
 		unless ( $self->{'_whatbot'}->force_disconnect ) {
-			$self->{'_whatbot'}->notify('Disconnected, attempting to reconnect...');
-			sleep(1);
-			$self->connect();
+			$self->{'_whatbot'}->notify( 'X', 'Disconnected, attempting to reconnect...');
+			sleep(5);
+			$self->disconnect();
+			$self->{'_whatbot'}->connect();
 		}
 	}
 
