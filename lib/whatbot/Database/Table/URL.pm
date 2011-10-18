@@ -165,7 +165,7 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
                 'title'       => $title,
                 'domain_id'   => $domain_id,
                 'protocol_id' => $protocol_id,
-                'path'        => $uri->path . ( $uri->query ? '&' . $uri->query : '' )
+                'path'        => $uri->path . ( $uri->query ? '?' . $uri->query : '' )
             });
         }
     }

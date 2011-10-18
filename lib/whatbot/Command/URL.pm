@@ -64,7 +64,7 @@ sub count : Command {
 sub search : Command {
     my ( $self, $message, $captures ) = @_;
     
-    my ($search_text) = @$captures;
+    my $search_text = join( ' ', @$captures );
     return unless ($search_text);
 
     my @response;
@@ -82,11 +82,11 @@ sub search : Command {
 
         push(
             @response,
-            sprintf( '%d) %s://%s/%s - "%s"', ( $_ + 1 ), $url_protocol->name, $url_domain->name, $row->path, $row->title )
+            sprintf( '%d) %s://%s%s - "%s"', ( $_ + 1 ), $url_protocol->name, $url_domain->name, $row->path, $row->title )
         );
     }
 
-    return ( @response ? \@response : undef );
+    return ( @response ? \@response : 'No results for "' . $search_text . '" found.' );
 }
 
 sub help {
