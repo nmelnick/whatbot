@@ -120,7 +120,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 		# Send messages
 		if ( $message->content =~ /^\/me (.*)/ ) {
 			$self->irc_handle->me( $message->to, $1 );
-			$self->event_action( $self->me, $message->content );
+			$self->event_action( $self->me, $message->from, $message->content );
 		} else {
 			foreach my $out_line (@lines) {
 				$self->irc_handle->privmsg( $message->to, $out_line );
