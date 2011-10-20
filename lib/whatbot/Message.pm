@@ -52,7 +52,7 @@ class whatbot::Message extends whatbot::Component {
     }
 
     method is_private {
-        return ( $self->to eq $self->me );
+        return ( $self->me ? ( $self->to eq $self->me ) : 0 );
     }
 
     method check_content ( Str $content, $? ) {

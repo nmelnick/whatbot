@@ -242,7 +242,12 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
     				my $result = eval {
     					$command->$function($user);
     				};
-                    $self->_parse_result( $command_name, undef, $result, \@messages, $@ );
+                    my $message = whatbot::Message->new({
+                        'from'    => $me,
+                        'to'      => 'public',
+                        'content' => '',
+                    });
+                    $self->_parse_result( $command_name, $message, $result, \@messages, $@ );
 				
     				# End processing for this command if StopAfter was called.
     				last if $run_path->{'stop'};

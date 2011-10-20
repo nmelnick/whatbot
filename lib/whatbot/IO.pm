@@ -34,12 +34,12 @@ class whatbot::IO extends whatbot::Component {
 
     method event_user_enter ( $context?, $from? ) {
     	$self->notify( $context, '** ' . $from . ' has entered' );
-	    $self->parse_response( $self->controller->handle_event( 'enter', $from ) );
+	    $self->parse_response( $self->controller->handle_event( 'enter', $from, $self->me ) );
     }
 
     method event_user_leave ( $context?, $from? ) {
     	$self->notify( $context, '**' . $from . ' has left ' );
-	    $self->parse_response( $self->controller->handle_event( 'leave', $from ) );
+	    $self->parse_response( $self->controller->handle_event( 'leave', $from, $self->me ) );
     }
 
     method event_message ( whatbot::Message $message ) {
