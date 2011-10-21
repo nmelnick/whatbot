@@ -26,7 +26,7 @@ sub register {
 	$self->command_priority('Primary');
 	$self->require_direct(0);
 
-	if ( $self->my_config->{insults} ) {
+	if ( $self->my_config and $self->my_config->{insults} ) {
 		push( @{ $self->insults }, split( /, */, $self->my_config->{insults} ) );
 	}
 }
