@@ -11,6 +11,7 @@ use Moose;
 BEGIN { extends 'whatbot::Command' }
 
 use whatbot::Command::Blackjack::Game;
+use whatbot::Command::Insult;
 
 has 'game'        => ( is => 'ro', isa => 'whatbot::Command::Blackjack::Game' );
 has 'game_admin'  => ( is => 'rw', isa => 'Str' );
@@ -19,15 +20,13 @@ has 'dealer_hand' => ( is => 'ro' );
 has 'active_hand' => ( is => 'ro' );
 has 'hands'       => ( is => 'ro', isa => 'ArrayRef' );
 has 'buyin'       => ( is => 'rw', isa => 'Int', default => 100 );
-has 'last_insult' => ( is => 'rw', isa => 'Str', default => 'rand' );
-has 'insults'     => ( is => 'ro', isa => 'ArrayRef', default => sub { [
-    'retard',
-    'wanker',
-    'douchebag',
-    'moron',
-    'asshat',
-    'jackass'
-] } );
+has 'insult'      => ( is => 'ro', isa => 'whatbot::Command::Insult', handles => ['get_insult'], lazy_build => 1 );
+
+sub _build_insult {
+    my ($self) = @_;
+
+    return $self->controller->command_short_name->{insult};
+}
 
 sub register {
 	my ($self) = @_;
@@ -72,7 +71,7 @@ sub add_player : GlobalRegEx('^bj me$') {
     if ( $self->game->add_player( $message->from, $self->buyin ) ) {
         return 'Gotcha, ' . $message->from . '.';
     } else {
-        return 'Already got you, ' . $message->from . ', you ' . $self->insult . '.';
+        return 'Already got you, ' . $message->from . $self->generate_insult;
     }
 }
 
@@ -81,7 +80,7 @@ sub start : GlobalRegEx('^bj start$') {
     
     return unless ( $self->game and $message->from eq $self->game_admin );
     unless ( keys %{ $self->game->players } ) {
-        return 'I need players before you can deal, you ' . $self->insult . '.';
+        return 'I need players before you can deal' . $self->generate_insult;
     }
     
     $self->game->start({
@@ -113,9 +112,9 @@ sub hax : Command {
     
     return unless ( $message->from eq $self->game_admin );
     my ( $player, $amount ) = split( ' ', $captures->[0] );
-    return 'Player "' . $player . '" doesn\'t exist, ' . $self->insult . '.'
+    return 'Player "' . $player . '" doesn\'t exist' . $self->generate_insult
         unless ( $player and $self->game->player($player) );
-    return 'What the hell is "' . $amount . '", ' . $self->insult . '?'
+    return 'What is "' . $amount . '"' . $self->generate_insult
         unless ( $amount and $amount =~ /^\d+$/ );
     
     $self->game->players->{$player} = int( $amount * 100 );
@@ -152,12 +151,11 @@ sub new_hand {
     }
     
     unless ( keys %{ $self->game->players } ) {
-        my $insult = $self->insult;
-        push( @messages, 'No more players. Good work, ' . $insult . ( $insult =~ /s$/ ? 'e' : '' ) . 's.' );
+        push( @messages, 'No more players. Good work' . $self->generate_insult(1) );
         $self->end_game();
         return \@messages;
     }
-    push( @messages, 'New hand: Place your bets by typing "bj bet amount" where amount is your actual numeric bet. If you want to sit this out, hit bj bet 0. Then, eat my asshole.' );
+    push( @messages, 'New hand: Place your bets by typing "bj bet amount" where amount is your actual numeric bet. If you want to sit this out, hit bj bet 0.' );
     
     return \@messages;
 }
@@ -197,7 +195,7 @@ sub deal : Command {
             push( @messages, $hand->ircize() );
         }
         push( @messages, $self->dealer_hand->ircize() );
-        push( @messages, 'Dealer has Blackjack. Thank you for all of your money, ' . $self->insult . ( keys %{ $self->bets } > 1 ? 's' : '' ) . '.' );
+        push( @messages, 'Dealer has Blackjack. Thank you for all of your money' . $self->generate_insult(1) );
         return $self->new_hand( \@messages );
     }
     my $dealer_view = 'Dealer shows ' . $self->dealer_hand->first->ircize . '.';
@@ -239,7 +237,7 @@ sub hand_action {
         $self->game->collect_hand($hand);
         return $self->next_hand(\@messages);
     } elsif ( $hand->busted ) {
-        $output .= ' Good job, you busted, ' . $self->insult . '.';
+        $output .= ' Good job, you busted' . $self->generate_insult;
         push( @messages, $output );
         $self->game->collect_hand($hand);
         return $self->next_hand(\@messages);
@@ -249,7 +247,7 @@ sub hand_action {
         $self->game->collect_hand($hand);
         return $self->next_hand(\@messages);
     } elsif ( $hand->last_draw ) {
-        $output .= ' Enjoy your lots, ' . $self->insult . '.';
+        $output .= ' Enjoy your lots' . $self->generate_insult;
         push( @messages, $output );
         $self->game->collect_hand($hand);
         return $self->next_hand(\@messages);
@@ -269,7 +267,7 @@ sub hit : GlobalRegEx('^bj (h|hit)$') {
     
     return unless ( $self->active_hand );
     if ( $message->from ne $self->active_hand->player ) {
-        return 'Not your turn, ' . $self->insult . '.';
+        return 'Not your turn' . $self->generate_insult;
     }
     
     $self->game->hit( $self->active_hand );
@@ -281,7 +279,7 @@ sub double : GlobalRegEx('^bj (d|double)$') {
     
     return unless ( $self->active_hand and $self->game->can_double( $self->active_hand ) );
     if ( $message->from ne $self->active_hand->player) {
-        return 'Not your turn, ' . $self->insult . '.';
+        return 'Not your turn' . $self->generate_insult;
     }
     
     $self->game->double( $self->active_hand );
@@ -293,7 +291,7 @@ sub stand : GlobalRegEx('^bj (s|stand)$') {
     
     return unless ( $self->active_hand );
     if ( $message->from ne $self->active_hand->player) {
-        return 'Not your turn, ' . $self->insult . '.';
+        return 'Not your turn' . $self->generate_insult;
     }
     
     $self->game->collect_hand( $self->active_hand );
@@ -305,7 +303,7 @@ sub split : GlobalRegEx('^bj (p|split)$') {
     
     return unless ( $self->active_hand and $self->game->can_split( $self->active_hand ) );
     if ( $message->from ne $self->active_hand->player) {
-        return 'Not your turn, ' . $self->insult . '.';
+        return 'Not your turn' . $self->generate_insult;
     }
     
     my @hands = $self->game->split( $self->active_hand );
@@ -314,16 +312,18 @@ sub split : GlobalRegEx('^bj (p|split)$') {
     return $self->hand_action();
 }
 
-sub insult {
-    my ( $self ) = @_;
-    
-    my $insult = $self->last_insult;
-    while ( $insult eq $self->last_insult ) {
-        $insult = $self->insults->[ int( rand( scalar( @{$self->insults} ) ) ) ];
+sub generate_insult {
+    my ( $self, $is_plural ) = @_;
+
+    return '.' unless ( $self->my_config->{insult} );
+    my $insult = $self->get_insult;
+    if ($is_plural) {
+        $insult .= ( $insult =~ /s$/ ? 'es' : 's' );
+    } else {
+        $insult = 'you ' . $insult;
     }
-    $self->last_insult($insult);
-    
-    return $insult;
+
+    return ', ' . $insult . '.';
 }
 
 1;

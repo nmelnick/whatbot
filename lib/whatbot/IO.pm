@@ -61,6 +61,7 @@ class whatbot::IO extends whatbot::Component {
     }
 
     method parse_response ( $messages ) {
+        $messages = [$messages] unless ( ref($messages) and ref($messages) eq 'ARRAY' );
     	foreach my $message ( @{$messages} ) {
     	    $self->send_message($message);
     	}

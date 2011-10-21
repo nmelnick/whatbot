@@ -209,7 +209,9 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
         				my $result = eval {
         					$command->$function( $message, \@matches );
         				};
-                        $self->_parse_result( $command_name, $message, $result, \@messages, $@ );
+                        my $error = $@;
+                        return $self->_return_error( $command_name, $message, $error ) if ($error);
+                        $self->_parse_result( $command_name, $message, $result, \@messages );
     				
         				# End processing for this command if StopAfter was called.
         				last if ( $run_path->{'stop'} );
@@ -239,15 +241,17 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
         			next unless ( $run_path->{'event'} and $run_path->{'event'} eq $event );
 
         		    my $function = $run_path->{'function'};
-    				my $result = eval {
-    					$command->$function($user);
-    				};
                     my $message = whatbot::Message->new({
                         'from'    => $me,
                         'to'      => 'public',
                         'content' => '',
                     });
-                    $self->_parse_result( $command_name, $message, $result, \@messages, $@ );
+    				my $result = eval {
+    					$command->$function($user);
+    				};
+                    my $error = $@;
+                    return $self->_return_error( $command_name, $message, $error ) if ($error);
+                    $self->_parse_result( $command_name, $message, $result, \@messages );
 				
     				# End processing for this command if StopAfter was called.
     				last if $run_path->{'stop'};
@@ -259,23 +263,21 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
     	return \@messages;
     }
 
+    method _return_error( $command_name, $message, $error ) {
+        $self->log->error( 'Failure in ' . $command_name . ': ' . $error );
+        return $message->reply({
+            'content' => $command_name . ' completely failed at that last remark.',
+        });
+    }
+
     # Parse the result from a event or message call
-    method _parse_result( $command_name, $message?, $result?, ArrayRef $messages?, $error? ) {
+    method _parse_result( $command_name, $message?, $result?, ArrayRef $messages? ) {
         $message ||= whatbot::Message->new({
             'from'    => '',
             'to'      => 'public',
             'content' => '',
         });
-        if ($error) {
-            $self->log->error( 'Failure in ' . $command_name . ': ' . $error );
-            push(
-                @$messages,
-                $message->reply({
-                    'content' => $command_name . ' completely failed at that last remark.',
-                })
-            );
-    
-        } elsif ( defined $result ) {
+        if ( defined $result ) {
             last if ( $result eq 'last_run' );
     
             $self->log->write( '%%% Message handled by ' . $command_name )
