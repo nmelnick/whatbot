@@ -17,7 +17,6 @@ class whatbot::Component {
     has 'database'       => ( is => 'rw', default => sub { $_[0]->base_component->database } );
     has 'log'            => ( is => 'rw', default => sub { $_[0]->base_component->log } );
     has 'controller'     => ( is => 'rw', default => sub { $_[0]->base_component->controller } );
-    has 'timer'          => ( is => 'rw', default => sub { $_[0]->base_component->timer } );
     has 'models'         => ( is => 'rw', default => sub { $_[0]->base_component->models } );
 
     method BUILD ( $params ) {

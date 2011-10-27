@@ -14,6 +14,8 @@ class whatbot::Command extends whatbot::Component {
     has 'command_priority'  => ( is => 'rw', isa => 'Str', default => 'Extension' );
     has 'require_direct'    => ( is => 'rw', isa => 'Int', default => 0 );
     has 'my_config'         => ( is => 'ro', isa => 'Maybe[HashRef]' );
+    
+    has 'timer'          => ( is => 'rw', default => sub { $_[0]->base_component->timer } );
 
     our $_attribute_cache = {};
 
