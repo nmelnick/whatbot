@@ -10,6 +10,7 @@
 use MooseX::Declare;
 
 class whatbot::Component {
+
     has 'base_component' => (
         is => 'rw',
         isa => 'whatbot::Component::Base',

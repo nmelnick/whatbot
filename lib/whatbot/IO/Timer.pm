@@ -175,7 +175,7 @@ for this second. If called multiple times per second, only runs once.
 
 =over 4
 
-=item whatbot::Timer
+=item whatbot::IO::Timer
 
 =back
 
