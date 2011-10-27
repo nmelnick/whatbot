@@ -15,7 +15,6 @@ class whatbot with whatbot::Role::Pluggable {
     use whatbot::Controller;
     use whatbot::Config;
     use whatbot::Log;
-    use whatbot::Timer;
 
     use Class::Load qw(load_class);
 
@@ -56,11 +55,14 @@ class whatbot with whatbot::Role::Pluggable {
     	my $config = whatbot::Config->new(
     		'config_file' => $config_path
     	);
+
+        # Add core IO
+        push( @{ $config->{'io'} }, { 'interface' => 'Timer' } );
+
     	$self->initial_config($config);
     }
 
     method run ( $override_io? ) {
-	
     	$self->report_error('Invalid configuration')
     	    unless ( defined $self->initial_config and $self->initial_config->config_hash );
 	    
@@ -124,12 +126,6 @@ class whatbot with whatbot::Role::Pluggable {
     	};
     	$base_component->models(\%model);
 	
-    	# 10 RANDOMIZE TIMER
-    	my $timer = whatbot::Timer->new(
-    		'base_component' 	=> $base_component
-    	);
-    	$base_component->timer($timer);
-	
     	# Create IO modules
     	my @io;
     	my %ios;
@@ -169,11 +165,10 @@ class whatbot with whatbot::Role::Pluggable {
 	
     	# Start Event Loop
     	$log->write('whatbot initialized successfully.');
-    	while ( !$self->kill_self ) {
+    	while ( not $self->kill_self ) {
     		foreach my $io_object (@io) {
     			$io_object->event_loop();
     		}
-    		$timer->tick();
     	}
 	
     	# Upon kill or interrupt, exit gracefully.

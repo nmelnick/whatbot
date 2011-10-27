@@ -17,7 +17,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 	has 'irc_handle'        => ( is => 'ro', isa => 'Net::IRC::Connection' );
 	has 'force_disconnect'  => ( is => 'rw', isa => 'Int' );
 
-	method BUILD {
+	method BUILD ($) {
 		my $name = 'IRC_' . $self->my_config->{'host'};
 		$name =~ s/ /_/g;
 		$self->name($name);

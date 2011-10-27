@@ -15,7 +15,6 @@ class whatbot::Component::Base {
 	has 'database'       => ( is => 'rw', isa => 'whatbot::Database' );
 	has 'log'            => ( is => 'rw', isa => 'whatbot::Log' );
 	has 'controller'     => ( is => 'rw', isa => 'whatbot::Controller' );
-	has 'timer'          => ( is => 'rw', isa => 'whatbot::Timer' );
 	has 'models'         => ( is => 'rw', isa => 'HashRef' );
 }
 

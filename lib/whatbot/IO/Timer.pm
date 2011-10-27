@@ -1,5 +1,5 @@
 ###########################################################################
-# whatbot/Timer.pm
+# whatbot/IO/Timer.pm
 ###########################################################################
 #
 # Timer functionality for whatbot
@@ -10,13 +10,18 @@
 
 use MooseX::Declare;
 
-class whatbot::Timer extends whatbot::Component {
+class whatbot::IO::Timer extends whatbot::IO {
     # time_queue is an array. each item is of the form:
     #  [ int time, coderef sub, ...  ]
     #
     # "..." can be any number of args to be sent to the sub when it is called at time.
     has 'time_queue' => ( is => 'rw', isa => 'ArrayRef', default => sub { return [] } );
     has 'next_time'  => ( is => 'rw', isa => 'Int', default => 0 );
+
+    method BUILD ($) {
+        $self->name('Timer');
+        $self->me( $self->name );
+    }
 
     method enqueue ( Int $time, $sub, @args ) {
     	$time += time if ( $time < 86400 );
@@ -76,7 +81,7 @@ ITEMLOOP:   foreach my $index (0 .. $#{$queue}) {
     	return 0;
     }
 
-    method tick {
+    method event_loop() {
     	my $next = $self->next_time;
     	return unless $next;
 	
@@ -112,7 +117,7 @@ ITEMLOOP:   foreach my $index (0 .. $#{$queue}) {
 
 =head1 NAME
 
-whatbot::Timer - Timer functionality for whatbot.
+whatbot::IO::Timer - Timer functionality for whatbot.
 
 =head1 SYNOPSIS
 
@@ -138,7 +143,7 @@ whatbot::Timer - Timer functionality for whatbot.
 
 =head1 DESCRIPTION
 
-whatbot::Timer - Timer functionality for whatbot.
+whatbot::IO::Timer - Timer functionality for whatbot.
 
 =head1 PUBLIC METHODS
 
@@ -151,7 +156,7 @@ either seconds since Jan 1 1970, or, if less than 86400, seconds from now.
 C<$sub> is a reference to any code, and C<@args>, if provided, are passed 
 directly to that subroutine at call-time.
 
-=item tick()
+=item event_loop()
 
 Called every event loop, from the main whatbot class. Runs all code scheduled
 for this second. If called multiple times per second, only runs once.
@@ -166,7 +171,13 @@ for this second. If called multiple times per second, only runs once.
 
 =over 4
 
+=item whatbot::IO
+
+=over 4
+
 =item whatbot::Timer
+
+=back
 
 =back
 

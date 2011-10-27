@@ -10,14 +10,20 @@
 use MooseX::Declare;
 
 class whatbot::Component {
-    has 'base_component' => ( is => 'rw', default => sub { whatbot::Component::Base->new() } );
-    has 'parent'         => ( is => 'rw', default => sub { $_[0]->base_component->parent } );
-    has 'config'         => ( is => 'rw', default => sub { $_[0]->base_component->config } );
-    has 'ios'            => ( is => 'rw', default => sub { $_[0]->base_component->ios } );
-    has 'database'       => ( is => 'rw', default => sub { $_[0]->base_component->database } );
-    has 'log'            => ( is => 'rw', default => sub { $_[0]->base_component->log } );
-    has 'controller'     => ( is => 'rw', default => sub { $_[0]->base_component->controller } );
-    has 'models'         => ( is => 'rw', default => sub { $_[0]->base_component->models } );
+    has 'base_component' => (
+        is => 'rw',
+        isa => 'whatbot::Component::Base',
+        default => sub { whatbot::Component::Base->new() },
+        handles => [qw(
+            parent
+            config
+            ios
+            database
+            log
+            controller
+            models
+        )]
+    );
 
     method BUILD ( $params ) {
     	unless ( ref($self) =~ /Message/ or ref($self) =~ /Command::/ or ref($self) =~ /::Table/ ) {
