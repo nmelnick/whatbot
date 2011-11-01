@@ -13,6 +13,8 @@ use MooseX::Declare;
 class whatbot::Command extends whatbot::Component {
     use whatbot::Types qw( HTTPRequest );
 
+    has 'name'             => ( is => 'rw', isa => 'Str' );
+
     has 'command_priority' => ( is => 'rw', isa => 'Str', default => 'Extension' );
     has 'require_direct'   => ( is => 'rw', isa => 'Int', default => 0 );
     has 'my_config'        => ( is => 'ro', isa => 'Maybe[HashRef]' );
@@ -48,8 +50,13 @@ class whatbot::Command extends whatbot::Component {
         return 'Help is not available for this module.';
     }
 
-    method async ( $req, $callback ) {
-        return $self->ios->{Async}->enqueue( $self, $req, $callback );
+    method async ( $req, $callback, $params? ) {
+        $params ||= [];
+        return $self->ios->{Async}->enqueue( $self, $req, $callback, $params );
+    }
+
+    before log () {
+        $self->base_component->log->name( $self->name );
     }
 
 }

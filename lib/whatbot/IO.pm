@@ -13,7 +13,7 @@ class whatbot::IO extends whatbot::Component {
 
     has 'my_config' => ( is => 'rw', isa => 'HashRef' );
     has 'name'      => ( is => 'rw', isa => 'Str' );
-    has 'me'        => ( is => 'rw', isa => 'Str' );
+    has 'me'        => ( is => 'rw', isa => 'Str', default => '' );
 
     method BUILD ($) {
     	unless ( defined $self->my_config ) {
@@ -34,12 +34,12 @@ class whatbot::IO extends whatbot::Component {
 
     method event_user_enter ( $context?, $from? ) {
     	$self->notify( $context, '** ' . $from . ' has entered' );
-	    $self->parse_response( $self->controller->handle_event( 'enter', $from, $self->me ) );
+	    $self->parse_response( $self->controller->handle_event( join( ':', $self->name, $context ), 'enter', $from, $self->me ) );
     }
 
     method event_user_leave ( $context?, $from? ) {
     	$self->notify( $context, '**' . $from . ' has left ' );
-	    $self->parse_response( $self->controller->handle_event( 'leave', $from, $self->me ) );
+	    $self->parse_response( $self->controller->handle_event( join( ':', $self->name, $context ), 'leave', $from, $self->me ) );
     }
 
     method event_message ( whatbot::Message $message ) {

@@ -18,6 +18,7 @@ WriteMakefile(
         'Class::Load'       => 0,
         'DBI'               => 0,
         'HTTP::Async'       => 0,
+        'HTTP::Cookies'     => 0,
         'HTTP::Request'     => 0,
         'Module::Pluggable' => 0,
         'Moose'             => 0,

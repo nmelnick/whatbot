@@ -12,11 +12,14 @@ use MooseX::Declare;
 
 class whatbot::IO::Async extends whatbot::IO {
     use HTTP::Async;
+    use HTTP::Cookies;
     use HTTP::Request;
 
-    has 'tracker' => ( is => 'ro', isa => 'HashRef', default => sub {{}} );
-    has 'async' => ( is => 'ro', isa => 'HTTP::Async', lazy_build => 1 );
+    has 'tracker'    => ( is => 'ro', isa => 'HashRef', default => sub {{}} );
+    has 'async'      => ( is => 'ro', isa => 'HTTP::Async', lazy_build => 1 );
+    has 'cookie_jar' => ( is => 'ro', isa => 'HTTP::Cookies', lazy_build => 1 );
     sub _build_async { return HTTP::Async->new() }
+    sub _build_cookie_jar { return HTTP::Cookies->new( hide_cookie2 => 1 ) }
 
     method BUILD ($) {
         $self->name('Async');
@@ -25,17 +28,20 @@ class whatbot::IO::Async extends whatbot::IO {
 
     method event_loop() {
         if ( $self->async->not_empty ) {
-             my ( $response, $id ) = $self->async->next_response;
-             return unless ($response);
+            my ( $response, $id ) = $self->async->next_response;
+            return unless ($response);
             
-            $self->tracker->{$id}->[0]->( $self->tracker->{$id}->[1], $response );
+            $self->cookie_jar->extract_cookies($response);
+            $self->tracker->{$id}->[0]->( $self->tracker->{$id}->[1], $response, @{ $self->tracker->{$id}->[2] } );
         }
     }
 
-    method enqueue ( $caller_object, $req, $callback ) {
+    method enqueue ( $caller_object, $req, $callback, ArrayRef $params? ) {
+        $self->cookie_jar->add_cookie_header($req);
+        $req->user_agent('whatbot/1.0') unless ( $req->user_agent );
         my $id = $self->async->add($req);
         return unless ($id);
-        $self->tracker->{$id} = [ $callback, $caller_object ];
+        $self->tracker->{$id} = [ $callback, $caller_object, $params ];
         return $id;
     }
 }

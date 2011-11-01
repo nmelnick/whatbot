@@ -58,7 +58,8 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
     				}
     				my $new_command = $class_name->new(
     					'base_component' => $self->parent->base_component,
-    					'my_config'      => $config
+    					'my_config'      => $config,
+                        'name'           => $command_root,
     				);
     				$new_command->controller($self);
 				
@@ -225,7 +226,9 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
     }
 
 	# dear god refactor
-    method handle_event ( $event, $user, $me? ) {
+    method handle_event ( $context, $event, $user, $me? ) {
+        warn $context;
+        my ( $io, $target ) = split( /:/, $context );
     	my @messages;
     	foreach my $priority ( qw( primary core extension last ) ) {
     	    last if ( @messages and $priority =~ /(extension|last)/ );
@@ -243,11 +246,12 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
         		    my $function = $run_path->{'function'};
                     my $message = whatbot::Message->new({
                         'from'    => $me,
-                        'to'      => 'public',
+                        'to'      => $target,
                         'content' => '',
+                        'me'      => $me,
                     });
     				my $result = eval {
-    					$command->$function($user);
+    					$command->$function( $context, $user );
     				};
                     my $error = $@;
                     return $self->_return_error( $command_name, $message, $error ) if ($error);

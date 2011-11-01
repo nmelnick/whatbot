@@ -13,6 +13,7 @@ class whatbot::Log {
 
     has 'log_directory' => ( is	=> 'rw', isa => 'Str', required => 1 );
     has 'last_error'    => ( is	=> 'rw', isa => 'Str' );
+    has 'name'          => ( is => 'rw', isa => 'Maybe[Str]' );
 
     method BUILD ( $log_dir ) {
     	binmode( STDOUT, ':utf8' );
@@ -34,6 +35,11 @@ class whatbot::Log {
     }
 
     method write ( Str $entry ) {
+        if ( $self->name ) {
+            $entry = sprintf( '[%s] ', $self->name ) . $entry;
+            $self->name(undef);
+        }
+
     	my $output = '[' . strftime( '%Y-%m-%d %H:%M:%S', localtime(time) ) . '] ' . $entry . "\n";
     	print $output;
         open( LOG, '>>' . $self->log_directory . '/whatbot.log' )

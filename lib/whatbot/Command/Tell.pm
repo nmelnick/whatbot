@@ -36,6 +36,7 @@ sub request_tell : CommandRegEx('(.*)') : StopAfter {
 	# Set from
 	$tell = join( '|[', $message->from, $tell );
 	
+	$username = $message->to . '|' . $username;
 	if ( my $previous = $self->model('Soup')->get($username) ) {
 		$tell = $previous . '|]' . $tell;
 	}
@@ -45,10 +46,11 @@ sub request_tell : CommandRegEx('(.*)') : StopAfter {
 }
 
 sub do_tell : Event('enter') {
-	my ( $self, $user ) = @_;
+	my ( $self, $target, $user ) = @_;
 	
+    my ( $io, $context ) = split( /:/, $context );
 	my $search_user = lc($user);
-	if ( my $response = $self->model('Soup')->get($search_user) ) {
+	if ( my $response = $self->model('Soup')->get( join( '|', $context, $search_user ) ) ) {
 		my @reply;
 		my @response = split( /\|\]/, $response );
 		foreach my $tell ( @response ) {
@@ -68,7 +70,7 @@ sub query_tell : GlobalRegEx('^what are you telling ([^\s\?]+)') {
 	my $search_user = lc( $captures->[0] );
 	return unless ($search_user);
 
-	if ( my $response = $self->model('Soup')->get($search_user) ) {
+	if ( my $response = $self->model('Soup')->get( join( '|', $message->to, $search_user ) ) ) {
 		my @reply;
 		my @response = split( /\|\]/, $response );
 		foreach my $tell ( @response ) {
