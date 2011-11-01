@@ -226,9 +226,8 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
     }
 
 	# dear god refactor
-    method handle_event ( $context, $event, $user, $me? ) {
-        warn $context;
-        my ( $io, $target ) = split( /:/, $context );
+    method handle_event ( $target, $event, $user, $me? ) {
+        my ( $io, $context ) = split( /:/, $target );
     	my @messages;
     	foreach my $priority ( qw( primary core extension last ) ) {
     	    last if ( @messages and $priority =~ /(extension|last)/ );
@@ -246,12 +245,12 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
         		    my $function = $run_path->{'function'};
                     my $message = whatbot::Message->new({
                         'from'    => $me,
-                        'to'      => $target,
+                        'to'      => $context,
                         'content' => '',
                         'me'      => $me,
                     });
     				my $result = eval {
-    					$command->$function( $context, $user );
+    					$command->$function( $target, $user );
     				};
                     my $error = $@;
                     return $self->_return_error( $command_name, $message, $error ) if ($error);

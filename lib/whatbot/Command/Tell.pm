@@ -48,7 +48,7 @@ sub request_tell : CommandRegEx('(.*)') : StopAfter {
 sub do_tell : Event('enter') {
 	my ( $self, $target, $user ) = @_;
 	
-    my ( $io, $context ) = split( /:/, $context );
+    my ( $io, $context ) = split( /:/, $target );
 	my $search_user = lc($user);
 	if ( my $response = $self->model('Soup')->get( join( '|', $context, $search_user ) ) ) {
 		my @reply;
