@@ -16,6 +16,7 @@ sub register {
 	
 	$self->command_priority('Primary');
 	$self->require_direct(1);
+    return;
 }
 
 sub parse_message : GlobalRegEx('^help ?(.*)?') {
@@ -23,10 +24,20 @@ sub parse_message : GlobalRegEx('^help ?(.*)?') {
     
     if ( $captures and $captures->[0] ) {
         if ( defined $self->controller->command_short_name->{$captures->[0]} ) {
-            return $self->controller->command_short_name->{$captures->[0]}->help();
-        } else {	            
-	        return
-	            'No such command: "' . $captures->[0] . '". ' . $self->available();
+            my @replies;
+            foreach my $str ( @{ $self->controller->command_short_name->{$captures->[0]}->help() } ) {
+                my $reply = $message->reply({
+                    to      => $message->from,
+                    content => $str
+                });
+                push( @replies, $reply );
+            }
+            return \@replies;
+        } else {
+            return $message->reply({
+                to      => $message->from,
+                content => 'No such command: "' . $captures->[0] . '". ' . $self->available()
+            });
         }
     } else {
         return
@@ -34,7 +45,7 @@ sub parse_message : GlobalRegEx('^help ?(.*)?') {
             'written in Perl and tears. ' . $self->available();
     }
     
-    return undef;
+    return;
 }
 
 sub available {
