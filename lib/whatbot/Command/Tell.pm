@@ -38,6 +38,12 @@ sub request_tell : CommandRegEx('(.*)') : StopAfter {
 	
 	$username = $message->to . '|' . $username;
 	if ( my $previous = $self->model('Soup')->get($username) ) {
+		my @tells = split( '|]', $previous );
+		foreach (@tells) {
+			if ( $_ eq $tell ) {
+				return 'You are already telling that to $username, ' . $message->from . '.';
+			}
+		}
 		$tell = $previous . '|]' . $tell;
 	}
 	$self->model('Soup')->set( $username, $tell );
@@ -50,14 +56,15 @@ sub do_tell : Event('enter') {
 	
     my ( $io, $context ) = split( /:/, $target );
 	my $search_user = lc($user);
-	if ( my $response = $self->model('Soup')->get( join( '|', $context, $search_user ) ) ) {
+	my $query = join( '|', $context, $search_user );
+	if ( my $response = $self->model('Soup')->get($query) ) {
 		my @reply;
 		my @response = split( /\|\]/, $response );
 		foreach my $tell ( @response ) {
 			my ( $from, $to_tell ) = split( /\|\[/, $tell );
 			push( @reply, sprintf( '%s, %s wants you to know %s%s', $user, $from, $to_tell, ( $to_tell =~ /[\.\?!]$/ ? '' : '.' ) ) );
 		}
-		$self->model('Soup')->clear($search_user);
+		$self->model('Soup')->clear($query);
 		return \@reply;
 	}
 
