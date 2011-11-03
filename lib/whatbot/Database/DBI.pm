@@ -6,72 +6,62 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-package whatbot::Database::DBI;
-use Moose;
-extends 'whatbot::Database';
-use DBI;
+use MooseX::Declare;
 
-has 'connect_array' => ( is => 'rw', isa => 'ArrayRef' );
-has 'tables'        => ( is => 'rw', isa => 'HashRef' );
+class whatbot::Database::DBI extends whatbot::Database {
+    use DBI;
 
-sub connect {
-	my ( $self ) = @_;
-	
-	die "ERROR: No connect string offered by connection module" if ( !$self->connect_array );
-	
-	my $dbh = DBI->connect( @{$self->connect_array} ) or die $DBI::errstr;
-	$self->handle($dbh);
-	$self->get_tables();
-}
+    has 'connect_array' => ( is => 'rw', isa => 'ArrayRef' );
+    has 'tables'        => ( is => 'rw', isa => 'HashRef' );
 
-sub get_tables {
-    my ( $self ) = @_;
-    
-    my %tables;
-    my $sth = $self->handle->table_info();
-    while ( my $rec = $sth->fetchrow_hashref() ) {
-        $tables{ $rec->{'TABLE_NAME'} } = 1;
+    method connect() {
+    	die "ERROR: No connect string offered by connection module" if ( !$self->connect_array );
+    	
+    	my $dbh = DBI->connect( @{$self->connect_array} ) or die $DBI::errstr;
+    	$self->handle($dbh);
+    	$self->get_tables();
     }
-    $sth->finish();
-    
-    return $self->tables(\%tables);
-}
 
-sub last_insert_id {
-    my ( $self ) = @_;
-    
-    $self->log->write( 'last_insert_id is unsupported by ' . ref($self) );
-    return 0;
-}
+    method get_tables() {
+        my %tables;
+        my $sth = $self->handle->table_info();
+        while ( my $rec = $sth->fetchrow_hashref() ) {
+            $tables{ $rec->{'TABLE_NAME'} } = 1;
+        }
+        $sth->finish();
+        
+        return $self->tables(\%tables);
+    }
 
-sub char {
-    my ( $self, $size ) = @_;
-    
-    return 'char(' . $size . ')';
-}
+    method last_insert_id() {
+        $self->log->write( 'last_insert_id is unsupported by ' . ref($self) );
+        return 0;
+    }
 
-sub integer {
-    my ( $self, $size ) = @_;
-    
-    return 'integer';
-}
+    method char ( Int $size ) {
+        return 'char(' . $size . ')';
+    }
 
-sub timestamp {
-    return 'timestamp';
-}
+    method integer ( Int $size ) {
+        return 'integer';
+    }
 
-sub text {
-    return 'text';
-}
+    method varchar ( Int $size ) {
+        return 'varchar(' . $size . ')';
+    }
 
-sub varchar {
-    my ( $self, $size ) = @_;
-    
-    return 'varchar(' . $size . ')';
-}
+    method timestamp() {
+        return 'timestamp';
+    }
 
-sub now {
-    return \'now()';
+    method text() {
+        return 'text';
+    }
+
+    method now() {
+        return \'now()';
+    }
+
 }
 
 1;

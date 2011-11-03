@@ -9,6 +9,7 @@
 package whatbot::Command::Market;
 use Moose;
 BEGIN { extends 'whatbot::Command' }
+use namespace::autoclean;
 
 use XML::Simple qw(XMLin);
 use String::IRC; # for colors!
@@ -216,6 +217,8 @@ sub parse_message : CommandRegEx('(.+)') {
 
 	return $results;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 

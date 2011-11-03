@@ -14,6 +14,7 @@ use Data::Dumper;
 use Digest::MD5 'md5_hex';
 use LWP::UserAgent ();
 use XML::Simple;
+use namespace::autoclean;
 
 has 'ua'         => ( is => 'ro', isa => 'LWP::UserAgent', default => sub {
     LWP::UserAgent->new( 'agent' => 'Mozilla/5.0', 'timeout' => 10 ); 
@@ -145,6 +146,8 @@ sub last : Command {
 sub help {
     return 'RSS monitors an RSS feed for new entries. You can retrieve the last entry using "rss last", and get the status of the monitor with "rss status".';
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 

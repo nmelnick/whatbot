@@ -12,6 +12,7 @@ BEGIN { extends 'whatbot::Command'; }
 
 use Cwd qw(realpath);
 use Data::Dumper;
+use namespace::autoclean;
 
 sub register {
 	my ( $self ) = @_;
@@ -174,6 +175,8 @@ sub throw : Command {
     
     return;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 

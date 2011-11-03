@@ -11,6 +11,7 @@ use Moose;
 BEGIN { extends 'whatbot::Command' }
 
 use Math::Expression;
+use namespace::autoclean;
 
 sub register {
 	my ($self) = @_;
@@ -73,5 +74,7 @@ sub _parse {
 
 	return join(', ', @result);
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

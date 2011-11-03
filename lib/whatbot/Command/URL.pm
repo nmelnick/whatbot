@@ -11,6 +11,7 @@ use Moose;
 BEGIN { extends 'whatbot::Command'; }
 
 use POSIX qw(strftime);
+use namespace::autoclean;
 
 sub register {
 	my ($self) = @_;
@@ -102,5 +103,6 @@ sub help {
     ];
 }
 
+__PACKAGE__->meta->make_immutable;
 
 1;

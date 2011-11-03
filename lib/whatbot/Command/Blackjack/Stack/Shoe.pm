@@ -2,6 +2,7 @@ package whatbot::Command::Blackjack::Stack::Shoe;
 use Moose;
 extends 'whatbot::Command::Blackjack::Stack';
 use whatbot::Command::Blackjack::Stack::Deck;
+use namespace::autoclean;
 
 has 'decks'   => ( is => 'rw', isa => 'Int', default => 4 );
 
@@ -19,6 +20,8 @@ sub BUILD {
     $self->shuffle();
     $self->shuffle();
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 

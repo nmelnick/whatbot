@@ -12,6 +12,7 @@ use Moose;
 BEGIN { extends 'whatbot::Command'; }
 
 use whatbot::Command::Factoid;
+use namespace::autoclean;
 
 has 'factoid' => ( is => 'ro', isa => 'whatbot::Command::Factoid' );
 
@@ -30,5 +31,7 @@ sub listener : GlobalRegEx('(.+)') {
 	
 	return $self->factoid->retrieve( $captures->[0], $message );
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

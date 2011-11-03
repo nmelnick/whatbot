@@ -12,6 +12,7 @@ use Moose;
 BEGIN { extends 'whatbot::Command'; }
 
 use DateTime;
+use namespace::autoclean;
 
 has 'stfu'     => ( is => 'rw', isa => 'HashRef', default => sub { { 'subject' => '', 'time' => '' }; } );
 has 'who_said' => ( is => 'rw', isa => 'Str' );
@@ -256,5 +257,7 @@ sub retrieve {
 	
 	return;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

@@ -12,6 +12,7 @@ BEGIN { extends 'whatbot::Command' }
 
 use whatbot::Command::Blackjack::Game;
 use whatbot::Command::Insult;
+use namespace::autoclean;
 
 has 'game'        => ( is => 'ro', isa => 'whatbot::Command::Blackjack::Game' );
 has 'game_admin'  => ( is => 'rw', isa => 'Str' );
@@ -325,5 +326,7 @@ sub generate_insult {
 
     return ', ' . $insult . '.';
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

@@ -10,6 +10,7 @@
 package whatbot::Command::Karma;
 use Moose;
 BEGIN { extends 'whatbot::Command'; }
+use namespace::autoclean;
 
 my $LIKE_NUM = 10;
 
@@ -148,6 +149,8 @@ sub decrement {
 	
 	return $self->model('karma')->decrement( $subject, $from );
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 

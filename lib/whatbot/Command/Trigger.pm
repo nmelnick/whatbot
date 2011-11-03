@@ -10,6 +10,7 @@
 package whatbot::Command::Trigger;
 use Moose;
 BEGIN { extends 'whatbot::Command'; }
+use namespace::autoclean;
 
 has triggers => ( is => 'rw', isa => 'HashRef' );
 
@@ -125,5 +126,7 @@ sub help {
         ' * stats -- show how many triggers are set'
     ];
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

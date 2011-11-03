@@ -9,6 +9,7 @@
 package whatbot::Command::Tell;
 use Moose;
 BEGIN { extends 'whatbot::Command' }
+use namespace::autoclean;
 
 sub register {
 	my ($self) = @_;
@@ -89,5 +90,7 @@ sub query_tell : GlobalRegEx('^what are you telling ([^\s\?]+)') {
 		return 'Nothing, ' . $message->from . '.';
 	}
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

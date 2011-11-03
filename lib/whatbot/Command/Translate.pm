@@ -12,6 +12,7 @@ BEGIN { extends 'whatbot::Command' }
 
 use WWW::Babelfish;
 use Encode;
+use namespace::autoclean;
 
 sub register {
 	my ($self) = @_;
@@ -98,5 +99,7 @@ sub translate {
 		return 'Sorry, I had an error trying to translate that.';
 	}
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

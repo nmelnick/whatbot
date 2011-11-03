@@ -22,6 +22,7 @@ BEGIN { extends 'whatbot::Command' }
 use DateTime;
 use DateTime::Format::Natural;
 use whatbot::Message;
+use namespace::autoclean;
 
 has 'parser' => (
 	is		=> 'ro',
@@ -247,5 +248,7 @@ sub do_every_delete : GlobalRegEx('^(every|at) delete (\d+)$') {
 
 	return "nothing happened, wtf broken code";
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

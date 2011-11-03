@@ -1,6 +1,7 @@
 package whatbot::Command::Blackjack::Card;
 use Moose;
 # use String::IRC;
+use namespace::autoclean;
 
 has 'value'     => ( is => 'rw' );
 has 'color'     => ( is => 'rw', isa => 'Str' );
@@ -42,4 +43,7 @@ sub ircize {
     
     return $string;
 }
+
+__PACKAGE__->meta->make_immutable;
+
 1;

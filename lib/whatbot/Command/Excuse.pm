@@ -11,6 +11,7 @@ use Moose;
 BEGIN { extends 'whatbot::Command' }
 
 use Net::Telnet;
+use namespace::autoclean;
 
 sub register {
 	my ( $self ) = @_;
@@ -43,5 +44,7 @@ sub parse_message : CommandRegEx('') {
 sub help {
     return 'Excuse uses an excuse server to deliver a random response to your inquiry. Even better, the inquiry is optional.';
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

@@ -9,6 +9,7 @@
 package whatbot::Command::Calendar;
 use Moose;
 BEGIN { extends 'whatbot::Command'; }
+use namespace::autoclean;
 
 sub register {
 	my ($self) = @_;
@@ -39,5 +40,7 @@ sub get_localtime {
 	$month++;
 	return ( $second, $minute, $hour, $day, $month, $year );
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

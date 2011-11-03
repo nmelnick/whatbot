@@ -11,6 +11,7 @@ use Moose;
 BEGIN { extends 'whatbot::Command'; }
 
 use Acme::LOLCAT;
+use namespace::autoclean;
 
 has be_annoying => ( is => 'rw', isa => 'Bool' );
 
@@ -40,5 +41,7 @@ sub annoying {
 	
 	return translate($content);
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

@@ -9,6 +9,7 @@
 package whatbot::Command::Insult;
 use Moose;
 BEGIN { extends 'whatbot::Command' }
+use namespace::autoclean;
 
 has 'last_insult' => ( is => 'rw', isa => 'Str', default => 'rand' );
 has 'insults'     => ( is => 'ro', isa => 'ArrayRef', default => sub { [
@@ -49,5 +50,7 @@ sub parse_message : CommandRegEx('(\w+)') {
     my $insult = $self->get_insult;
 	return $captures->[0] . ', you are a' . ( $insult =~ /^[aeiou]/ ? 'n' : '' ) . ' ' . $insult . '.';
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

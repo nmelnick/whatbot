@@ -1,5 +1,6 @@
 package whatbot::Command::Blackjack::Hand;
 use Moose;
+use namespace::autoclean;
 
 has 'player'    => ( is => 'rw', isa => 'Str' );
 has 'cards'     => ( is => 'ro', isa => 'ArrayRef', default => sub { [] } );
@@ -121,5 +122,7 @@ sub score {
     
     return $score;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

@@ -11,6 +11,7 @@ use Moose;
 BEGIN { extends 'whatbot::Command' }
 
 use WWW::Google::PageRank;
+use namespace::autoclean;
 
 sub register {
 	my ( $self ) = @_;
@@ -35,5 +36,7 @@ sub parse_message : CommandRegEx('(for)? (.*)[\?\s]?') {
 sub help {
     return 'PageRank provides the Google PageRank for a given site. Use by entering "pagerank www.example.com".';
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

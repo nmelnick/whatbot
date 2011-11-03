@@ -9,6 +9,7 @@
 package whatbot::Command::Awareness;
 use Moose;
 BEGIN { extends 'whatbot::Command' }
+use namespace::autoclean;
 
 sub register {
 	my ($self) = @_;
@@ -48,5 +49,7 @@ sub last_message : GlobalRegEx('^show last message$') {
     
     return $self->parent->last_message;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

@@ -1,5 +1,6 @@
 package whatbot::Command::Blackjack::Stack;
 use Moose;
+use namespace::autoclean;
 
 has 'cards' => ( is => 'rw', isa => 'ArrayRef' );
 has 'discard' => ( is => 'ro', isa => 'ArrayRef', default => sub { [] } );
@@ -34,6 +35,8 @@ sub take {
     push( @{ $self->discard }, $card );
     return $card;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 

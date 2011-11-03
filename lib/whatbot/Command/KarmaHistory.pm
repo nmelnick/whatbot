@@ -9,6 +9,7 @@
 package whatbot::Command::KarmaHistory;
 use Moose;
 BEGIN { extends 'whatbot::Command' }
+use namespace::autoclean;
 
 sub register {
 	my ($self) = @_;
@@ -148,7 +149,9 @@ sub parse_message : GlobalRegEx('^[\. ]*?who (hates|likes|loves|doesn\'t like|pl
 		}
 	}
 	
-	return undef;
+	return;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

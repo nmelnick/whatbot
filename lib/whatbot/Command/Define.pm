@@ -16,6 +16,7 @@ use URI::Escape qw(uri_escape);
 use HTML::Entities qw(decode_entities);
 use Lingua::EN::Sentence qw(get_sentences);
 use HTML::Strip ();
+use namespace::autoclean;
 
 has 'ua' => (
     is        => 'ro',
@@ -238,5 +239,7 @@ sub _parse {
     
     return undef;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

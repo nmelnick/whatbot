@@ -2,6 +2,7 @@ package whatbot::Command::Blackjack::Stack::Deck;
 use Moose;
 extends 'whatbot::Command::Blackjack::Stack';
 use whatbot::Command::Blackjack::Card;
+use namespace::autoclean;
 
 sub BUILD {
     my ( $self ) = @_;
@@ -25,6 +26,8 @@ sub BUILD {
     $self->cards(\@cards);
     $self->shuffle();
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 

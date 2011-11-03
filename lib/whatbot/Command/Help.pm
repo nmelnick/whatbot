@@ -9,6 +9,7 @@
 package whatbot::Command::Help;
 use Moose;
 BEGIN { extends 'whatbot::Command' }
+use namespace::autoclean;
 
 sub register {
 	my ( $self ) = @_;
@@ -49,5 +50,7 @@ sub available {
     } keys %{$self->controller->command_short_name};
     return 'Help is available for: ' . join( ', ', @modules );
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

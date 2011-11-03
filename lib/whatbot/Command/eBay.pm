@@ -14,6 +14,7 @@ use HTTP::Request ();
 use HTTP::Headers ();
 use LWP::UserAgent ();
 use XML::Simple qw(XMLin);
+use namespace::autoclean;
 
 has 'ua'            => ( is => 'ro', isa => 'LWP::UserAgent', default => sub { LWP::UserAgent->new(); } );
 has 'lasturl'       => ( is => 'rw', isa => 'Maybe[Str]' );
@@ -269,5 +270,7 @@ sub _hash_to_price {
 
     return $curr . $symbol . $price;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

@@ -14,6 +14,7 @@ use Moose;
 BEGIN { extends 'whatbot::Command' }
 
 use Math::Trig;
+use namespace::autoclean;
 
 sub register {
 	my ( $self ) = @_;
@@ -209,5 +210,7 @@ sub punish {
 	return unless $damage;
 	$self->{'score'} += $damage;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

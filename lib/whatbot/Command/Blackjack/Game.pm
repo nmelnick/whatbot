@@ -5,6 +5,7 @@ use Clone 'clone';
 
 use whatbot::Command::Blackjack::Stack::Shoe;
 use whatbot::Command::Blackjack::Hand;
+use namespace::autoclean;
 
 has 'players'       => ( is => 'ro', isa => 'HashRef', default => sub { {} } );
 has 'bets'          => ( is => 'ro', isa => 'HashRef', default => sub { {} } );
@@ -220,5 +221,7 @@ sub dealer_hand {
     
     return 1;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

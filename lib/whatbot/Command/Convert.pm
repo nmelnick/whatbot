@@ -11,6 +11,7 @@ use Moose;
 BEGIN { extends 'whatbot::Command' }
 
 use Math::Units;
+use namespace::autoclean;
 
 sub register {
 	my ($self) = @_;
@@ -43,5 +44,7 @@ sub do_convert : CommandRegEx('([\d\.,]+) ?(.*) to (.*)')  {
 
 	return $message->from . ', should be ' . $result . ' ' . $to . '.';
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
