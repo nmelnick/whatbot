@@ -42,7 +42,7 @@ class whatbot::Database::DBI extends whatbot::Database {
         return 'char(' . $size . ')';
     }
 
-    method integer ( Int $size ) {
+    method integer () {
         return 'integer';
     }
 

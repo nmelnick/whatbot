@@ -17,9 +17,7 @@ class whatbot::Database::Table extends whatbot::Database {
     has 'defaults'      => ( is => 'rw', isa => 'HashRef' );
     # has 'column_info'   => ( is => 'rw', isa => 'HashRef' );
 
-    sub init_table {
-        my ( $self, $table_data ) = @_;
-        
+    method init_table ($table_data) {
         warn 'Missing name for table' unless ( $table_data->{'name'} );
         warn 'Missing column data for table' unless ( $table_data->{'columns'} );
         
@@ -36,9 +34,7 @@ class whatbot::Database::Table extends whatbot::Database {
         # $self->column_info( $table_data->{'columns'} );
     }
 
-    sub create {
-        my ( $self, $column_data ) = @_;
-        
+    method create ($column_data) {
         my $params;
         foreach ( keys %{ $self->defaults } ) {
             $params->{$_} = $self->defaults->{$_};
@@ -55,25 +51,19 @@ class whatbot::Database::Table extends whatbot::Database {
         return $self->find( $self->database->last_insert_id() );
     }
 
-    sub find {
-        my ( $self, $key_id ) = @_;
-        
+    method find ($key_id) {
         return $self->search_one({
             $self->primary_key => $key_id
         });
     }
 
-    sub count {
-        my ( $self, $search_data ) = @_;
-
+    method count ($search_data) {
         $search_data->{'_select'} = 'COUNT(*) AS column_1';
         my $result = $self->search($search_data);
         return $result->[0]->{'column_data'}->[0];
     }
 
-    sub search {
-        my ( $self, $search_data ) = @_;
-        
+    method search ($search_data) {
         my $columns = $self->columns;
         my $query = 'SELECT ';
         if ( $search_data->{'_select'} ) {
@@ -132,17 +122,13 @@ class whatbot::Database::Table extends whatbot::Database {
         return \@results;
     }
 
-    sub search_one {
-        my ( $self, $search_data ) = @_;
-        
+    method search_one ($search_data) {
         my $rows = $self->search($search_data);
         return $rows->[0] if ( @$rows );
         return;
     }
 
-    sub _make_table {
-        my ( $self, $table_data ) = @_;
-            
+    method _make_table ($table_data) {
         my $query = 'CREATE TABLE ' . $table_data->{'name'} . ' (';
         
         # Primary Key
