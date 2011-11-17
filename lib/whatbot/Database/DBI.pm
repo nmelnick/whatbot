@@ -42,7 +42,7 @@ class whatbot::Database::DBI extends whatbot::Database {
         return 'char(' . $size . ')';
     }
 
-    method integer () {
+    method integer ( $null? ) {
         return 'integer';
     }
 
@@ -50,11 +50,11 @@ class whatbot::Database::DBI extends whatbot::Database {
         return 'varchar(' . $size . ')';
     }
 
-    method timestamp() {
+    method timestamp( $null? ) {
         return 'timestamp';
     }
 
-    method text() {
+    method text( $null? ) {
         return 'text';
     }
 
