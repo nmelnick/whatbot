@@ -57,13 +57,13 @@ class whatbot::Database::Table extends whatbot::Database {
         });
     }
 
-    method count ($search_data) {
+    method count ($search_data?) {
         $search_data->{'_select'} = 'COUNT(*) AS column_1';
         my $result = $self->search($search_data);
         return $result->[0]->{'column_data'}->[0];
     }
 
-    method search ($search_data) {
+    method search ($search_data?) {
         my $columns = $self->columns;
         my $query = 'SELECT ';
         if ( $search_data->{'_select'} ) {
