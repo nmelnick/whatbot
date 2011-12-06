@@ -45,6 +45,8 @@ class whatbot::Message extends whatbot::Component {
 			
     		}
     	}
+
+        $self->is_direct(1) if ( $self->is_private );
     }
 
     method content_utf8 {

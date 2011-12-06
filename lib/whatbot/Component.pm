@@ -10,6 +10,7 @@
 use MooseX::Declare;
 
 class whatbot::Component {
+    use whatbot::Component::Base;
 
     has 'base_component' => (
         is => 'rw',
@@ -47,7 +48,7 @@ class whatbot::Component {
         return;
     }
 
-    method dispatch_message ( Str $io_path, whatbot::Message $message ) {
+    method dispatch_message ( Str $io_path, $message ) {
         my ( $io_search, $target ) = split( /\:/, $io_path );
         my $io = $self->search_ios($io_search);
         return unless ($io);
@@ -55,7 +56,7 @@ class whatbot::Component {
         return $io->event_message($message);
     }
 
-    method send_message ( Str $io_path, whatbot::Message $message ) {
+    method send_message ( Str $io_path, $message ) {
         my ( $io_search, $target ) = split( /\:/, $io_path );
         my $io = $self->search_ios($io_search);
         return unless ($io);

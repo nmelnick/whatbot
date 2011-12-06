@@ -25,7 +25,9 @@ sub parse_message : GlobalRegEx('^help ?(.*)?') {
     if ( $captures and $captures->[0] ) {
         if ( defined $self->controller->command_short_name->{$captures->[0]} ) {
             my @replies;
-            foreach my $str ( @{ $self->controller->command_short_name->{$captures->[0]}->help() } ) {
+            my $help = $self->controller->command_short_name->{$captures->[0]}->help();
+            $help = [$help] unless ( ref($help) );
+            foreach my $str ( @$help ) {
                 my $reply = $message->reply({
                     to      => $message->from,
                     content => $str

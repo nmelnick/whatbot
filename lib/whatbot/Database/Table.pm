@@ -22,7 +22,7 @@ class whatbot::Database::Table extends whatbot::Database {
         warn 'Missing column data for table' unless ( $table_data->{'columns'} );
         
         # Create table if it doesn't exist
-        unless ( $self->database->tables->{ $table_data->{'name'} } ) {
+        unless ( $self->database and $self->database->tables->{ $table_data->{'name'} } ) {
             $self->log->write('Creating table "' . $table_data->{'name'} . '" for ' . caller() . '.' );
             $self->_make_table($table_data);
         }

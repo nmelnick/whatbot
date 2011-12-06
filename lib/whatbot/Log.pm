@@ -11,18 +11,19 @@ use MooseX::Declare;
 class whatbot::Log {
     use POSIX qw(strftime);
 
-    has 'log_directory' => ( is	=> 'rw', isa => 'Str', required => 1 );
+    has 'log_directory' => ( is	=> 'rw', isa => 'Maybe[Str]' );
     has 'last_error'    => ( is	=> 'rw', isa => 'Str' );
     has 'name'          => ( is => 'rw', isa => 'Maybe[Str]' );
 
     method BUILD ( $log_dir ) {
     	binmode( STDOUT, ':utf8' );
-    	unless ( -e $self->log_directory ) {
+    	unless ( not $self->log_directory or -e $self->log_directory ) {
     	    if ( $self->log_directory and length( $self->log_directory ) > 3 ) {
     	        my $result = mkdir( $self->log_directory );
     	        $self->write('Created directory "' . $self->log_directory . '".') if ($result);
     	    }
-    	    die 'ERROR: Cannot find log directory "' . $self->log_directory . '", could not create.';
+    	    $self->write( 'ERROR: Cannot find log directory "' . $self->log_directory . '", could not create.' );
+            $self->log_directory(undef);
     	}
 	
     	$self->write('whatbot::Log loaded successfully.');
@@ -42,11 +43,13 @@ class whatbot::Log {
 
     	my $output = '[' . strftime( '%Y-%m-%d %H:%M:%S', localtime(time) ) . '] ' . $entry . "\n";
     	print $output;
-        open( LOG, '>>' . $self->log_directory . '/whatbot.log' )
-            or die 'Cannot open logfile for writing: ' . $!;
-        binmode( LOG, ':utf8' );
-        print LOG $output;
-        close(LOG);
+        if ( $self->log_directory ) {
+            open( LOG, '>>' . $self->log_directory . '/whatbot.log' )
+                or die 'Cannot open logfile for writing: ' . $!;
+            binmode( LOG, ':utf8' );
+            print LOG $output;
+            close(LOG);
+        }
     }
 }
 
