@@ -137,29 +137,7 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
             'path'        => $uri->path,
         });
         unless ($row) {
-            my $title = 'No parsable title';
-            my $response;
-            eval {
-                $response = $self->agent->get($url);
-            };
-            if ( ( not $@ ) and $response->is_success and $self->agent->success ) {
-                if ( $self->agent->status < 400 ) {
-                    if ( $self->agent->title ) {
-                        $title = $self->agent->title;
-                        
-                    } elsif ( $self->agent->ct =~ /^image/ ) {
-                        my ( $width, $height, $type ) = imgsize(\$self->agent->content);
-                        if ($type) {
-                            $title = $type . ' Image: ' . $width . 'x' . $height;
-                        }
-                        
-                    }
-                } else {
-                    $title = '! Error ' . $self->agent->status;
-                }
-            } else {
-                $title = '! Unable to retrieve';
-            }
+            my $title = $self->retrieve_url($url);
             $row = $self->create({
                 'user'        => $from,
                 'title'       => $title,
@@ -168,6 +146,33 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
                 'path'        => $uri->path . ( $uri->query ? '?' . $uri->query : '' )
             });
         }
+    }
+
+    method retrieve_url ($url) {
+        my $title = 'No parsable title';
+        my $response;
+        eval {
+            $response = $self->agent->get($url);
+        };
+        if ( ( not $@ ) and $response->is_success and $self->agent->success ) {
+            if ( $self->agent->status < 400 ) {
+                if ( $self->agent->title ) {
+                    $title = $self->agent->title;
+                    
+                } elsif ( $self->agent->ct =~ /^image/ ) {
+                    my ( $width, $height, $type ) = imgsize(\$self->agent->content);
+                    if ($type) {
+                        $title = $type . ' Image: ' . $width . 'x' . $height;
+                    }
+                    
+                }
+            } else {
+                $title = '! Error ' . $self->agent->status;
+            }
+        } else {
+            $title = '! Unable to retrieve';
+        }
+        return $title;
     }
 }
 
