@@ -11,6 +11,7 @@
 use MooseX::Declare;
 
 class whatbot::IO::Async extends whatbot::IO {
+    use whatbot::IO::Async::Hack;
     use HTTP::Async;
     use HTTP::Cookies;
     use HTTP::Request;
@@ -19,7 +20,7 @@ class whatbot::IO::Async extends whatbot::IO {
     has 'async'      => ( is => 'ro', isa => 'HTTP::Async', lazy_build => 1 );
     has 'cookie_jar' => ( is => 'ro', isa => 'HTTP::Cookies', lazy_build => 1 );
     sub _build_async { return HTTP::Async->new() }
-    sub _build_cookie_jar { return HTTP::Cookies->new( hide_cookie2 => 1 ) }
+    sub _build_cookie_jar { return HTTP::Cookies->new() }
 
     method BUILD ($) {
         $self->name('Async');
