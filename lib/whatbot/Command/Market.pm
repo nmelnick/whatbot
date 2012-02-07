@@ -15,6 +15,7 @@ use XML::Simple qw(XMLin);
 use String::IRC; # for colors!
 use LWP::UserAgent ();
 use HTML::Entities qw(decode_entities);
+use HTML::Strip;
 
 has 'ua' => (
 	is		=> 'ro',
@@ -22,10 +23,10 @@ has 'ua' => (
 	default => sub { LWP::UserAgent->new; }
 );
 
-has 'default_exchange' => (
-	is		=> 'ro',
-	isa		=> 'Str',
-	default => 'nyse'
+has 'htmlstrip' => (
+	is 		=> 'ro',
+	isa 	=> 'HTML::Strip',
+	default	=> sub { HTML::Strip->new; }
 );
 
 my $SEARCH_URL = "http://finance.yahoo.com/search?s=!repl!&b=1&v=s";
@@ -85,30 +86,35 @@ sub process {
 	my @out;
 	
 	foreach my $symbol (@$stocks) {
-		my $response = $self->ua->get("http://www.google.com/ig/api?stock=$symbol");
+		my $response = $self->ua->get('http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22'
+		 . $symbol . '%22)&env=store://datatables.org/alltableswithkeys');
 		
 		if (! $response->is_success) {
 			push @out, "got " . $response->code . " for $symbol";
 			next;
 		}
 
-		my $info = eval { XMLin($response->decoded_content, ValueAttr => [ 'data' ] ) };
+		my $info = eval { XMLin($response->decoded_content, SuppressEmpty => 1) };
 		if (my $err = $@) {
 			$self->log->error("Decoding Google XML response for $symbol: $err");
 			push @out, "error decoding XML for $symbol";
 			next;
 		}
+		
+		use Data::Dumper qw(Dumper);
+		print STDERR Dumper($info);
 
-		if (!defined($info->{finance})) {
-			$self->log->error("No finance element in Google XML response for $symbol");
+		if (!defined($info->{results}->{quote})) {
+			$self->log->error("No quote element in Google XML response for $symbol");
 			push @out, "weird XML for $symbol";
 			next;
 		}
 
-		$info = $info->{finance};
+		$info = $info->{results}->{quote};
 
-		if ($info->{exchange} eq "UNKNOWN EXCHANGE") {
-			push @out, "no match for $symbol";
+		if ($info->{ErrorIndicationreturnedforsymbolchangedinvalid} ne "") {
+			push @out, $self->htmlstrip->parse($info->{ErrorIndicationreturnedforsymbolchangedinvalid});
+			$self->htmlstrip->eof;
 			next;
 		}
 		
@@ -122,11 +128,14 @@ sub process {
 				$value = $info->{$field};
 			}
 
+			$value =~ s|</?b>||g;
+			$value =~ s|N/A - ||g;
 			$value = decode_entities($value);
 			
-			if ($field eq "perc_change") {
-				$value = colorize("$value%");
-			} elsif ($field eq "change") {
+			if ( $field =~ /Change/ ) {
+				if ($field =~ /Percent/) {
+					$value = "$value";
+				}
 				$value = colorize($value);
 			}
 			$data{$field} = $value;
@@ -137,7 +146,7 @@ sub process {
 	
 	return join(" || ", @out);
 }
-
+	
 sub colorize {
 	my $string = shift;
 	
@@ -178,8 +187,8 @@ sub detail : GlobalRegEx('^stockrep (.+)$') {
 	# from here on we're dealing with stocks
 	my @stocks = map { s/\s//g; uc } split /,/, $target;
 	
-	my $detail_fields = [qw(company high low volume avg_volume)];
-	my $format = "%s - today's hi %s - lo %s - vol %s (avg %s)";
+	my $detail_fields = [qw(Name Open BidRealtime AskRealtime DaysLow DaysHigh YearLow YearHigh TwoHundreddayMovingAverage FiftydayMovingAverage)];
+	my $format = "%s - open %s - bid %s / ask %s - day lo %s / hi %s - year lo %s / hi %s - ma 200d %s 50d %s";
 	
 	my $results = $self->process(\@stocks, $detail_fields, $format);
 	
@@ -193,8 +202,8 @@ sub detail : GlobalRegEx('^stockrep (.+)$') {
 sub indices : GlobalRegEx('^market$') {
 	my ( $self, $message, $captures ) = @_;
 
-	my $results = $self->process([qw(.dji .inx .ixic)], [qw(company[0] last change perc_change)], "%s %s %s (%s)");
-	return $results if $results;	
+	my $results = $self->process([qw(^GSPC ^IXIC ^GSPTSE)], [qw(Name[0] LastTradeRealtimeWithTime[2] ChangeRealtime ChangePercentRealtime[2])], "%s %s %s (%s)");
+	return $results if $results;
 }
 
 sub parse_message : CommandRegEx('(.+)') {
@@ -209,7 +218,7 @@ sub parse_message : CommandRegEx('(.+)') {
 	# from here on we're dealing with stocks
 	my @stocks = map { s/\s//g; uc } split /,/, $target;
 	
-	my $results = $self->process(\@stocks, [qw(symbol company last change perc_change)], "%s %s %s %s (%s)");
+	my $results = $self->process(\@stocks, [qw(Symbol Name Open TickerTrend LastTradeRealtimeWithTime ChangeRealtime ChangePercentRealtime)], "%s %s %s %s %s %s (%s)");
 	
 	if (!$results) {
 		return "I couldn't find anything for $target.";
