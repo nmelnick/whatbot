@@ -184,8 +184,8 @@ sub detail : GlobalRegEx('^stockrep (.+)$') {
 	# from here on we're dealing with stocks
 	my @stocks = map { s/\s//g; uc } split /,/, $target;
 	
-	my $detail_fields = [qw(Name Open BidRealtime AskRealtime DaysLow DaysHigh YearLow YearHigh TwoHundreddayMovingAverage FiftydayMovingAverage)];
-	my $format = "%s - open %s - bid %s / ask %s - day lo %s / hi %s - year lo %s / hi %s - ma 200d %s 50d %s";
+	my $detail_fields = [qw(Name PreviousClose BidRealtime AskRealtime DaysLow DaysHigh YearLow YearHigh TwoHundreddayMovingAverage FiftydayMovingAverage)];
+	my $format = "%s - prev close %s - bid %s / ask %s - day lo %s / hi %s - year lo %s / hi %s - ma 200d %s 50d %s";
 	
 	my $results = $self->process(\@stocks, $detail_fields, $format);
 	
@@ -215,7 +215,7 @@ sub parse_message : CommandRegEx('(.+)') {
 	# from here on we're dealing with stocks
 	my @stocks = map { s/\s//g; uc } split /,/, $target;
 	
-	my $results = $self->process(\@stocks, [qw(Symbol Name Open TickerTrend LastTradeRealtimeWithTime ChangeRealtime ChangePercentRealtime)], "%s %s %s %s %s %s (%s)");
+	my $results = $self->process(\@stocks, [qw(Symbol Name PreviousClose TickerTrend LastTradeRealtimeWithTime ChangeRealtime ChangePercentRealtime)], "%s %s %s %s %s %s (%s)");
 	
 	if (!$results) {
 		return "I couldn't find anything for $target.";
