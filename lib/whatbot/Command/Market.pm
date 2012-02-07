@@ -101,9 +101,6 @@ sub process {
 			next;
 		}
 		
-		use Data::Dumper qw(Dumper);
-		print STDERR Dumper($info);
-
 		if (!defined($info->{results}->{quote})) {
 			$self->log->error("No quote element in Google XML response for $symbol");
 			push @out, "weird XML for $symbol";
