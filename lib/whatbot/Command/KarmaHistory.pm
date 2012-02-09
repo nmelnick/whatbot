@@ -18,6 +18,16 @@ sub register {
 	$self->require_direct(0);
 }
 
+sub fisher_yates_shuffle {
+    my $array = shift;
+    my $i;
+    for ($i = @$array; --$i; ) {
+        my $j = int rand ($i+1);
+        next if $i == $j;
+        @$array[$i,$j] = @$array[$j,$i];
+    }
+}
+
 sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
 	my ( $self, $message, $captures ) = @_;
 	
@@ -26,36 +36,23 @@ sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
 	my $nick = $message->from;
 	my $op	 = ( $verb eq 'like' ? 1 : -1 );
 
-	my $karmas = $self->model('karma')->search({
-	    'user'      => { 'LIKE' => $who },
-	    'amount'    => $op,
-	    '_order_by' => 'random()'
-	});
+	my $query = "
+		SELECT subject, amount FROM karma WHERE 
+		  amount = $op AND
+		  user LIKE '$who' AND
+		  subject NOT IN (SELECT subject FROM karma WHERE amount = $op and user NOT LIKE '$who')
+	";
+	my $sth = $self->model('karma')->database->handle->prepare($query);
+    $sth->execute();
+	my $karmas = $sth->fetchall_arrayref();
 
 	if ( !$karmas or !@$karmas ) {
-		return "$nick: I don't know what $who ${verb}s.";
+		return "$who doesn't $verb anything weird. that I know of.";
 	}
+	
+	my $karma = $karmas->[rand($#$karmas)];
 
-	# loop through karmas, check for other people who like it. if none, return!
-	my %already_done;
-	while (@$karmas) {
-		$_ = shift(@$karmas);
-		my $what = $_->subject;
-		
-		next if ( $already_done{$what} );
-		
-		my $karma_detail = $self->model('karma')->search({
-    	    'subject'   => $what,
-    	});
-		$already_done{$what}++;
-		
-		my @others = grep { $_ ne $who } map { $_->user } @$karma_detail;
-		next if (@others);
-		
-		return "$who ${verb}s $what.";
-	}
-
-	return "$nick: $who doesn't ${verb} anything weird. :(";
+	return "$who ${verb}s $karma->[0] ($karma->[1]).";
 }
 
 sub controversy : GlobalRegEx('^[\. ]*?fightin(?:'|g)? words\??$') {
