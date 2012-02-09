@@ -29,36 +29,24 @@ sub what_does : GlobalRegEx('(what|who) does (\w+) (like|hate)') {
     my $verb = $captures->[2];
     my $nick = $message->from;
 
-    my $karmas = $self->model('karma')->search({
-	    'user'      => { 'LIKE' => $who },
-    });
+	my $karmas;
+	if ($verb eq 'like') {
+		$karmas = $self->model('karma')->top_n($who, 10);
+	} else {
+		$karmas = $self->model('karma')->bottom_n($who, 10);
+	}
 
     if (!$karmas or !@$karmas) {
         return "$nick: I don't know what $who ${verb}s.";
     }
+	use Data::Dumper qw(Dumper);
+	
+	print STDERR Dumper($karmas);
 
-    my %karma;
-    while (@$karmas) {
-        $_ = shift(@$karmas);
-        $karma{ $_->subject } += $_->amount;
-    }
+ 	# filter non-liked or non-hated things (happens with people with few karma entries)
+	@$karmas = grep { $verb eq 'like'? ($_->{'sum'} > 0) : ($_->{'sum'} < 0)  } @$karmas;
 
-    # find top (or bottom) 5
-    my @sorted;
-    if ($verb eq 'like') { 
-        @sorted = sort { $karma{$b} <=> $karma{$a} } keys %karma;
-    }
-    else {
-        @sorted = sort { $karma{$a} <=> $karma{$b} } keys %karma;
-    }
-    @sorted = @sorted[ 0 .. (@sorted < $LIKE_NUM ? $#sorted : $LIKE_NUM - 1) ];
-
-    my @results;
-    foreach (@sorted) {
-        last if ( $verb eq 'like' ? $karma{$_} < 0 : $karma{$_} > 0 );
-        push( @results, $_ . '(' . $karma{$_} . ')' );
-    }
-    undef %karma;
+    my @results = map { $_->{'subject'} . ' (' . $_->{'sum'} . ')' } @$karmas;
 
     return "$who ${verb}s: " . join ( ', ', @results );
 }

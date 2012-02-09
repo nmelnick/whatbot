@@ -41,6 +41,30 @@ sub BUILD {
     });
 }
 
+sub _top_bottom_n {
+	my ( $self, $user, $n, $istop ) = @_;
+	
+	my $query = "
+		SELECT subject, sum FROM (
+			SELECT subject, sum(amount) AS sum FROM karma WHERE user LIKE '$user'
+			GROUP BY subject
+			)
+		 ORDER BY sum " . ($istop ? "desc" : "asc") . "
+		 LIMIT $n";
+	
+	my $sth = $self->database->handle->prepare($query);
+    $sth->execute();
+    return $sth->fetchall_arrayref({});
+}
+
+sub top_n {
+	return _top_bottom_n(@_, 1);
+}
+
+sub bottom_n {
+	return _top_bottom_n(@_, 0);
+}
+
 sub decrement {
     my ( $self, $topic, $user ) = @_;
     
