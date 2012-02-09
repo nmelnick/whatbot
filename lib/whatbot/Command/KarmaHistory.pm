@@ -52,7 +52,7 @@ sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
 	
 	my $karma = $karmas->[rand($#$karmas)];
 
-	return "$who ${verb}s $karma->[0] ($karma->[1]).";
+	return "$who ${verb}s $karma->[0].";
 }
 
 sub controversy : GlobalRegEx('^[\. ]*?fightin(?:'|g)? words\??$') {
