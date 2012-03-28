@@ -46,6 +46,10 @@ class whatbot::Database::DBI extends whatbot::Database {
         return 'integer';
     }
 
+    method double ( $null? ) {
+        return 'double';
+    }
+
     method varchar ( Int $size ) {
         return 'varchar(' . $size . ')';
     }

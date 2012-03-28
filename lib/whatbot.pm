@@ -73,7 +73,7 @@ class whatbot with whatbot::Role::Pluggable {
     	my $log = whatbot::Log->new(
     		'log_directory' => $self->initial_config->log_directory
     	);
-    	$self->report_error('Invalid configuration')
+    	$self->report_error('Invalid configuration: Missing or unavailable log directory')
     	    unless ( defined $log and $log->log_directory );
 
     	# Build base component
