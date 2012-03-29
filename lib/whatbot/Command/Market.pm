@@ -74,10 +74,7 @@ sub search : GlobalRegEx('^stockfind (.+)$') {
 }
 
 sub process {
-	my $self = shift;
-	my $stocks = shift;
-	my $fields = shift;
-	my $format = shift;
+	my ( $self, $stocks, $fields, $format ) = @_;
 	
 	if (!defined($format)) {
 		$format = join(" ", ("%s") x @$fields);
@@ -109,7 +106,7 @@ sub process {
 
 		$info = $info->{results}->{quote};
 
-		if ($info->{ErrorIndicationreturnedforsymbolchangedinvalid} ne "") {
+		if ( $info->{ErrorIndicationreturnedforsymbolchangedinvalid} ) {
 			push @out, $self->htmlstrip->parse($info->{ErrorIndicationreturnedforsymbolchangedinvalid});
 			$self->htmlstrip->eof;
 			next;
@@ -145,7 +142,7 @@ sub process {
 }
 	
 sub colorize {
-	my $string = shift;
+	my ($string) = @_;
 	
 	$string = String::IRC->new($string);
 	if ($string =~ /^\-/) {
@@ -157,8 +154,7 @@ sub colorize {
 }
 
 sub do_currency {
-	my $self = shift;
-	my $target = shift;
+	my ( $self, $target ) = @_;
 
 	return "google doesn't do currency :(";
 	
