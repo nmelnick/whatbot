@@ -19,6 +19,20 @@ sub register {
 	$self->require_direct(0);
 }
 
+sub help {
+	return [
+		'Trade is a completely made up stock market simulator, and not a very '
+		. 'good one. Use trade to "buy" and "sell" stock based on current '
+		. 'market value as provided by the Market command. You are allowed to '
+		. 'retain a negative balance, and you get nothing for your troubles.',
+		' * buy: Buy shares. (trade buy 5 shares of msft)',
+		' * sell: Sell shares. (trade sell 4 shares of msft)',
+		' * shares: Get holdings of ticker. (trade shares msft)',
+		' * holdings: Show what you have. (trade holdings)',
+		' * balance: See current account balance. (trade balance)'
+	];
+}
+
 sub buy : Command {
 	my ( $self, $message, $captures ) = @_;
 
@@ -81,7 +95,7 @@ sub holdings : Command {
 	my ( $self, $message ) = @_;
 
 	my $holdings = $self->model('Trade')->holdings( lc( $message->from ) );
-	return join( ", ", ( map { $_ . ': ' . $holdings->{$_} } keys %$holdings ) );
+	return join( ", ", ( map { sprintf( '%s: %d (%0.2f)', $_, $holdings->{$_}, ( $holdings->{$_} * $self->price_for_ticker($_) ) ) } keys %$holdings ) );
 }
 
 sub shares : Command {
@@ -89,7 +103,7 @@ sub shares : Command {
 
 	my $ticker = uc( $captures->[0] );
 	my $shares = $self->model('Trade')->get_share_count( lc( $message->from ), $ticker );
-	return sprintf( '%s, you have %d share%s of %s.', $message->from, $shares, ( $shares != 1 ? 's' : '' ), $ticker );
+	return sprintf( '%s, you have %d share%s of %s, valued at %0.2f.', $message->from, $shares, ( $shares != 1 ? 's' : '' ), $ticker, ( $shares * $self->price_for_ticker($ticker) ) );
 }
 
 sub parse_hurf {
@@ -101,7 +115,6 @@ sub parse_hurf {
     # Parse message
     my $shares;
     my $ticker;
-    my $price;
     if ( $search_text =~ /([\d\.]+) (shares? )?of (\w+)/ ) {
     	$shares = $1;
     	$ticker = $3;
@@ -109,6 +122,14 @@ sub parse_hurf {
     return unless ( $shares and $ticker );
 
     # Validate ticker
+    my $price = $self->price_for_ticker($ticker);
+
+    return ( $shares, $ticker, $price );
+}
+
+sub price_for_ticker {
+	my ( $self, $ticker ) = @_;
+
     my $market = whatbot::Command::Market->new(
 		'base_component' => $self->base_component,
 		'my_config'      => {},
@@ -117,12 +138,11 @@ sub parse_hurf {
 	my $string_result = $market->parse_message( undef, [$ticker] );
 	$string_result =~ s/[^ \-0-9A-Za-z\(\)\.]//g;
 	if ( $string_result =~ /couldnt find/ ) {
-		return ( $shares, $ticker );
+		return;
 	} elsif ( $string_result =~ /\s([\d\.]+)\s*\d{2}\-?[\d\.]+\s*\(/ ) {
-		$price = $1;
+		return $1;
 	}
-
-    return ( $shares, $ticker, $price );
+	return;
 }
 
 __PACKAGE__->meta->make_immutable;
