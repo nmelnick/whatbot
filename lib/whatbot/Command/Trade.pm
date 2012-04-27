@@ -13,9 +13,10 @@ use namespace::autoclean;
 
 use JSON;
 use LWP::UserAgent ();
-use HTML::Entities qw(decode_entities);
+use HTML::Entities qw( decode_entities );
 use HTML::Strip;
 use URI::Escape qw( uri_escape );
+use Data::Dumper qw( Dumper );
 
 my $ACCOUNT_ID = 3;
 my $API_KEY    = "w4tb0t123412341234zzX";
@@ -163,12 +164,8 @@ sub simple_command {
 sub start : CommandRegEx('start with (\w+)$') {
 	my ( $self, $message, $captures ) = @_;
 
-	print STDERR "hello start: $captures -- @$captures\n";
-
 	return "regex problem" unless ( $captures and @$captures );
 	my ( $currency ) = @$captures;
-
-	print STDERR "hello start 2\n";
 
 	my $user = lc($message->from);
 	my $portfolio_id = $self->portfolio_id_for_user($user);
@@ -176,8 +173,6 @@ sub start : CommandRegEx('start with (\w+)$') {
 	if ($portfolio_id != 0) {
 		return "$user: You already have a trading account.";
 	}
-
-	print STDERR "hello start 3\n";
 
 	my $error = $self->create_portfolio_for_user($user, $currency);
 
@@ -208,8 +203,6 @@ sub create_portfolio_for_user {
 	return "";
 }
 
-use Data::Dumper qw(Dumper);
-
 sub lw_account {
 	my ( $self, $method, $action, %params ) = @_;
 
@@ -223,8 +216,6 @@ sub lw_account {
 sub lw_portfolio {
 	my ( $self, $method, $portfolio_id, $action, %params ) = @_;
 
-	print STDERR "lw_portfolio: id $portfolio_id and action $action\n";
-
 	my $url = $BASE_URL . "/accounts/$ACCOUNT_ID/portfolios/$portfolio_id/$action";
 	$params{'key'} = $API_KEY;
 
@@ -237,15 +228,11 @@ sub lw_get_or_post {
 
 	if ($method eq 'get'){
 		if (%params) {
-			print STDERR "params: ". Dumper(\%params);
 			my @mapped = map { $_ . "=" . uri_escape($params{$_}) } keys(%params);
-			print STDERR "mapped: ". Dumper(\@mapped);
 			$url = $url . "?" . join('&', @mapped);
 		}
-		print STDERR "GET $url\n";
 		return $self->ua->get($url, "Accept" => "application/json");
 	} else {
-		print STDERR "POST $url - params " . Dumper(\%params) . "\n";
 		return $self->ua->post($url, "Accept" => "application/json", Content => \%params);
 	}
 }
@@ -361,9 +348,6 @@ sub format_status {
 
 sub parse_result {
 	my ( $result ) = @_;
-
-
-	print STDERR $result->code .": " . $result->decoded_content . "\n";
 
 	if ($result->is_success) {
 		return decode_json $result->decoded_content;
