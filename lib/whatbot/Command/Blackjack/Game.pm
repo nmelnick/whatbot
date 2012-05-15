@@ -188,8 +188,9 @@ sub double {
     my ( $self, $hand ) = @_;
     
     return unless ( $self->can_double($hand) );
-    $self->players->{ $hand->player } -= int( $self->bets->{ $hand->player } );
-    $self->bets->{ $hand->player } += int( $self->bets->{ $hand->player } );
+    my $bet = int( $self->bets->{ $hand->player } );
+    $self->players->{ $hand->player } -= $bet;
+    $self->bets->{ $hand->player } += $bet;
     $hand->last_draw(1);
     $self->hit($hand);
 }
