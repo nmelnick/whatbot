@@ -29,9 +29,7 @@ has 'htmlstrip' => (
 	default	=> sub { HTML::Strip->new; }
 );
 
-my $SEARCH_URL = "http://finance.yahoo.com/search?s=!repl!&b=1&v=s";
-my $SEARCH_ROW_RE = qr!<tr bgcolor="ffffff">(.+?)</tr>!o;
-my $SEARCH_COL_RE = qr!<a\s?.*?>(.+?)</a>!o;
+my $SOURCE_NAME = 'Yahoo! Finance';
 
 sub register {
 	my ( $self ) = @_;
@@ -41,43 +39,11 @@ sub register {
 	$self->ua->timeout(15);
 }
 
-sub search : GlobalRegEx('^stockfind (.+)$') {
-	my ( $self, $message, $captures ) = @_;
-	
-	my $query = $captures->[0];
-	
-	my $url = $SEARCH_URL;
-	$url =~ s/!repl!/$query/;
-	
-	my $response = $self->ua->get($url);
-	
-	unless ($response->is_success) {
-		return ("Bad response from Yahoo! Finance: " . $response->status_line);
-	}
-	
-	$_ = $response->content;
-	foreach (split /\n/) {
-		if (/$SEARCH_ROW_RE/) {
-			$_ = $1;
-			
-			my @items = /$SEARCH_COL_RE/g;
-			unless (@items == 4) {
-				return ("Failed to parse columns from Yahoo! Finance result row: " . @items);
-			}
-            
-			my ($company, $ticker, $sector, $industry) = @items;
-			
-			return "$query: $company ($ticker) -- $sector, $industry";
-		}
-	}
-	return ("No companies found matching '$query'.");
-}
-
 sub process {
 	my ( $self, $stocks, $fields, $format ) = @_;
 	
-	if (!defined($format)) {
-		$format = join(" ", ("%s") x @$fields);
+	if ( !defined($format) ) {
+		$format = join( ' ', ('%s') x @$fields );
 	}
 	
 	my @out;
@@ -86,21 +52,21 @@ sub process {
 		my $response = $self->ua->get('http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22'
 		 . $symbol . '%22)&env=store://datatables.org/alltableswithkeys');
 		
-		if (! $response->is_success) {
-			push @out, "got " . $response->code . " for $symbol";
+		unless ( $response->is_success ) {
+			push( @out, "got " . $response->code . " for $symbol" );
 			next;
 		}
 
-		my $info = eval { XMLin($response->decoded_content, SuppressEmpty => 1) };
-		if (my $err = $@) {
-			$self->log->error("Decoding Google XML response for $symbol: $err");
-			push @out, "error decoding XML for $symbol";
+		my $info = eval { XMLin( $response->decoded_content, SuppressEmpty => 1 ) };
+		if ( my $err = $@ ) {
+			$self->log->error("Decoding $SOURCE_NAME response for $symbol: $err");
+			push( @out, "error decoding XML for $symbol" );
 			next;
 		}
 		
-		if (!defined($info->{results}->{quote})) {
-			$self->log->error("No quote element in Google XML response for $symbol");
-			push @out, "weird XML for $symbol";
+		unless ( defined($info->{results}->{quote}) ) {
+			$self->log->error("No quote element in $SOURCE_NAME response for $symbol");
+			push( @out, "weird XML for $symbol" );
 			next;
 		}
 
@@ -138,7 +104,7 @@ sub process {
 		push @out, sprintf($format, map { $data{$_} } @$fields);
 	}
 	
-	return join(" || ", @out);
+	return join( ' || ', @out );
 }
 	
 sub colorize {
@@ -151,25 +117,6 @@ sub colorize {
 		$string->green;
 	}
 	return $string;
-}
-
-sub do_currency {
-	my ( $self, $target ) = @_;
-
-	return "google doesn't do currency :(";
-	
-	my ( $to_cur, $from_cur ) = ( $target =~ m!^([a-z]+)/([a-z]+)$!io );
-	
-	if ( !defined($to_cur) || !defined($from_cur) ) {
-		return "wtf is $target";
-	}
-	
-	my $rate = $self->quote->currency($from_cur, $to_cur);
-	
-	if (!$rate) {
-		return "I can't get a rate for $from_cur/$to_cur.";
-	}
-	return "1 $from_cur == $rate $to_cur";
 }
 
 sub detail : GlobalRegEx('^stockrep (.+)$') {
@@ -195,7 +142,7 @@ sub detail : GlobalRegEx('^stockrep (.+)$') {
 sub indices : GlobalRegEx('^market$') {
 	my ( $self, $message, $captures ) = @_;
 
-	my $results = $self->process([qw(^GSPC ^IXIC ^GSPTSE)], [qw(Name[0] LastTradeRealtimeWithTime[2] ChangeRealtime ChangePercentRealtime[2])], "%s %s %s (%s)");
+	my $results = $self->process([qw(^DJI ^GSPC ^IXIC ^GSPTSE)], [qw(Name[0] LastTradeRealtimeWithTime[2] ChangeRealtime ChangePercentRealtime[2])], "%s %s %s (%s)");
 	return $results if $results;
 }
 
