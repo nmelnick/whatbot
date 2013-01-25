@@ -42,71 +42,137 @@ sub register {
 sub process {
 	my ( $self, $stocks, $fields, $format ) = @_;
 	
-	if ( !defined($format) ) {
+	unless ($format) {
 		$format = join( ' ', ('%s') x @$fields );
 	}
 	
 	my @out;
 	
 	foreach my $symbol (@$stocks) {
-		my $response = $self->ua->get('http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22'
-		 . $symbol . '%22)&env=store://datatables.org/alltableswithkeys');
-		
-		unless ( $response->is_success ) {
-			push( @out, "got " . $response->code . " for $symbol" );
-			next;
+		my $output = $self->_retrieve_yql( $symbol, $fields, $format );
+		if ( not $output or $output =~ /weird XML/ ) {
+			$output = $self->_retrieve_yahoo_scrape( $symbol, $fields, $format );
 		}
 
-		my $info = eval { XMLin( $response->decoded_content, SuppressEmpty => 1 ) };
-		if ( my $err = $@ ) {
-			$self->log->error("Decoding $SOURCE_NAME response for $symbol: $err");
-			push( @out, "error decoding XML for $symbol" );
-			next;
+		if ($output) {
+			push( @out, $output );
 		}
-		
-		unless ( defined($info->{results}->{quote}) ) {
-			$self->log->error("No quote element in $SOURCE_NAME response for $symbol");
-			push( @out, "weird XML for $symbol" );
-			next;
-		}
-
-		$info = $info->{results}->{quote};
-
-		if ( $info->{ErrorIndicationreturnedforsymbolchangedinvalid} ) {
-			push @out, $self->htmlstrip->parse($info->{ErrorIndicationreturnedforsymbolchangedinvalid});
-			$self->htmlstrip->eof;
-			next;
-		}
-		
-		my %data;
-		
-		foreach my $field (@$fields) {
-			my $value;
-			if ($field =~ /^(\w+)\[(\d+)\]$/) {
-				$value = (split(/ +/,$info->{$1}))[$2];
-			} else {
-				$value = $info->{$field};
-			}
-
-			$value =~ s|</?b>||g;
-			$value =~ s|N/A - ||g;
-			$value = decode_entities($value);
-			
-			if ( $field =~ /Change/ ) {
-				if ($field =~ /Percent/) {
-					$value = "$value";
-				}
-				$value = colorize($value);
-			}
-			$data{$field} = $value;
-		}
-		
-		push @out, sprintf($format, map { $data{$_} } @$fields);
 	}
 	
 	return join( ' || ', @out );
 }
+
+sub _retrieve_yql {
+	my ( $self, $symbol, $fields, $format ) = @_;
+
+	my @out;
+
+	my $response = $self->ua->get(
+		'http://query.yahooapis.com/v1/public/yql?'
+		. 'q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22'
+	    . $symbol . '%22)&env=store://datatables.org/alltableswithkeys'
+	);
 	
+	unless ( $response->is_success ) {
+		return "got " . $response->code . " for $symbol";
+	}
+
+	my $info = eval { XMLin( $response->decoded_content, SuppressEmpty => 1 ) };
+	if ( my $err = $@ ) {
+		$self->log->error("Decoding $SOURCE_NAME response for $symbol: $err");
+		return "error decoding XML for $symbol";
+	}
+	
+	unless ( defined($info->{results}->{quote}) ) {
+		# $self->log->error("No quote element in $SOURCE_NAME response for $symbol");
+		return "weird XML for $symbol";
+	}
+
+	$info = $info->{results}->{quote};
+
+	if ( $info->{ErrorIndicationreturnedforsymbolchangedinvalid} ) {
+		my $val = $self->htmlstrip->parse($info->{ErrorIndicationreturnedforsymbolchangedinvalid});
+		$self->htmlstrip->eof;
+		return $val;
+	}
+	
+	my %data;
+	
+	foreach my $field (@$fields) {
+		my $value;
+		if ($field =~ /^(\w+)\[(\d+)\]$/) {
+			$value = ( split(/ +/,$info->{$1}) )[$2];
+		} else {
+			$value = $info->{$field};
+		}
+
+		$value =~ s|</?b>||g;
+		$value =~ s|N/A - ||g;
+		$value = decode_entities($value);
+		
+		if ( $field =~ /Change/ ) {
+			if ($field =~ /Percent/) {
+				$value = "$value";
+			}
+			$value = colorize($value);
+		}
+		$data{$field} = $value;
+	}
+	
+	return sprintf( $format, map { $data{$_} } @$fields );
+}
+
+sub _retrieve_yahoo_scrape {
+	my ( $self, $symbol, $fields, $format ) = @_;
+
+	$symbol = uc($symbol);
+
+	my @out;
+
+	my $response = $self->ua->get(
+		'http://finance.yahoo.com/q?s=' . $symbol
+	);
+	
+	unless ( $response->is_success ) {
+		return "got " . $response->code . " for $symbol";
+	}
+
+	my %data = (
+		'Symbol' => $symbol,
+	);
+
+	my $content = $response->decoded_content();
+
+	# Name
+	if ( $content =~ /<div class="title"><h2>([^\(]+)<\/h2>/ ) {
+		$data{'Name'} = $1;
+	}
+
+	# PreviousClose
+	if ( $content =~ /Prev Close:<\/th><td class="yfnc_tabledata1">([\d,\.]+)</ ) {
+		$data{'PreviousClose'} = $1;
+		$data{'PreviousClose'} =~ s/,//g;
+	}
+
+	# ChangeRealtime / ChangePercentRealtime
+	if ( $content =~ /<span id="yfs_c10_[^"]+"><img.*?alt="(\w+)">\s*([\d,\.]+)<\/span><span id="yfs_p20_[^"]+">\(([\d,\.]+)%\)<\/span>/ ) {
+		$data{'ChangeRealtime'} = colorize( ( $1 eq 'Down' ? '-' : '' ) . $2 );
+		$data{'ChangePercentRealtime'} = colorize( ( $1 eq 'Down' ? '-' : '' ) . $3 );
+	}
+
+	# LastTradeRealtimeWithTime
+	if ( $content =~ /<span class="time_rtq_ticker"><span id="yfs_l10_[^"]+">([\d,\.]+)<\/span><\/span>/ ) {
+		$data{'LastTradeRealtimeWithTime'} = $1;
+		$data{'LastTradeRealtimeWithTime'} =~ s/,//g;
+	}
+
+	unless (%data) {
+		return 'unable to scrape for ' . $symbol;
+	}
+	
+	return sprintf( $format, map { ( $data{$_} or '' ) } @$fields );
+}
+
 sub colorize {
 	my ($string) = @_;
 	

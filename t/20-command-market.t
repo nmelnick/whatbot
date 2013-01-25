@@ -24,4 +24,15 @@ foreach my $stock ( qw( AAPL MSFT GOOG CSCO DRIV ) ) {
 	ok( $response =~ /\d+\.\d+/, $stock . ' contains price' );
 }
 
+# Known weird
+foreach my $stock ( '^DJI' ) {
+	my $sanitized = $stock;
+	$sanitized =~ s/\^/\\^/g;
+	my $response = $market->parse_message( 'market ' . $stock, [$stock] );
+	ok( $response, $stock . ' has response' );
+	ok( $response =~ /$sanitized/, $stock . ' contains ticker' );
+	ok( $response =~ /\d+\.\d+/, $stock . ' contains price' );
+}
+
+
 done_testing();
