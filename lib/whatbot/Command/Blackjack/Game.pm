@@ -1,6 +1,5 @@
 package whatbot::Command::Blackjack::Game;
 use Moose;
-
 use Clone 'clone';
 
 use whatbot::Command::Blackjack::Stack::Shoe;
