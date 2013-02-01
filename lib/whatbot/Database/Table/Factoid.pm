@@ -18,6 +18,7 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
         $self->init_table({
             'name'        => 'factoid',
             'primary_key' => 'factoid_id',
+            'indexed'     => ['subject'],
             'defaults'    => {
                 'created'   => { 'database' => 'now' },
                 'updated'   => { 'database' => 'now' }
@@ -54,6 +55,7 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
         $description->init_table({
             'name'        => 'factoid_description',
             'primary_key' => 'hash',
+            'indexed'     => [ 'user', 'factoid_id' ],
             'defaults'    => {
                 'updated'   => { 'database' => 'now' }
             },

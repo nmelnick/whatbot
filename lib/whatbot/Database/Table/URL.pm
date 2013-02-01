@@ -63,6 +63,7 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
         $protocol->init_table({
             'name'        => 'url_protocol',
             'primary_key' => 'protocol_id',
+            'indexed'     => ['name'],
             'columns'     => {
                 'protocol_id' => {
                     'type'  => 'integer'
@@ -80,6 +81,7 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
         $domain->init_table({
             'name'        => 'url_domain',
             'primary_key' => 'domain_id',
+            'indexed'     => ['name'],
             'defaults'    => {
                 'timestamp' => { 'database' => 'now' }
             },

@@ -16,6 +16,7 @@ sub BUILD {
     $self->init_table({
         'name'        => 'karma',
         'primary_key' => 'karma_id',
+        'indexed'     => [ 'subject', 'user' ],
         'defaults'    => {
             'created'   => { 'database' => 'now' }
         },

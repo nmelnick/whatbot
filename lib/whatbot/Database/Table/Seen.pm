@@ -8,6 +8,7 @@ sub BUILD {
     $self->init_table({
         'name'        => 'seen',
         'primary_key' => 'seen_id',
+        'indexed'     => ['user'],
         'defaults'    => {
             'timestamp' => { 'database' => 'now' }
         },

@@ -18,12 +18,13 @@ sub BUILD {
     $self->init_table({
         'name'        => 'soup',
         'primary_key' => 'soup_id',
+        'indexed'     => [ 'module_id', 'subject' ],
         'columns'     => {
             'soup_id' => {
-                'type'  => 'integer'
+                'type'  => 'integer',
             },
             'module_id' => {
-                'type'  => 'integer'
+                'type'  => 'integer',
             },
             'subject' => {
                 'type'  => 'varchar',
@@ -40,6 +41,7 @@ sub BUILD {
     $module->init_table({
         'name'        => 'soup_module',
         'primary_key' => 'module_id',
+        'indexed'     => ['name'],
         'columns'     => {
             'module_id' => {
                 'type'  => 'integer'

@@ -151,6 +151,18 @@ class whatbot::Database::Table extends whatbot::Database {
         $query = substr( $query, 0, length($query) - 2 );
         $query .= ')';
         $self->database->handle->do($query) or warn 'DBI: ' . $DBI::errstr . '  Query: ' . $query;
+
+        # Index
+        if ( $table_data->{'indexed'} ) {
+            foreach my $indexed_column ( @{ $table_data->{'indexed'} } ) {
+                my $index_name = 'idx_' . $table_data->{'name'} . '_' . $indexed_column;
+                $self->database->handle->do(
+                    sprintf( 'CREATE INDEX %s ON %s (%s)', $index_name, $table_data->{'name'}, $indexed_column )
+                ) or warn 'DBI: ' . $DBI::errstr . '  Query: ' . $query;
+            }
+        }
+
+        $self->database->get_tables();
     }
 }
 
