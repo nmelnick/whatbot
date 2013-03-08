@@ -14,9 +14,11 @@ class whatbot::Log {
     has 'log_directory' => ( is	=> 'rw', isa => 'Maybe[Str]' );
     has 'last_error'    => ( is	=> 'rw', isa => 'Str' );
     has 'name'          => ( is => 'rw', isa => 'Maybe[Str]' );
+    has 'fh'            => ( is => 'rw' );
 
     method BUILD ( $log_dir ) {
     	binmode( STDOUT, ':utf8' );
+        $self->fh(*STDOUT);
     	unless ( not $self->log_directory or -e $self->log_directory ) {
     	    if ( $self->log_directory and length( $self->log_directory ) > 3 ) {
     	        my $result = mkdir( $self->log_directory );
@@ -36,13 +38,14 @@ class whatbot::Log {
     }
 
     method write ( Str $entry ) {
+        my $fh = $self->fh;
         if ( $self->name ) {
             $entry = sprintf( '[%s] ', $self->name ) . $entry;
             $self->name(undef);
         }
 
     	my $output = '[' . strftime( '%Y-%m-%d %H:%M:%S', localtime(time) ) . '] ' . $entry . "\n";
-    	print $output;
+    	print $fh $output;
         if ( $self->log_directory ) {
             open( LOG, '>>' . $self->log_directory . '/whatbot.log' )
                 or die 'Cannot open logfile for writing: ' . $!;
