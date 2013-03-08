@@ -55,6 +55,10 @@ class whatbot::Command extends whatbot::Component {
         return $self->ios->{Async}->enqueue( $self, $req, $callback, $params );
     }
 
+    method web ( $path, $callback ) {
+        return $self->ios->{Web}->add_dispatch( $self, $path, $callback );
+    }
+
     before log () {
         $self->base_component->log->name( $self->name );
     }

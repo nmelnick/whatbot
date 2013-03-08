@@ -128,7 +128,7 @@ sub parse_operator {
 
 sub increment {
 	my ( $self, $subject, $from ) = @_;
-	
+
 	return $self->model('karma')->increment( $subject, $from );
 }
 
