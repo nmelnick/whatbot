@@ -46,6 +46,7 @@ sub message {
 		if ( my $id = $cgi->param('message_id') ) {
 			if ( $self->seen_ids->{$id} ) {
 				print '{"error":"Message ID already used"}';
+				return;
 			}
 			$self->seen_ids->{$id} = 1;
 		}
@@ -81,9 +82,9 @@ sub karma {
 		if ( my $id = $cgi->param('message_id') ) {
 			if ( $self->seen_ids->{$id} ) {
 				print '{"error":"Message ID already used"}';
+				return;
 			}
 			$self->seen_ids->{$id} = 1;
-			return;
 		}
 		if ( $set !~ /^(up|down)$/ ) {
 			print '{"error":"set parameter must be up or down"}';
