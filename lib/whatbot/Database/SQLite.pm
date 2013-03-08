@@ -16,7 +16,11 @@ class whatbot::Database::SQLite extends whatbot::Database::DBI {
 		$self->connect_array([
 			'DBI:SQLite:dbname=' . $self->config->database->{'database'},
 			'',
-			''
+			'',
+			{
+				'sqlite_use_immediate_transaction' => 1,
+				'AutoCommit' => 1,
+			}
 		]);
 	}
 

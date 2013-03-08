@@ -16,7 +16,6 @@ class whatbot::Database::DBI extends whatbot::Database {
 
     method connect() {
     	die "ERROR: No connect string offered by connection module" if ( !$self->connect_array );
-    	
     	my $dbh = DBI->connect( @{$self->connect_array} ) or die $DBI::errstr;
     	$self->handle($dbh);
     	$self->get_tables();

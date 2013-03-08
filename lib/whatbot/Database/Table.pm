@@ -45,7 +45,17 @@ class whatbot::Database::Table extends whatbot::Database {
         my $query = 'INSERT INTO ' . $self->table_name .
                     ' (' . join( ', ', keys %$params ) . ') ' .
                     'VALUES ' .
-                    ' (' . join( ', ', map { if ( ref($_) eq 'SCALAR' ) { $$_ } elsif ( ref($_) eq 'HASH' ) { my ($module) = keys(%$_); my ($method) = values(%$_); $self->$module->$method(); } else { $self->database->handle->quote($_) } } values %$params ) . ')';
+                    ' (' . join( ', ', map {
+                        if ( ref($_) eq 'SCALAR' ) {
+                            $$_
+                        } elsif ( ref($_) eq 'HASH' ) {
+                            my ($module) = keys(%$_);
+                            my ($method) = values(%$_); $self->$module->$method();
+                        } else {
+                            $self->database->handle->quote($_)
+                        }
+                    } values %$params ) . ')';
+
         $self->database->handle->do($query) or warn $DBI::errstr;
 
         return $self->find( $self->database->last_insert_id() );
