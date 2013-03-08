@@ -56,6 +56,7 @@ class whatbot::Command extends whatbot::Component {
     }
 
     method web ( $path, $callback ) {
+        return unless ( $self->ios->{Web} );
         return $self->ios->{Web}->add_dispatch( $self, $path, $callback );
     }
 
