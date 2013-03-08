@@ -59,6 +59,8 @@ if ( $whatbot->config( $basedir, $config_path ) ) {
     	print 'whatbot ' . $VERSION . "\n";
     	print 'Running in interactive mode.' . "\n";
     }
+
+    $SIG{'INT'} = sub { $whatbot->kill_self(1); };
     $whatbot->run();
 } else {
     usage();
