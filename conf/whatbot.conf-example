@@ -1,33 +1,35 @@
-<whatbot>
-	<io interface="IRC">
-		<host>localhost</host>
-		<port>6667</port>
-		<hostpassword/>
-		<nick>whatbot</nick>
-		<nickservpassword/>
-		<username>whatbot</username>
-		<realname>whatbot</realname>
-		<quitmessage>whatbot</quitmessage>
-		<charactersperline>460</charactersperline>
-		<channel>
-			<name>#whatbot</name>
-			<channelpassword/>
-			<chanservpassword/>
-			<joinmessage>hello, everybody.</joinmessage>
-		</channel>
-	</io>
-	<database>
-		<handler>SQLite</handler>
-		<database>/etc/whatbot/whatbot.db</database>
-	</database>
-	<store>
-		<handler>SQLite</handler>
-		<database>/etc/whatbot/whatbot.db</database>
-	</store>
-	<commands>
-	    <admin user="adminuser" />
-	    <define sourcelist="urbandictionary google wikipedia" />
-	</commands>
-	<log directory="/var/log/whatbot" />
-</whatbot>
-
+{
+   "io" : {
+      "interface" : "IRC",
+      "nick" : "whatbot",
+      "host" : "localhost",
+      "port" : "6667",
+      "username" : "whatbot",
+      "charactersperline" : "460",
+      "realname" : "whatbot",
+      "nickservpassword" : "",
+      "hostpassword" : "",
+      "quitmessage" : "whatbot"
+      "channel" : {
+         "joinmessage" : "hello, everybody.",
+         "channelpassword" : "",
+         "chanservpassword" : "",
+         "name" : "#whatbot"
+      },
+   }
+   "database" : {
+      "database" : "/etc/whatbot/whatbot.db",
+      "handler" : "SQLite"
+   },
+   "commands" : {
+      "admin" : {
+         "user" : "adminuser"
+      },
+      "define" : {
+         "sourcelist" : "urbandictionary google wikipedia"
+      }
+   },
+   "log" : {
+      "directory" : "/var/log/whatbot"
+   }
+}

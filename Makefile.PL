@@ -16,7 +16,7 @@ requires       'HTTP::Request'             => 0;
 requires       'Module::Pluggable'         => 3.9;
 requires       'Moose'                     => 2.04;
 requires       'MooseX::Declare'           => 0.35;
-requires       'XML::Simple'               => 0;
+requires       'JSON::XS'                  => 0;
 requires       'HTTP::Server::Simple'      => 0;
 
 recommends     'Acme::LOLCAT'              => 0;
