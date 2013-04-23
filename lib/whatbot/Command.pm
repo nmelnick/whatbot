@@ -60,6 +60,10 @@ class whatbot::Command extends whatbot::Component {
         return $self->ios->{Web}->add_dispatch( $self, $path, $callback );
     }
 
+    method web_url () {
+        return sprintf( '%s:%d', $self->ios->{Web}->my_config->{url}, $self->ios->{Web}->my_config->{port} );
+    }
+
     before log () {
         $self->base_component->log->name( $self->name );
     }

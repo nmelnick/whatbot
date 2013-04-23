@@ -32,6 +32,7 @@ recommends     'Net::IRC'                  => 0;
 recommends     'Net::OSCAR'                => 0;
 recommends     'Net::Telnet'               => 0;
 recommends     'String::IRC'               => 0;
+recommends     'Template'                  => 0;
 recommends     'URI::Escape'               => 0;
 
 test_requires  'Test::More'                => 0;

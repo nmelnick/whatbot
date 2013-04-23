@@ -58,6 +58,10 @@ class whatbot::Component {
 
     method send_message ( Str $io_path, $message ) {
         my ( $io_search, $target ) = split( /\:/, $io_path );
+        if ( ( not $target ) and $io_search =~ /^#/ ) {
+            $target = $io_search;
+            $io_search = 'IRC';
+        }
         my $io = $self->search_ios($io_search);
         return unless ($io);
         $message->from( $io->me );

@@ -16,6 +16,14 @@ class whatbot::IO::IRC extends whatbot::IO {
 	has 'handle'            => ( is => 'rw' );
 	has 'irc_handle'        => ( is => 'ro', isa => 'Net::IRC::Connection' );
 	has 'force_disconnect'  => ( is => 'rw', isa => 'Int' );
+	has 'channels'          => ( is => 'ro', isa => 'ArrayRef', lazy_build => 1 );
+
+	sub _build_channels {
+		my ($self) = @_;
+		my $channels = $self->my_config->{'channel'};
+		$channels = [$channels] unless ( ref($channels) eq 'ARRAY' );
+		return $channels;
+	}
 
 	method BUILD ($) {
 		my $name = 'IRC_' . $self->my_config->{'host'};
@@ -146,9 +154,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 		$self->{'_whatbot'}->me( $self->nick );
 	
 		# Join default channel(s)
-		my $channels = $self->{'_whatbot'}->my_config->{'channel'};
-		$channels = [$channels] unless ( ref($channels) eq 'ARRAY' );
-		foreach my $channel (@$channels) {
+		foreach my $channel (@{ $self->{_whatbot}->channels }) {
 			$self->join(
 				$channel->{'name'},
 				$channel->{'channelpassword'}

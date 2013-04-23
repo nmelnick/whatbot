@@ -40,7 +40,7 @@ sub save {
     my ( $self ) = @_;
     
     unless ( $self->primary_key ) {
-        warn 'Sorry, I suck, I am not sure how to delete a row without a pkey.';
+        warn 'Sorry, I suck, I am not sure how to save a row without a pkey.';
         return;
     }
     delete ( $self->changed->{ $self->primary_key } );
