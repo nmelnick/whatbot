@@ -11,8 +11,6 @@ use MooseX::Declare;
 class whatbot::Database::MySQL extends whatbot::Database::DBI {
 
 	before connect() {
-		my ( $self ) = @_;
-		
 		my $config = $self->config->database;
 		die 'MySQL requires a database name.' unless ( $config->{'database'} );
 		

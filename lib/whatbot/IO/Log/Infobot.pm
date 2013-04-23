@@ -16,16 +16,16 @@ class whatbot::IO::Log::Infobot extends whatbot::IO::Log {
 			my $date = $1;
 			my $user = $2;
 			my $channel = $3;
-			my $message = $4;
-			return if ( !$user or $message =~ /^!/ );
+			my $message_text = $4;
+			return if ( !$user or $message_text =~ /^!/ );
 		
-			$message =~ s/\\what/what/g;
-			$message =~ s/\\is/is/g;
+			$message_text =~ s/\\what/what/g;
+			$message_text =~ s/\\is/is/g;
 		
 			my $message = whatbot::Message->new(
 				'from'			    => $user,
 				'to'				=> $channel,
-				'content'			=> $message,
+				'content'			=> $message_text,
 				'timestamp'		    => $date,
 				'me'				=> $self->me,
 				'base_component'	=> $self->parent->base_component

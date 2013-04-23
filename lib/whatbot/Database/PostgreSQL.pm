@@ -11,8 +11,6 @@ use MooseX::Declare;
 class whatbot::Database::PostgreSQL extends whatbot::Database::DBI {
 
 	before connect() {
-		my ( $self ) = @_;
-		
 		my $config = $self->config->database;
 		die 'PostgreSQL requires a database name.' unless ( $config->{'database'} );
 		
