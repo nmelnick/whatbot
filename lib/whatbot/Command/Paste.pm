@@ -189,6 +189,9 @@ sub _header {
 		div.pastedata {
 			margin-bottom: 18px;
 		}
+		div.code {
+			padding: 14px;
+		}
 	</style>
 	<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
 </head>
