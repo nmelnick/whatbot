@@ -284,9 +284,7 @@ sub _paste_view_tt2 {
 		</div>
 	</div>
 	<div class="code">
-	<pre>
-	[% paste.content %]
-	</pre>
+	<pre>[% paste.content %]</pre>
 	</div>
 [% ELSE %]
 	No paste.
