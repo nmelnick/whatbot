@@ -24,7 +24,7 @@ sub register {
 sub refresh : Command {
 	my ( $self, $message ) = @_;
 	
-	return undef unless ( defined $self->my_config and $message->from eq $self->my_config->{'user'} );
+	return unless ( $self->_has_permission($message) );
 	
 	$self->controller->build_command_map();
 	return 'Rebuilt command set: ' . scalar(@{$self->controller->command_name}) . ' commands loaded.';
@@ -33,7 +33,7 @@ sub refresh : Command {
 sub version : Command {
 	my ( $self, $message ) = @_;
 	
-	return undef unless ( defined $self->my_config and $message->from eq $self->my_config->{'user'} );
+	return unless ( $self->_has_permission($message) );
 	
 	my $verString = 'whatbot ' . $self->parent->version;
 	# Get basedir
@@ -57,74 +57,23 @@ sub version : Command {
 sub rehash : Command {
 	my ( $self, $message ) = @_;
 	
-	return undef unless ( defined $self->my_config and $message->from eq $self->my_config->{'user'} );
+	return unless ( $self->_has_permission($message) );
 	
 	system( 'nice ' . $ENV{_} . ' ' . join( ' ', @ARGV ) . ' &' );
 	exit(1);
 }
 
-sub svnup : Command {
-	my ( $self, $message ) = @_;
-	
-	return undef unless ( defined $self->my_config and $message->from eq $self->my_config->{'user'} );
-	
-	# Get basedir
-	my $basedir = realpath($0);
-	my $appname = $0;
-	$appname =~ s/.*?\///g;
-	$basedir =~ s/\/$appname$//;
-	$basedir =~ s/\/bin$//;
-	if (-e $basedir . '/.svn') {
-		my $inf = `svn up $basedir`;
-		$inf = `svn info $basedir`;
-		if ($inf =~ /Revision:\s+(\d+)/) {
-		    my $rev = $1;
-			return 'Now at svn r' . $rev . '. Changed: ' . $self->last( $message, undef, $rev);
-		}
-	} else {
-		warn $basedir;
-		return 'This is not a SVN install.';
-	}
-	return undef;
-}
-
-sub last : Command {
-    my ( $self, $message, $captures, $rev ) = @_;
-	
-	return undef unless ( defined $self->my_config and $message->from eq $self->my_config->{'user'} );
-    
-    my $basedir = realpath($0);
-    my $appname = $0;
-    $appname =~ s/.*?\///g;
-    $basedir =~ s/\/$appname$//;
-    $basedir =~ s/\/bin$//;
-    unless ($rev) {
-    	if ( -e $basedir . '/.svn' ) {
-    		my $inf = `svn up $basedir`;
-    		$inf = `svn info $basedir`;
-    		if ($inf =~ /Revision:\s+(\d+)/) {
-    		    $rev = $1;
-    		}
-    	} 
-    }
-    my $log = `svn log $basedir -r$rev`;
-    $log =~ s/\-\-\-\-+.*?[^\n]+(.*?)\-\-\-\-+/$1/s;
-    $log =~ s/\n//g;
-    
-    return ( defined $message ? 'Changed in r' . $rev . ': ' : '' ) . $log;
-}
-
 sub error : Command {
     my ( $self, $message ) = @_;
 	
-	return undef unless ( defined $self->my_config and $message->from eq $self->my_config->{'user'} );
+	return unless ( $self->_has_permission($message) );
 	return $self->log->last_error;
 }
 
 sub retrieve : Command {
 	my ( $self, $message ) = @_;
 	
-	return undef unless ( defined $self->my_config and $message->from eq $self->my_config->{'user'} );
+	return unless ( $self->_has_permission($message) );
 	
 	my $content = $message->content;
 	$content =~ s/^admin *retrieve *//;
@@ -176,7 +125,15 @@ sub throw : Command {
     return;
 }
 
+sub _has_permission {
+	my ( $self, $message ) = @_;
+
+	return (
+		defined $self->my_config
+		and $message->from eq $self->my_config->{'user'}
+	);
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;
-
