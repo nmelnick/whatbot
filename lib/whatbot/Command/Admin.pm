@@ -34,24 +34,7 @@ sub version : Command {
 	my ( $self, $message ) = @_;
 	
 	return unless ( $self->_has_permission($message) );
-	
-	my $verString = 'whatbot ' . $self->parent->version;
-	# Get basedir
-	my $basedir = realpath($0);
-	my $appname = $0;
-	$appname =~ s/.*?\///g;
-	$basedir =~ s/\/$appname$//;
-	$basedir =~ s/\/bin$//;
-	if ( -e $basedir . '/.svn' ) {
-		my $inf = `svn info $basedir`;
-		if ( $inf =~ /Revision:\s+(\d+)/ ) {
-			$verString .= ' (svn r' . $1 . ')';
-		}
-	} else {
-		warn $basedir;
-	}
-	
-	return $verString;
+	return 'whatbot ' . $self->parent->version;
 }
 
 sub rehash : Command {
