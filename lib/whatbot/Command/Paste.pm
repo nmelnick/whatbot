@@ -9,18 +9,9 @@
 package whatbot::Command::Paste;
 use Moose;
 use Template;
-BEGIN { extends 'whatbot::Command'; }
-
-use namespace::autoclean;
-
-has 'template' => (
-	'is'         => 'ro',
-	'lazy_build' => 1,
-);
-
-sub _build_template {
-	my ($self) = @_;
-	return Template->new({}) || die "$Template::ERROR\n";
+BEGIN {
+	extends 'whatbot::Command';
+	with 'whatbot::Command::Role::Template';
 }
 
 sub register {
