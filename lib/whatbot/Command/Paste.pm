@@ -243,7 +243,6 @@ sub _paste_form_tt2 {
 				<option name="[% channel %]">[% channel %]</option>
 [% END %]
 			</select>
-			</label>
 		</fieldset>
 		<fieldset>
 			<legend>Content</legend>

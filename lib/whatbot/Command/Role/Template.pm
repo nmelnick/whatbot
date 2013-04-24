@@ -18,7 +18,7 @@ has 'template' => (
 
 sub _build_template {
 	my ($self) = @_;
-	return Template->new({}) || die "$Template::ERROR\n";
+	return Template->new({}) or die "$Template::ERROR\n";
 }
 
 1;
