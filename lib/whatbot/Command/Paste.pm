@@ -8,7 +8,7 @@
 
 package whatbot::Command::Paste;
 use Moose;
-use Template;
+use HTML::Entities;
 BEGIN {
 	extends 'whatbot::Command';
 	with 'whatbot::Command::Role::Template';
@@ -108,7 +108,7 @@ sub _submit_form {
 		'user'        => $cgi->param('nickname'),
 		'destination' => ( $cgi->param('channel') or undef ),
 		'summary'     => ( $cgi->param('summary') or 'none' ),
-		'content'     => $cgi->param('content'),
+		'content'     => encode_entities( $cgi->param('content') ),
 	});
 	if ($paste) {
 		$state->{'url'} = '/paste/view?id=' . $paste->paste_id;

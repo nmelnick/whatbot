@@ -8,8 +8,7 @@
 
 package whatbot::Command::Quote;
 use Moose;
-use Template;
-use Data::Dumper;
+use HTML::Entities;
 BEGIN {
 	extends 'whatbot::Command';
 	with 'whatbot::Command::Role::Template';
@@ -55,7 +54,7 @@ sub add_quote : GlobalRegEx('^quote (.*) "(.*?)"\s*$') {
 	my $quote = $self->model('Quote')->create({
 		'user'    => $message->from,
 		'quoted'  => $quoted,
-		'content' => $content,
+		'content' => encode_entities($content),
 	});
 	if ($quote) {
 		return 'Quote added to quoteboard. ' . $self->web_url . '/quote';
@@ -95,7 +94,7 @@ sub _submit_form {
 	my $paste = $self->model('Quote')->create({
 		'user'    => $cgi->param('nickname'),
 		'quoted'  => $cgi->param('quoted'),
-		'content' => $cgi->param('content'),
+		'content' => encode_entities( $cgi->param('content') ),
 	});
 	if ($paste) {
 		$state->{'success'} = 1;
