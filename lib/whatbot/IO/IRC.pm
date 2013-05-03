@@ -10,13 +10,31 @@
 
 use MooseX::Declare;
 
-class whatbot::IO::IRC extends whatbot::IO::Legacy {
-	use Net::IRC;
+class whatbot::IO::IRC extends whatbot::IO {
+	use AnyEvent::IRC::Client;
 
-	has 'handle'            => ( is => 'rw' );
-	has 'irc_handle'        => ( is => 'ro', isa => 'Net::IRC::Connection' );
-	has 'force_disconnect'  => ( is => 'rw', isa => 'Int' );
-	has 'channels'          => ( is => 'ro', isa => 'ArrayRef', lazy_build => 1 );
+	has 'handle' => (
+		is  => 'rw',
+		isa => 'AnyEvent::IRC::Client',
+	);
+	has 'irc_handle' => (
+		is  => 'ro',
+		isa => 'AnyEvent::IRC::Client',
+	);
+	has 'force_disconnect' => (
+		is  => 'rw',
+		isa => 'Int',
+	);
+	has 'channels' => (
+		is         => 'ro',
+		isa        => 'ArrayRef',
+		lazy_build => 1,
+	);
+	has 'channels_hash' => (
+		is      => 'ro',
+		isa     => 'HashRef',
+		default => sub { {} },
+	);
 
 	sub _build_channels {
 		my ($self) = @_;
@@ -33,74 +51,78 @@ class whatbot::IO::IRC extends whatbot::IO::Legacy {
 	}
 
 	after connect {
-		my $handle = Net::IRC->new();
+		my $config = $self->my_config;
+		my $handle = AnyEvent::IRC::Client->new();
 		$self->handle($handle);
 		$self->log->write(
-			'Connecting to ' . 
-			$self->my_config->{'host'} . ':' . $self->my_config->{'port'} . 
-			'.');
-	
-		# Net::IRC Connection Parameters
-		$self->{'irc_handle'} = $self->handle->newconn(
-			'Server'	=> $self->my_config->{'host'},
-			'Port'		=> $self->my_config->{'port'},
-			'Username'	=> $self->my_config->{'username'},
-			'Ircname'	=> $self->my_config->{'realname'},
-			'Password'	=> $self->my_config->{'hostpassword'},
-			'Nick'		=> $self->my_config->{'nick'},
-			'SSL'       => ( $self->my_config->{'ssl'} ? 1 : undef )
+			sprintf(
+				'Connecting to %s:%d.',
+				$config->{'host'},
+				$config->{'port'},
+			)
 		);
-	
-		# Everything's event based, so we set up all the callbacks
-		$self->irc_handle->add_handler('msg',		\&cb_message);
-		$self->irc_handle->add_handler('public',	\&cb_message);
-		$self->irc_handle->add_handler('caction',	\&cb_action);
-		$self->irc_handle->add_handler('join',		\&cb_join);
-		$self->irc_handle->add_handler('part',		\&cb_part);
-		$self->irc_handle->add_handler('cping',		\&cb_ping);
-		$self->irc_handle->add_handler('topic',		\&cb_topic);
-		$self->irc_handle->add_handler('notopic',	\&cb_topic);
-	
-		$self->irc_handle->add_global_handler(376, 			\&cb_connect);
-		$self->irc_handle->add_global_handler('disconnect', \&cb_disconnect);
-		$self->irc_handle->add_global_handler(353, 			\&cb_names);
-		$self->irc_handle->add_global_handler(433, 			\&cb_nick_taken);
-	
-		# I can't figure out how else to use this module in an OO way, so I just do
-		# hax. They say if it takes a lot of work, you aren't doing it right.
-		# Fine. Tell me how to fix this, then, and don't say
-		# POE::Component::IRC. infobot hasn't released a new version because
-		# they're moving to POE. Rapid development my behind.
-		$self->irc_handle->{'_whatbot'} = $self;
-	
-		# Now we start one event loop so we can actually connect.
-		$self->handle->do_one_loop();
-		binmode( $self->irc_handle->socket, ":utf8" );
+
+		$handle->connect(
+			$config->{'host'},
+			$config->{'port'},
+			{
+				'nick'     => $config->{'nick'},
+				'user'     => $config->{'username'},
+				'real'     => $config->{'realname'},
+				'password' => $config->{'hostpassword'},
+			},
+		);
+		# SSL?
+
+		# Set up all the callbacks
+		$handle->reg_cb(
+			'join' => sub { $self->cb_join(@_); }
+		);
+		$handle->reg_cb(
+			'part' => sub { $self->cb_part(@_); }
+		);
+		$handle->reg_cb(
+			'channel_topic' => sub { $self->cb_topic(@_); }
+		);
+		$handle->reg_cb(
+			'privatemsg' => sub { $self->cb_message(@_); }
+		);
+		$handle->reg_cb(
+			'publicmsg' => sub { $self->cb_message(@_); }
+		);
+		$handle->reg_cb(
+			'registered' => sub { $self->cb_connect(@_); }
+		);
+		$handle->reg_cb(
+			'disconnect' => sub { $self->cb_disconnect(@_); }
+		);
+		$handle->reg_cb(
+			'ctcp_PING' => sub { $self->cb_ping(@_); }
+		);
+		$handle->reg_cb(
+		 	'ctcp' => sub { $self->cb_ctcp(@_); }
+		);
 	}
 
-	method disconnect {
+	method disconnect () {
 		$self->force_disconnect(1);
-		$self->irc_handle->quit( $self->my_config->{'quitmessage'} );
-	}
-
-	method event_loop {
-		$self->handle->do_one_loop();
+		$self->handle->disconnect( $self->my_config->{'quitmessage'} );
 	}
 
 	# Send a message
-	method send_message( $message ) {
+	method send_message ( $message ) {
 		# We're going to try and be smart.
 		my $characters_per_line = 450;
 		if (
-			defined( $self->my_config->{'charactersperline'} ) 
+			defined( $self->my_config->{'charactersperline'} )
 			and ref( $self->my_config->{'charactersperline'} ) ne 'HASH'
 		) {
 			$characters_per_line = $self->my_config->{'charactersperline'};
 		}
 		my @lines;
-		my @message_words = split(/\s/, $message->content);
-	
-		# If any of the words are over our maxlength, then let Net::IRC split it.
+		my @message_words = split( /\s/, $message->content );
+
+		# If any of the words are over our maxlength, then let IRC split it.
 		# Otherwise, it's probably actual conversation, so we should split words.
 		my $line = '';
 		foreach my $word (@message_words) {
@@ -124,14 +146,14 @@ class whatbot::IO::IRC extends whatbot::IO::Legacy {
 		}
 		# Close out
 		push( @lines, $line ) if ($line);
-	
+
 		# Send messages
 		if ( $message->content =~ /^\/me (.*)/ ) {
-			$self->irc_handle->me( $message->to, $1 );
+			# $self->irc_handle->me( $message->to, $1 );
 			$self->event_action( $self->me, $message->from, $message->content );
 		} else {
 			foreach my $out_line (@lines) {
-				$self->irc_handle->privmsg( $message->to, $out_line );
+				$self->privmsg( $message->to, $out_line );
 				$message->content($out_line);
 				$self->event_message($message);
 				sleep( int(rand(2)) );
@@ -143,92 +165,93 @@ class whatbot::IO::IRC extends whatbot::IO::Legacy {
 	# INTERNAL
 	###########
 
-	# Event: Received a user action
-	method cb_action( $event ) {
-		my ($message) = ( $event->args );
-		$self->{'_whatbot'}->event_action( $event->to->[0], $event->nick, $message );
+	method privmsg ( $to, $message ) {
+		$self->handle->send_srv(
+			'PRIVMSG' => $to,
+			$message,
+		);
+		return;
+	}
+
+	# Event: Received a CTCP message
+	method cb_ctcp ( $client, $source, $target, $tag, $message, $type ) {
+		return if ( $tag eq 'PING' );
+		if ( $tag eq 'ACTION' and $type eq 'PRIVMSG' ) {
+			$self->event_action( $target, $source, $message );
+		}
+		return;
+		# warn sprintf( 'CTCP: %s -> %s, tag %s, type %s: %s', $source, $target, $tag, $type, $message );
 	}
 
 	# Event: Connected to server
-	method cb_connect( $event ) {
-		$self->{'_whatbot'}->me( $self->nick );
-	
+	method cb_connect ( $client ) {
+		$self->me( $self->handle->nick );
+
 		# Join default channel(s)
-		foreach my $channel (@{ $self->{_whatbot}->channels }) {
-			$self->join(
-				$channel->{'name'},
-				$channel->{'channelpassword'}
-			);
-			$self->{'_wb_channels'}->{ $channel->{'name'} } = $channel;
+		foreach my $channel ( @{ $self->channels } ) {
+			my $name = $channel->{'name'};
+			my $cleaned_name = substr( $name, 1 );
+			$client->send_srv( 'JOIN', $name, $channel->{'channelpassword'} );
+			$self->channels_hash->{ $name } = $channel;
+			$self->notify( $name, 'Joined.' );
+
+			if (
+				defined $channel->{'joinmessage'}
+			) {
+				$self->privmsg( $name, $channel->{'joinmessage'} );
+			}
 		}
+		return;
 	}
 
 	# Event: Disconnected from server
-	method cb_disconnect( $event ) {
-		unless ( $self->{'_whatbot'}->force_disconnect ) {
-			$self->{'_whatbot'}->notify( 'X', 'Disconnected, attempting to reconnect...');
+	method cb_disconnect ( $client ) {
+		unless ( $self->force_disconnect ) {
+			$self->notify( 'X', 'Disconnected, attempting to reconnect...');
 			sleep(3);
-			$self->{'_whatbot'}->connect();
+			$client->connect();
 		}
+		return;
 	}
 
 	# Event: User joined channel
-	method cb_join( $event ) {
-		$self->{'_whatbot'}->event_user_enter( $event->to->[0], $event->nick );
+	method cb_join( $client, $nick, $channel, $is_myself ) {
+		return if ($is_myself);
+		$self->event_user_enter( $channel, $nick );
+		return;
 	}
 
-	# Event: Received a public message
-	method cb_message( $event ) {
-		my ($message) = ( $event->args );
-		$self->{'_whatbot'}->event_message( $self->{'_whatbot'}->get_new_message({
-			'from'    => $event->nick,
-			'to'      => $event->to->[0],
-			'content' => $message,
-		}) );
-	}
-
-	# Event: Received channel users
-	method cb_names( $event ) {
-		my ( @list, $channel ) = ( $event->args );
-		( $channel, @list ) = splice( @list, 2 );
-
-		$self->{'_whatbot'}->notify( $channel, 'users: ' . join(', ', @list) );
-	
-		# When we get names, we've joined a room. If we have a join message, 
-		# display it.
-		if (
-			defined $self->{'_wb_channels'}->{$channel}->{'joinmessage'}
-			and ref($self->{'_wb_channels'}->{$channel}->{'joinmessage'}
-		) ne 'HASH') {
-			$self->privmsg( $channel, $self->{'_wb_channels'}->{$channel}->{'joinmessage'} );
-		}
-	}
-
-	# Event: Attempted nick is taken
-	method cb_nick_taken( $event ) {
-		$self->{'_whatbot'}->my_config->{'username'} .= '_';
-		$self->nick( $self->{'_whatbot'}->my_config->{'username'} );
-		$self->{'_whatbot'}->me( $self->nick );
+	# Event: Received a message
+	method cb_message( $client, $to, $irc_message ) {
+		#return if ( $irc_message->{'command'} eq 'NOTICE' );
+		my $nick = $irc_message->{'prefix'};
+		$nick =~ s/!.*//;
+		$self->event_message(
+			$self->get_new_message({
+				'from'    => $nick,
+				'to'      => $to,
+				'content' => $irc_message->{'params'}->[-1],
+			})
+		);
+		return;
 	}
 
 	# Event: User left a channel
-	method cb_part( $event ) {
-		$self->{'_whatbot'}->event_user_leave( $event->to->[0], $event->nick );
+	method cb_part( $client, $nick, $channel, $is_myself, $message ) {
+		return if ($is_myself);
+		$self->event_user_leave( $channel, $nick, $message );
 	}
 
 	# Event: Received CTCP Ping request
-	method cb_ping( $event ) {
-		my $nick = $event->nick;
-		$self->ctcp_reply( $nick, join ( ' ', ($event->args) ) );
-		$self->{'_whatbot'}->notify('*** CTCP PING request from $nick received');
+	method cb_ping( $client, $source, $target, $message, $type ) {
+		$self->ctcp_reply( $source, $message );
+		$self->notify('*** CTCP PING request from $source received');
 	}
 
 	# Event: Channel topic change
-	method cb_topic( $event ) {
-		my ( $channel, $topic ) = $event->args();
-		if ( $event->type() eq 'topic' and $channel =~ /^#/ ) {
-			$self->{'_whatbot'}->notify('The topic for $channel is \'$topic\'.');
-		}
+	method cb_topic( $client, $channel, $topic, $who ) {
+		return unless ( $channel =~ /^#/ );
+		$self->notify('The topic for $channel is \'$topic\'.');
 	}
 }
 

@@ -16,20 +16,12 @@ use Getopt::Long;
 use EV;
 use lib realpath( getcwd() ) . '/../lib';
 
-our $VERSION = '0.9.6';
 my $basedir = realpath( getcwd() . '/..' );
 
 # Check command line options
 my $config_path = $basedir . "/conf/whatbot.conf";
 my $daemon = 0;
 my $help;
-
-GetOptions(
-	'config=s'	=> \$config_path,
-	'daemon' 	=> \$daemon,
-	'help' 		=> \$help
-);
-usage() if ($help);
 
 # Initial requirements check
 eval {
@@ -47,8 +39,15 @@ if ($@) {
 	print 'ERROR: whatbot requires Moose and MooseX::Declare.' . "\n";
 	exit(-1);
 }
-
 require whatbot;
+
+GetOptions(
+    'config=s'  => \$config_path,
+    'daemon'    => \$daemon,
+    'help'      => \$help
+);
+usage() if ($help);
+
 whatbot->import;
 
 # Start application
@@ -57,7 +56,7 @@ if ( $whatbot->config( $basedir, $config_path ) ) {
     if ($daemon) {
     	fork and exit;
     } else {
-    	print 'whatbot ' . $VERSION . "\n";
+    	print 'whatbot ' . $whatbot::VERSION . "\n";
     	print 'Running in interactive mode.' . "\n";
     }
 
@@ -69,8 +68,7 @@ if ( $whatbot->config( $basedir, $config_path ) ) {
 }
 
 sub usage {
-	print qq{
-whatbot $VERSION:
+	print qq{whatbot $whatbot::VERSION:
 
  -c --config  Path to configuration file (default: conf/whatbot.conf)
  -D --daemon  Daemonize on successful launch
