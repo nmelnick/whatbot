@@ -10,105 +10,105 @@
 
 use MooseX::Declare;
 
-class whatbot::IO::Timer extends whatbot::IO {
-    # time_queue is an array. each item is of the form:
-    #  [ int time, coderef sub, ...  ]
-    #
-    # "..." can be any number of args to be sent to the sub when it is called at time.
-    has 'time_queue' => ( is => 'rw', isa => 'ArrayRef', default => sub { return [] } );
-    has 'next_time'  => ( is => 'rw', isa => 'Int', default => 0 );
+class whatbot::IO::Timer extends whatbot::IO::Legacy {
+	# time_queue is an array. each item is of the form:
+	#  [ int time, coderef sub, ...  ]
+	#
+	# "..." can be any number of args to be sent to the sub when it is called at time.
+	has 'time_queue' => ( is => 'rw', isa => 'ArrayRef', default => sub { return [] } );
+	has 'next_time'  => ( is => 'rw', isa => 'Int', default => 0 );
 
-    method BUILD ($) {
-        $self->name('Timer');
-        $self->me( $self->name );
-    }
+	method BUILD ($) {
+		$self->name('Timer');
+		$self->me( $self->name );
+	}
 
-    method enqueue ( Int $time, $sub, @args ) {
-    	$time += time if ( $time < 86400 );
+	method enqueue ( Int $time, $sub, @args ) {
+		$time += time if ( $time < 86400 );
 	
-    	my $new_item = [$time, $sub, @args];
-    	my $queue = $self->time_queue;
+		my $new_item = [$time, $sub, @args];
+		my $queue = $self->time_queue;
 	
-        # add and sort 
-        push @$queue, $new_item;
-        @$queue = sort { $a->[0] <=> $b->[0] } @$queue;
+		# add and sort 
+		push @$queue, $new_item;
+		@$queue = sort { $a->[0] <=> $b->[0] } @$queue;
 
-    	$self->next_time($queue->[0]->[0]);
-    }
+		$self->next_time($queue->[0]->[0]);
+	}
 
-    method remove ( Int $time, $sub, @args ) {
-    	# remove the first perfect match. I doubt this will be called much, 
-    	# but here it is anyway
-    	my $match_item = [$time, $sub, @args];
-    	my $queue = $self->time_queue;
+	method remove ( Int $time, $sub, @args ) {
+		# remove the first perfect match. I doubt this will be called much, 
+		# but here it is anyway
+		my $match_item = [$time, $sub, @args];
+		my $queue = $self->time_queue;
 	
-        print STDERR "match item: (", join(', ', @$match_item), ")\n";
+		print STDERR "match item: (", join(', ', @$match_item), ")\n";
 
-    	if (@$queue) {
+		if (@$queue) {
 ITEMLOOP:   foreach my $index (0 .. $#{$queue}) {
-    			my $item = $queue->[$index];
+				my $item = $queue->[$index];
 
-                print STDERR "item $index: (", join(', ', @$item), ")\n";
+				print STDERR "item $index: (", join(', ', @$item), ")\n";
 			
-    			next if (@$item != @$match_item);
+				next if (@$item != @$match_item);
 
-    			my $i;
-    			for ($i = 0; $i <= $#$item; $i++) {
-    				if ($item->[$i] ne $match_item->[$i]) {
-    					next ITEMLOOP;
-    				}
-    			}
+				my $i;
+				for ($i = 0; $i <= $#$item; $i++) {
+					if ($item->[$i] ne $match_item->[$i]) {
+						next ITEMLOOP;
+					}
+				}
 
-   				# remove it!
-   				splice @$queue, $index, 1;
+				# remove it!
+				splice @$queue, $index, 1;
 					
- 				# if we took it off the front, adjust next_time
- 				if ($index == 0) {
- 					if (@$queue) {
- 						# next time is the time of the thing at the front
- 						$self->next_time($queue->[0]->[0]);
- 					} else {
- 						$self->next_time(0);
- 					}
- 				}
+				# if we took it off the front, adjust next_time
+				if ($index == 0) {
+					if (@$queue) {
+						# next time is the time of the thing at the front
+						$self->next_time($queue->[0]->[0]);
+					} else {
+						$self->next_time(0);
+					}
+				}
 
- 				return 1;
+				return 1;
 
-    		} # end foreach
+			} # end foreach
 
-    	} # end if queue
+		} # end if queue
 	
-    	return 0;
-    }
+		return 0;
+	}
 
-    method event_loop() {
-    	my $next = $self->next_time;
-    	return unless $next;
+	method event_loop() {
+		my $next = $self->next_time;
+		return unless $next;
 	
-    	my $now  = time;
-    	return if ($now <= $next);
+		my $now  = time;
+		return if ($now <= $next);
 	
-    	my $queue = $self->time_queue;
+		my $queue = $self->time_queue;
 	
-    	if (@$queue) {
-    		my ($when, $sub, @args) = @{$queue->[0]};
+		if (@$queue) {
+			my ($when, $sub, @args) = @{$queue->[0]};
 		
-    		if ($when > $now) {
-    			# uh oh...
-    			$self->log->error("last_time in timer was not the same as the first item in the queue...");
-    		} else {
-    			&$sub(@args);
-    			shift @$queue;
+			if ($when > $now) {
+				# uh oh...
+				$self->log->error("last_time in timer was not the same as the first item in the queue...");
+			} else {
+				&$sub(@args);
+				shift @$queue;
 			
-    			if (@$queue) {
-    				# next time is the time of the thing at the front
-    				$self->next_time($queue->[0]->[0]);
-    			} else {
-    				$self->next_time(0);
-    			}
-    		}
-    	}
-    }
+				if (@$queue) {
+					# next time is the time of the thing at the front
+					$self->next_time($queue->[0]->[0]);
+				} else {
+					$self->next_time(0);
+				}
+			}
+		}
+	}
 }
 
 1;
@@ -122,23 +122,23 @@ whatbot::IO::Timer - Timer functionality for whatbot.
 =head1 SYNOPSIS
 
  sub something_awesome : GlobalRegEx('do it later') {
-     my ( $self, $message ) = @_;
-     
-     my $medium = $message->origin;
-     $self->timer->enqueue(10, \&done_later, $self, $medium, "it");
-     return "ok";
+	 my ( $self, $message ) = @_;
+	 
+	 my $medium = $message->origin;
+	 $self->timer->enqueue(10, \&done_later, $self, $medium, "it");
+	 return "ok";
  }
 
  sub done_later {
-     my ( $self, $medium, $what ) = @_;
-     
-     my $response = whatbot::Message->new(
-         from    => $medium->me,
-         to      => "",
-         content => "I did $what"
-     );
-     
-     $medium->send_message($response);
+	 my ( $self, $medium, $what ) = @_;
+	 
+	 my $response = whatbot::Message->new(
+		 from    => $medium->me,
+		 to      => "",
+		 content => "I did $what"
+	 );
+	 
+	 $medium->send_message($response);
  }
 
 =head1 DESCRIPTION

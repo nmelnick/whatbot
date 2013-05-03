@@ -13,6 +13,7 @@ use warnings;
 
 use Cwd qw(realpath getcwd);
 use Getopt::Long;
+use EV;
 use lib realpath( getcwd() ) . '/../lib';
 
 our $VERSION = '0.9.6';
@@ -60,7 +61,7 @@ if ( $whatbot->config( $basedir, $config_path ) ) {
     	print 'Running in interactive mode.' . "\n";
     }
 
-    $SIG{'INT'} = sub { $whatbot->kill_self(1); };
+    $SIG{'INT'} = sub { $whatbot->stop(); };
     $whatbot->run();
 } else {
     usage();

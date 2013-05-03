@@ -8,7 +8,7 @@
 
 use MooseX::Declare;
 
-class whatbot::IO::AIM extends whatbot::IO {
+class whatbot::IO::AIM extends whatbot::IO::Legacy {
 	use HTML::Strip;
 	use Net::OSCAR qw(:standard);
 	use whatbot::Message;
@@ -23,7 +23,7 @@ class whatbot::IO::AIM extends whatbot::IO {
 		$self->me( $self->my_config->{'screenname'} );
 	}
 
-	method connect {
+	after connect {
 		# Create Object
 		my $oscar = Net::OSCAR->new();
 	

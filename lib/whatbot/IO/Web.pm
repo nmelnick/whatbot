@@ -8,7 +8,7 @@
 
 use MooseX::Declare;
 
-class whatbot::IO::Web extends whatbot::IO {
+class whatbot::IO::Web extends whatbot::IO::Legacy {
 	use whatbot::Message;
 
 	has 'pid' => (
@@ -29,7 +29,7 @@ class whatbot::IO::Web extends whatbot::IO {
 		$self->server->dispatch( {} );
 	}
 
-	method connect () {
+	after connect () {
 		$self->pid( $self->server->background() );
 		$self->log->write(
 			sprintf(

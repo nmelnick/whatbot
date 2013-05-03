@@ -10,7 +10,7 @@
 
 use MooseX::Declare;
 
-class whatbot::IO::Async extends whatbot::IO {
+class whatbot::IO::Async extends whatbot::IO::Legacy {
     use whatbot::IO::Async::Hack;
     use HTTP::Async;
     use HTTP::Cookies;

@@ -10,7 +10,7 @@
 
 use MooseX::Declare;
 
-class whatbot::IO::IRC extends whatbot::IO {
+class whatbot::IO::IRC extends whatbot::IO::Legacy {
 	use Net::IRC;
 
 	has 'handle'            => ( is => 'rw' );
@@ -32,7 +32,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 		$self->me( $self->my_config->{'nick'} );
 	}
 
-	method connect {
+	after connect {
 		my $handle = Net::IRC->new();
 		$self->handle($handle);
 		$self->log->write(

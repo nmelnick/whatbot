@@ -8,7 +8,7 @@
 
 use MooseX::Declare;
 
-class whatbot::IO::Log extends whatbot::IO {
+class whatbot::IO::Log extends whatbot::IO::Legacy {
 	use whatbot::Progress;
 
 	has 'file_handle'   => ( is => 'rw' );
@@ -22,7 +22,7 @@ class whatbot::IO::Log extends whatbot::IO {
 		$self->me( $self->my_config->{'me'} );
 	}
 
-	method connect {
+	after connect {
 		# Open log file, store scalar file_handle
 		$self->log->write( 'Opening ' . $self->my_config->{'filepath'} );
 		my $fh;
@@ -60,8 +60,8 @@ class whatbot::IO::Log extends whatbot::IO {
 			$self->parse_line($line);
 			$self->progress->update( $self->current_line );
 		} else {
-			$self->progress->finish;
-			$self->parent->kill_self(1);
+			$self->progress->finish();
+			$self->parent->stop();
 		}
 	}
 
