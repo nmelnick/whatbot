@@ -18,6 +18,8 @@ requires       'Moose'                     => 2.04;
 requires       'MooseX::Declare'           => 0.35;
 requires       'JSON::XS'                  => 0;
 requires       'HTTP::Server::Simple'      => 0;
+requires       'AnyEvent'                  => 0;
+requires       'EV'                        => 0;
 
 recommends     'Acme::LOLCAT'              => 0;
 recommends     'DateTime::Format::Natural' => 0;
@@ -29,6 +31,7 @@ recommends     'Math::Expression'          => 0;
 recommends     'Math::Trig'                => 0;
 recommends     'Math::Units'               => 0;
 recommends     'Net::IRC'                  => 0;
+recommends     'AnyEvent::IRC'             => 0;
 recommends     'Net::OSCAR'                => 0;
 recommends     'Net::Telnet'               => 0;
 recommends     'String::IRC'               => 0;
