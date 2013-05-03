@@ -245,13 +245,13 @@ class whatbot::IO::IRC extends whatbot::IO {
 	# Event: Received CTCP Ping request
 	method cb_ping( $client, $source, $target, $message, $type ) {
 		$self->ctcp_reply( $source, $message );
-		$self->notify('*** CTCP PING request from $source received');
+		$self->notify( '*', '*** CTCP PING request from $source received');
 	}
 
 	# Event: Channel topic change
-	method cb_topic( $client, $channel, $topic, $who ) {
+	method cb_topic( $client, $channel, $topic?, $who? ) {
 		return unless ( $channel =~ /^#/ );
-		$self->notify('The topic for $channel is \'$topic\'.');
+		$self->notify( $channel, sprintf( '*** The topic is \'%s\'.', $topic ) );
 	}
 }
 
