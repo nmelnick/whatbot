@@ -199,7 +199,6 @@ class whatbot with whatbot::Role::Pluggable {
 	method _initialize_io ($base_component) {
 		my @io;
 		my %ios;
-		my $cv = AnyEvent->condvar;
 		foreach my $io_module ( @{ $self->initial_config->io } ) {
 			$base_component->log->error('No interface designated for one or more IO modules')
 				unless ( $io_module->{'interface'} );
