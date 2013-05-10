@@ -1,0 +1,30 @@
+{
+   "io" : {
+      "interface" : "XMPP",
+      "host" : "jabber.domain.com",
+      "port" : "5222",
+      "nick" : "Whatbot::XMPP",
+      "username" : "whatbot@jabber.domain.com",
+      "hostpassword" : "password",
+      "quitmessage" : "whatbot",
+      "rooms" : {
+         "joinmessage" : "hello, everybody.",
+         "name" : "test-room@jabber.domain.com"
+      }
+   },
+   "database" : {
+      "database" : "/etc/whatbot/whatbot.db",
+      "handler" : "SQLite"
+   },
+   "commands" : {
+      "admin" : {
+         "user" : "adminuser@domain.com"
+      },
+      "define" : {
+         "sourcelist" : "urbandictionary google wikipedia"
+      }
+   },
+   "log" : {
+      "directory" : "/var/log/whatbot"
+   }
+}
