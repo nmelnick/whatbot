@@ -105,9 +105,6 @@ class whatbot::IO::XMPP extends whatbot::IO {
                     'part' => sub { $self->cb_part(@_); }
             );
             $handle->reg_cb(
-                    'channel_topic' => sub { $self->cb_topic(@_); }
-            );
-            $handle->reg_cb(
                     'message' => sub { $self->cb_recv_message(@_); }
             );
             $handle->reg_cb(
@@ -215,7 +212,13 @@ class whatbot::IO::XMPP extends whatbot::IO {
 			$self->notify ( $account->jid, 'Joining Room '.$room->{'name'} );
 			$muc->join_room ($account->connection, $room->{'name'}, node_jid $account->jid);
 			$muc->reg_cb (
-				'message' => sub { $self->cb_room_message (@_); }
+				'message' 			=> sub { $self->cb_room_message (@_); }
+            )
+            $muc->reg_cb(
+                'part' 				=> sub { $self->part (@_); }
+            )
+            $muc->reg_cb(
+                'subject_change' 	=> sub { $self->subject_change (@_); }
             )
 		}
 	}
@@ -250,13 +253,12 @@ class whatbot::IO::XMPP extends whatbot::IO {
     }
 
     # Event: User left a channel
-    method cb_part ( $client, $nick, $channel, $is_myself, $message ) {
-            return if ($is_myself);
-            $self->event_user_leave ( $channel, $nick, $message );
+    method cb_part ( $room, $user ) {
+            $self->event_user_leave ( $room, $user );
     }
 
     # Event: Channel topic change
-    method cb_topic ( $client, $channel, $topic?, $who? ) {
+    method subject_change ( $client, $channel, $topic?, $who? ) {
             return unless ( $channel =~ /^#/ );
             $self->notify ( $channel, sprintf( '*** The topic is \'%s\'.', $topic ) );
     }
