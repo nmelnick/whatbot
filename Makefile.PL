@@ -33,6 +33,7 @@ recommends     'Math::Trig'                => 0;
 recommends     'Math::Units'               => 0;
 recommends     'AnyEvent::IRC'             => 0;
 recommends     'AnyEvent::XMPP'		       => 0.54;
+recommends     'XML::Simple'               => 0;
 recommends     'WWW::Mechanize'		       => 0;
 recommends     'WWW::Babelfish'            => 0;
 recommends     'WWW::Google::PageRank'	   => 0;
