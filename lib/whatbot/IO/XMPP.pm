@@ -233,34 +233,36 @@ class whatbot::IO::XMPP extends whatbot::IO {
 	
 	# Event: User enters the room
     method cb_join ( $client, $nick, $channel, $is_myself ) {
-            return if ($is_myself);
-            $self->event_user_enter ( $channel, $nick );
-            return;
+        return if ($is_myself);
+        $self->event_user_enter ( $channel, $nick );
+        return;
     }
 
     # Event: Received a message
    	method cb_recv_message ( $connection, $acc, $msg  ) {
-            my $from       	= $msg->from;
-			my $listener 	= $self;
-            my ($username) 	= $from =~ /^(\S+)\//;
+        my $from       	= $msg->from;
+		my $listener 	= $self;
+        my ($username) 	= $from =~ /^(\S+)\//;
 
-            $listener->event_message (
-				whatbot::Message->new ({
-                    'from'    => $username,
-                    'to'      => $from,
-                    'content' => $msg->any_body
-           	}));
+        $listener->event_message (
+			whatbot::Message->new (
+				{'from'    => $username,
+                'to'      => $from,
+                'content' => $msg->any_body
+       			}
+			)
+		)
     }
 
     # Event: User left a channel
     method cb_part ( $room, $user ) {
-            $self->event_user_leave ( $room, $user );
+        $self->event_user_leave ( $room, $user );
     }
 
     # Event: Channel topic change
     method subject_change ( $client, $channel, $topic?, $who? ) {
-            return unless ( $channel =~ /^#/ );
-            $self->notify ( $channel, sprintf( '*** The topic is \'%s\'.', $topic ) );
+        return unless ( $channel =~ /^#/ );
+        $self->notify ( $channel, sprintf( '*** The topic is \'%s\'.', $topic ) );
     }
 
 }
