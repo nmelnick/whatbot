@@ -61,7 +61,7 @@ class whatbot::IO::XMPP extends whatbot::IO {
     }
 
 
-    method BUILD {
+    method BUILD ($) {
             my $name = 'XMPP_' . $self->my_config->{'host'};
             $name =~ s/ /_/g;
             $self->name($name);
@@ -73,11 +73,10 @@ class whatbot::IO::XMPP extends whatbot::IO {
             my $handle = AnyEvent::XMPP::Client->new ();
 			my $disco = AnyEvent::XMPP::Ext::Disco->new;
 			my $muc = AnyEvent::XMPP::Ext::MUC->new (disco => $disco, connection => $handle);
-			$handle->add_extension ($disco);
-			$handle->add_extension ($muc);
 			$self->handle ($handle);
-			$self->muc_handle ($muc);
-
+			# $self->muc_handle ($muc);
+			$self->handle->add_extension ($disco);
+			$self->handle->add_extension ($muc);
 			
             $self->log->write (
                     sprintf (
@@ -124,7 +123,13 @@ class whatbot::IO::XMPP extends whatbot::IO {
 	$handle->start();
     }
 
-	# Disconnect the handle
+	method BUILD {
+		my $name = 'XMPP_' . $self->my_config->{'username'};
+		$name =~ s/ /_/g;
+		$self->name ($name);
+		$self->me ( $self->my_config->{'username'} );
+	}
+
     method disconnect () {
             $self->force_disconnect (1);
             $self->handle->disconnect ( $self->my_config->{'quitmessage'} );
@@ -141,10 +146,8 @@ class whatbot::IO::XMPP extends whatbot::IO {
 		
 		if ( $msg_to =~ '.*\[mucRoom\]' ) {
 			my ($room) = ($msg_to =~ 's/^(.*)\[mucRoom\]$/');
-			$reply = $message->make_reply ($message->content, $room, $self->handle->get_account);
-		    # my $immsg = AnyEvent::XMPP::Ext::MUC::Room->make_message (to => $room, body => $message->content, type => 'groupchat');
-		    #$immsg->send ($self->handle);
-			
+			$reply = $self->muc_handle->make_reply ($message->content, $room, $self->handle->get_account);
+			return;
 		} else {
 			$reply = $self->handle->send_message ($message->content, $message->to, $self->handle->get_account);
 		}
@@ -230,8 +233,6 @@ class whatbot::IO::XMPP extends whatbot::IO {
                     $self->connect();
             }
     }
-	
-	# Event: User enters the room
     method cb_join ( $client, $nick, $channel, $is_myself ) {
         return if ($is_myself);
         $self->event_user_enter ( $channel, $nick );
@@ -257,6 +258,12 @@ class whatbot::IO::XMPP extends whatbot::IO {
     # Event: User left a channel
     method cb_part ( $room, $user ) {
         $self->event_user_leave ( $room, $user );
+    }
+
+    # Event: Received CTCP Ping request
+    method cb_ping ( $client, $source, $target, $message, $type ) {
+            $self->ctcp_reply ( $source, $message );
+            $self->notify ( '*', '*** CTCP PING request from $source received');
     }
 
     # Event: Channel topic change
