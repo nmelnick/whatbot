@@ -199,7 +199,7 @@ class whatbot::IO::XMPP extends whatbot::IO {
 	}
 
 	# Event: Error
-	method cb_error( $account, $account, $error, $test1? ) {
+	method cb_error( $connection, $account, $error, $test1? ) {
 		print Dumper $error;
 		
 		$self->notify ($error);
