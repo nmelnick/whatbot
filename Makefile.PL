@@ -31,15 +31,18 @@ recommends     'Math::Expression'          => 0;
 recommends     'Math::Trig'                => 0;
 recommends     'Math::Units'               => 0;
 recommends     'AnyEvent::IRC'             => 0;
-recommends     'Anyevent::XMPP'		   => 0.54;
-recommends     'WWW::Mechanize'		   => 0;
-recommends     'WWW::Babelfish'		   => 0;
+recommends     'Anyevent::XMPP'		       => 0.54;
+recommends     'WWW::Mechanize'		       => 0;
+recommends     'WWW::Babelfish'            => 0;
 recommends     'WWW::Google::PageRank'	   => 0;
 recommends     'Net::OSCAR'                => 0;
 recommends     'Net::Telnet'               => 0;
 recommends     'String::IRC'               => 0;
 recommends     'Template'                  => 0;
 recommends     'URI::Escape'               => 0;
+recommends     'DBD::SQLite'               => 0;
+recommends     'Digest::SHA1'              => 0;
+recommends     'Image::Size'               => 0;
 
 test_requires  'Test::More'                => 0;
 

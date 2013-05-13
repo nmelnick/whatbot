@@ -119,8 +119,8 @@ class whatbot::IO::XMPP extends whatbot::IO {
                     'session_ready' => sub { $self->cb_joinrooms(@_); }
             );
 	
-	# Start the connection:
-	$handle->start();
+			# Start the connection:
+			$handle->start();
     }
 
 	method BUILD {
@@ -216,13 +216,13 @@ class whatbot::IO::XMPP extends whatbot::IO {
 			$muc->join_room ($account->connection, $room->{'name'}, node_jid $account->jid);
 			$muc->reg_cb (
 				'message' 			=> sub { $self->cb_room_message (@_); }
-            )
+            );
             $muc->reg_cb(
                 'part' 				=> sub { $self->part (@_); }
-            )
+            );
             $muc->reg_cb(
                 'subject_change' 	=> sub { $self->subject_change (@_); }
-            )
+            );
 		}
 	}
     # Event: Disconnected from server
