@@ -20,6 +20,7 @@ requires       'JSON::XS'                  => 0;
 requires       'HTTP::Server::Simple'      => 0;
 requires       'AnyEvent'                  => 0;
 requires       'EV'                        => 0;
+requires       'IO::Socket::SSL'           => 0;
 
 recommends     'Acme::LOLCAT'              => 0;
 recommends     'DateTime::Format::Natural' => 0;
