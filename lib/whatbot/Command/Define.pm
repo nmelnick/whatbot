@@ -188,7 +188,7 @@ sub get {
         return undef;
     }
     else {
-        return $response->content;
+        return $response->decoded_content;
     }
 }
 
