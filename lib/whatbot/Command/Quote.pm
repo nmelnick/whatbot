@@ -63,38 +63,34 @@ sub add_quote : GlobalRegEx('^quote (.*) "(.*?)"\s*$') {
 }
 
 sub quote_list {
-	my ( $self, $cgi ) = @_;
+	my ( $self, $httpd, $req ) = @_;
 
-	return unless ( $self->check_access($cgi) );
+	return unless ( $self->check_access($req) );
 
 	my %state = ();
-
-	print "Content-type: text/html\r\n\r\n";
-	if ( $cgi->request_method eq 'POST' ) {
-		$self->_submit_form( $cgi, \%state );
+	if ( $req->method eq 'POST' ) {
+		$self->_submit_form( $req, \%state );
 	}
 
 	$state{'quotes'} = $self->model('Quote')->search({ '_order_by' => 'timestamp desc' });
 
-	$self->template->process( _quote_list_tt2(), \%state ) or die $Template::ERROR;
-
-	return;
+	return $self->render( $req, _quote_list_tt2(), \%state );
 }
 
 sub _submit_form {
-	my ( $self, $cgi, $state ) = @_;
+	my ( $self, $req, $state ) = @_;
 
 	foreach my $required ( qw( nickname quoted content ) ) {
-		unless ( $cgi->param($required) ) {
+		unless ( $req->parm($required) ) {
 			$state->{'error'} = 'Missing ' . $required . '.';
 			return;
 		}
 	}
 
 	my $paste = $self->model('Quote')->create({
-		'user'    => $cgi->param('nickname'),
-		'quoted'  => $cgi->param('quoted'),
-		'content' => encode_entities( $cgi->param('content') ),
+		'user'    => $req->parm('nickname'),
+		'quoted'  => $req->parm('quoted'),
+		'content' => encode_entities( $req->parm('content') ),
 	});
 	if ($paste) {
 		$state->{'success'} = 1;
@@ -105,7 +101,7 @@ sub _submit_form {
 }
 
 sub check_access {
-	my ( $self, $cgi ) = @_;
+	my ( $self, $req ) = @_;
 
 	return unless (
 		$self->my_config
@@ -113,7 +109,7 @@ sub check_access {
 		and $self->my_config->{enabled} eq 'yes'
 	);
 	if ( $self->my_config->{limit_ip} ) {
-		return unless ( $cgi->remote_addr eq $self->my_config->{limit_ip} );
+		return unless ( $req->remote_host eq $self->my_config->{limit_ip} );
 	}
 
 	return 1;

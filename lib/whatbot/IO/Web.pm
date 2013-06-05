@@ -8,15 +8,13 @@
 
 use MooseX::Declare;
 
-class whatbot::IO::Web extends whatbot::IO::Legacy {
+class whatbot::IO::Web extends whatbot::IO {
 	use whatbot::Message;
+	use AnyEvent::HTTPD;
 
-	has 'pid' => (
-		'is'  => 'rw',
-		'isa' => 'Int',
-	);
 	has 'server' => (
-		'is' => 'rw'
+		'is'  => 'rw',
+		'isa' => 'AnyEvent::HTTPD',
 	);
 
 	method BUILD {
@@ -25,24 +23,29 @@ class whatbot::IO::Web extends whatbot::IO::Legacy {
 		$self->name('Web');
 		$self->me('Web');
 
-		$self->server( whatbot::IO::Web::Server->new( $self->my_config->{port} ) );
-		$self->server->dispatch( {} );
+		$self->my_config->{'url'} ||= 'http://' . `hostname`;
+		chomp( $self->my_config->{'url'} );
+
+		my $httpd = $self->server(
+			AnyEvent::HTTPD->new(
+				'port'            => $self->my_config->{port},
+				'request_timeout' => 30,
+			)
+		);
 	}
 
 	after connect () {
-		$self->pid( $self->server->background() );
 		$self->log->write(
 			sprintf(
-				'HTTP server started on port %d, running on PID %d.',
-				$self->my_config->{port},
-				$self->pid,
+				'HTTP server started on port %d.',
+				$self->my_config->{'port'},
 			)
 		);
 		return;
 	}
 
 	method disconnect () {
-		system( 'kill', $self->pid ) if ( $self->pid );
+		$self->server(undef);
 		return;
 	}
 
@@ -51,37 +54,15 @@ class whatbot::IO::Web extends whatbot::IO::Legacy {
 	}
 
 	method add_dispatch ( $command, $path, $callback ) {
-		$self->server->dispatch->{$path} = {
-			'callback' => $callback,
-			'command'  => $command,
-		};
+		$self->server->reg_cb(
+			$path => sub {
+				my ( $httpd, $req ) = @_;
+
+				my $response = $callback->( $command, $httpd, $req );
+				$req->respond($response);
+			}
+		);
 	}
-}
-
-class whatbot::IO::Web::Server extends HTTP::Server::Simple::CGI {
-	has 'dispatch' => (
-		'is'      => 'rw',
-		'isa'     => 'HashRef',
-	);
- 
-	method handle_request ($cgi) {
-		my $path = $cgi->path_info();
-		my $handler = $self->dispatch->{$path};
-
-		if ( $handler and ref($handler) eq 'HASH' ) {
-			print "HTTP/1.0 200 OK\r\n";
-			$handler->{callback}->( $handler->{command}, $cgi );
-
-		} else {
-			print "HTTP/1.0 404 Not found\r\n";
-			print $cgi->header,
-			$cgi->start_html('Not found'),
-			$cgi->h1('Not found'),
-			$cgi->end_html;
-		}
-	}
-
-	__PACKAGE__->meta->make_immutable( inline_constructor => 0 );
 }
 
 1;

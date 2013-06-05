@@ -37,58 +37,51 @@ sub register {
 }
 
 sub message {
-	my ( $self, $cgi ) = @_;
+	my ( $self, $httpd, $req ) = @_;
 
-	return unless ( $self->check_access($cgi) );
+	return unless ( $self->check_access($req) );
 
-	print "Content-type: application/json\r\n\r\n";
-	if ( $cgi->param('destination') and $cgi->param('message') ) {
-		if ( my $id = $cgi->param('message_id') ) {
+	if ( $req->parm('destination') and $req->parm('message') ) {
+		if ( my $id = $req->parm('message_id') ) {
 			if ( $self->seen_ids->{$id} ) {
-				print '{"error":"Message ID already used"}';
-				return;
+				return _create_content('{"error":"Message ID already used"}');
 			}
 			$self->seen_ids->{$id} = 1;
 		}
 		$self->log->write( '*** Message sent from API');
 		$self->send_message(
-			$cgi->param('destination'),
+			$req->parm('destination'),
 			whatbot::Message->new({
 				'to'             => '',
 				'from'           => '',
-				'content'        => $cgi->param('message'),
+				'content'        => $req->parm('message'),
 				'base_component' => $self->parent->base_component,
 				'invisible'      => 1,
 			}),
 		);
-		print '{"status":"ok"}';
-	} else {
-		print '{"error":"Missing destination or message"}';
+		return _create_content('{"status":"ok"}');
 	}
-
-	return;
+	
+	return _create_content('{"error":"Missing destination or message"}');
 }
 
 sub karma {
-	my ( $self, $cgi ) = @_;
+	my ( $self, $httpd, $req ) = @_;
 
-	return unless ( $self->check_access($cgi) );
+	return unless ( $self->check_access($req) );
 
-	print "Content-type: application/json\r\n\r\n";
-	if ( $cgi->param('subject') and $cgi->param('set') and $cgi->param('from') ) {
-		my $subject = $cgi->param('subject');
-		my $set = $cgi->param('set');
-		my $from = $cgi->param('from');
-		if ( my $id = $cgi->param('message_id') ) {
+	if ( $req->parm('subject') and $req->parm('set') and $req->parm('from') ) {
+		my $subject = $req->parm('subject');
+		my $set = $req->parm('set');
+		my $from = $req->parm('from');
+		if ( my $id = $req->parm('message_id') ) {
 			if ( $self->seen_ids->{$id} ) {
-				print '{"error":"Message ID already used"}';
-				return;
+				return _create_content('{"error":"Message ID already used"}');
 			}
 			$self->seen_ids->{$id} = 1;
 		}
 		if ( $set !~ /^(up|down)$/ ) {
-			print '{"error":"set parameter must be up or down"}';
-			return;
+			return _create_content('{"error":"set parameter must be up or down"}');
 		}
 
 		$self->database->connect();
@@ -99,26 +92,31 @@ sub karma {
 		}
 		$self->log->write( '*** Karma set from API: ' . $subject . ' set ' . $set );
 
-		print '{"status":"ok"}';
-	} else {
-		print '{"error":"Missing subject, from, or set"}';
+		return _create_content('{"status":"ok"}');
 	}
-
-	return;
+	return _create_content('{"error":"Missing subject, from, or set"}');
 }
 
 sub check_access {
-	my ( $self, $cgi ) = @_;
+	my ( $self, $req ) = @_;
 
 	return unless ( $self->my_config and $self->my_config->{enabled} and $self->my_config->{enabled} eq 'yes' );
 	if ( $self->my_config->{limit_ip} ) {
-		return unless ( $cgi->remote_addr eq $self->my_config->{limit_ip} );
+		return unless ( $req->client_host eq $self->my_config->{limit_ip} );
 	}
 	if ( $self->my_config->{token} ) {
-		return unless ( $cgi->param('token') eq $self->my_config->{token} );
+		return unless ( $req->parm('token') eq $self->my_config->{token} );
 	}
 
 	return 1;
+}
+
+sub _create_content {
+	my ($content) = @_;
+
+	return {
+		'content' => [ 'application/json', $content ],
+	};
 }
 
 __PACKAGE__->meta->make_immutable();

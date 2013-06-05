@@ -47,9 +47,9 @@ sub help : Command {
 }
 
 sub paste_form {
-	my ( $self, $cgi ) = @_;
+	my ( $self, $httpd, $req ) = @_;
 
-	return unless ( $self->check_access($cgi) );
+	return unless ( $self->check_access($req) );
 
 	my @channels;
 	foreach my $io ( values %{ $self->ios } ) {
@@ -61,54 +61,47 @@ sub paste_form {
 		'channels' => [ sort @channels ],
 	);
 
-	print "Content-type: text/html\r\n\r\n";
-	if ( $cgi->request_method eq 'POST' ) {
-		$self->_submit_form( $cgi, \%state );
+	if ( $req->method eq 'POST' ) {
+		$self->_submit_form( $req, \%state );
 	}
 
-	$self->template->process( _paste_form_tt2(), \%state );
-
-	return;
+	return $self->render( $req, _paste_form_tt2(), \%state );
 }
 
 sub paste_view {
-	my ( $self, $cgi ) = @_;
+	my ( $self, $httpd, $req ) = @_;
 
-	return unless ( $self->check_access($cgi) );
+	return unless ( $self->check_access($req) );
 
-	my $id = $cgi->param('id');
-	unless ($id) {
-		return '';
-	}
+	my $id = $req->parm('id');
+	return '' unless ($id);
 
 	my %state = (
 		'title' => 'Viewing paste ' . $id,
 		'paste' => $self->model('Paste')->find($id),
 	);
 
-	$self->template->process( _paste_view_tt2(), \%state );
-
-	return;
+	return $self->render( $req, _paste_view_tt2(), \%state );
 }
 
 sub _submit_form {
-	my ( $self, $cgi, $state ) = @_;
+	my ( $self, $req, $state ) = @_;
 
-	unless ( $cgi->param('nickname') ) {
+	unless ( $req->parm('nickname') ) {
 		$state->{'error'} = 'Missing nickname.';
 		return;
 	}
 
-	unless ( $cgi->param('content') ) {
+	unless ( $req->parm('content') ) {
 		$state->{'error'} = 'Missing content.';
 		return;
 	}
 
 	my $paste = $self->model('Paste')->create({
-		'user'        => $cgi->param('nickname'),
-		'destination' => ( $cgi->param('channel') or undef ),
-		'summary'     => ( $cgi->param('summary') or 'none' ),
-		'content'     => encode_entities( $cgi->param('content') ),
+		'user'        => $req->parm('nickname'),
+		'destination' => ( $req->parm('channel') or undef ),
+		'summary'     => ( $req->parm('summary') or 'none' ),
+		'content'     => encode_entities( $req->parm('content') ),
 	});
 	if ($paste) {
 		$state->{'url'} = '/paste/view?id=' . $paste->paste_id;
@@ -137,7 +130,7 @@ sub _submit_form {
 }
 
 sub check_access {
-	my ( $self, $cgi ) = @_;
+	my ( $self, $req ) = @_;
 
 	return unless (
 		$self->my_config
@@ -145,7 +138,7 @@ sub check_access {
 		and $self->my_config->{enabled} eq 'yes'
 	);
 	if ( $self->my_config->{limit_ip} ) {
-		return unless ( $cgi->remote_addr eq $self->my_config->{limit_ip} );
+		return unless ( $req->remote_host eq $self->my_config->{limit_ip} );
 	}
 
 	return 1;
