@@ -25,6 +25,8 @@ provided by whatbot.org for a given release.
 
 =head3 L<whatbot::Command::Market>
 
+=head3 L<whatbot::Command::PageRank>
+
 =head3 L<whatbot::Command::Paste>
 
 =head3 L<whatbot::Command::Quote>

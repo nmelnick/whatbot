@@ -13,6 +13,8 @@ BEGIN { extends 'whatbot::Command' }
 use WWW::Google::PageRank;
 use namespace::autoclean;
 
+our $VERSION = '0.1';
+
 sub register {
 	my ( $self ) = @_;
 	
@@ -20,7 +22,7 @@ sub register {
 	$self->require_direct(0);
 }
 
-sub parse_message : CommandRegEx('(for)? (.*)[\?\s]?') {
+sub parse_message : CommandRegEx('(for )?(.*)[\?\s]?') {
 	my ( $self, $message, $captures ) = @_;
 	
 	if ($captures) {
@@ -40,3 +42,20 @@ sub help {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::Command::PageRank - Retrieve the given web site's Google PageRank
+
+=head1 DESCRIPTION
+
+whatbot::Command::Market provides the chat user a Google PageRank for the site
+they provide.
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut
