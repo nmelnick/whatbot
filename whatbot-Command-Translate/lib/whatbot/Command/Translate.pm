@@ -14,6 +14,8 @@ use WWW::Babelfish;
 use Encode;
 use namespace::autoclean;
 
+our $VERSION = '0.1';
+
 sub register {
 	my ($self) = @_;
 	
@@ -103,3 +105,20 @@ sub translate {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::Command::Translate - Translate text between two languages
+
+=head1 DESCRIPTION
+
+whatbot::Command::Translate will attempt to translate between two languages via
+the WWW::Babelfish module.
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut
