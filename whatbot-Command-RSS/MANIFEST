@@ -1,0 +1,4 @@
+lib/whatbot/Command/RSS.pm
+Makefile.PL
+MANIFEST
+t/00-compile.t
