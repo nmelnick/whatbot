@@ -31,6 +31,8 @@ provided by whatbot.org for a given release.
 
 =head3 L<whatbot::Command::Translate>
 
+=head3 L<whatbot::Command::Weather>
+
 =head1 LICENSE/COPYRIGHT
 
 Be excellent to each other and party on, dudes.

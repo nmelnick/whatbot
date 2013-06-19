@@ -1,0 +1,4 @@
+lib/whatbot/Command/Weather.pm
+Makefile.PL
+MANIFEST
+t/00-compile.t

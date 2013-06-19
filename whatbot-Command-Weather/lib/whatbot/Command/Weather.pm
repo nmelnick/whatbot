@@ -13,6 +13,8 @@ use namespace::autoclean;
 use LWP::UserAgent;
 use JSON::XS;
 
+our $VERSION = '0.1';
+
 has 'api_key' => (
 	'is'  => 'rw',
 	'isa' => 'Str',
@@ -66,13 +68,13 @@ sub weather : GlobalRegEx('^weather (.*)') {
 		$content =~ s/\s*0\s*$//;
 	}
 	my $json = decode_json( $content );
-	if ( $json->{'current_observation'} ) {
+	if ( my $current = $json->{'current_observation'} ) {
 		return sprintf(
 			'Weather for %s: Currently %s and %s, feels like %s. %s',
-			$json->{'current_observation'}->{'display_location'}->{'full'},
-			$json->{'current_observation'}->{'weather'},
-			$json->{'current_observation'}->{'temperature_string'},
-			$json->{'current_observation'}->{'feelslike_string'},
+			$current->{'display_location'}->{'full'},
+			$current->{'weather'},
+			$current->{'temperature_string'},
+			$current->{'feelslike_string'},
 			( $json->{'alerts'} and @{ $json->{'alerts'} } ?
 				'Alert: ' . $json->{'alerts'}->[0]->{'description'}
 				: ''
@@ -95,3 +97,29 @@ sub help {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::Command::Weather - Get weather information for US and world
+
+=head1 SYNOPSIS
+
+Config:
+
+"weather" : {
+	"api_key" : "12345678abcdef90"
+}
+
+=head1 DESCRIPTION
+
+whatbot::Command::Weather will use the Wunderground API to retrieve weather
+information. To do this, you will need to sign up for a free API key from the
+wunderground API site.
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut
