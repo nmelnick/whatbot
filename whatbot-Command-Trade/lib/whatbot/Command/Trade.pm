@@ -18,6 +18,8 @@ use HTML::Strip;
 use URI::Escape qw( uri_escape );
 use Data::Dumper qw( Dumper );
 
+our $VERSION = '0.1';
+
 my $ACCOUNT_ID = 3;
 my $API_KEY    = "w4tb0t123412341234zzX";
 my $BASE_URL   = "http://lightwire.herokuapp.com";
@@ -364,3 +366,16 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+=pod
+
+=head1 NAME
+
+whatbot::Command::Trade - incredibly overcomplicated fake stock trading
+
+=head1 DESCRIPTION
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut

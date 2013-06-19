@@ -1,0 +1,5 @@
+lib/whatbot/Command/Trade.pm
+lib/whatbot/Database/Table/Lightwire.pm
+Makefile.PL
+MANIFEST
+t/00-compile.t

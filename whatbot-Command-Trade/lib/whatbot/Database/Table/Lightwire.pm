@@ -58,7 +58,8 @@ whatbot::Database::Table::Lightwire - Database model for Lightwire
 
 It just stores a lightwire portfolio id for every user seen. wow exciting.
 
-I know it's wrong to use a string as a primary key, but I did it. Sorry, everyone. This is what IRC does to you.
+I know it's wrong to use a string as a primary key, but I did it. Sorry,
+everyone. This is what IRC does to you.
 
 =head1 INHERITANCE
 
