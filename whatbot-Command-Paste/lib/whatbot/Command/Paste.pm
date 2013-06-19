@@ -8,11 +8,15 @@
 
 package whatbot::Command::Paste;
 use Moose;
-use HTML::Entities;
 BEGIN {
 	extends 'whatbot::Command';
 	with 'whatbot::Command::Role::Template';
 }
+
+use HTML::Entities;
+use namespace::autoclean;
+
+our $VERSION = '0.1';
 
 sub register {
 	my ( $self ) = @_;
@@ -283,3 +287,19 @@ __PACKAGE__->meta->make_immutable();
 
 1;
 
+=pod
+
+=head1 NAME
+
+whatbot::Command::Paste - A simple web-based pastebot
+
+=head1 DESCRIPTION
+
+whatbot::Command::Paste provides a simple web-based pastebot. Accepts pastes
+from anywhere, and optionally notifies a given channel about the paste.
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut

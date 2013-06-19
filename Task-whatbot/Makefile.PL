@@ -10,6 +10,7 @@ license  'perl';
 requires       'whatbot'                     => 0.12;
 requires       'whatbot::Command::Blackjack' => 0.1;
 requires       'whatbot::Command::Market'    => 0.1;
+requires       'whatbot::Command::Paste'     => 0.1;
 requires       'whatbot::Command::Quote'     => 0.1;
 requires       'whatbot::Command::RSS'       => 0.1;
 requires       'whatbot::Command::Trade'     => 0.1;

@@ -11,38 +11,38 @@ use Moose;
 extends 'whatbot::Database::Table';
 
 sub BUILD { 
-    my ($self) = @_;
+	my ($self) = @_;
 
-    $self->init_table({
-        'name'        => 'paste',
-        'primary_key' => 'paste_id',
-        'indexed'     => [ 'user', 'destination' ],
-        'defaults'    => {
-            'timestamp' => { 'database' => 'now' }
-        },
-        'columns'     => {
-            'paste_id' => {
-                'type'  => 'integer'
-            },
-            'timestamp' => {
-                'type'  => 'integer'
-            },
-            'user' => {
-                'type'  => 'varchar',
-                'size'  => 255
-            },
-            'destination' => {
-                'type'  => 'varchar',
-                'size'  => 255
-            },
-            'summary' => {
-                'type'  => 'text'
-            },
-            'content' => {
-                'type'  => 'text'
-            },
-        }
-    });
+	$self->init_table({
+		'name'        => 'paste',
+		'primary_key' => 'paste_id',
+		'indexed'     => [ 'user', 'destination' ],
+		'defaults'    => {
+			'timestamp' => { 'database' => 'now' }
+		},
+		'columns'     => {
+			'paste_id' => {
+				'type'  => 'integer'
+			},
+			'timestamp' => {
+				'type'  => 'integer'
+			},
+			'user' => {
+				'type'  => 'varchar',
+				'size'  => 255
+			},
+			'destination' => {
+				'type'  => 'varchar',
+				'size'  => 255
+			},
+			'summary' => {
+				'type'  => 'text'
+			},
+			'content' => {
+				'type'  => 'text'
+			},
+		}
+	});
 }
 
 1;
