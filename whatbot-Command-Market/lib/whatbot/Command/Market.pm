@@ -17,6 +17,8 @@ use LWP::UserAgent ();
 use HTML::Entities qw(decode_entities);
 use HTML::Strip;
 
+our $VERSION = '0.1';
+
 has 'ua' => (
 	is		=> 'ro',
 	isa		=> 'LWP::UserAgent',
@@ -237,3 +239,19 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+=pod
+
+=head1 NAME
+
+whatbot::Command::Market - Check the stock market using the Yahoo API
+
+=head1 DESCRIPTION
+
+whatbot::Command::Market provides methods to check the result of a ticker,
+fund, or index.
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut

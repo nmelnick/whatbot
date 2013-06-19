@@ -7,7 +7,7 @@ author   'Michael Gillis <michael@uken.com>';
 license  'perl';
 
 # Specific dependencies
-requires      'whatbot'              => 0;
+requires      'whatbot'              => 0.12;
 requires      'Moose'                => 2.04;
 requires      'namespace::autoclean' => 0;
 requires      'HTML::Entities'       => 0;

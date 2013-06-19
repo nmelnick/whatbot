@@ -36,5 +36,4 @@ foreach my $stock ( '^DJI' ) {
 	ok( $response =~ /\d+\.\d+/, $stock . ' contains price' );
 }
 
-
 done_testing();

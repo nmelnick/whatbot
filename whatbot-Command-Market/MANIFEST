@@ -1,0 +1,5 @@
+lib/whatbot/Command/Market.pm
+Makefile.PL
+MANIFEST
+t/00-compile.t
+t/20-command-market.t

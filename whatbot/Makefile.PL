@@ -1,7 +1,7 @@
 use inc::Module::Install;
 
 # Define metadata
-name     'App-whatbot';
+name     'whatbot';
 all_from 'lib/whatbot.pm';
 author   'Nicholas Melnick <nick@abstractwankery.com>';
 license  'perl';
