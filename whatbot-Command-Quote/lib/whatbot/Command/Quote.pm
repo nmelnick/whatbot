@@ -8,13 +8,15 @@
 
 package whatbot::Command::Quote;
 use Moose;
-use HTML::Entities;
 BEGIN {
 	extends 'whatbot::Command';
 	with 'whatbot::Command::Role::Template';
 }
 
+use HTML::Entities;
 use namespace::autoclean;
+
+our $VERSION = '0.1';
 
 sub register {
 	my ( $self ) = @_;
@@ -245,3 +247,29 @@ sub _quote_list_tt2 {
 __PACKAGE__->meta->make_immutable();
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::Command::Quote - Provide a web-based quote board
+
+=head1 SYNOPSIS
+
+Config:
+
+"quote" : {
+	"enabled" : "yes"
+}
+
+=head1 DESCRIPTION
+
+whatbot::Command::Quote provides a web based quote board, if web access is
+enabled in whatbot. A user can add quotes from a web page, or from within a
+chat room.
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut

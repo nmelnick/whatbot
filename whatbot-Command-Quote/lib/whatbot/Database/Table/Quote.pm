@@ -11,35 +11,35 @@ use Moose;
 extends 'whatbot::Database::Table';
 
 sub BUILD { 
-    my ($self) = @_;
+	my ($self) = @_;
 
-    $self->init_table({
-        'name'        => 'quote',
-        'primary_key' => 'quote_id',
-        'indexed'     => [ 'user', 'quoted' ],
-        'defaults'    => {
-            'timestamp' => { 'database' => 'now' }
-        },
-        'columns'     => {
-            'quote_id' => {
-                'type'  => 'integer'
-            },
-            'timestamp' => {
-                'type'  => 'integer'
-            },
-            'user' => {
-                'type'  => 'varchar',
-                'size'  => 255
-            },
-            'quoted' => {
-                'type'  => 'varchar',
-                'size'  => 255
-            },
-            'content' => {
-                'type'  => 'text'
-            },
-        }
-    });
+	$self->init_table({
+		'name'        => 'quote',
+		'primary_key' => 'quote_id',
+		'indexed'     => [ 'user', 'quoted' ],
+		'defaults'    => {
+			'timestamp' => { 'database' => 'now' }
+		},
+		'columns'     => {
+			'quote_id' => {
+				'type'  => 'integer'
+			},
+			'timestamp' => {
+				'type'  => 'integer'
+			},
+			'user' => {
+				'type'  => 'varchar',
+				'size'  => 255
+			},
+			'quoted' => {
+				'type'  => 'varchar',
+				'size'  => 255
+			},
+			'content' => {
+				'type'  => 'text'
+			},
+		}
+	});
 }
 
 1;

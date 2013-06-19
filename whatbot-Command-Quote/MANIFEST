@@ -1,0 +1,5 @@
+lib/whatbot/Command/Quote.pm
+lib/whatbot/Database/Table/Quote.pm
+Makefile.PL
+MANIFEST
+t/00-compile.t
