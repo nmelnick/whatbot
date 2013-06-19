@@ -1,0 +1,10 @@
+lib/whatbot/Command/Blackjack/Card.pm
+lib/whatbot/Command/Blackjack/Game.pm
+lib/whatbot/Command/Blackjack/Hand.pm
+lib/whatbot/Command/Blackjack/Stack/Deck.pm
+lib/whatbot/Command/Blackjack/Stack/Shoe.pm
+lib/whatbot/Command/Blackjack/Stack.pm
+lib/whatbot/Command/Blackjack.pm
+Makefile.PL
+MANIFEST
+t/00-compile.t

@@ -14,6 +14,8 @@ use whatbot::Command::Blackjack::Game;
 use whatbot::Command::Insult;
 use namespace::autoclean;
 
+our $VERSION = '0.1';
+
 has 'game'        => ( is => 'ro', isa => 'whatbot::Command::Blackjack::Game' );
 has 'game_admin'  => ( is => 'rw', isa => 'Str' );
 has 'bets'        => ( is => 'ro', isa => 'HashRef' );
