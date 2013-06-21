@@ -48,7 +48,6 @@ recommends     'Lingua::EN::Sentence'      => 0;
 recommends     'Math::Expression'          => 0;
 recommends     'Math::Trig'                => 0;
 recommends     'Math::Units'               => 0;
-recommends     'Net::OSCAR'                => 0;
 recommends     'Net::Telnet'               => 0;
 recommends     'URI::Escape'               => 0;
 

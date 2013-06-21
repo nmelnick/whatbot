@@ -8,6 +8,8 @@
 
 use MooseX::Declare;
 
+our $VERSION = '0.1';
+
 class whatbot::IO::AIM extends whatbot::IO::Legacy {
 	use HTML::Strip;
 	use Net::OSCAR qw(:standard);
@@ -17,6 +19,11 @@ class whatbot::IO::AIM extends whatbot::IO::Legacy {
 	has 'strip'      => ( is => 'ro', default => sub { HTML::Strip->new() } );
 
 	method BUILD {
+		die 'AIM component requires a "screenname" and a "password"' unless (
+			$self->my_config->{'screenname'}
+			and $self->my_config->{'password'}
+		);
+
 		my $name = 'AIM_' . $self->my_config->{'screenname'};
 		$name =~ s/ /_/g;
 		$self->name($name);
@@ -133,3 +140,32 @@ class whatbot::IO::AIM extends whatbot::IO::Legacy {
 }
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::IO::AIM - Provide chat through AOL Instant Messenger.
+
+=head1 CONFIG
+
+ "io" : {
+     "AIM" : {
+         "screenname" : "myaimscreenname",
+         "password" : "myaimpassword"
+     }
+ }
+
+=head1 DESCRIPTION
+
+whatbot::IO::AIM provides a connection interface to AIM/AOL Instant Messenger.
+It only supports private chats, and not AOL chat rooms.
+
+This uses whatbot::IO::Legacy, as Net::OSCAR does not fit within any existing
+event models.
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut

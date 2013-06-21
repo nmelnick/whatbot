@@ -7,13 +7,3 @@ Playing with whatbot
 --------------------
 
 whatbot works. Grab it from github, copy over the example configuration, and edit it to do what you want. We will try to wrap up some documentation by the time we hit 1.0, but it may take some time.
-
-At the very least, you'll need:
-
-* DBI
-* DBD::SQLite
-* Digest::SHA1
-* Moose
-* Net::IRC or Net::OSCAR
-* XML::Simple
-
