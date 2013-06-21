@@ -41,7 +41,6 @@ requires       'Moose'                     => 2.04;
 requires       'MooseX::Declare'           => 0.35;
 requires       'Template'                  => 0;
 
-recommends     'Acme::LOLCAT'              => 0;
 recommends     'DateTime::Format::Natural' => 0;
 recommends     'Image::Size'               => 0;
 recommends     'Lingua::EN::Sentence'      => 0;

@@ -21,6 +21,8 @@ provided by whatbot.org for a given release.
 
 =head3 L<whatbot>
 
+=head3 L<whatbot::Command::Annoying>
+
 =head3 L<whatbot::Command::Blackjack>
 
 =head3 L<whatbot::Command::Market>

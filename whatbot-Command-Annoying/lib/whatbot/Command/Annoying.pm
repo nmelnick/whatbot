@@ -13,6 +13,8 @@ BEGIN { extends 'whatbot::Command'; }
 use Acme::LOLCAT;
 use namespace::autoclean;
 
+our $VERSION = '0.1';
+
 has be_annoying => ( is => 'rw', isa => 'Bool' );
 
 sub register {
@@ -45,3 +47,20 @@ sub annoying {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::Command::Annoying - Continually be annoying.
+
+=head1 DESCRIPTION
+
+whatbot::Command::Annoying parrots back any line in a chat with the same line
+as run through Acme::LOLCAT. It is quite annoying, and toggleable.
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut
