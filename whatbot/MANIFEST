@@ -4,15 +4,12 @@ bin/whatbot_infobot_log_convert.pl
 Changes
 conf/whatbot.conf-example
 lib/whatbot/Command/Admin.pm
-lib/whatbot/Command/Annoying.pm
 lib/whatbot/Command/API.pm
 lib/whatbot/Command/At.pm
 lib/whatbot/Command/Awareness.pm
 lib/whatbot/Command/Calendar.pm
 lib/whatbot/Command/Convert.pm
 lib/whatbot/Command/Define.pm
-lib/whatbot/Command/eBay.pm
-lib/whatbot/Command/Excuse.pm
 lib/whatbot/Command/Factoid.pm
 lib/whatbot/Command/FactoidListener.pm
 lib/whatbot/Command/Help.pm
@@ -20,7 +17,6 @@ lib/whatbot/Command/Insult.pm
 lib/whatbot/Command/Karma.pm
 lib/whatbot/Command/KarmaHistory.pm
 lib/whatbot/Command/Math.pm
-lib/whatbot/Command/Nickometer.pm
 lib/whatbot/Command/Nslookup.pm
 lib/whatbot/Command/Role/Template.pm
 lib/whatbot/Command/Seen.pm
@@ -38,9 +34,6 @@ lib/whatbot/Database/PostgreSQL.pm
 lib/whatbot/Database/SQLite.pm
 lib/whatbot/Database/Table/Factoid.pm
 lib/whatbot/Database/Table/Karma.pm
-lib/whatbot/Database/Table/Lightwire.pm
-lib/whatbot/Database/Table/Paste.pm
-lib/whatbot/Database/Table/Quote.pm
 lib/whatbot/Database/Table/Row.pm
 lib/whatbot/Database/Table/Seen.pm
 lib/whatbot/Database/Table/Soup.pm

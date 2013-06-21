@@ -23,17 +23,11 @@ sub register {
 	
 	$self->command_priority('Extension');
 	$self->require_direct(0);
-	
-	if (
-		$self->my_config
-		and $self->my_config->{enabled}
-		and $self->my_config->{enabled} eq 'yes'
-	) {
-		$self->web(
-			'/quote',
-			\&quote_list
-		);
-	}
+
+	$self->web(
+		'/quote',
+		\&quote_list
+	);
 }
 
 sub help : Command {
@@ -105,12 +99,7 @@ sub _submit_form {
 sub check_access {
 	my ( $self, $req ) = @_;
 
-	return unless (
-		$self->my_config
-		and $self->my_config->{enabled}
-		and $self->my_config->{enabled} eq 'yes'
-	);
-	if ( $self->my_config->{limit_ip} ) {
+	if ( $self->my_config and $self->my_config->{limit_ip} ) {
 		return unless ( $req->remote_host eq $self->my_config->{limit_ip} );
 	}
 

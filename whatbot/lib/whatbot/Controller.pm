@@ -27,6 +27,9 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 		my %command;	    # Ordered list of commands
 		my %command_short_name;
 		$self->command_name( {} ); # Maps command names to commands
+
+		my $blacklist = ( $self->config->config_hash->{'blacklist'} or [] );
+		my $whitelist = ( $self->config->config_hash->{'whitelist'} or [] );
 	
 		# Scan whatbot::Command for loadable plugins
 		foreach my $class_name ( $self->plugins ) {
@@ -35,6 +38,28 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 
 			# Go away unless it's a root module
 			next unless ( pop(@class_split) eq 'Command' );
+
+			# Deny or allow according to blacklist/whitelist
+			if (@$whitelist) {
+				my $allow = 0;
+				foreach my $module (@$whitelist) {
+					if ( $module eq $name ) {
+						$allow++;
+						last;
+					}
+				}
+				next unless ($allow);
+			}
+			if (@$blacklist) {
+				my $listed = 0;
+				foreach my $module (@$blacklist) {
+					if ( $module eq $name ) {
+						$listed++;
+						last;
+					}
+					next if ($listed);
+				}
+			}
 
 			eval {
 				load_class($class_name);

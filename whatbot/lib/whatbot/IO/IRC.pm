@@ -63,7 +63,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 		);
 
 		if ( $config->{'ssl'} ) {
-			$handle->ssl_enable();
+			$handle->enable_ssl();
 		}
 
 		$handle->connect(
