@@ -25,6 +25,8 @@ provided by whatbot.org for a given release.
 
 =head3 L<whatbot::Command::Blackjack>
 
+=head3 L<whatbot::Command::Excuse>
+
 =head3 L<whatbot::Command::Market>
 
 =head3 L<whatbot::Command::Nickometer>

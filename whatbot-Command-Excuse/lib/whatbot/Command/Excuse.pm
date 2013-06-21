@@ -13,6 +13,8 @@ BEGIN { extends 'whatbot::Command' }
 use Net::Telnet;
 use namespace::autoclean;
 
+our $VERSION = '0.1';
+
 sub register {
 	my ( $self ) = @_;
 	
@@ -24,8 +26,8 @@ sub parse_message : CommandRegEx('') {
 	my ( $self, $message ) = @_;
 	
 	my $excuseServer = Net::Telnet->new(
-		Host 	=> 'bob.bob.bofh.org',
-		Port 	=> '666',
+		Host 	=> ( $self->my_config->{'host'} or 'bob.bob.bofh.org' ),
+		Port 	=> ( $self->my_config->{'port'} or '666' ),
 		Errmode => 'return'
 	);
 	if (defined $excuseServer) {
@@ -42,9 +44,35 @@ sub parse_message : CommandRegEx('') {
 }
 
 sub help {
-    return 'Excuse uses an excuse server to deliver a random response to your inquiry. Even better, the inquiry is optional.';
+    return 'Excuse uses an excuse server to deliver a random response to your '
+         . 'inquiry. Even better, the inquiry is optional.';
 }
 
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::Command::Excuse - Provide excuses from an excuse server.
+
+=head1 CONFIG (optional)
+
+"excuse" : {
+	"host" : "bob.bob.bofh.org",
+	"port" : 666
+}
+
+=head1 DESCRIPTION
+
+whatbot::Command::Excuse will query an excuse server and return it to the
+caller. Utilizes bob.bob.bofh.org:666 by default, but can be configured to use
+another server.
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut
