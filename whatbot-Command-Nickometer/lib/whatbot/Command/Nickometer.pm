@@ -1,9 +1,6 @@
 ###########################################################################
 # whatbot/Command/Nickometer.pm
 ###########################################################################
-# Port of infobot's nickometer script by nick@abstractwankery.com.
-# Port source is nickometer.pl,
-# (c)1998 Adam Spiers <adam.spiers@new.ox.ac.uk>.
 # Called whenever it sees the word "nickometer".
 ###########################################################################
 # the whatbot project - http://www.whatbot.org
@@ -15,6 +12,8 @@ BEGIN { extends 'whatbot::Command' }
 
 use Math::Trig;
 use namespace::autoclean;
+
+our $VERSION = '0.1';
 
 sub register {
 	my ( $self ) = @_;
@@ -39,28 +38,28 @@ sub do_nickometer {
 
 	# Deal with special cases (precede with \ to prevent de-k3wlt0k)
 	my %special_cost = (
-					'69'				=> 500,
-					'dea?th'			=> 500,
-					'dark'				=> 400,
-					'n[i1]ght'			=> 300,
-					'n[i1]te'			=> 500,
-					'fuck'				=> 500,
-					'sh[i1]t'			=> 500,
-					'coo[l1]'			=> 500,
-					'kew[l1]'			=> 500,
-					'lame'				=> 500,
-					'dood'				=> 500,
-					'dude'				=> 500,
-					'[l1](oo?|u)[sz]er'	=> 500,
-					'[l1]eet'			=> 500,
-					'e[l1]ite'			=> 500,
-					'[l1]ord'			=> 500,
-					'pron'				=> 1000,
-					'warez'				=> 1000,
-					'xx'				=> 100,
-					'\[rkx]0'			=> 1000,
-					'\0[rkx]'			=> 1000,
-				 );
+		'69'				=> 500,
+		'dea?th'			=> 500,
+		'dark'				=> 400,
+		'n[i1]ght'			=> 300,
+		'n[i1]te'			=> 500,
+		'fuck'				=> 500,
+		'sh[i1]t'			=> 500,
+		'coo[l1]'			=> 500,
+		'kew[l1]'			=> 500,
+		'lame'				=> 500,
+		'dood'				=> 500,
+		'dude'				=> 500,
+		'[l1](oo?|u)[sz]er'	=> 500,
+		'[l1]eet'			=> 500,
+		'e[l1]ite'			=> 500,
+		'[l1]ord'			=> 500,
+		'pron'				=> 1000,
+		'warez'				=> 1000,
+		'xx'				=> 100,
+		'\[rkx]0'			=> 1000,
+		'\0[rkx]'			=> 1000,
+	);
 
 	foreach my $special (keys %special_cost) {
 		my $special_pattern = $special;
@@ -69,8 +68,10 @@ sub do_nickometer {
 		unless ($raw) {
 			$nick =~ tr/023457+8/ozeasttb/;
 		}
-		$self->punish($special_cost{$special}, "matched special case /$special_pattern/")
-			if $nick =~ /$special_pattern/i;
+		$self->punish(
+			$special_cost{$special},
+			"matched special case /$special_pattern/"
+		) if ( $nick =~ /$special_pattern/i );
 	}
 	
 	# Allow Perl referencing
@@ -157,8 +158,8 @@ sub do_nickometer {
 
 	# Use an appropriate function to map [0, +inf) to [0, 100)
 	my $percentage = 100 * 
-										 (1 + tanh(($self->{score}-400)/400)) * 
-										 (1 - 1/(1+$self->{score}/5)) / 2;
+		(1 + tanh(($self->{score}-400)/400)) * 
+		(1 - 1/(1+$self->{score}/5)) / 2;
 
 	my $digits = 2 * (2 - $self->round_up(log(100 - $percentage) / log(10)));
 
@@ -214,3 +215,21 @@ sub punish {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+=pod
+
+=head1 NAME
+
+whatbot::Command::Nickometer - Determine how lame a nick is.
+
+=head1 DESCRIPTION
+
+whatbot::Command::Nickometer uses a "complex" algorithm to determine how lame
+a nick is. Ported from infobot's nickometer.pl, (c)1998 Adam Spiers
+<adam.spiers@new.ox.ac.uk>.
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut

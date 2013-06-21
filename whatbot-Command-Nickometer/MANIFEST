@@ -1,0 +1,4 @@
+lib/whatbot/Command/Nickometer.pm
+Makefile.PL
+MANIFEST
+t/00-compile.t
