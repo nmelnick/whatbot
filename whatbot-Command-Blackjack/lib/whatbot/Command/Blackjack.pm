@@ -153,7 +153,7 @@ sub new_hand {
 	
 	unless ( keys %{ $self->game->players } ) {
 		push( @messages, 'No more players. Good work' . $self->generate_insult(1) );
-		$self->end_game();
+		$self->end();
 		return \@messages;
 	}
 	push(
