@@ -7,19 +7,19 @@ author   'Nicholas Melnick <nick@abstractwankery.com>';
 license  'perl';
 provides 
 	'whatbot' => {
-		'file' => 'lib/whatbot.pm'
+		'file' => 'lib/whatbot.pm',
 	},
 	'whatbot::Command' => {
-		'file' => 'lib/whatbot/Command.pm'
+		'file' => 'lib/whatbot/Command.pm',
 	},
 	'whatbot::Command' => {
-		'file' => 'lib/whatbot/Component.pm'
+		'file' => 'lib/whatbot/Component.pm',
 	},
 	'whatbot::Test' => {
-		'file' => 'lib/whatbot/Test.pm'
+		'file' => 'lib/whatbot/Test.pm',
 	},
 	'whatbot::Types' => {
-		'file' => 'lib/whatbot/Types.pm'
+		'file' => 'lib/whatbot/Types.pm',
 	}
 ;
 

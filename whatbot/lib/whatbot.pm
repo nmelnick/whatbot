@@ -10,6 +10,10 @@
 
 use MooseX::Declare;
 
+BEGIN {
+	$whatbot::VERSION = '0.12';
+}
+
 class whatbot with whatbot::Role::Pluggable {
 	use whatbot::Component::Base;
 	use whatbot::Controller;
@@ -19,8 +23,6 @@ class whatbot with whatbot::Role::Pluggable {
 	use AnyEvent;
 	use EV;
 	use Class::Load qw(load_class);
-
-	our $VERSION = '0.12';
 
 	has 'base_component' => (
 		is  => 'rw',
