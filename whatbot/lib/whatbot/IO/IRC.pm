@@ -12,6 +12,7 @@ use MooseX::Declare;
 
 class whatbot::IO::IRC extends whatbot::IO {
 	use AnyEvent::IRC::Client;
+	use Encode;
 
 	has 'handle' => (
 		is  => 'rw',
@@ -172,7 +173,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 	method privmsg ( $to, $message ) {
 		$self->handle->send_srv(
 			'PRIVMSG' => $to,
-			$message,
+			encode_utf8($message),
 		);
 		return;
 	}
