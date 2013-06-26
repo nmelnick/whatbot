@@ -35,7 +35,7 @@ class whatbot with whatbot::Role::Pluggable {
 	has 'version' => (
 		is      => 'ro',
 		isa     => 'Str',
-		default => $VERSION,
+		default => $whatbot::VERSION,
 	);
 	has 'skip_extensions' => (
 		is      => 'rw',
