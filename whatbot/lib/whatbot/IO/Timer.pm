@@ -9,6 +9,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::IO::Timer extends whatbot::IO::Legacy {
 	# time_queue is an array. each item is of the form:
@@ -18,7 +19,7 @@ class whatbot::IO::Timer extends whatbot::IO::Legacy {
 	has 'time_queue' => ( is => 'rw', isa => 'ArrayRef', default => sub { return [] } );
 	has 'next_time'  => ( is => 'rw', isa => 'Int', default => 0 );
 
-	method BUILD ($) {
+	method BUILD (...) {
 		$self->name('Timer');
 		$self->me( $self->name );
 	}

@@ -10,6 +10,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 role whatbot::Role::Pluggable {
     use Module::Pluggable::Object;

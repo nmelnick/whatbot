@@ -7,6 +7,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::Database::Table::URL extends whatbot::Database::Table {
     use Image::Size qw(imgsize);
@@ -23,7 +24,7 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
         return $mech;
     });
 
-    method BUILD ($) {     
+    method BUILD (...) {     
         $self->init_table({
             'name'        => 'url',
             'primary_key' => 'url_id',

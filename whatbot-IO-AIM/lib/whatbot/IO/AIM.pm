@@ -7,6 +7,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 our $VERSION = '0.1';
 
@@ -18,7 +19,7 @@ class whatbot::IO::AIM extends whatbot::IO::Legacy {
 	has 'aim_handle' => ( is => 'rw' );
 	has 'strip'      => ( is => 'ro', default => sub { HTML::Strip->new() } );
 
-	method BUILD {
+	method BUILD(...) {
 		die 'AIM component requires a "screenname" and a "password"' unless (
 			$self->my_config->{'screenname'}
 			and $self->my_config->{'password'}
@@ -30,7 +31,7 @@ class whatbot::IO::AIM extends whatbot::IO::Legacy {
 		$self->me( $self->my_config->{'screenname'} );
 	}
 
-	after connect {
+	after connect() {
 		# Create Object
 		my $oscar = Net::OSCAR->new();
 	

@@ -15,7 +15,7 @@ for module_name in whatbot \
                    whatbot-Command-Weather \
                    whatbot-IO-AIM; do
     cd $module_name
-    make clean
+    rm Makefile
     cpanm .
     cd ..
 done

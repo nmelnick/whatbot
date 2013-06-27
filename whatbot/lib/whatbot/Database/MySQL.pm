@@ -7,6 +7,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::Database::MySQL extends whatbot::Database::DBI {
 

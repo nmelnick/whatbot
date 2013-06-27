@@ -7,6 +7,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::Component::Base {
 	has 'parent'         => ( is => 'rw', isa => 'whatbot' );

@@ -7,6 +7,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::Progress {
     has 'max'              => ( is => 'rw', isa => 'Int' );

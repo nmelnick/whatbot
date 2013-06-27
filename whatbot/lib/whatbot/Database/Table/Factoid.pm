@@ -7,6 +7,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
     use Digest::SHA1 qw(sha1_hex);
@@ -14,7 +15,7 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
     has 'table_description' => ( is => 'rw', isa => 'whatbot::Database::Table' );
     has 'table_ignore'      => ( is => 'rw', isa => 'whatbot::Database::Table' );
 
-    method BUILD ($) {       
+    method BUILD(...) {       
         $self->init_table({
             'name'        => 'factoid',
             'primary_key' => 'factoid_id',

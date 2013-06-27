@@ -7,6 +7,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::Database::Table extends whatbot::Database {
     use whatbot::Database::Table::Row;

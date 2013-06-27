@@ -7,10 +7,11 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::Database::Table::Lightwire extends whatbot::Database::Table {
 
-    method BUILD ($) {     
+    method BUILD(...) {
         $self->init_table({
             'name'        => 'lightwire',
             'primary_key' => 'user',

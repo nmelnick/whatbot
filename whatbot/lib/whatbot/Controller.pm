@@ -7,6 +7,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggable {
 	use whatbot::Message;
@@ -19,7 +20,7 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 	has 'skip_extensions'    => ( is => 'rw', isa => 'Int' );
 	has 'search_base'        => ( is => 'ro', default => 'whatbot::Command' );
 
-	method BUILD ($) {
+	method BUILD (...) {
 		$self->build_command_map();
 	}
 

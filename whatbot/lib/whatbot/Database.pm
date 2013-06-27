@@ -7,6 +7,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::Database extends whatbot::Component {
     has 'handle' => ( is => 'rw', isa => 'Any' );

@@ -44,6 +44,7 @@ requires       'JSON::XS'                  => 0;
 requires       'Lingua::EN::Sentence'      => 0;
 requires       'Math::Expression'          => 0;
 requires       'Math::Units'               => 0;
+requires       'Method::Signatures'        => 20130505;
 requires       'Module::Pluggable'         => 3.9;
 requires       'Moose'                     => 2.04;
 requires       'MooseX::Declare'           => 0.35;

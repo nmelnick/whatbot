@@ -12,6 +12,8 @@ requires      'Moose'                => 2.04;
 requires      'namespace::autoclean' => 0;
 requires      'HTML::Entities'       => 0;
 requires      'HTML::Strip'          => 0;
+requires      'Method::Signatures'   => 20130505;
+requires      'MooseX::Declare'      => 0.35;
 requires      'URI::Escape'          => 0;
 test_requires 'Test::More'           => 0;
 

@@ -7,6 +7,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::Message extends whatbot::Component {
     use Encode;
@@ -20,7 +21,7 @@ class whatbot::Message extends whatbot::Component {
     has 'origin'        => ( is => 'rw', isa => 'Str' );
     has 'invisible'     => ( is => 'rw', isa => 'Bool', default => 0 );
 
-    method BUILD ($) {
+    method BUILD(...) {
     	my $me = $self->me;
 
 	    # Determine if the message is talking about me
@@ -57,7 +58,7 @@ class whatbot::Message extends whatbot::Component {
         return ( $self->me ? ( $self->to eq $self->me ) : 0 );
     }
 
-    method check_content ( Str $content, $? ) {
+    method check_content( Str $content, ... ) {
         $content =~ s/^\s+//;
         $content =~ s/\s+$//;
         $self->{'content'} = $content;

@@ -9,6 +9,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::IO::Async extends whatbot::IO::Legacy {
     use whatbot::IO::Async::Hack;
@@ -22,7 +23,7 @@ class whatbot::IO::Async extends whatbot::IO::Legacy {
     sub _build_async { return HTTP::Async->new() }
     sub _build_cookie_jar { return HTTP::Cookies->new() }
 
-    method BUILD ($) {
+    method BUILD (...) {
         $self->name('Async');
         $self->me( $self->name );
     }

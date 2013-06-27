@@ -7,6 +7,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::IO extends whatbot::Component {
 	use whatbot::Message;
@@ -15,7 +16,7 @@ class whatbot::IO extends whatbot::Component {
 	has 'name'      => ( is => 'rw', isa => 'Str' );
 	has 'me'        => ( is => 'rw', isa => 'Str', default => '' );
 
-	method BUILD ($) {
+	method BUILD(...) {
 		unless ( defined $self->my_config ) {
 			die 'No configuration found for ' . ref($self);
 		}

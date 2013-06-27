@@ -9,6 +9,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::IO::IRC extends whatbot::IO {
 	use AnyEvent::IRC::Client;
@@ -44,7 +45,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 		return $channels;
 	}
 
-	method BUILD ($) {
+	method BUILD (...) {
 		my $name = 'IRC_' . $self->my_config->{'host'};
 		$name =~ s/ /_/g;
 		$self->name($name);

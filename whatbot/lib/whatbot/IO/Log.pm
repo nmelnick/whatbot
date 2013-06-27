@@ -7,6 +7,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::IO::Log extends whatbot::IO::Legacy {
 	use whatbot::Progress;
@@ -16,7 +17,7 @@ class whatbot::IO::Log extends whatbot::IO::Legacy {
 	has 'current_line'  => ( is => 'rw' );
 	has 'progress'      => ( is => 'rw' );
 
-	method BUILD {
+	method BUILD(...) {
 		my $name = 'Log';
 		$self->name($name);
 		$self->me( $self->my_config->{'me'} );

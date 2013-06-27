@@ -9,6 +9,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::Command extends whatbot::Component {
     use whatbot::Types qw( HTTPRequest );
@@ -38,33 +39,33 @@ class whatbot::Command extends whatbot::Component {
         $_attribute_cache->{ $_[1] } || ();
     }
 
-    method BUILD ($) {
+    method BUILD(...) {
         $self->register();
     }
 
-    method register {
+    method register() {
         $self->log->write(ref($self) . ' works without a register method, but it is recommended to make one.');
     }
 
-    method help {
+    method help() {
         return 'Help is not available for this module.';
     }
 
-    method async ( $req, $callback, $params? ) {
+    method async( $req, $callback, $params? ) {
         $params ||= [];
         return $self->ios->{Async}->enqueue( $self, $req, $callback, $params );
     }
 
-    method web ( $path, $callback ) {
+    method web( $path, $callback ) {
         return unless ( $self->ios->{Web} );
         return $self->ios->{Web}->add_dispatch( $self, $path, $callback );
     }
 
-    method web_url () {
+    method web_url() {
         return sprintf( '%s:%d', $self->ios->{Web}->my_config->{url}, $self->ios->{Web}->my_config->{port} );
     }
 
-    before log () {
+    before log() {
         $self->base_component->log->name( $self->name );
     }
 

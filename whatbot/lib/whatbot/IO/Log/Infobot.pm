@@ -7,6 +7,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::IO::Log::Infobot extends whatbot::IO::Log {
 	use whatbot::Message;

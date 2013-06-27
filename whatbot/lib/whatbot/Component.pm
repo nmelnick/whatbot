@@ -8,6 +8,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::Component {
     use whatbot::Component::Base;
@@ -27,7 +28,7 @@ class whatbot::Component {
         )]
     );
 
-    method BUILD ( $params ) {
+    method BUILD(...) {
     	unless ( ref($self) =~ /Message/ or ref($self) =~ /Command::/ or ref($self) =~ /::Table/ ) {
     		$self->log->write(ref($self) . ' loaded.') ;
     	}

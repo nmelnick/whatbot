@@ -9,6 +9,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::Config {
 	use JSON::XS;
@@ -21,7 +22,7 @@ class whatbot::Config {
 	has 'commands'      => ( is => 'ro', isa => 'Any' );
 	has 'log_directory' => ( is => 'ro', isa => 'Any' );
 
-	method BUILD ($) {
+	method BUILD (...) {
 		my $config;
 		if ( $self->config_hash ) {
 			$config = $self->config_hash;

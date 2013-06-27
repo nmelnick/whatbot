@@ -7,6 +7,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::IO::Web extends whatbot::IO {
 	use whatbot::Message;
@@ -17,7 +18,7 @@ class whatbot::IO::Web extends whatbot::IO {
 		'isa' => 'AnyEvent::HTTPD',
 	);
 
-	method BUILD {
+	method BUILD(...) {
 		my $name = 'Web';
 		$name =~ s/ /_/g;
 		$self->name('Web');

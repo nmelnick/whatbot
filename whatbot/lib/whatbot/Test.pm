@@ -1,4 +1,5 @@
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::Test {
 	use whatbot;

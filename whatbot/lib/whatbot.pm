@@ -9,6 +9,7 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 BEGIN {
 	$whatbot::VERSION = '0.12';
@@ -54,12 +55,12 @@ class whatbot with whatbot::Role::Pluggable {
 		is  => 'rw',
 	);
 
-	method config ( Str $basedir, Str $config_path? ) {
+	method config( Str $basedir, Str $config_path? ) {
 	
 		# Find configuration file
 		unless ( $config_path and -e $config_path ) {
 			my @try_config = (
-				'~/.whatbot/whatbot.conf',
+				$ENV{'HOME'} . '/.whatbot/whatbot.conf',
 				'/usr/local/etc/whatbot/whatbot.conf',
 				'/usr/local/etc/whatbot.conf',
 				'/etc/whatbot/whatbot.conf',
@@ -89,7 +90,7 @@ class whatbot with whatbot::Role::Pluggable {
 		$self->initial_config($config);
 	}
 
-	method run ( $override_io? ) {
+	method run( $override_io? ) {
 		$self->report_error('Invalid configuration')
 			unless ( defined $self->initial_config and $self->initial_config->config_hash );
 		
@@ -145,14 +146,14 @@ class whatbot with whatbot::Role::Pluggable {
 		}
 	}
 
-	method report_error ( Str $error ) {
+	method report_error( Str $error ) {
 		if ( defined $self->base_component and defined $self->base_component->log ) {
 			$self->base_component->log->error($error);
 		}
 		die 'ERROR: ' . $error;
 	}
 
-	method _initialize_models ( $base_component ) {
+	method _initialize_models( $base_component ) {
 		# Find and store models
 		$self->report_error( 
 			'Invalid connection type: ' . $base_component->config->database->{'handler'} 
@@ -198,7 +199,7 @@ class whatbot with whatbot::Role::Pluggable {
 		return;
 	}
 
-	method _initialize_io ($base_component) {
+	method _initialize_io($base_component) {
 		my @io;
 		my %ios;
 		foreach my $io_module ( @{ $self->initial_config->io } ) {
@@ -222,7 +223,7 @@ class whatbot with whatbot::Role::Pluggable {
 		return \@io;
 	}
 
-	method stop () {
+	method stop() {
 		EV::unloop();
 		return;
 	}

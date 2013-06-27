@@ -9,13 +9,14 @@
 ###########################################################################
 
 use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 class whatbot::IO::Legacy extends whatbot::IO {
 	has 'instance' => (
 		is => 'rw',
 	);
 
-	method connect () {
+	method connect() {
 		my $timer = AnyEvent->timer(
 			'after'    => 3,
 			'interval' => 5,
