@@ -334,7 +334,7 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 					}
 				
 				} elsif ( $command eq 'Monitor' ) {
-					$self->add_run_path( $run_paths, '', $function );
+					$self->add_run_path( $run_paths, '.*', $function );
 				
 				} elsif ( $command eq 'Event' ) {
 					$arguments =~ s/\)$//;
