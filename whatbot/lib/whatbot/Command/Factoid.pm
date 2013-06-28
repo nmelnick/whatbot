@@ -26,15 +26,17 @@ sub register {
 }
 
 sub what_is : GlobalRegEx('^(wtf|what|who) (is|are) (.*)') : StopAfter {
-    my ( $self, $message, $captures ) = @_;
-    
+	my ( $self, $message, $captures ) = @_;
+	
 	return $self->retrieve( $captures->[2], $message, 1 );
 }
 
-sub assign : GlobalRegEx('^(.*?) (is|are) (.*)') {
-    my ( $self, $message, $captures ) = @_;
-    
-    my ( $subject, $assigner, $description ) = @$captures;
+sub assign : GlobalRegEx('^(.+?) (is|are) (.*)') {
+	my ( $self, $message, $captures ) = @_;
+
+	my ( $subject, $assigner, $description ) = @$captures;
+	return if ( $subject =~ /^(wtf|what|who)$/ );
+
 	my $is_plural = ( $assigner =~ /are/i ? 1 : 0 );
 	$description =~ s/[\. ]$//g;	        # remove trailing punctuation
 	unless ( $message->is_direct ) {
@@ -50,8 +52,8 @@ sub assign : GlobalRegEx('^(.*?) (is|are) (.*)') {
 }
 
 sub never_remember : GlobalRegEx('^never remember (.*)') : StopAfter {
-    my ( $self, $message, $captures ) = @_;
-    
+	my ( $self, $message, $captures ) = @_;
+	
 	# Delete forever
 	$self->model('Factoid')->forget( $captures->[0] );
 	$self->model('Factoid')->ignore( $captures->[0], 1 );
@@ -59,8 +61,8 @@ sub never_remember : GlobalRegEx('^never remember (.*)') : StopAfter {
 }
 
 sub forget : GlobalRegEx('^forget (.*)') : StopAfter {
-    my ( $self, $message, $captures ) = @_;
-    
+	my ( $self, $message, $captures ) = @_;
+	
 	# Delete
 	my $result = $self->model('Factoid')->forget( $captures->[0] );
 	if ($result) {
@@ -70,7 +72,7 @@ sub forget : GlobalRegEx('^forget (.*)') : StopAfter {
 }
 
 sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
-    my ( $self, $message, $captures ) = @_;
+	my ( $self, $message, $captures ) = @_;
 
 	# Random fact
 	my $factoid;
@@ -82,27 +84,27 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
 			'description' => { 'LIKE' => '%' . $look_for . '%' }
 		});
 		if (@$factoid_facts) {
-    		my $factoid_desc = $factoid_facts->[int(rand(scalar(@{$factoid_facts}))) - 1];
-    		$factoid = $self->model('Factoid')->find( $factoid_desc->factoid_id );
+			my $factoid_desc = $factoid_facts->[int(rand(scalar(@{$factoid_facts}))) - 1];
+			$factoid = $self->model('Factoid')->find( $factoid_desc->factoid_id );
 		
-    		# Who said/When was
-    		$self->who_said( $factoid_desc->user );
-    		$self->when_was( $factoid_desc->updated );
+			# Who said/When was
+			$self->who_said( $factoid_desc->user );
+			$self->when_was( $factoid_desc->updated );
 		
-    		# Override retrieve
-    		my $subject = $factoid->subject;
-    		my $description = $factoid_desc->description;
-    		if ( $description =~ /^<reply>/ ) {
-    			$description =~ s/^<reply> +//;
-    			return $description;
-    		} else {
-    			$subject = 'you' if ( lc($subject) eq lc( $message->from ) );
-    			$subject = $message->from . ', ' . $subject if ( $message->is_direct );
-    			return $subject . ' ' . ( $factoid->is_plural ? 'are' : 'is' ) . ' ' . $description;
-    		}
-    	} else {
-    	    return 'Nothing found for "' . $look_for . '".';
-    	}
+			# Override retrieve
+			my $subject = $factoid->subject;
+			my $description = $factoid_desc->description;
+			if ( $description =~ /^<reply>/ ) {
+				$description =~ s/^<reply> +//;
+				return $description;
+			} else {
+				$subject = 'you' if ( lc($subject) eq lc( $message->from ) );
+				$subject = $message->from . ', ' . $subject if ( $message->is_direct );
+				return $subject . ' ' . ( $factoid->is_plural ? 'are' : 'is' ) . ' ' . $description;
+			}
+		} else {
+			return 'Nothing found for "' . $look_for . '".';
+		}
 		return;
 		
 	} else {
@@ -128,21 +130,21 @@ sub random_fact : GlobalRegEx('^(random fact|jerk it)') : StopAfter {
 }
 
 sub who_said_that : GlobalRegEx('^(who said that)') : StopAfter {
-    my ( $self, $message, $captures ) = @_;
+	my ( $self, $message, $captures ) = @_;
 
 	if ( $self->who_said ) {
 		if ( $message->from eq $self->who_said ) {
-		    return $message->from . ': it was YOU!';
+			return $message->from . ': it was YOU!';
 		} else {
-		    return $message->from . ': ' . $self->who_said;
-	    }
+			return $message->from . ': ' . $self->who_said;
+		}
 	}
 	
 	return;
 }
 
 sub when_was_that : GlobalRegEx('^(when was that)') : StopAfter {
-    my ( $self, $message, $captures ) = @_;
+	my ( $self, $message, $captures ) = @_;
 
 	if ( $self->when_was ) {
 		my $dt = DateTime->from_epoch( epoch => $self->when_was );
@@ -153,16 +155,16 @@ sub when_was_that : GlobalRegEx('^(when was that)') : StopAfter {
 }
 
 sub shut_up : GlobalRegEx('^(shut up|stfu) about (.*)') : StopAfter {
-    my ( $self, $message, $captures ) = @_;
-    
+	my ( $self, $message, $captures ) = @_;
+	
 	# STFU about
 	if ( $self->stfu->{'subject'} eq $captures->[1] and ( time - $self->stfu->{'time'} ) < 45 ) {
 		return undef;
 		
 	} elsif ( defined $self->stfu ) {
 		$self->stfu({
-		    'subject' => '',
-		    'time'    => ''
+			'subject' => '',
+			'time'    => ''
 		});
 	}
 	
@@ -196,11 +198,11 @@ sub retrieve {
 	}
 	my $factoid_package = $self->model('Factoid')->factoid($subject);
 	if (
-	    $factoid_package
-	    and (
-	        !( $factoid_package->{'factoid'}->silent and $factoid_package->{'factoid'}->silent == 1 )
-	        or $direct
-	    )
+		$factoid_package
+		and (
+			!( $factoid_package->{'factoid'}->silent and $factoid_package->{'factoid'}->silent == 1 )
+			or $direct
+		)
 	) {
 		my @facts;
 		my $factoid = $factoid_package->{'factoid'};
@@ -220,8 +222,8 @@ sub retrieve {
 			return $facts[0];
 		} else {
 			if ( lc($subject) eq lc( $message->from ) ) {
-			    $subject = 'you';
-			    $factoid->is_plural(1);
+				$subject = 'you';
+				$factoid->is_plural(1);
 			}
 			$subject = $message->from . ', ' . $subject if ( $message->is_direct );
 			my $factoid_data = join( ' or ', @facts );
