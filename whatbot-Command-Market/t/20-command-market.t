@@ -27,7 +27,7 @@ foreach my $stock ( qw( AAPL MSFT GOOG CSCO DRIV ) ) {
 }
 
 # Known weird
-foreach my $stock ( '^DJI' ) {
+foreach my $stock ( '^DJI DRIV' ) {
 	my $sanitized = $stock;
 	$sanitized =~ s/\^/\\^/g;
 	my $response = $market->parse_message( 'market ' . $stock, [$stock] );

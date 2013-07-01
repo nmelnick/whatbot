@@ -157,13 +157,13 @@ sub _retrieve_yahoo_scrape {
 	}
 
 	# ChangeRealtime / ChangePercentRealtime
-	if ( $content =~ /<span id="yfs_c10_[^"]+"><img.*?alt="(\w+)">\s*([\d,\.]+)<\/span><span id="yfs_p20_[^"]+">\(([\d,\.]+%)\)<\/span>/ ) {
+	if ( $content =~ /<span id="yfs_c\d\d_[^"]+"><img.*?alt="(\w+)">\s*([\d,\.]+)<\/span><span id="yfs_p20_[^"]+">\(([\d,\.]+%)\)<\/span>/ ) {
 		$data{'ChangeRealtime'} = colorize( ( $1 eq 'Down' ? '-' : '+' ) . $2 );
 		$data{'ChangePercentRealtime'} = colorize( ( $1 eq 'Down' ? '-' : '+' ) . $3 );
 	}
 
 	# LastTradeRealtimeWithTime
-	if ( $content =~ /<span class="time_rtq_ticker"><span id="yfs_l10_[^"]+">([\d,\.]+)<\/span><\/span>/ ) {
+	if ( $content =~ /<span class="time_rtq_ticker"><span id="yfs_l\d\d_[^"]+">([\d,\.]+)<\/span><\/span>/ ) {
 		$data{'LastTradeRealtimeWithTime'} = $1;
 		$data{'LastTradeRealtimeWithTime'} =~ s/,//g;
 	}
