@@ -40,7 +40,7 @@ sub register {
 	return;
 }
 
-sub tempString {
+sub temp_string {
   my $temp = $_[1] || $_[0];
   my $conv = new Convert::Temperature();
 
@@ -85,8 +85,8 @@ sub weather : GlobalRegEx('^weather (.*)') {
 			'Weather for %s: Currently %s and %s, feels like %s. %s',
 			$current->{'display_location'}->{'full'},
 			$current->{'weather'},
-			tempString($current->{'temp_f'}),
-      tempString($current->{'feelslike_f'}),
+			temp_string($current->{'temp_f'}),
+			temp_string($current->{'feelslike_f'}),
 			( $json->{'alerts'} and @{ $json->{'alerts'} } ?
 				'Alert: ' . $json->{'alerts'}->[0]->{'description'}
 				: ''
