@@ -12,6 +12,7 @@ requires      'Moose'                => 2.04;
 requires      'namespace::autoclean' => 0;
 requires      'LWP::UserAgent'       => 0;
 requires      'JSON::XS'             => 0;
+requires      'Convert::Temperature' => 0;
 test_requires 'Test::More'           => 0;
 
 WriteAll;

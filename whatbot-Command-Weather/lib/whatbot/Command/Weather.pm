@@ -12,6 +12,7 @@ BEGIN { extends 'whatbot::Command'; }
 use namespace::autoclean;
 use LWP::UserAgent;
 use JSON::XS;
+use Convert::Temperature;
 
 our $VERSION = '0.1';
 
@@ -37,6 +38,17 @@ sub register {
 	}
 	
 	return;
+}
+
+sub tempString {
+  my $temp = $_[1] || $_[0];
+  my $conv = new Convert::Temperature();
+
+  return sprintf('%d F (%0.2f C)',
+    $temp,
+    $conv->from_fahr_to_cel($temp)
+  );
+
 }
 
 sub weather : GlobalRegEx('^weather (.*)') {
@@ -73,8 +85,8 @@ sub weather : GlobalRegEx('^weather (.*)') {
 			'Weather for %s: Currently %s and %s, feels like %s. %s',
 			$current->{'display_location'}->{'full'},
 			$current->{'weather'},
-			$current->{'temperature_string'},
-			$current->{'feelslike_string'},
+			tempString($current->{'temp_f'}),
+      tempString($current->{'feelslike_f'}),
 			( $json->{'alerts'} and @{ $json->{'alerts'} } ?
 				'Alert: ' . $json->{'alerts'}->[0]->{'description'}
 				: ''
