@@ -18,8 +18,8 @@ ok( my $weather = whatbot::Command::Weather->new({
 
 $weather->register();
 
-my $temp_string = $weather->temp_string('80');
-ok( $temp_string eq '80 F (26.67 C)', 'converts properly');
+my $tempString = $weather->temp_string('80');
+ok( $tempString eq '80 F (26.67 C)', 'converts properly');
 
 if($weather->api_key) {
   my $response = $weather->weather('weather 05455', ['05455']);

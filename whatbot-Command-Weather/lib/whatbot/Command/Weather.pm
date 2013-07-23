@@ -41,7 +41,7 @@ sub register {
 }
 
 sub temp_string {
-  my $temp = $_[1] || $_[0];
+  my ( $self, $temp ) = @_;
   my $conv = new Convert::Temperature();
 
   return sprintf('%d F (%0.2f C)',
@@ -52,7 +52,7 @@ sub temp_string {
 }
 
 sub location {
-  my $location = $_[1] || $_[0];
+  my ( $self, $location ) = @_;
 	my $query;
 
 	if ( $location =~ /^\d{5}$/ ) {
@@ -85,7 +85,7 @@ sub forecast : GlobalRegEx('^forecast (.*)') {
 
 	return unless ( $self->api_key );
 
-	my $query = location($captures->[0]);
+	my $query = $self->location($captures->[0]);
 
   my $url = sprintf(
 		'http://api.wunderground.com/api/%s/forecast/q/%s.json',
@@ -109,7 +109,7 @@ sub weather : GlobalRegEx('^weather (.*)') {
 
 	return unless ( $self->api_key );
 
-	my $query = location($captures->[0]);
+	my $query = $self->location($captures->[0]);
 
   if($query eq '') {
 		return 'Unwilling to figure out what you meant by: ' . $captures->[0];	
@@ -127,8 +127,8 @@ sub weather : GlobalRegEx('^weather (.*)') {
 			'Weather for %s: Currently %s and %s, feels like %s. %s',
 			$current->{'display_location'}->{'full'},
 			$current->{'weather'},
-			temp_string($current->{'temp_f'}),
-			temp_string($current->{'feelslike_f'}),
+			$self->temp_string($current->{'temp_f'}),
+			$self->temp_string($current->{'feelslike_f'}),
 			( $json->{'alerts'} and @{ $json->{'alerts'} } ?
 				'Alert: ' . $json->{'alerts'}->[0]->{'description'}
 				: ''
