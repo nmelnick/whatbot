@@ -131,7 +131,7 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 	method handle_message ( $message, $me? ) {
 		my @messages;
 		foreach my $priority ( qw( primary core extension last ) ) {
-			last if ( @messages and $priority =~ /(extension|last)/ );
+			last if ( @messages and $priority =~ /last/ );
 		
 			# Iterate through priorities, in order, check for commands that can
 			# receive content
@@ -146,7 +146,7 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 
 					my $listen = ( $run_path->{'match'} or '' );
 					my $function = $run_path->{'function'};
-				
+
 					if ( $listen eq '' or my (@matches) = $message->content =~ /$listen/i ) {
 						my $result = eval {
 							$command->$function( $message, \@matches );
@@ -157,7 +157,6 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 					
 						# End processing for this command if StopAfter was called.
 						last if ( $run_path->{'stop'} );
-				
 					}
 				}
 			}
