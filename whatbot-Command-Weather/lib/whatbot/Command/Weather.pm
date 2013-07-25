@@ -100,9 +100,9 @@ sub forecast : GlobalRegEx('^forecast (.*)') {
 
   my $forecasts = $json->{'forecast'}->{'txt_forecast'}->{'forecastday'};
 
-  my $buffer = "";
+  my $buffer = [];
   foreach my $forecast ( @{ $forecasts } ) {
-    $buffer .= sprintf("%s: %s\n", $forecast->{'title'}, $forecast->{'fcttext'});
+    push($buffer, sprintf("%s: %s\n", $forecast->{'title'}, $forecast->{'fcttext'}));
   }
 
   return $buffer;
