@@ -41,18 +41,19 @@ sub register {
 }
 
 sub temp_string {
-  my ( $self, $temp ) = @_;
-  my $conv = new Convert::Temperature();
+	my ( $self, $temp ) = @_;
+	my $conv = new Convert::Temperature();
 
-  return sprintf('%d F (%0.2f C)',
-    $temp,
-    $conv->from_fahr_to_cel($temp)
-  );
+	return sprintf(
+		'%d F (%0.2f C)',
+		$temp,
+		$conv->from_fahr_to_cel($temp)
+	);
 
 }
 
 sub location {
-  my ( $self, $location ) = @_;
+	my ( $self, $location ) = @_;
 	my $query;
 
 	if ( $location =~ /^\d{5}$/ ) {
@@ -63,49 +64,54 @@ sub location {
 		$query = $2 . '/' . $1;
 	}
 
-  return $query;
+	return $query;
 }
 
 sub fetch_and_decode {
-  my ( $self, $url ) = @_;
+	my ( $self, $url ) = @_;
 
 	my $response = $self->ua->get($url);
 	my $content = $response->decoded_content;
+
+	# Nothing is compliant, so if headers appear in the response, separate them.
 	if ( $content =~ /Content\-Type/ ) {
 		my ( $headers, @contents ) = split( /\n\n/, $content );
 		$content = join( '', @contents );
 		$content =~ s/\s*0\s*$//;
 	}
 
-  return decode_json( $content );
+	# What the eff, wunderground
+	$content =~ s/\s+ef1\s+//g;
+
+	return decode_json( $content );
 }
 
 sub forecast : GlobalRegEx('^forecast (.*)') {
-  my ( $self, $message, $captures ) = @_;
+	my ( $self, $message, $captures ) = @_;
 
 	return unless ( $self->api_key );
 
 	my $query = $self->location($captures->[0]);
-  
-  unless(defined $query) {
-    return "Unwilling to figure out what you meanted by: " . $captures->[0];
-  }
+	
+	unless (defined $query) {
+		return "Unwilling to figure out what you meant by: " . $captures->[0];
+	}
 
-  my $url = sprintf(
+	my $url = sprintf(
 		'http://api.wunderground.com/api/%s/forecast/q/%s.json',
 		$self->api_key,
 		$query
 	);
 	my $json = $self->fetch_and_decode($url);
 
-  my $forecasts = $json->{'forecast'}->{'txt_forecast'}->{'forecastday'};
+	my $forecasts = $json->{'forecast'}->{'txt_forecast'}->{'forecastday'};
 
-  my $buffer = [];
-  foreach my $forecast ( @{ $forecasts } ) {
-    push($buffer, sprintf("%s: %s\n", $forecast->{'title'}, $forecast->{'fcttext'}));
-  }
+	my $buffer = [];
+	foreach my $forecast ( @{ $forecasts } ) {
+		push( @$buffer, sprintf("%s: %s", $forecast->{'title'}, $forecast->{'fcttext'}) );
+	}
 
-  return $buffer;
+	return $buffer;
 }
 
 sub weather : GlobalRegEx('^weather (.*)') {
@@ -115,7 +121,7 @@ sub weather : GlobalRegEx('^weather (.*)') {
 
 	my $query = $self->location($captures->[0]);
 
-  unless(defined $query) {
+	unless(defined $query) {
 		return 'Unwilling to figure out what you meant by: ' . $captures->[0];	
 	}
 
@@ -143,14 +149,14 @@ sub weather : GlobalRegEx('^weather (.*)') {
 }
 
 sub help {
-    my ( $self ) = @_;
-    
-    return [
-        'Weather grabs the temperature and alerts for a zip code or "City, Country".',
-        'Usage: weather 10101',
-        'Usage: weather Toronto, Canada',
-        'Usage: forecast 10101'
-    ];
+	my ( $self ) = @_;
+	
+	return [
+		'Weather grabs the temperature and alerts for a zip code or "City, Country".',
+		'Usage: weather 10101',
+		'Usage: weather Toronto, Canada',
+		'Usage: forecast 10101'
+	];
 }
 
 __PACKAGE__->meta->make_immutable;
