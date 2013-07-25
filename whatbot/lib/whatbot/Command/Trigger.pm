@@ -25,6 +25,21 @@ sub register {
 	return;
 }
 
+sub unset : Command {
+	my ( $self, $message, $captures ) = @_;
+	
+	my $unset = join( ' ', @$captures );
+	$unset =~ s/^\///;
+	$unset =~ s/\/$//;
+	my $get = $self->model('Soup')->get($unset);
+	if ($get) {
+		$self->model('Soup')->clear($unset);
+		$self->triggers( $self->model('Soup')->get_hashref() );
+		return 'Removed trigger.';
+	}
+	return 'I could not find that trigger';
+}
+
 sub set : Command {
 	my ( $self, $message, $captures ) = @_;
 
@@ -65,21 +80,6 @@ sub set : Command {
 	
 	return 'Invalid trigger: You must start with a regular expression inside '
 	     . 'two forward slashes, followed by the response.';
-}
-
-sub unset : Command {
-	my ( $self, $message, $captures ) = @_;
-	
-	my $unset = join( ' ', @$captures );
-	$unset =~ s/^\///;
-	$unset =~ s/\/$//;
-	my $get = $self->model('Soup')->get($unset);
-	if ($get) {
-		$self->model('Soup')->clear($unset);
-		$self->triggers( $self->model('Soup')->get_hashref() );
-		return 'Removed trigger.';
-	}
-	return 'I could not find that trigger';
 }
 
 sub stats : Command {
