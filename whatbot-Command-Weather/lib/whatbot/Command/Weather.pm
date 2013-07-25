@@ -41,7 +41,7 @@ sub register {
 }
 
 sub temp_string {
-  my $temp = $_[1] || $_[0];
+  my ( $self, $temp ) = @_;
   my $conv = new Convert::Temperature();
 
   return sprintf('%d F (%0.2f C)',
@@ -51,27 +51,24 @@ sub temp_string {
 
 }
 
-sub weather : GlobalRegEx('^weather (.*)') {
-	my ( $self, $message, $captures ) = @_;
-
-	return unless ( $self->api_key );
-
-	my $location = $captures->[0];
+sub location {
+  my ( $self, $location ) = @_;
 	my $query;
+
 	if ( $location =~ /^\d{5}$/ ) {
 		$query = $location;
 	} elsif ( $location =~ /([^,]+), (\w\w+)/ ) {
 		$query = $2 . '/' . $1;
 	} elsif ( $location =~ /([^,]+), (\w{2})/ ) {
 		$query = $2 . '/' . $1;
-	} else {
-		return 'Unwilling to figure out what you meant by: ' . $location;	
 	}
-	my $url = sprintf(
-		'http://api.wunderground.com/api/%s/conditions/alerts/q/%s.json',
-		$self->api_key,
-		$query
-	);
+
+  return $query;
+}
+
+sub fetch_and_decode {
+  my ( $self, $url ) = @_;
+
 	my $response = $self->ua->get($url);
 	my $content = $response->decoded_content;
 	if ( $content =~ /Content\-Type/ ) {
@@ -79,14 +76,63 @@ sub weather : GlobalRegEx('^weather (.*)') {
 		$content = join( '', @contents );
 		$content =~ s/\s*0\s*$//;
 	}
-	my $json = decode_json( $content );
+
+  return decode_json( $content );
+}
+
+sub forecast : GlobalRegEx('^forecast (.*)') {
+  my ( $self, $message, $captures ) = @_;
+
+	return unless ( $self->api_key );
+
+	my $query = $self->location($captures->[0]);
+  
+  unless(defined $query) {
+    return "Unwilling to figure out what you meanted by: " . $captures->[0];
+  }
+
+  my $url = sprintf(
+		'http://api.wunderground.com/api/%s/forecast/q/%s.json',
+		$self->api_key,
+		$query
+	);
+	my $json = $self->fetch_and_decode($url);
+
+  my $forecasts = $json->{'forecast'}->{'txt_forecast'}->{'forecastday'};
+
+  my $buffer = [];
+  foreach my $forecast ( @{ $forecasts } ) {
+    push($buffer, sprintf("%s: %s\n", $forecast->{'title'}, $forecast->{'fcttext'}));
+  }
+
+  return $buffer;
+}
+
+sub weather : GlobalRegEx('^weather (.*)') {
+	my ( $self, $message, $captures ) = @_;
+
+	return unless ( $self->api_key );
+
+	my $query = $self->location($captures->[0]);
+
+  unless(defined $query) {
+		return 'Unwilling to figure out what you meant by: ' . $captures->[0];	
+	}
+
+	my $url = sprintf(
+		'http://api.wunderground.com/api/%s/conditions/alerts/q/%s.json',
+		$self->api_key,
+		$query
+	);
+	my $json = $self->fetch_and_decode($url);
+
 	if ( my $current = $json->{'current_observation'} ) {
 		return sprintf(
 			'Weather for %s: Currently %s and %s, feels like %s. %s',
 			$current->{'display_location'}->{'full'},
 			$current->{'weather'},
-			temp_string($current->{'temp_f'}),
-			temp_string($current->{'feelslike_f'}),
+			$self->temp_string($current->{'temp_f'}),
+			$self->temp_string($current->{'feelslike_f'}),
 			( $json->{'alerts'} and @{ $json->{'alerts'} } ?
 				'Alert: ' . $json->{'alerts'}->[0]->{'description'}
 				: ''
@@ -103,6 +149,7 @@ sub help {
         'Weather grabs the temperature and alerts for a zip code or "City, Country".',
         'Usage: weather 10101',
         'Usage: weather Toronto, Canada',
+        'Usage: forecast 10101'
     ];
 }
 
