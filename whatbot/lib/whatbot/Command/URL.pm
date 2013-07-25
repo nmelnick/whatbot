@@ -21,7 +21,7 @@ sub register {
     return;
 }
 
-sub store_url : GlobalRegEx('.*?((https|http|ftp|news|feed|telnet):\/\/[^\s]+).*') {
+sub store_url : GlobalRegEx('.*?((https|http|ftp|feed):\/\/[^\s]+).*') {
     my ( $self, $message, $captures ) = @_;
     
     return if ( $message->invisible );

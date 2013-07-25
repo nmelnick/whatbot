@@ -63,7 +63,8 @@ sub set : Command {
 		}
 	}
 	
-	return 'Invalid trigger: You must start with a regular expression inside two forward slashes, followed by the response.';
+	return 'Invalid trigger: You must start with a regular expression inside '
+	     . 'two forward slashes, followed by the response.';
 }
 
 sub unset : Command {
