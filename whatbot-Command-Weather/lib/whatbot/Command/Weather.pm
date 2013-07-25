@@ -86,6 +86,10 @@ sub forecast : GlobalRegEx('^forecast (.*)') {
 	return unless ( $self->api_key );
 
 	my $query = $self->location($captures->[0]);
+  
+  unless(defined $query) {
+    return "Unwilling to figure out what you meanted by: " . $captures->[0];
+  }
 
   my $url = sprintf(
 		'http://api.wunderground.com/api/%s/forecast/q/%s.json',
@@ -111,7 +115,7 @@ sub weather : GlobalRegEx('^weather (.*)') {
 
 	my $query = $self->location($captures->[0]);
 
-  if($query eq '') {
+  unless(defined $query) {
 		return 'Unwilling to figure out what you meant by: ' . $captures->[0];	
 	}
 

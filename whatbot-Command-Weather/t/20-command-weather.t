@@ -26,10 +26,16 @@ if($weather->api_key) {
   ok( $response, 'has a response');
   ok( $response =~  /\d+[\.\d]* F \(\d+[\.\d]* C\)/, 'has both temperatures');
 
+  $response = $weather->weather('weather abc', ['abc']);
+  ok( $response eq 'Unwilling to figure out what you meant by: abc', 'weather handles bad location');
+
   $response = $weather->forecast('forecast 05455', ['05455']);
   ok( $response );
   ok( $response =~ /(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)/, 'has a day forecast');
   ok( $response =~ /Night/, 'has a night forecast');
+
+  $response = $weather->weather('forecast abc', ['abc']);
+  ok( $response eq 'Unwilling to figure out what you meant by: abc', 'forecast handles bad location');
 }
 
 done_testing();
