@@ -51,11 +51,6 @@ class whatbot::Command extends whatbot::Component {
         return 'Help is not available for this module.';
     }
 
-    method async( $req, $callback, $params? ) {
-        $params ||= [];
-        return $self->ios->{Async}->enqueue( $self, $req, $callback, $params );
-    }
-
     method web( $path, $callback ) {
         return unless ( $self->ios->{Web} );
         return $self->ios->{Web}->add_dispatch( $self, $path, $callback );

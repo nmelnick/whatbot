@@ -33,7 +33,6 @@ requires       'DateTime::Format::Natural' => 0;
 requires       'DBI'                       => 0;
 requires       'Digest::SHA1'              => 0;
 requires       'EV'                        => 0;
-requires       'HTTP::Async'               => 0;
 requires       'HTTP::Cookies'             => 0;
 requires       'HTML::Entities'            => 0;
 requires       'HTTP::Request'             => 0;

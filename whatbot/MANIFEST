@@ -40,8 +40,6 @@ lib/whatbot/Database/Table/Soup.pm
 lib/whatbot/Database/Table/URL.pm
 lib/whatbot/Database/Table.pm
 lib/whatbot/Database.pm
-lib/whatbot/IO/Async/Hack.pm
-lib/whatbot/IO/Async.pm
 lib/whatbot/IO/IRC.pm
 lib/whatbot/IO/Legacy.pm
 lib/whatbot/IO/Log/Infobot.pm
@@ -61,7 +59,4 @@ MANIFEST
 t/00-compile.t
 t/11-database-table-url.t
 t/21-command-admin.t
-t/boilerplate.t
 t/manifest.t
-t/pod-coverage.t
-t/pod.t
