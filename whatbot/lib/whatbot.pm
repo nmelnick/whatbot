@@ -85,7 +85,6 @@ class whatbot with whatbot::Role::Pluggable {
 
 		# Add core IO
 		push( @{ $config->{'io'} }, { 'interface' => 'Timer' } );
-		push( @{ $config->{'io'} }, { 'interface' => 'Async' } );
 
 		$self->initial_config($config);
 	}
