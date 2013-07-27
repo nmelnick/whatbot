@@ -79,7 +79,7 @@ class whatbot::IO::Jabber extends whatbot::IO {
 
 	after connect {
 		my $config = $self->my_config;
-		my $handle  = AnyEvent::XMPP::Client->new(debug => 0);
+		my $handle  = AnyEvent::XMPP::Client->new(debug => $config->{xmpp_debug});
 		my $version = AnyEvent::XMPP::Ext::Version->new;
 		my $disco   = $self->_disco;
 		my $muc     = $self->_muc;
@@ -88,7 +88,7 @@ class whatbot::IO::Jabber extends whatbot::IO {
 		$handle->add_extension($version);
 		$handle->add_extension($muc);
 
-		$handle->add_account($config->{jabber_id}, $config->{password}, undef, undef, {dont_retrieve_roster => 1});
+		$handle->add_account($config->{jabber_id}, $config->{password}, $config->{host}, $config->{port}, {dont_retrieve_roster => 1});
 
 		$handle->set_presence(undef, $config->{presence_status}, $config->{presence_priority});
 
@@ -131,17 +131,16 @@ class whatbot::IO::Jabber extends whatbot::IO {
 		$self->event_action( $self->me, $message->from, $message->content );
 		$message->{from} ||= $self->my_config->{jabber_id};
 		if ( my $account = $self->handle->find_account_for_dest_jid( $message->to ) ) {
-			if($message->is_private){
-				my $m = AnyEvent::XMPP::IM::Message->new(%$message, body => $message->content);
-				$m->send( $account->connection );
-			} else {
+			if(my $room = $self->_muc->get_room( $account->connection, $message->to ) ) {
 				my $room_name = $message->to;
 				(my $group_message_content = $message->content) =~ s/$room_name\///;
+
 				my $m = AnyEvent::XMPP::Ext::MUC::Message->new(%$message, body => $group_message_content, type => 'groupchat');
-				if ( my $room = $self->_muc->get_room( $account->connection, $message->to) ) {
-					$m->to($room->jid);
-					$m->send($room);
-				}
+				$m->to($room->jid);
+				$m->send($room);
+			} else {
+				my $m = AnyEvent::XMPP::IM::Message->new(%$message, body => $message->content, type => 'chat');
+				$m->send( $account->connection );
 			}
 		}
 	}
@@ -212,10 +211,9 @@ class whatbot::IO::Jabber extends whatbot::IO {
 		$self->event_message(
 			$self->get_new_message(
 				{
-					from    => $msg->from,
-					from_nick => res_jid($msg->from),
+					reply_to => $msg->room->jid,
+					from    => res_jid($msg->from),
 					to      => $msg->room->jid,
-					to_nick => node_jid( $msg->from ),
 					content => $msg->any_body,
 					me => $msg->room->get_me->nick,
 				}
@@ -228,11 +226,11 @@ class whatbot::IO::Jabber extends whatbot::IO {
 		return if !$msg->any_body;
 		$self->event_message(
 			$self->get_new_message({
-				from => $msg->from,
-				from_nick => node_jid($msg->from),
+				reply_to => $msg->from,
+				from => node_jid($msg->from),
 				to => $msg->to,
-				to_nick => node_jid($msg->to),
-				content => $msg->any_body
+				content => $msg->any_body,
+				me => $msg->to
 			})
 		);
 		return;
