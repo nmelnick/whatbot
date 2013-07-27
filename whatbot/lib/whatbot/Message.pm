@@ -14,6 +14,7 @@ class whatbot::Message extends whatbot::Component {
 
     has 'from'          => ( is => 'rw', isa => 'Str', required => 1 );
     has 'to'            => ( is => 'rw', isa => 'Str', required => 1 );
+    has 'reply_to'      => ( is => 'rw', isa => 'Str', required => 0 );
     has 'content'       => ( is => 'rw', isa => 'Str', required => 1, trigger => \&check_content );
     has 'timestamp'     => ( is => 'rw', isa => 'Int', default => sub { time } );
     has 'is_direct'     => ( is => 'rw', isa => 'Int', default => 0 );
@@ -67,7 +68,7 @@ class whatbot::Message extends whatbot::Component {
     method reply ( HashRef $overrides? ) {
         my $message = whatbot::Message->new({
             'from'    => $self->me,
-            'to'      => ( $self->is_private ? $self->from : $self->to ),
+            'to'      => $self->reply_to || ( $self->is_private ? $self->from : $self->to ),
             'me'      => $self->me,
             'content' => '',
         });

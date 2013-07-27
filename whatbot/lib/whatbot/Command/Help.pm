@@ -29,7 +29,7 @@ sub parse_message : GlobalRegEx('^help ?(.*)?') {
             $help = [$help] unless ( ref($help) );
             foreach my $str ( @$help ) {
                 my $reply = $message->reply({
-                    to      => $message->from,
+                    to      => $message->reply_to || $message->from,
                     content => $str
                 });
                 push( @replies, $reply );
@@ -37,7 +37,7 @@ sub parse_message : GlobalRegEx('^help ?(.*)?') {
             return \@replies;
         } else {
             return $message->reply({
-                to      => $message->from,
+                to      => $message->reply_to || $message->from,
                 content => 'No such command: "' . $captures->[0] . '". ' . $self->available()
             });
         }
