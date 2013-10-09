@@ -13,7 +13,7 @@ use Method::Signatures::Modifiers;
 
 class whatbot::IO::Timer extends whatbot::IO::Legacy {
 	# time_queue is an array. each item is of the form:
-	#  [ int time, coderef sub, ...  ]
+	#  [ int time (in seconds), coderef sub, ...  ]
 	#
 	# "..." can be any number of args to be sent to the sub when it is called at time.
 	has 'time_queue' => ( is => 'rw', isa => 'ArrayRef', default => sub { return [] } );

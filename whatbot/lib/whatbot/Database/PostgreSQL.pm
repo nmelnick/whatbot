@@ -23,7 +23,10 @@ class whatbot::Database::PostgreSQL extends whatbot::Database::DBI {
 		$self->connect_array([
 			'DBI:Pg:' . join( ';', @params ),
 			( $config->{'username'} or '' ),
-			( $config->{'password'} or '' )
+			( $config->{'password'} or '' ),
+			{
+				'pg_enable_utf8' => 1,
+			}
 		]);
 	};
 

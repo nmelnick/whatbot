@@ -20,6 +20,7 @@ class whatbot::Database::SQLite extends whatbot::Database::DBI {
 			'',
 			{
 				'sqlite_use_immediate_transaction' => 1,
+				'sqlite_unicode' => 1,
 				'AutoCommit' => 1,
 			}
 		]);

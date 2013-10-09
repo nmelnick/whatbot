@@ -64,9 +64,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 			)
 		);
 
-		if ( $config->{'ssl'} ) {
-			$handle->enable_ssl();
-		}
+		$handle->enable_ssl() if ( $config->{'ssl'} );
 
 		$handle->connect(
 			$config->{'host'},
@@ -78,7 +76,6 @@ class whatbot::IO::IRC extends whatbot::IO {
 				'password' => $config->{'hostpassword'},
 			},
 		);
-		# SSL?
 
 		# Set up all the callbacks
 		$handle->reg_cb(
@@ -174,7 +171,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 	method privmsg ( $to, $message ) {
 		$self->handle->send_srv(
 			'PRIVMSG' => $to,
-			encode_utf8($message),
+			encode( 'utf-8', $message ),
 		);
 		return;
 	}
@@ -215,7 +212,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 		unless ( $self->force_disconnect ) {
 			$self->notify( 'X', 'Disconnected, attempting to reconnect...');
 			sleep(3);
-			$client->connect();
+			$self->connect();
 		}
 		return;
 	}
@@ -232,11 +229,15 @@ class whatbot::IO::IRC extends whatbot::IO {
 		#return if ( $irc_message->{'command'} eq 'NOTICE' );
 		my $nick = $irc_message->{'prefix'};
 		$nick =~ s/!.*//;
+		my $message = $irc_message->{'params'}->[-1];
+		eval {
+			$message = decode( 'utf-8', $message );
+		};
 		$self->event_message(
 			$self->get_new_message({
 				'from'    => $nick,
 				'to'      => $to,
-				'content' => $irc_message->{'params'}->[-1],
+				'content' => $message,
 			})
 		);
 		return;
@@ -257,9 +258,11 @@ class whatbot::IO::IRC extends whatbot::IO {
 	# Event: Channel topic change
 	method cb_topic( $client, $channel, $topic?, $who? ) {
 		return unless ( $channel =~ /^#/ );
+		eval {
+			$topic = decode( 'utf-8', $topic );
+		};
 		$self->notify( $channel, sprintf( '*** The topic is \'%s\'.', $topic ) );
 	}
 }
 
 1;
-

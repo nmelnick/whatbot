@@ -23,7 +23,10 @@ class whatbot::Database::MySQL extends whatbot::Database::DBI {
 		$self->connect_array([
 			'DBI:mysql:' . join( ';', @params ),
 			( $config->{'username'} or '' ),
-			( $config->{'password'} or '' )
+			( $config->{'password'} or '' ),
+			{
+				'mysql_enable_utf8' => 1,
+			}
 		]);
 	};
 

@@ -52,7 +52,10 @@ class whatbot::Component {
     method dispatch_message ( Str $io_path, $message ) {
         my ( $io_search, $target ) = split( /\:/, $io_path );
         my $io = $self->search_ios($io_search);
-        return unless ($io);
+        unless ($io) {
+            $self->log->write( 'IO could not be found for "' . $io_search . '".' );
+            return;
+        }
         $message->to($target) if ($target);
         return $io->event_message($message);
     }
@@ -64,7 +67,10 @@ class whatbot::Component {
             $io_search = 'IRC';
         }
         my $io = $self->search_ios($io_search);
-        return unless ($io);
+        unless ($io) {
+            $self->log->write( 'IO could not be found for "' . $io_search . '".' );
+            return;
+        }
         $message->from( $io->me );
         $message->to($target) if ($target);
         return $io->send_message($message);
