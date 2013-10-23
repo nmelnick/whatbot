@@ -32,7 +32,6 @@ if ($weather->api_key) {
 	$response = $weather->forecast('forecast 05455', ['05455']);
 	ok( $response );
 	ok( join(' ', @{$response}) =~ /(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)/, 'has a day forecast');
-	ok( join(' ', @{$response}) =~ /Night/, 'has a night forecast');
 
 	$response = $weather->weather('forecast abc', ['abc']);
 	ok( $response eq 'Unwilling to figure out what you meant by: abc', 'forecast handles bad location');
