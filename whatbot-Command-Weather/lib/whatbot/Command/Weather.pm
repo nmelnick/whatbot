@@ -104,11 +104,20 @@ sub forecast : GlobalRegEx('^forecast (.*)') {
 	);
 	my $json = $self->fetch_and_decode($url);
 
-	my $forecasts = $json->{'forecast'}->{'txt_forecast'}->{'forecastday'};
+	my $forecasts = $json->{'forecast'}->{'simpleforecast'}->{'forecastday'};
 
 	my $buffer = [];
 	foreach my $forecast ( @{ $forecasts } ) {
-		push( @$buffer, sprintf("%s: %s", $forecast->{'title'}, $forecast->{'fcttext'}) );
+		push( @$buffer, 
+      sprintf("%s: %s (H: %sF/%sC, L: %sF/%sC)", 
+        $forecast->{'date'}->{'weekday'}, 
+        $forecast->{'conditions'}, 
+        $forecast->{'high'}->{'fahrenheit'}, 
+        $forecast->{'high'}->{'celsius'}, 
+        $forecast->{'low'}->{'fahrenheit'},
+        $forecast->{'low'}->{'celsius'}
+      )
+    );
 	}
 
 	return $buffer;
