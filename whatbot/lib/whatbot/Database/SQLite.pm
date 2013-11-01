@@ -26,7 +26,7 @@ class whatbot::Database::SQLite extends whatbot::Database::DBI {
 		]);
 	}
 
-	method last_insert_id() {
+	method last_insert_id( $table_name ) {
 	    return $self->handle->func('last_insert_rowid');
 	}
 

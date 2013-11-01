@@ -33,7 +33,7 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
             },
             'columns'     => {
                 'url_id' => {
-                    'type'  => 'integer'
+                    'type'  => 'serial'
                 },
                 'timestamp' => {
                     'type'  => 'integer'
@@ -67,7 +67,7 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
             'indexed'     => ['name'],
             'columns'     => {
                 'protocol_id' => {
-                    'type'  => 'integer'
+                    'type'  => 'serial'
                 },
                 'name'    => {
                     'type'  => 'varchar',
@@ -88,7 +88,7 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
             },
             'columns'     => {
                 'domain_id' => {
-                    'type'  => 'integer'
+                    'type'  => 'serial'
                 },
                 'timestamp' => {
                     'type'  => 'integer'

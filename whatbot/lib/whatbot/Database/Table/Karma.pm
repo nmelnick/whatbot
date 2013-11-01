@@ -22,7 +22,7 @@ sub BUILD {
         },
         'columns'     => {
             'karma_id' => {
-                'type'  => 'integer'
+                'type'  => 'serial'
             },
             'subject' => {
                 'type'  => 'varchar',

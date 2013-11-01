@@ -59,7 +59,7 @@ class whatbot::Database::Table extends whatbot::Database {
 
         $self->database->handle->do($query) or warn $DBI::errstr;
 
-        return $self->find( $self->database->last_insert_id() );
+        return $self->find( $self->database->last_insert_id( $self->table_name ) );
     }
 
     method find ($key_id) {
@@ -144,10 +144,10 @@ class whatbot::Database::Table extends whatbot::Database {
         
         # Primary Key
         if ( $table_data->{'primary_key'} ) {
-            warn 'What the hell, primary key specified but not given in column data.' unless ( $table_data->{'columns'}->{ $table_data->{'primary_key'} } );
+            warn 'Primary key specified but not given in column data.' unless ( $table_data->{'columns'}->{ $table_data->{'primary_key'} } );
             my $column_data = $table_data->{'columns'}->{ $table_data->{'primary_key'} };
             my $type = $column_data->{'type'};
-            $query .= $table_data->{'primary_key'} . ' ' . $self->database->$type( $column_data->{'size'} or undef ) . ' primary key, ';
+            $query .= $self->database->handle->quote_identifier( $table_data->{'primary_key'} ) . ' ' . $self->database->$type( $column_data->{'size'} or undef ) . ' primary key, ';
             delete( $table_data->{'columns'}->{ $table_data->{'primary_key'} } );
         }
 
@@ -155,7 +155,7 @@ class whatbot::Database::Table extends whatbot::Database {
         foreach my $column ( keys %{ $table_data->{'columns'} } ) {
             my $column_data = $table_data->{'columns'}->{$column};
             my $type = $column_data->{'type'};
-            $query .= $column . ' ' . $self->database->$type( $column_data->{'size'} or undef ) . ', ';
+            $query .= $self->database->handle->quote_identifier($column) . ' ' . $self->database->$type( $column_data->{'size'} or undef ) . ', ';
         }
         
         # Close Query
@@ -167,9 +167,13 @@ class whatbot::Database::Table extends whatbot::Database {
         if ( $table_data->{'indexed'} ) {
             foreach my $indexed_column ( @{ $table_data->{'indexed'} } ) {
                 my $index_name = 'idx_' . $table_data->{'name'} . '_' . $indexed_column;
-                $self->database->handle->do(
-                    sprintf( 'CREATE INDEX %s ON %s (%s)', $index_name, $table_data->{'name'}, $indexed_column )
-                ) or warn 'DBI: ' . $DBI::errstr . '  Query: ' . $query;
+                $query = sprintf(
+                    'CREATE INDEX %s ON %s (%s)',
+                    $index_name,
+                    $table_data->{'name'},
+                    $self->database->handle->quote_identifier($indexed_column)
+                );
+                $self->database->handle->do($query) or warn 'DBI: ' . $DBI::errstr . '  Query: ' . $query;
             }
         }
 

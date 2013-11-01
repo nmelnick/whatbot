@@ -33,7 +33,7 @@ class whatbot::Database::DBI extends whatbot::Database {
         return $self->tables(\%tables);
     }
 
-    method last_insert_id() {
+    method last_insert_id( $table_name ) {
         $self->log->write( 'last_insert_id is unsupported by ' . ref($self) );
         return 0;
     }
@@ -44,6 +44,10 @@ class whatbot::Database::DBI extends whatbot::Database {
 
     method integer ( $null? ) {
         return 'integer';
+    }
+
+    method serial ( $null? ) {
+        return integer();
     }
 
     method double ( $null? ) {

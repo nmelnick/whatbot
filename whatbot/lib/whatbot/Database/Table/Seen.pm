@@ -14,7 +14,7 @@ sub BUILD {
         },
         'columns'     => {
             'seen_id' => {
-                'type'  => 'integer'
+                'type'  => 'serial'
             },
             'timestamp' => {
                 'type'  => 'integer'

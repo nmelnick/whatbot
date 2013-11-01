@@ -30,6 +30,14 @@ class whatbot::Database::PostgreSQL extends whatbot::Database::DBI {
 		]);
 	};
 
+	method last_insert_id( $table_name ) {
+		return $self->handle->last_insert_id( undef, undef, $table_name, undef );
+	}
+
+    method serial ( $null? ) {
+        return 'serial';
+    }
+
 }
 
 1;

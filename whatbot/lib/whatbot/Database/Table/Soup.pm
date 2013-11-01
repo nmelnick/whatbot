@@ -21,7 +21,7 @@ sub BUILD {
         'indexed'     => [ 'module_id', 'subject' ],
         'columns'     => {
             'soup_id' => {
-                'type'  => 'integer',
+                'type'  => 'serial',
             },
             'module_id' => {
                 'type'  => 'integer',
@@ -44,7 +44,7 @@ sub BUILD {
         'indexed'     => ['name'],
         'columns'     => {
             'module_id' => {
-                'type'  => 'integer'
+                'type'  => 'serial'
             },
             'name' => {
                 'type'  => 'varchar',

@@ -26,7 +26,7 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
 			},
 			'columns'     => {
 				'factoid_id' => {
-					'type'        => 'integer'
+					'type'        => 'serial'
 				},
 				'is_or'      => {
 					'type'        => 'integer'
