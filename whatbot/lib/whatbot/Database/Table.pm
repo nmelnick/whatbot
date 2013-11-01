@@ -44,7 +44,7 @@ class whatbot::Database::Table extends whatbot::Database {
             $params->{$_} = $column_data->{$_};
         }
         my $query = 'INSERT INTO ' . $self->table_name .
-                    ' (' . join( ', ', keys %$params ) . ') ' .
+                    ' (' . join( ', ', ( map { $self->database->handle->quote_identifier($_) } keys %$params ) ) . ') ' .
                     'VALUES ' .
                     ' (' . join( ', ', map {
                         if ( ref($_) eq 'SCALAR' ) {
@@ -91,9 +91,9 @@ class whatbot::Database::Table extends whatbot::Database {
         foreach my $column ( keys %$search_data ) {
             next if ( $column =~ /^_/ );
             if ( ref( $search_data->{$column} ) eq 'HASH' ) {
-                push( @wheres, $column . ' LIKE ' . $self->database->handle->quote( $search_data->{$column}->{'LIKE'} ) );
+                push( @wheres, $self->database->handle->quote_identifier($column) . ' LIKE ' . $self->database->handle->quote( $search_data->{$column}->{'LIKE'} ) );
             } else {
-                push( @wheres, $column . ' = ' . $self->database->handle->quote( $search_data->{$column} ) );
+                push( @wheres, $self->database->handle->quote_identifier($column) . ' = ' . $self->database->handle->quote( $search_data->{$column} ) );
             }
         }
         $query .= ' WHERE ' . join( ' AND ', @wheres ) if (@wheres);
