@@ -66,6 +66,10 @@ class whatbot::Database::DBI extends whatbot::Database {
         return \'now()';
     }
 
+    method random() {
+        return 'random()';
+    }
+
 }
 
 1;
