@@ -28,6 +28,10 @@ sub register {
 		'/quote',
 		\&quote_list
 	);
+	$self->web(
+		'/quote/view',
+		\&quote_single
+	);
 }
 
 sub help : Command {
@@ -71,6 +75,28 @@ sub quote_list {
 	$state{'quotes'} = $self->model('Quote')->search({ '_order_by' => 'timestamp desc' });
 
 	return $self->render( $req, _quote_list_tt2(), \%state );
+}
+
+sub quote_single {
+	my ( $self, $httpd, $req ) = @_;
+
+	return unless ( $self->check_access($req) );
+
+	my %state = ();
+	my $id = $req->parm('id');
+	return '' unless ($id);
+
+	if ( $id ne 'random' ) {
+		$state{'quote'} = $self->model('Quote')->find($id);
+	} else {
+		$state{'quote'} = $self->model('Quote')->search_one({
+			'_order_by' => $self->database->random(),
+			'_limit'    => 1,
+		});
+	}
+	
+
+	return $self->render( $req, _quote_single_tt2(), \%state );
 }
 
 sub _submit_form {
@@ -155,7 +181,9 @@ sub _header {
 			</button>
 			<a class="brand" href="/quote">whatbot Quoteboard</a>
 			<div class="nav-collapse collapse">
-			<ul class="nav"></ul>
+			<ul class="nav">
+				<li><a href="/quote/view?id=random">Random Quote</a></li>
+			</ul>
 			</div>
 		</div>
 		</div>
@@ -221,14 +249,42 @@ sub _quote_list_tt2 {
 		<h2>Quotes</h2>
 		<div class="quote-list">
 [% FOREACH quote IN quotes %]
-			<div class="quote-body">
-				<blockquote>
-					<p>[% quote.content FILTER html_line_break %]</p>
-					<small>[% quote.quoted %], on [% date.format(quote.timestamp) %]</small>
-				</blockquote>
-			</div>
+	<div class="quote-body">
+		<blockquote>
+			<p>[% quote.content FILTER html_line_break %]</p>
+			<small>[% quote.quoted %], on [% date.format(quote.timestamp) %] (<a href="/quote/view?id=[% quote.quote_id %]">[% quote.quote_id %]</a>)</small>
+		</blockquote>
+	</div>
 [% END %]
 		</div>
+} . _footer();
+	return \$string;
+}
+
+sub _quote_single_tt2 {
+	my $string = _header() . q{
+<style type="text/css">
+	.big-and-center {
+		margin: 40px auto;
+		width: 80%;
+	}
+	.big-and-center .quote-body {
+		font-size: 170%;
+	}
+	.big-and-center .quote-body p {
+		font-size: 170%;
+		margin-bottom: 20px;
+	}
+</style>
+[% USE date(format='%Y-%m-%d at %H:%M:%S %Z') %]
+<div class="big-and-center">
+	<div class="quote-body">
+		<blockquote>
+			<p>[% quote.content FILTER html_line_break %]</p>
+			<small>[% quote.quoted %], on [% date.format(quote.timestamp) %] (<a href="/quote/view?id=[% quote.quote_id %]">[% quote.quote_id %]</a>)</small>
+		</blockquote>
+	</div>
+</div>
 } . _footer();
 	return \$string;
 }
