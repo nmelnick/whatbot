@@ -37,7 +37,7 @@ sub unset : Command {
 		$self->triggers( $self->model('Soup')->get_hashref() );
 		return 'Removed trigger.';
 	}
-	return 'I could not find that trigger';
+	return 'I could not find that trigger.';
 }
 
 sub set : Command {
@@ -61,7 +61,7 @@ sub set : Command {
 	}
 	
 	my @set_line = split( //, join( ' ', @$captures ) );
-	if ( $set_line[0] eq '/' ) {
+	if ( @set_line and $set_line[0] eq '/' ) {
 		shift(@set_line);
 		while (@set_line) {
 			my $char = shift(@set_line);
@@ -71,6 +71,9 @@ sub set : Command {
 					$trigger .= '\/';
 					next;
 				} else {
+					if ( $set_line[0] ne ' ' ) {
+						last;
+					}
 					$has_trigger++;
 					last;
 				}
@@ -85,6 +88,10 @@ sub set : Command {
 		}
 	}
 	if ($has_trigger) {
+		my $get = $self->model('Soup')->get($trigger);
+		if ($get) {
+			return 'A trigger already exists for "' . $trigger . '".';
+		}
 		$response = join( '', @set_line );
 		$response =~ s/^\s+//;
 		
@@ -126,6 +133,7 @@ sub find : Command {
 sub listener : GlobalRegEx('(.+)') {
 	my ( $self, $message ) = @_;
 	
+	my @responses;
 	foreach my $trigger ( keys %{ $self->triggers } ) {
 		if ( my @captures = $message->content =~ /$trigger/ ) {
 			my $response = $self->triggers->{$trigger};
@@ -143,10 +151,10 @@ sub listener : GlobalRegEx('(.+)') {
 				}
 			}
 
-			return $response;
+			push( @responses, $response );
 		}
 	}
-	return;
+	return \@responses;
 }
 
 sub help {

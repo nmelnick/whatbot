@@ -77,6 +77,10 @@ class whatbot::Message extends whatbot::Component {
         }
         return $message;
     }
+
+    method clone() {
+        return whatbot::Message->new( { %$self } );
+    }
 }
 
 1;
@@ -158,6 +162,11 @@ Generate a whatbot::Message in reply to the current message. If is_private is
 true, to will be set to the originator, otherwise, it will be set to the public
 context for public IO. Optionally handles an override hashref to preset fields,
 similar to the new constructor.
+
+=item clone()
+
+Return a new whatbot::Message with the same content as the current message.
+References inside the object are reused, not duplicated.
 
 =back
 
