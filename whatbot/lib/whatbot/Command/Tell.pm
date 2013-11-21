@@ -64,7 +64,10 @@ sub do_tell : Event('enter') : Event('user_change') {
 		my @response = split( /\|\]/, $response );
 		foreach my $tell ( @response ) {
 			my ( $from, $to_tell ) = split( /\|\[/, $tell );
-			push( @reply, sprintf( '%s, %s wants you to know %s%s', $user, $from, $to_tell, ( $to_tell =~ /[\.\?!]$/ ? '' : '.' ) ) );
+			push(
+				@reply,
+				sprintf( '%s, %s wants you to know %s%s', $user, $from, $to_tell, ( $to_tell =~ /[\.\?!]$/ ? '' : '.' ) )
+			);
 		}
 		$self->model('Soup')->clear($query);
 		return \@reply;

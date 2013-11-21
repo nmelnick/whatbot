@@ -89,6 +89,25 @@ sub stats : Command {
 	return 'There ' . ( $trigger == 1 ? 'is ' : 'are ' ) . $trigger . ' trigger' . ( $trigger == 1 ? '' : 's' ) . ' set.';
 }
 
+sub find : Command {
+	my ( $self, $message, $captures ) = @_;
+
+	return unless (@$captures);
+	my @responses;
+	foreach my $trigger ( keys %{ $self->triggers } ) {
+		if ( @responses > 2 ) {
+			push( @responses, 'There are more, maybe you should make your search more specific.' );
+			last;
+		}
+
+		my $response = $self->triggers->{$trigger};
+		if ( index( $response, $captures->[0] ) != -1 ) {
+			push( @responses, sprintf( 'Found /%s/ => %s', $trigger, $response ) );
+		}
+	}
+	return \@responses;
+}
+
 sub listener : GlobalRegEx('(.+)') {
 	my ( $self, $message ) = @_;
 	
@@ -124,7 +143,8 @@ sub help {
         'says the magic word, enter "trigger set /magic word/ /me screams!".',
         ' * "set /regex/ response" -- set a trigger',
         ' * unset /regex/ -- unset a trigger',
-        ' * stats -- show how many triggers are set'
+        ' * stats -- show how many triggers are set',
+        ' * find [partial response] -- find a trigger based on the response',
     ];
 }
 
