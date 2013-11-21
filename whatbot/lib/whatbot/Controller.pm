@@ -143,6 +143,7 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 				# if it cares about our content
 				foreach my $run_path ( @{ $self->command->{$priority}->{$command_name} } ) {
 					next unless ( $run_path->{'match'} or $run_path->{'function'} );
+					next if ( $run_path->{'event'} );
 
 					my $listen = ( $run_path->{'match'} or '' );
 					my $function = $run_path->{'function'};
@@ -166,7 +167,7 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 	}
 
 	# dear god refactor
-	method handle_event ( $target, $event, $user, $me? ) {
+	method handle_event ( $target, Str $event, HashRef $event_info, $me? ) {
 		my ( $io, $context ) = split( /:/, $target );
 
 		my @messages;
@@ -191,7 +192,7 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 						'me'      => $me,
 					});
 					my $result = eval {
-						$command->$function( $target, $user );
+						$command->$function( $target, $event_info );
 					};
 					my $error = $@;
 					return $self->_return_error( $command_name, $message, $error ) if ($error);
@@ -400,7 +401,7 @@ command.
 
 Run incoming message through commands, parse responses, and deliver back to IO.
 
-=item handle_event( $event, $user )
+=item handle_event( $event, $event_info )
 
 Run incoming event through commands, parse responses, and delivery back to IO.
 

@@ -39,7 +39,9 @@ class whatbot::IO extends whatbot::Component {
 			$self->controller->handle_event(
 				join( ':', $self->name, $context ),
 				'enter',
-				$from,
+				{
+					'nick' => $from
+				},
 				$self->me
 			)
 		);
@@ -51,7 +53,10 @@ class whatbot::IO extends whatbot::Component {
 			$self->controller->handle_event(
 				join( ':', $self->name, $context ),
 				'user_change',
-				$new_nick,
+				{
+					'nick'     => $new_nick,
+					'old_nick' => $old_nick,
+				},
 				$self->me
 			)
 		);
@@ -63,7 +68,36 @@ class whatbot::IO extends whatbot::Component {
 			$self->controller->handle_event(
 				join( ':', $self->name, $context ),
 				'leave',
-				$from,
+				{
+					'nick' => $from
+				},
+				$self->me
+			)
+		);
+	}
+
+	method event_ping ( $source? ) {
+		$self->parse_response(
+			$self->controller->handle_event(
+				join( ':', $self->name, '' ),
+				'ping',
+				{
+					'source' => $source
+				},
+				$self->me
+			)
+		);
+	}
+
+	method event_topic ( $context, $topic, $who ) {
+		$self->parse_response(
+			$self->controller->handle_event(
+				join( ':', $self->name, $context ),
+				'topic',
+				{
+					'nick'  => $who,
+					'topic' => $topic,
+				},
 				$self->me
 			)
 		);

@@ -53,9 +53,10 @@ sub request_tell : CommandRegEx('(.*)') : StopAfter {
 }
 
 sub do_tell : Event('enter') : Event('user_change') {
-	my ( $self, $target, $user ) = @_;
+	my ( $self, $target, $event_info ) = @_;
 
     my ( $io, $context ) = split( /:/, $target );
+    my $user = $event_info->{'nick'};
 	my $search_user = lc($user);
 	my $query = join( '|', $context, $search_user );
 	if ( my $response = $self->model('Soup')->get($query) ) {

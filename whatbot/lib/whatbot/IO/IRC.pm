@@ -255,6 +255,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 	method cb_ping( $client, $source, $target, $message, $type ) {
 		$self->ctcp_reply( $source, $message );
 		$self->notify( '*', '*** CTCP PING request from $source received');
+		$self->event_ping($source);
 	}
 
 	# Event: Channel topic change
@@ -264,6 +265,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 			$topic = decode( 'utf-8', $topic );
 		};
 		$self->notify( $channel, sprintf( '*** The topic is \'%s\'.', $topic ) );
+		$self->event_topic( $channel, $topic, $who );
 	}
 
 	# Event: User changed nickname
