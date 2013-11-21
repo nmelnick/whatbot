@@ -43,11 +43,26 @@ sub unset : Command {
 sub set : Command {
 	my ( $self, $message, $captures ) = @_;
 
-	my @set_line = split( //, join( ' ', @$captures ) );
+	my ( $trigger, $escape, $has_trigger, $response );
+
+	my $full = join( ' ', @$captures );
+	if ( $full =~ /^event:(\w+) (.*)$/ ) {
+		my $event = $1;
+		$response = $2;
+		if ( $event =~ /^(enter|leave|ping|topic|user_change)$/ ) {
+			if ( $response =~ /^\((.*?)\) / ) {
+				my $parameters = $1;
+				$response =~ s/^\(.*?\) //;
+			}
+			return 'event ' . $event . ' should ' . $response;
+		} else {
+			return 'No idea what the "' . $event . '" event is. Try enter, leave, ping, user_change, or topic.';
+		}
+	}
 	
+	my @set_line = split( //, join( ' ', @$captures ) );
 	if ( $set_line[0] eq '/' ) {
 		shift(@set_line);
-		my ( $trigger, $escape, $has_trigger, $response );
 		while (@set_line) {
 			my $char = shift(@set_line);
 			
@@ -68,18 +83,18 @@ sub set : Command {
 			}
 			$escape = 0;
 		}
-		if ($has_trigger) {
-			$response = join( '', @set_line );
-			$response =~ s/^\s+//;
-			
-			$self->model('Soup')->set( $trigger, $response );
-			$self->triggers( $self->model('Soup')->get_hashref() );
-			return 'Trigger set.';
-		}
+	}
+	if ($has_trigger) {
+		$response = join( '', @set_line );
+		$response =~ s/^\s+//;
+		
+		$self->model('Soup')->set( $trigger, $response );
+		$self->triggers( $self->model('Soup')->get_hashref() );
+		return 'Trigger set.';
 	}
 	
 	return 'Invalid trigger: You must start with a regular expression inside '
-	     . 'two forward slashes, followed by the response.';
+	     . 'two forward slashes or an event type, followed by the response.';
 }
 
 sub stats : Command {
