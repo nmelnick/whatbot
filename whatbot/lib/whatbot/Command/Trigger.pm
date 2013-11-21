@@ -49,51 +49,56 @@ sub set : Command {
 	if ( $full =~ /^event:(\w+) (.*)$/ ) {
 		my $event = $1;
 		$response = $2;
-		if ( $event =~ /^(enter|leave|ping|topic|user_change)$/ ) {
+		if ( $event =~ /^(enter|leave|user_change)$/ ) {
 			if ( $response =~ /^\((.*?)\) / ) {
 				my $parameters = $1;
 				$response =~ s/^\(.*?\) //;
+				if ( $parameters =~ /=/ ) {
+					$event .= ' (' . $parameters . ')';
+				}
 			}
-			return 'event ' . $event . ' should ' . $response;
+			$trigger = 'event:' . $event;
+			$has_trigger++;
 		} else {
-			return 'No idea what the "' . $event . '" event is. Try enter, leave, ping, user_change, or topic.';
+			return 'No idea what the "' . $event . '" event is. Try enter, leave, or user_change.';
 		}
-	}
-	
-	my @set_line = split( //, join( ' ', @$captures ) );
-	if ( @set_line and $set_line[0] eq '/' ) {
-		shift(@set_line);
-		while (@set_line) {
-			my $char = shift(@set_line);
-			
-			if ( $char eq '/' ) {
-				if ($escape) {
-					$trigger .= '\/';
-					next;
-				} else {
-					if ( $set_line[0] ne ' ' ) {
+	} else {
+		my @set_line = split( //, join( ' ', @$captures ) );
+		if ( @set_line and $set_line[0] eq '/' ) {
+			shift(@set_line);
+			while (@set_line) {
+				my $char = shift(@set_line);
+				
+				if ( $char eq '/' ) {
+					if ($escape) {
+						$trigger .= '\/';
+						next;
+					} else {
+						if ( $set_line[0] ne ' ' ) {
+							last;
+						}
+						$has_trigger++;
 						last;
 					}
-					$has_trigger++;
-					last;
+				} elsif ( $char eq "\\" ) {
+					$escape++;
+					next;
+				} else {
+					$trigger .= "\\" if ($escape);
+					$trigger .= $char;
 				}
-			} elsif ( $char eq "\\" ) {
-				$escape++;
-				next;
-			} else {
-				$trigger .= "\\" if ($escape);
-				$trigger .= $char;
+				$escape = 0;
 			}
-			$escape = 0;
 		}
+		$response = join( '', @set_line );
+		$response =~ s/^\s+//;
 	}
+
 	if ($has_trigger) {
 		my $get = $self->model('Soup')->get($trigger);
 		if ($get) {
 			return 'A trigger already exists for "' . $trigger . '".';
 		}
-		$response = join( '', @set_line );
-		$response =~ s/^\s+//;
 		
 		$self->model('Soup')->set( $trigger, $response );
 		$self->triggers( $self->model('Soup')->get_hashref() );
@@ -135,6 +140,7 @@ sub listener : GlobalRegEx('(.+)') {
 	
 	my @responses;
 	foreach my $trigger ( keys %{ $self->triggers } ) {
+		next if ( $trigger =~ /^event/ );
 		if ( my @captures = $message->content =~ /$trigger/ ) {
 			my $response = $self->triggers->{$trigger};
 			
@@ -155,6 +161,76 @@ sub listener : GlobalRegEx('(.+)') {
 		}
 	}
 	return \@responses;
+}
+
+sub listen_user_change : Event('user_change') {
+	my ( $self, $target, $event_info ) = @_;
+
+	my @responses;
+	foreach my $trigger ( @{ $self->_get_triggers_for_event('user_change') } ) {
+		my $nick = $event_info->{'nick'};
+		if ( $trigger =~ /\((.*?)\)$/ ) {
+			my $trigger_info = $1;
+			my %mapping = map { split(/=/) } split( /;/, $trigger_info );
+			if ( $mapping{'user'} ) {
+				next if ( lc( $mapping{'user'} ) ne lc($nick) );
+			}
+		}
+		my $response = $self->triggers->{$trigger};
+		$response =~ s/\{user\}/$nick/g;
+		push( @responses, $response );
+	}
+	return \@responses;
+}
+
+sub listen_enter : Event('enter') {
+	my ( $self, $target, $event_info ) = @_;
+
+	my @responses;
+	foreach my $trigger ( @{ $self->_get_triggers_for_event('enter') } ) {
+		my $nick = $event_info->{'nick'};
+		if ( $trigger =~ /\((.*?)\)$/ ) {
+			my $trigger_info = $1;
+			my %mapping = map { split(/=/) } split( /;/, $trigger_info );
+			if ( $mapping{'user'} ) {
+				next if ( lc( $mapping{'user'} ) ne lc($nick) );
+			}
+		}
+		my $response = $self->triggers->{$trigger};
+		$response =~ s/\{user\}/$nick/g;
+		push( @responses, $response );
+	}
+	return \@responses;
+}
+
+sub listen_leave : Event('leave') {
+	my ( $self, $target, $event_info ) = @_;
+
+	my @responses;
+	foreach my $trigger ( @{ $self->_get_triggers_for_event('enter') } ) {
+		my $nick = $event_info->{'nick'};
+		if ( $trigger =~ /\((.*?)\)$/ ) {
+			my $trigger_info = $1;
+			my %mapping = map { split(/=/) } split( /;/, $trigger_info );
+			if ( $mapping{'user'} ) {
+				next if ( lc( $mapping{'user'} ) ne lc($nick) );
+			}
+		}
+		my $response = $self->triggers->{$trigger};
+		$response =~ s/\{user\}/$nick/g;
+		push( @responses, $response );
+	}
+	return \@responses;
+}
+
+sub _get_triggers_for_event {
+	my ( $self, $event_type ) = @_;
+
+	my @triggers;
+	foreach my $trigger ( keys %{ $self->triggers } ) {
+		push( @triggers, $trigger ) if ( $trigger =~ /^event\:$event_type/ );
+	}
+	return \@triggers;
 }
 
 sub help {
