@@ -168,6 +168,7 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 	# dear god refactor
 	method handle_event ( $target, $event, $user, $me? ) {
 		my ( $io, $context ) = split( /:/, $target );
+
 		my @messages;
 		foreach my $priority ( qw( primary core extension last ) ) {
 			last if ( @messages and $priority =~ /(extension|last)/ );
@@ -281,8 +282,19 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 		push(
 			@$run_paths,
 			{
-				'match'     => $match,
-				'function'  => $function
+				'match'    => $match,
+				'function' => $function
+			}
+		);
+		return;
+	}
+
+	method add_event( $run_paths, $event, $function ) {
+		push(
+			@$run_paths,
+			{
+				'event'    => $event,
+				'function' => $function
 			}
 		);
 		return;
@@ -338,7 +350,7 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 				} elsif ( $command eq 'Event' ) {
 					$arguments =~ s/\)$//;
 					$arguments =~ s/^'(.*?)'$/$1/;
-					$self->add_run_path( $run_paths, $arguments, $function );
+					$self->add_event( $run_paths, $arguments, $function );
 				
 				} elsif ( $command eq 'StopAfter' ) {
 					$end_paths->{$function} = 1;
