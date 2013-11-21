@@ -48,16 +48,17 @@ class whatbot::Database::Table extends whatbot::Database {
                     'VALUES ' .
                     ' (' . join( ', ', map {
                         if ( ref($_) eq 'SCALAR' ) {
-                            $$_
+                            ${$$_};
                         } elsif ( ref($_) eq 'HASH' ) {
                             my ($module) = keys(%$_);
-                            my ($method) = values(%$_); $self->$module->$method();
+                            my ($method) = values(%$_);
+                            $self->$module->$method();
                         } else {
-                            $self->database->handle->quote($_)
+                            $self->database->handle->quote($_);
                         }
                     } values %$params ) . ')';
 
-        $self->database->handle->do($query) or warn $DBI::errstr;
+        $self->database->handle->do($query) or warn 'Error executing query [[' . $query . ']], error: ' . $DBI::errstr;
 
         return $self->find( $self->database->last_insert_id( $self->table_name ) );
     }

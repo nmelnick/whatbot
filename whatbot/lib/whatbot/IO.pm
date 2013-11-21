@@ -45,6 +45,18 @@ class whatbot::IO extends whatbot::Component {
 		);
 	}
 
+	method event_user_change ( $context?, $old_nick?, $new_nick? ) {
+		$self->notify( $context, '** ' . $old_nick . ' is now ' . $new_nick );
+		$self->parse_response(
+			$self->controller->handle_event(
+				join( ':', $self->name, $context ),
+				'user_change',
+				$new_nick,
+				$self->me
+			)
+		);
+	}
+
 	method event_user_leave ( $context?, $from?, $message? ) {
 		$self->notify( $context, '** ' . $from . ' has left ' );
 		$self->parse_response(

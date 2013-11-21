@@ -52,9 +52,9 @@ sub request_tell : CommandRegEx('(.*)') : StopAfter {
 	return 'OK, ' . $message->from . '.';
 }
 
-sub do_tell : Event('enter') {
+sub do_tell : Event('enter') : Event('user_change') {
 	my ( $self, $target, $user ) = @_;
-	
+
     my ( $io, $context ) = split( /:/, $target );
 	my $search_user = lc($user);
 	my $query = join( '|', $context, $search_user );

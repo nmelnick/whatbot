@@ -105,6 +105,10 @@ class whatbot::IO::IRC extends whatbot::IO {
 		$handle->reg_cb(
 		 	'ctcp' => sub { $self->cb_ctcp(@_); }
 		);
+		$handle->reg_cb(
+		 	'channel_change' => sub { $self->cb_channel_change(@_); }
+		);
+
 	}
 
 	method disconnect () {
@@ -193,14 +197,11 @@ class whatbot::IO::IRC extends whatbot::IO {
 		# Join default channel(s)
 		foreach my $channel ( @{ $self->channels } ) {
 			my $name = $channel->{'name'};
-			my $cleaned_name = substr( $name, 1 );
 			$client->send_srv( 'JOIN', $name, $channel->{'channelpassword'} );
 			$self->channels_hash->{ $name } = $channel;
 			$self->notify( $name, 'Joined.' );
 
-			if (
-				defined $channel->{'joinmessage'}
-			) {
+			if ( defined $channel->{'joinmessage'} ) {
 				$self->privmsg( $name, $channel->{'joinmessage'} );
 			}
 		}
@@ -224,6 +225,13 @@ class whatbot::IO::IRC extends whatbot::IO {
 		return;
 	}
 
+	# Event: User left a channel
+	method cb_part( $client, $nick, $channel, $is_myself, $message ) {
+		return if ($is_myself);
+		$self->event_user_leave( $channel, $nick, $message );
+		return;
+	}
+
 	# Event: Received a message
 	method cb_message( $client, $to, $irc_message ) {
 		#return if ( $irc_message->{'command'} eq 'NOTICE' );
@@ -243,12 +251,6 @@ class whatbot::IO::IRC extends whatbot::IO {
 		return;
 	}
 
-	# Event: User left a channel
-	method cb_part( $client, $nick, $channel, $is_myself, $message ) {
-		return if ($is_myself);
-		$self->event_user_leave( $channel, $nick, $message );
-	}
-
 	# Event: Received CTCP Ping request
 	method cb_ping( $client, $source, $target, $message, $type ) {
 		$self->ctcp_reply( $source, $message );
@@ -262,6 +264,13 @@ class whatbot::IO::IRC extends whatbot::IO {
 			$topic = decode( 'utf-8', $topic );
 		};
 		$self->notify( $channel, sprintf( '*** The topic is \'%s\'.', $topic ) );
+	}
+
+	# Event: User changed nickname
+	method cb_channel_change( $client, $message, $channel, $old_nick, $new_nick, $is_myself? ) {
+		return if ($is_myself);
+		$self->event_user_change( $channel, $old_nick, $new_nick );
+		return;
 	}
 }
 
