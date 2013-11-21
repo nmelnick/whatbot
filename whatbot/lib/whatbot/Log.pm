@@ -16,6 +16,7 @@ class whatbot::Log {
     has 'last_error'    => ( is	=> 'rw', isa => 'Str' );
     has 'name'          => ( is => 'rw', isa => 'Maybe[Str]' );
     has 'fh'            => ( is => 'rw' );
+    has 'log_enabled'   => ( is => 'rw', isa => 'Bool', default => 1 );
 
     method BUILD ( $log_dir ) {
     	binmode( STDOUT, ':utf8' );
@@ -29,7 +30,7 @@ class whatbot::Log {
             $self->log_directory(undef);
     	}
 	
-    	$self->write('whatbot::Log loaded successfully.');
+        return;
     }
 
     method error ( Str $entry ) {
@@ -39,6 +40,7 @@ class whatbot::Log {
     }
 
     method write ( Str $entry ) {
+        return unless ( $self->log_enabled );
         my $fh = $self->fh;
         if ( $self->name ) {
             $entry = sprintf( '[%s] ', $self->name ) . $entry;
@@ -78,6 +80,20 @@ whatbot::Log provides basic log functionality from within whatbot. whatbot
 loads this class during startup, and is available under the 'log' accessor
 in any module subclassed from whatbot::Component and loaded properly,
 including Commands.
+
+=head1 ATTRIBUTES
+
+=over 4
+
+=item last_error(bool)
+
+Stores the last error written.
+
+=item log_enabled(bool)
+
+Defaults to 1/true. If set to false, log entries will not be written.
+
+=back
 
 =head1 METHODS
 

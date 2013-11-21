@@ -32,20 +32,24 @@ class whatbot::Test {
 			'log'    => whatbot::Log->new(),
 			'config' => $self->get_default_config()
 		);
+		$base_component->log->log_enabled(0);
 		$base_component->parent( whatbot->new({ 'base_component' => $base_component }) );
 		my $database = whatbot::Database::SQLite->new(
 		    'base_component' => $base_component
 		);
 		$database->connect();
 		$base_component->database($database);
+		$base_component->log->log_enabled(1);
 
 		return $base_component;
 	}
 
 	method initialize_models( $base_component ) {
-		my $whatbot = whatbot->new();
+		my $whatbot = $base_component->parent;
+		$base_component->log->log_enabled(0);
 		$whatbot->_initialize_models($base_component);
 		$whatbot->_initialize_models($base_component);
+		$base_component->log->log_enabled(1);
 		return;
 	}
 }
