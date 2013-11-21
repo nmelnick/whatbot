@@ -25,7 +25,6 @@ sub request_tell : CommandRegEx('(.*)') : StopAfter {
 
 	return unless ( $captures and @$captures );
 	my ( $username, @captures ) = split( /\s+/, shift(@$captures) );
-	$username = lc($username);
 	my $tell = join( ' ', @captures );
 	$tell   =~ s/|\[\[\]]//g;
 	$tell   =~ s/|\]//g;
@@ -37,17 +36,17 @@ sub request_tell : CommandRegEx('(.*)') : StopAfter {
 	# Set from
 	$tell = join( '|[', $message->from, $tell );
 	
-	$username = $message->to . '|' . $username;
-	if ( my $previous = $self->model('Soup')->get($username) ) {
-		my @tells = split( '|]', $previous );
+	my $stored_username = $message->to . '|' . lc($username);
+	if ( my $previous = $self->model('Soup')->get($stored_username) ) {
+		my @tells = split( /\|\]/, $previous );
 		foreach (@tells) {
 			if ( $_ eq $tell ) {
-				return 'You are already telling that to $username, ' . $message->from . '.';
+				return 'You are already telling that to ' . $username . ', ' . $message->from . '.';
 			}
 		}
 		$tell = $previous . '|]' . $tell;
 	}
-	$self->model('Soup')->set( $username, $tell );
+	$self->model('Soup')->set( $stored_username, $tell );
 	
 	return 'OK, ' . $message->from . '.';
 }

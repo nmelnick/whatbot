@@ -13,7 +13,7 @@ class whatbot::Database::SQLite extends whatbot::Database::DBI {
 
 	before connect() {
 		die 'SQLite requires a database name.' unless ( $self->config->database->{'database'} );
-		
+
 		$self->connect_array([
 			'DBI:SQLite:dbname=' . $self->config->database->{'database'},
 			'',

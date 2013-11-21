@@ -11,12 +11,16 @@ class whatbot::Test {
 	has config_hash => ( is => 'rw', isa => 'HashRef' );
 
 	method get_default_config() {
+		my $db = '/tmp/.whatbot.test.db';
+		if ( -e $db ) {
+			unlink($db);
+		}
 		return whatbot::Config->new(
 			'config_hash' => ( $self->config_hash or {
 				 'io' => [],
 				 'database' => {
-					 'handler' => 'SQLite',
-					 'database' => '/tmp/whatbott.db'
+					 'handler'  => 'SQLite',
+					 'database' => $db,
 				}
 			} )
 		);
@@ -25,8 +29,8 @@ class whatbot::Test {
 	method get_base_component() {
 		# Build base component
 		my $base_component = whatbot::Component::Base->new(
-			'log'		=> whatbot::Log->new(),
-			'config'    => $self->get_default_config()
+			'log'    => whatbot::Log->new(),
+			'config' => $self->get_default_config()
 		);
 		$base_component->parent( whatbot->new({ 'base_component' => $base_component }) );
 		my $database = whatbot::Database::SQLite->new(
@@ -36,5 +40,12 @@ class whatbot::Test {
 		$base_component->database($database);
 
 		return $base_component;
+	}
+
+	method initialize_models( $base_component ) {
+		my $whatbot = whatbot->new();
+		$whatbot->_initialize_models($base_component);
+		$whatbot->_initialize_models($base_component);
+		return;
 	}
 }
