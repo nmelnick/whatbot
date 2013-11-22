@@ -160,7 +160,7 @@ sub listener : GlobalRegEx('(.+)') {
 			push( @responses, $response );
 		}
 	}
-	return \@responses;
+	return ( @responses ? \@responses : undef );
 }
 
 sub listen_user_change : Event('user_change') {
@@ -180,7 +180,7 @@ sub listen_user_change : Event('user_change') {
 		$response =~ s/\{user\}/$nick/g;
 		push( @responses, $response );
 	}
-	return \@responses;
+	return ( @responses ? \@responses : undef );
 }
 
 sub listen_enter : Event('enter') {
@@ -200,7 +200,7 @@ sub listen_enter : Event('enter') {
 		$response =~ s/\{user\}/$nick/g;
 		push( @responses, $response );
 	}
-	return \@responses;
+	return ( @responses ? \@responses : undef );
 }
 
 sub listen_leave : Event('leave') {
@@ -220,7 +220,7 @@ sub listen_leave : Event('leave') {
 		$response =~ s/\{user\}/$nick/g;
 		push( @responses, $response );
 	}
-	return \@responses;
+	return ( @responses ? \@responses : undef );
 }
 
 sub _get_triggers_for_event {

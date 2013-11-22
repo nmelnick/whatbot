@@ -37,6 +37,7 @@ is(
 	0,
 	'find without exists is an empty arrayref',
 );
+is( $trigger->listener($message), undef, 'no items means listener returns nothing' );
 
 # Regex
 my $response = $trigger->set( $message, [''] );
@@ -75,8 +76,8 @@ $response = $trigger->listener($foo_message);
 ok( $response, 'foo message has response' );
 is( ref($response), 'ARRAY', 'foo message response is arrayref' );
 is( @$response, 2, 'foo message response has two elements' );
-is( $response->[1], 'bar', 'foo message response 1 is bar' );
-is( $response->[0], 'baz', 'foo message response 2 is baz' );
+like( $response->[1], qr/ba[rz]/, 'foo message response 1 is bar or baz' );
+like( $response->[0], qr/ba[rz]/, 'foo message response 2 is baz or bar' );
 
 is( keys %{$trigger->triggers}, 2, 'triggers have 2' );
 is( $trigger->stats(), 'There are 2 triggers set.', 'stats shows 2/plural' );
