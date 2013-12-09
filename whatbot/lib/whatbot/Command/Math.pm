@@ -11,6 +11,7 @@ use Moose;
 BEGIN { extends 'whatbot::Command' }
 
 use Math::Expression;
+use Number::Format;
 use namespace::autoclean;
 
 sub register {
@@ -72,7 +73,17 @@ sub _parse {
 		@result = $env->Eval($tree);
 	}
 
-	return join(', ', @result);
+  my $formatter = new Number::Format();
+  my @pretty_results = map { 
+    if($_ =~ /^\d+$/) {
+      $formatter->format_number($_);
+    } else {
+      $_;
+    }
+    
+  } @result;
+
+	return join(', ', @pretty_results);
 }
 
 __PACKAGE__->meta->make_immutable;
