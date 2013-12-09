@@ -47,6 +47,7 @@ requires       'Method::Signatures'        => 20130505;
 requires       'Module::Pluggable'         => 3.9;
 requires       'Moose'                     => 2.04;
 requires       'MooseX::Declare'           => 0.35;
+requires       'Number::Format'            => 0;
 requires       'Template'                  => 0;
 requires       'URI::Escape'               => 0;
 requires       'WWW::Mechanize'            => 0;
