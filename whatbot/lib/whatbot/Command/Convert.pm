@@ -22,7 +22,7 @@ sub register {
 	return;
 }
 
-sub do_convert : CommandRegEx('([\d\.,]+) ?(.*) to (.*)')  {
+sub do_convert : CommandRegEx('([\-\d\.,]+) ?(.*) to (.*)')  {
 	my ( $self, $message, $captures ) = @_;
 
 	return unless ( $captures and @$captures );
