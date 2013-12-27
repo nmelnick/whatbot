@@ -192,8 +192,7 @@ sub deal : Command {
 	$self->{'waiting_for_bets'} = 0;
 	
 	$self->{'hands'} = $self->game->deal( $self->bets );
-	retur
-	n $self->new_hand() unless ( $self->{'hands'} );
+	return $self->new_hand() unless ( $self->{'hands'} );
 	$self->{'dealer_hand'} = shift( @{ $self->{'hands'} } );
 	if ( $self->dealer_hand->blackjack ) {
 		my @messages;
