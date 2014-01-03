@@ -10,21 +10,14 @@ package whatbot::Command::Weather;
 use Moose;
 BEGIN { extends 'whatbot::Command'; }
 use namespace::autoclean;
-use LWP::UserAgent;
-use JSON::XS;
-use Convert::Temperature;
+use Class::Load;
+use Try::Tiny;
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
-has 'api_key' => (
-	'is'  => 'rw',
-	'isa' => 'Str',
-);
-
-has 'ua' => (
-	is		=> 'ro',
-	isa		=> 'LWP::UserAgent',
-	default => sub { LWP::UserAgent->new( 'timeout' => 15 ); }
+has 'source' => (
+	'is'   => 'rw',
+	'does' => 'whatbot::Command::Weather::SourceRole',
 );
 
 sub register {
@@ -33,127 +26,57 @@ sub register {
 	$self->command_priority('Extension');
 	$self->require_direct(0);
 
-	if ( $self->my_config and $self->my_config->{'api_key'} ) {
-		$self->api_key( $self->my_config->{'api_key'} );
+	if ( $self->my_config ) {
+		if ( $self->my_config->{'source'} ) {
+			my $class = 'whatbot::Command::Weather::' . ucfirst( $self->my_config->{'source'} );
+			if ( Class::Load::try_load_class($class) ) {
+				$self->source(
+					$class->new( $self->my_config )
+				);
+			} else {
+				$self->log->write( 'Invalid source: ' . $class );
+			}
+		}
 	}
 	
 	return;
 }
 
-sub temp_string {
-	my ( $self, $temp ) = @_;
-	my $conv = new Convert::Temperature();
-
-	return sprintf(
-		'%d F (%0.2f C)',
-		$temp,
-		$conv->from_fahr_to_cel($temp)
-	);
-
-}
-
-sub location {
-	my ( $self, $location ) = @_;
-	my $query;
-
-	if ( $location =~ /^\d{5}$/ ) {
-		$query = $location;
-	} elsif ( $location =~ /([^,]+), (\w\w+)/ ) {
-		$query = $2 . '/' . $1;
-	} elsif ( $location =~ /([^,]+), (\w{2})/ ) {
-		$query = $2 . '/' . $1;
-	}
-
-	return $query;
-}
-
-sub fetch_and_decode {
-	my ( $self, $url ) = @_;
-
-	my $response = $self->ua->get($url);
-	my $content = $response->decoded_content;
-
-	# Nothing is compliant, so if headers appear in the response, separate them.
-	if ( $content =~ /Content\-Type/ ) {
-		my ( $headers, @contents ) = split( /\n\n/, $content );
-		$content = join( '', @contents );
-		$content =~ s/\s*0\s*$//;
-	}
-
-	# What the eff, wunderground
-	$content =~ s/\s+ef1\s+//g;
-
-	return decode_json( $content );
-}
-
 sub forecast : GlobalRegEx('^forecast (.*)') {
 	my ( $self, $message, $captures ) = @_;
 
-	return unless ( $self->api_key );
+	return unless ( $self->source );
 
-	my $query = $self->location($captures->[0]);
-	
-	unless (defined $query) {
-		return "Unwilling to figure out what you meant by: " . $captures->[0];
+	my $response;
+	try {
+		$response = $self->source->get_forecast( $captures->[0] );
+	} catch {
+		return $_;
+	};
+
+	if ( $response and ref($response) eq 'ARRAY' ) {
+		return [ map { $_->to_string() } @$response ];
 	}
 
-	my $url = sprintf(
-		'http://api.wunderground.com/api/%s/forecast/q/%s.json',
-		$self->api_key,
-		$query
-	);
-	my $json = $self->fetch_and_decode($url);
-
-	my $forecasts = $json->{'forecast'}->{'simpleforecast'}->{'forecastday'};
-
-	my $buffer = [];
-	foreach my $forecast ( @{ $forecasts } ) {
-		push( @$buffer, 
-      sprintf("%s: %s (H: %sF/%sC, L: %sF/%sC)", 
-        $forecast->{'date'}->{'weekday'}, 
-        $forecast->{'conditions'}, 
-        $forecast->{'high'}->{'fahrenheit'}, 
-        $forecast->{'high'}->{'celsius'}, 
-        $forecast->{'low'}->{'fahrenheit'},
-        $forecast->{'low'}->{'celsius'}
-      )
-    );
-	}
-
-	return $buffer;
+	return 'Iunno.';
 }
 
 sub weather : GlobalRegEx('^weather (.*)') {
 	my ( $self, $message, $captures ) = @_;
 
-	return unless ( $self->api_key );
+	return unless ( $self->source );
 
-	my $query = $self->location($captures->[0]);
+	my $response;
+	try {
+		$response = $self->source->get_current( $captures->[0] );
+	} catch {
+		return $_;
+	};
 
-	unless(defined $query) {
-		return 'Unwilling to figure out what you meant by: ' . $captures->[0];	
+	if ($response) {
+		return $response->to_string();
 	}
 
-	my $url = sprintf(
-		'http://api.wunderground.com/api/%s/conditions/alerts/q/%s.json',
-		$self->api_key,
-		$query
-	);
-	my $json = $self->fetch_and_decode($url);
-
-	if ( my $current = $json->{'current_observation'} ) {
-		return sprintf(
-			'Weather for %s: Currently %s and %s, feels like %s. %s',
-			$current->{'display_location'}->{'full'},
-			$current->{'weather'},
-			$self->temp_string($current->{'temp_f'}),
-			$self->temp_string($current->{'feelslike_f'}),
-			( $json->{'alerts'} and @{ $json->{'alerts'} } ?
-				'Alert: ' . $json->{'alerts'}->[0]->{'description'}
-				: ''
-			)
-		);
-	}
 	return 'Iunno.';
 }
 
@@ -183,7 +106,8 @@ whatbot::Command::Weather - Get weather information for US and world
 Config:
 
 "weather" : {
-	"api_key" : "12345678abcdef90"
+  "source"  : "wunderground",
+  "api_key" : "12345678abcdef90"
 }
 
 =head1 DESCRIPTION

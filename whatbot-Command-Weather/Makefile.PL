@@ -13,6 +13,10 @@ requires      'namespace::autoclean' => 0;
 requires      'LWP::UserAgent'       => 0;
 requires      'JSON::XS'             => 0;
 requires      'Convert::Temperature' => 0;
+requires      'Method::Signatures'   => 20130505;
+requires      'Module::Pluggable'    => 3.9;
+requires      'Try::Tiny'            => 0;
 test_requires 'Test::More'           => 0;
+test_requires 'Test::Exception'      => 0;
 
 WriteAll;
