@@ -38,7 +38,7 @@ sub register {
 			}
 		}
 	}
-	
+
 	return;
 }
 
