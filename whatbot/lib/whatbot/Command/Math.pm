@@ -43,6 +43,18 @@ sub parse_message : GlobalRegEx('^calc (.*)') {
 	return $message->from . ": " . $self->_parse($expression);
 }
 
+sub rand : GlobalRegEx('^rand (.*)') {
+  my ( $self, $message, $captures ) = @_;
+
+  my $list = $captures->[0];
+
+  return undef unless $list;
+
+  my @choices = split(' ', $list);
+
+  return $message->from . ": " . $choices[rand @choices];
+}
+
 sub _parse {
 	my ( $self, $expression ) = @_;
 
