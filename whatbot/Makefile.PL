@@ -50,7 +50,7 @@ requires       'MooseX::Declare'           => 0.35;
 requires       'Number::Format'            => 0;
 requires       'Template'                  => 0;
 requires       'URI::Escape'               => 0;
-requires       'WWW::Mechanize'            => 0;
+requires       'WWW::Mechanize::GZip'      => 0;
 
 test_requires  'Test::More'                => 0;
 

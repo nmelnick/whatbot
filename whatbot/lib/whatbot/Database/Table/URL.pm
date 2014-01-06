@@ -12,12 +12,12 @@ use Method::Signatures::Modifiers;
 class whatbot::Database::Table::URL extends whatbot::Database::Table {
     use Image::Size qw(imgsize);
     use URI;
-    use WWW::Mechanize;
+    use WWW::Mechanize::GZip;
 
     has 'table_protocol' => ( is => 'rw', isa => 'whatbot::Database::Table' );
     has 'table_domain'   => ( is => 'rw', isa => 'whatbot::Database::Table' );
     has 'agent'          => ( is => 'ro', isa => 'Any', default => sub {
-        my $mech = WWW::Mechanize->new( agent => 'whatbot/1.0' );
+        my $mech = WWW::Mechanize::GZip->new( agent => 'whatbot/1.0' );
         $mech->timeout(5);
         $mech->add_header( 'Referer' => undef );
         $mech->stack_depth(0);
