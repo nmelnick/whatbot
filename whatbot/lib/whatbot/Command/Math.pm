@@ -55,6 +55,16 @@ sub rand : GlobalRegEx('^rand (.*)') {
   return $message->from . ": " . $choices[rand @choices];
 }
 
+sub roll : GlobalRegEx('^roll ([0-9]+)') {
+  my ( $self, $message, $captures ) = @_;
+
+  my $sides = $captures->[0];
+
+  return undef unless $sides;
+
+  return $message->from . ": " . (int(rand($sides)) + 1);
+}
+
 sub _parse {
 	my ( $self, $expression ) = @_;
 
