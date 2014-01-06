@@ -45,6 +45,7 @@ requires       'Math::Expression'          => 0;
 requires       'Math::Units'               => 0;
 requires       'Method::Signatures'        => 20130505;
 requires       'Module::Pluggable'         => 3.9;
+requires       'Mojo::DOM'                 => 0;
 requires       'Moose'                     => 2.04;
 requires       'MooseX::Declare'           => 0.35;
 requires       'Number::Format'            => 0;
