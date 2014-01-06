@@ -12,12 +12,13 @@ use Method::Signatures::Modifiers;
 class whatbot::Database::Table::URL extends whatbot::Database::Table {
     use Image::Size qw(imgsize);
     use URI;
-    use WWW::Mechanize;
+    use WWW::Mechanize::GZip;
+    use Mojo::DOM;
 
     has 'table_protocol' => ( is => 'rw', isa => 'whatbot::Database::Table' );
     has 'table_domain'   => ( is => 'rw', isa => 'whatbot::Database::Table' );
     has 'agent'          => ( is => 'ro', isa => 'Any', default => sub {
-        my $mech = WWW::Mechanize->new( agent => 'whatbot/1.0' );
+        my $mech = WWW::Mechanize::GZip->new( agent => 'whatbot/1.0' );
         $mech->timeout(5);
         $mech->add_header( 'Referer' => undef );
         $mech->stack_depth(0);
@@ -159,9 +160,13 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
         };
         if ( ( not $@ ) and $response->is_success and $self->agent->success ) {
             if ( $self->agent->status < 400 ) {
-                if ( $self->agent->title ) {
-                    $title = $self->agent->title;
-                    
+                if ( $url =~ /twitter\.com/ ) {
+                  my $dom = Mojo::DOM->new($self->agent->content);
+                  my $tweet_id = (split("/", $url))[-1];
+
+                  $title = $dom->at('[data-tweet-id="' . $tweet_id . '"]')->at(".tweet-text")->all_text;
+                } elsif ( $self->agent->title ) {
+                  $title = $self->agent->title;
                 } elsif ( $self->agent->ct =~ /^image/ ) {
                     my ( $width, $height, $type ) = imgsize(\$self->agent->content);
                     if ($type) {
@@ -173,7 +178,7 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
                 $title = '! Error ' . $self->agent->status;
             }
         } else {
-            $title = '! Unable to retrieve';
+            $title = '! Unable to retrieve (' . $url . ' - ' . $self->agent->status . ' ' . $self->agent->content . ')';
         }
         return $title;
     }
