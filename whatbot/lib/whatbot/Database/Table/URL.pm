@@ -163,8 +163,9 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
                 if ( $url =~ /twitter\.com/ ) {
                   my $dom = Mojo::DOM->new($self->agent->content);
                   my $tweet_id = (split("/", $url))[-1];
+                  my $tweet = $dom->at('[data-tweet-id="' . $tweet_id . '"]');
 
-                  $title = $dom->at('[data-tweet-id="' . $tweet_id . '"]')->at(".tweet-text")->all_text;
+                  $title = '@' . $tweet->attr('data-screen-name') . ': ' . $tweet->at(".tweet-text")->all_text;
                 } elsif ( $self->agent->title ) {
                   $title = $self->agent->title;
                 } elsif ( $self->agent->ct =~ /^image/ ) {
