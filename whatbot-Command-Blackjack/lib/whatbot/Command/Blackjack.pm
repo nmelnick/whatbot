@@ -187,7 +187,7 @@ sub bet : GlobalRegEx('^bj? bet \$?(\d+(\.\d\d)?)$') {
 
 sub deal : Command {
 	my ( $self ) = @_;
-	
+
 	return unless ( $self->game and $self->game->active_shoe );
 	$self->{'waiting_for_bets'} = 0;
 	
@@ -320,7 +320,7 @@ sub split : GlobalRegEx('^bj? (p|split)$') {
 sub generate_insult {
 	my ( $self, $is_plural ) = @_;
 
-	return '.' unless ( $self->my_config->{insult} );
+	return '.' unless ( $self->my_config and $self->my_config->{insult} );
 	my $insult = $self->get_insult;
 	if ($is_plural) {
 		$insult .= ( $insult =~ /s$/ ? 'es' : 's' );
