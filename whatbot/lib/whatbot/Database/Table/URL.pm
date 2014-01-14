@@ -18,7 +18,7 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
     has 'table_protocol' => ( is => 'rw', isa => 'whatbot::Database::Table' );
     has 'table_domain'   => ( is => 'rw', isa => 'whatbot::Database::Table' );
     has 'agent'          => ( is => 'ro', isa => 'Any', default => sub {
-        my $mech = WWW::Mechanize::GZip->new( agent => 'whatbot/1.0' );
+        my $mech = WWW::Mechanize::GZip->new( agent => 'whatbot/' . $whatbot::VERSION );
         $mech->timeout(5);
         $mech->add_header( 'Referer' => undef );
         $mech->stack_depth(0);
@@ -153,21 +153,24 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
     }
 
     method retrieve_url ($url) {
-        my $title = 'No parsable title';
+        my $title;
         my $response;
         eval {
             $response = $self->agent->get($url);
         };
-        if ( ( not $@ ) and $response->is_success and $self->agent->success ) {
+        if ( ( not $@ ) and $response ) {
             if ( $self->agent->status < 400 ) {
+                $title = 'No parsable title';
                 if ( $url =~ /twitter\.com/ ) {
                   my $dom = Mojo::DOM->new($self->agent->content);
                   my $tweet_id = (split("/", $url))[-1];
                   my $tweet = $dom->at('[data-tweet-id="' . $tweet_id . '"]');
 
                   $title = '@' . $tweet->attr('data-screen-name') . ': ' . $tweet->at(".tweet-text")->all_text;
+
                 } elsif ( $self->agent->title ) {
                   $title = $self->agent->title;
+
                 } elsif ( $self->agent->ct =~ /^image/ ) {
                     my ( $width, $height, $type ) = imgsize(\$self->agent->content);
                     if ($type) {
@@ -175,13 +178,28 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
                     }
                     
                 }
-            } else {
-                $title = '! Error ' . $self->agent->status;
+            } elsif ( $self->show_failures() ) {
+                my $status = $self->agent->status;
+                if ( $status == 401 or $status == 403 ) {
+                    $title = '! Authorization required';
+                } elsif ( $status == 404 ) {
+                    $title = '! Not Found';
+                } else {
+                    $title = '! Error ' . $self->agent->status;
+                }
             }
         } else {
             $title = '! Unable to retrieve (' . $url . ' - ' . $self->agent->status . ' ' . $self->agent->content . ')';
         }
         return $title;
+    }
+
+    method show_failures() {
+        my $config = $self->config->{'commands'}->{'url'};
+        if ($config) {
+            return if ( $config->{'hide_failures'} );
+        }
+        return 1;
     }
 }
 
