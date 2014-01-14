@@ -62,14 +62,16 @@ sub _get_prices {
 sub _average_pricing {
 	my ( $self, $pricing_object ) = @_;
 
-	my $markets = $pricing_object->{'markets'};
-	my $market_count = 0;
-	my $total = 0;
+	my $markets = $pricing_object->{'markets'};;
+	my $total_volume = 0;
+	my $weighted_numerator = 0;
 	foreach my $market ( keys %$markets ) {
-		$total += sprintf( "%.10g", $markets->{$market}->{'price'} );
-		$market_count++;
+		my $price = sprintf( "%.10g", $markets->{$market}->{'price'} );
+		my $vol = sprintf( "%.10g", $markets->{$market}->{'vol'} );
+		$weighted_numerator += ( $price * $vol );
+		$total_volume += $vol;
 	}
-	return ( $total / $market_count );
+	return sprintf( '%0.02f', $weighted_numerator / $total_volume );
 }
 
 sub help {
