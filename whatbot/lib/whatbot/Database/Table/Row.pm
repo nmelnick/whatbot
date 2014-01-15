@@ -30,10 +30,16 @@ sub delete {
         warn 'Sorry, I suck, I am not sure how to delete a row without a pkey.';
         return;
     }
-    my $sth = $self->database->handle->do(
-        'DELETE FROM ' . $self->table . ' WHERE ' .
-        $self->database->handle->quote_identifier( $self->primary_key ) . ' = ' . $self->database->handle->quote( $self->column_hash->{ $self->primary_key } )
-    ) or warn $DBI::errstr;
+    my $query = sprintf(
+        'DELETE FROM %s WHERE %s = %s',
+        $self->table,
+        $self->database->handle->quote_identifier( $self->primary_key ),
+        $self->database->handle->quote( $self->column_hash->{ $self->primary_key } ),
+    );
+    if ( $ENV{'WB_DATABASE_DEBUG'} ) {
+        $self->log->write($query);
+    }
+    $self->database->handle->do($query) or warn $DBI::errstr;
 }
 
 sub save {
@@ -44,11 +50,12 @@ sub save {
         return;
     }
     delete ( $self->changed->{ $self->primary_key } );
-    my $sth = $self->database->handle->do(
+    my $query = 
         'UPDATE ' . $self->table . 
         ' SET ' . join( ', ', map { $self->database->handle->quote_identifier($_) . ' = ' . $self->database->handle->quote( $self->column_hash->{$_} ) } keys %{ $self->changed } ) .
-        ' WHERE ' . $self->database->handle->quote_identifier( $self->primary_key ) . ' = ' . $self->database->handle->quote( $self->column_hash->{ $self->primary_key } )
-    ) or warn $DBI::errstr;
+        ' WHERE ' . $self->database->handle->quote_identifier( $self->primary_key ) . ' = ' . $self->database->handle->quote( $self->column_hash->{ $self->primary_key } );
+
+    my $sth = $self->database->handle->do() or warn $DBI::errstr;
 }
 
 sub _fill {

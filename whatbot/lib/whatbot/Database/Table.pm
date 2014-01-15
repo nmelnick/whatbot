@@ -11,6 +11,7 @@ use Method::Signatures::Modifiers;
 
 class whatbot::Database::Table extends whatbot::Database {
     use whatbot::Database::Table::Row;
+    use Clone qw(clone);
 
     has 'table_name'    => ( is => 'rw', isa => 'Str' );
     has 'primary_key'   => ( is => 'rw', isa => 'Maybe[Str]' );
@@ -58,6 +59,10 @@ class whatbot::Database::Table extends whatbot::Database {
                         }
                     } values %$params ) . ')';
 
+        if ( $ENV{'WB_DATABASE_DEBUG'} ) {
+            $self->log->write($query);
+        }
+
         $self->database->handle->do($query) or warn 'Error executing query [[' . $query . ']], error: ' . $DBI::errstr;
 
         return $self->find( $self->database->last_insert_id( $self->table_name ) );
@@ -100,7 +105,11 @@ class whatbot::Database::Table extends whatbot::Database {
         $query .= ' WHERE ' . join( ' AND ', @wheres ) if (@wheres);
         $query .= ' ORDER BY ' . $search_data->{'_order_by'} if ( $search_data->{'_order_by'} );
         $query .= ' LIMIT ' . $search_data->{'_limit'} if ( $search_data->{'_limit'} );
-        
+
+        if ( $ENV{'WB_DATABASE_DEBUG'} ) {
+            $self->log->write($query);
+        }
+
         my @results;
         my $sth = $self->database->handle->prepare($query);
         $sth->execute();
@@ -143,18 +152,24 @@ class whatbot::Database::Table extends whatbot::Database {
     method _make_table ($table_data) {
         my $query = 'CREATE TABLE ' . $table_data->{'name'} . ' (';
         
+        my $local_columns = clone( $table_data->{'columns'} );
         # Primary Key
         if ( $table_data->{'primary_key'} ) {
-            warn 'Primary key specified but not given in column data.' unless ( $table_data->{'columns'}->{ $table_data->{'primary_key'} } );
-            my $column_data = $table_data->{'columns'}->{ $table_data->{'primary_key'} };
+            warn 'Primary key specified but not given in column data.' unless ( $local_columns->{ $table_data->{'primary_key'} } );
+            my $column_data = $local_columns->{ $table_data->{'primary_key'} };
             my $type = $column_data->{'type'};
-            $query .= $self->database->handle->quote_identifier( $table_data->{'primary_key'} ) . ' ' . $self->database->$type( $column_data->{'size'} or undef ) . ' primary key, ';
-            delete( $table_data->{'columns'}->{ $table_data->{'primary_key'} } );
+            $query .= sprintf(
+                '%s %s primary key %s, ',
+                $self->database->handle->quote_identifier( $table_data->{'primary_key'} ),
+                $self->database->$type( $column_data->{'size'} or undef ),
+                ( $self->database->postfix ? $self->database->serial_postfix() : '' ),
+            );
+            delete( $local_columns->{ $table_data->{'primary_key'} } );
         }
 
         # Other Columns
-        foreach my $column ( keys %{ $table_data->{'columns'} } ) {
-            my $column_data = $table_data->{'columns'}->{$column};
+        foreach my $column ( keys %{$local_columns} ) {
+            my $column_data = $local_columns->{$column};
             my $type = $column_data->{'type'};
             $query .= $self->database->handle->quote_identifier($column) . ' ' . $self->database->$type( $column_data->{'size'} or undef ) . ', ';
         }
@@ -162,6 +177,9 @@ class whatbot::Database::Table extends whatbot::Database {
         # Close Query
         $query = substr( $query, 0, length($query) - 2 );
         $query .= ')';
+        if ( $ENV{'WB_DATABASE_DEBUG'} ) {
+            $self->log->write($query);
+        }
         $self->database->handle->do($query) or warn 'DBI: ' . $DBI::errstr . '  Query: ' . $query;
 
         # Index

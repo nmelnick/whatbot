@@ -34,9 +34,18 @@ class whatbot::Database::SQLite extends whatbot::Database::DBI {
 	    return 'integer';
 	}
 
+    method serial ( $null? ) {
+    	$self->postfix(1);
+        return $self->integer();
+    }
+
 	method now() {
 	    return $self->handle->quote(time);
 	}
+
+    method serial_postfix() {
+        return 'autoincrement';
+    }
 
 }
 

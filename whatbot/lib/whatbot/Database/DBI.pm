@@ -14,6 +14,7 @@ class whatbot::Database::DBI extends whatbot::Database {
 
     has 'connect_array' => ( is => 'rw', isa => 'ArrayRef' );
     has 'tables'        => ( is => 'rw', isa => 'HashRef' );
+    has 'postfix'       => ( is => 'rw', isa => 'Bool', default => 0 );
 
     method connect() {
     	die "ERROR: No connect string offered by connection module" if ( !$self->connect_array );
@@ -47,6 +48,7 @@ class whatbot::Database::DBI extends whatbot::Database {
     }
 
     method serial ( $null? ) {
+        $self->postfix(1);
         return integer();
     }
 
@@ -72,6 +74,10 @@ class whatbot::Database::DBI extends whatbot::Database {
 
     method random() {
         return 'random()';
+    }
+
+    method serial_postfix() {
+        return '';
     }
 
 }
