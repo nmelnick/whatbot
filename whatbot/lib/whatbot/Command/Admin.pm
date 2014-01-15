@@ -108,6 +108,42 @@ sub throw : Command {
     return;
 }
 
+sub alias : Command {
+	my ( $self, $message, $args ) = @_;
+	
+	return unless ( $self->_has_permission($message) );
+
+	my ( $user, $alias ) = split( / /, join( ' ', @$args ) );
+	return unless ( $user and $alias );
+
+	if ( my $owner = $self->model('UserAlias')->user_for_alias($alias) ) {
+		return 'The alias "' . $alias . '" is already set for user "' . $owner . '".'
+	}
+	if ( my $aliases = $self->model('UserAlias')->aliases_for_user($alias) ) {
+		return 'The alias "' . $alias . '" is already a user with other aliases.' if (@$aliases);
+	}
+
+	if ( $self->model('UserAlias')->alias( $user, $alias ) ) {
+		return 'The user "' . $user . '" is now also known as "' . $alias . '".';
+	}
+	return;
+}
+
+sub unalias : Command {
+	my ( $self, $message, $args ) = @_;
+	
+	return unless ( $self->_has_permission($message) );
+
+	my ( $user, $alias ) = split( / /, join( ' ', @$args ) );
+	return unless ( $user and $alias );
+
+	if ( $self->model('UserAlias')->remove( $user, $alias ) ) {
+		return 'Removed.';
+	}
+
+	return 'That combination was not found.';
+}
+
 sub _has_permission {
 	my ( $self, $message ) = @_;
 
