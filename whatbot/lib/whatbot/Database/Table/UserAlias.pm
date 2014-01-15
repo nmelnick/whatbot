@@ -79,6 +79,11 @@ class whatbot::Database::Table::UserAlias extends whatbot::Database::Table {
         return \@users;
     }
 
+    method canonical_user( Str $user ) {
+        my $lcuser = lc($user) or return;
+        return ( $self->user_for_alias($lcuser) or $user );
+    }
+
     method remove( Str $user, Str $alias? ) {
         $user = lc($user);
         if ($alias) {
@@ -145,6 +150,11 @@ Return an arrayref of aliases for the given user.
 
 Retrieve all related users for this string, which could be other aliases or
 an attached user.
+
+=item canonical_user( $user_or_alias )
+
+Like user_for_alias, returns a username attached to the given alias if one
+exists, but returns the alias if a parent username is not found.
 
 =item remove( $user, $alias? )
 
