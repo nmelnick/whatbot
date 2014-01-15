@@ -144,6 +144,33 @@ sub unalias : Command {
 	return 'That combination was not found.';
 }
 
+sub convertalias : Command {
+	my ( $self, $message, $args ) = @_;
+
+	return unless ( $self->_has_permission($message) );
+
+	my ( $alias ) = split( / /, join( ' ', @$args ) );
+	return unless ( $alias );
+	$alias = lc($alias);
+
+	my $user = $self->model('UserAlias')->user_for_alias($alias);
+	unless ($user) {
+		return 'That alias is not assigned to a user.';
+	}
+
+	my $karmas = $self->model('Karma')->search({ 'user' => { 'LIKE' => $alias } });
+	foreach my $karma (@$karmas) {
+		$karma->user($user);
+		$karma->save();
+	}
+	$karmas = $self->model('Karma')->search({ 'subject' => $alias });
+	foreach my $karma (@$karmas) {
+		$karma->subject($user);
+		$karma->save();
+	}
+	return 'Done.';
+}
+
 sub _has_permission {
 	my ( $self, $message ) = @_;
 

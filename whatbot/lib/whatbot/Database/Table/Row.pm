@@ -54,8 +54,12 @@ sub save {
         'UPDATE ' . $self->table . 
         ' SET ' . join( ', ', map { $self->database->handle->quote_identifier($_) . ' = ' . $self->database->handle->quote( $self->column_hash->{$_} ) } keys %{ $self->changed } ) .
         ' WHERE ' . $self->database->handle->quote_identifier( $self->primary_key ) . ' = ' . $self->database->handle->quote( $self->column_hash->{ $self->primary_key } );
+    
+    if ( $ENV{'WB_DATABASE_DEBUG'} ) {
+        $self->log->write($query);
+    }
 
-    my $sth = $self->database->handle->do() or warn $DBI::errstr;
+    my $sth = $self->database->handle->do($query) or warn $DBI::errstr;
 }
 
 sub _fill {
