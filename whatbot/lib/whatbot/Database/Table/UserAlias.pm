@@ -9,8 +9,6 @@ use Method::Signatures::Modifiers;
 
 class whatbot::Database::Table::UserAlias extends whatbot::Database::Table {
     method BUILD(...) {
-        my ( $self ) = @_;
-        
         $self->init_table({
             'name'        => 'user_alias',
             'primary_key' => 'user_alias_id',
@@ -33,7 +31,7 @@ class whatbot::Database::Table::UserAlias extends whatbot::Database::Table {
 
     method alias( Str $user, Str $alias ) {
         $user = lc($user);
-        $alias = lc($alias);
+        $alias = lc($alias) or return;
         my $row = $self->search_one({
             'user'  => $user,
             'alias' => $alias,
@@ -48,16 +46,48 @@ class whatbot::Database::Table::UserAlias extends whatbot::Database::Table {
         return;
     }
 
-    method remove( Str $user, Str $alias ) {
-        $user = lc($user);
-        $alias = lc($alias);
+    method user_for_alias( Str $alias ) {
         my $row = $self->search_one({
-            'user'  => $user,
             'alias' => $alias,
         });
         if ($row) {
-            $row->delete();
-            return 1;
+            return $row->user;
+        }
+        return;
+    }
+
+    method aliases_for_user( Str $user ) {
+        my $rows = $self->search({
+            'user' => $user,
+        });
+        if ($rows) {
+            return [ map { $_->alias } @$rows ];
+        }
+        return;
+    }
+
+    method remove( Str $user, Str $alias? ) {
+        $user = lc($user);
+        if ($alias) {
+            $alias = lc($alias);
+            my $row = $self->search_one({
+                'user'  => $user,
+                'alias' => $alias,
+            });
+            if ($row) {
+                $row->delete();
+                return 1;
+            }
+        } else {
+            my $rows = $self->search({
+                'user'  => $user,
+            });
+            if ($rows) {
+                foreach (@$rows) {
+                    $_->delete();
+                }
+                return 1;
+            }
         }
         return;
     }
@@ -89,7 +119,16 @@ relationship.
 Set a new alias for a user. If a user isn't being tracked, it will start being
 tracked. If the alias already exists, this is a no-op. Returns true on success.
 
-=item remove( $user, $alias )
+=item user_for_alias( $alias )
+
+Return a username attached to the given alias. Returns nothing if the alias is
+not found.
+
+=item aliases_for_user( $user )
+
+Return an arrayref of aliases for the given user.
+
+=item remove( $user, $alias? )
 
 Remove an alias from a user. If no alias is provided, removes everything for
 that user. Returns true on success.
