@@ -66,6 +66,19 @@ class whatbot::Database::Table::UserAlias extends whatbot::Database::Table {
         return;
     }
 
+    method related_users( Str $user_or_alias ) {
+        my @users;
+        my $aliases = $self->aliases_for_user($user_or_alias);
+        if ($aliases) {
+            push( @users, @$aliases );
+        }
+        my $user = $self->user_for_alias($user_or_alias);
+        if ($user) {
+            push( @users, $user );
+        }
+        return \@users;
+    }
+
     method remove( Str $user, Str $alias? ) {
         $user = lc($user);
         if ($alias) {
@@ -127,6 +140,11 @@ not found.
 =item aliases_for_user( $user )
 
 Return an arrayref of aliases for the given user.
+
+=item related_users( $user_or_alias )
+
+Retrieve all related users for this string, which could be other aliases or
+an attached user.
 
 =item remove( $user, $alias? )
 

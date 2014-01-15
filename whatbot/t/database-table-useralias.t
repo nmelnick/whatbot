@@ -32,6 +32,8 @@ is( $url->count(), 2, 'table has two records' );
 is( $url->user_for_alias('bar'), 'foo', 'alias bar is user foo' );
 is( $url->aliases_for_user('foo')->[0], 'baz', 'user foo has alias baz' );
 is( $url->aliases_for_user('foo')->[1], 'bar', 'user foo has alias bar' );
+is( $url->related_users('foo')->[0], 'baz', 'user foo has related baz' );
+is( $url->related_users('foo')->[1], 'bar', 'user foo has related bar' );
 
 ok( $url->remove('foo'), 'remove all aliases for foo' );
 is( $url->count(), 0, 'table has zero records' );
