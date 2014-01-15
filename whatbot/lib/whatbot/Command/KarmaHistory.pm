@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 sub register {
 	my ($self) = @_;
-	
+
 	$self->command_priority('Extension');
 	$self->require_direct(0);
 }
@@ -23,24 +23,25 @@ sub fisher_yates_shuffle {
     my $i;
     for ($i = @$array; --$i; ) {
         my $j = int rand ($i+1);
-        next if $i == $j;
+        next if ( $i == $j );
         @$array[$i,$j] = @$array[$j,$i];
     }
 }
 
 sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
 	my ( $self, $message, $captures ) = @_;
-	
+
 	my ( $who, $verb ) = @$captures;
-	
-	my $nick = $message->from;
-	my $op	 = ( $verb eq 'like' ? 1 : -1 );
+
+	my $lcfrom = lc( $message->from );
+	my $nick   = $self->model('UserAlias')->canonical_user($lcfrom);
+	my $op	   = ( $verb eq 'like' ? 1 : -1 );
 
 	my $query = "
 		SELECT subject, amount FROM karma WHERE 
 		  amount = $op AND
-		  user LIKE '$who' AND
-		  subject NOT IN (SELECT subject FROM karma WHERE amount = $op and user NOT LIKE '$who')
+		  user LIKE '$nick' AND
+		  subject NOT IN (SELECT subject FROM karma WHERE amount = $op and user NOT LIKE '$nick')
 	";
 	my $sth = $self->model('karma')->database->handle->prepare($query);
     $sth->execute();
@@ -49,10 +50,10 @@ sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
 	if ( !$karmas or !@$karmas ) {
 		return "$who doesn't $verb anything weird. that I know of.";
 	}
-	
+
 	my $karma = $karmas->[rand($#$karmas)];
 
-	return "$who ${verb}s $karma->[0].";
+	return $who . ( $who ne $nick ? ' (as ' . $nick .')' : '' ) . " ${verb}s $karma->[0].";
 }
 
 sub controversy : GlobalRegEx('^[\. ]*?fightin(?:'|g)? words\??$') {
@@ -95,13 +96,15 @@ sub superlative : GlobalRegEx('^[\. ]*?what(?: is|\'s)(?: the)? (best|worst)') {
 
 sub parse_message : GlobalRegEx('^[\. ]*?who (hates|likes|loves|doesn\'t like|plussed|minused) (.*)') {
 	my ( $self, $message, $captures ) = @_;
-	
+
 	if ($captures) {
-		my $what = lc( $captures->[0] );
+		my $what = $captures->[0];
+
 		my $subject = lc( $captures->[1] );
 		$subject =~ s/[\.\?\! ]+$//;	# Remove punctuation
 		$subject =~ s/^(the|a|an) //;	# Remove articles, if they exist
-		
+		my $nick = $self->model('UserAlias')->canonical_user($subject);
+
 		my $sort = "desc";
 		my $op = "1";
 		if ( $what and ( $what eq 'hates' or $what eq 'minused' or $what eq 'doesn\'t like' ) ) {
@@ -109,17 +112,19 @@ sub parse_message : GlobalRegEx('^[\. ]*?who (hates|likes|loves|doesn\'t like|pl
 			$op = "-1";
 		}
 
-        my $sth = $self->database->handle->prepare("select user, total from (select user, sum(amount) as total from karma where subject = '$subject' and amount = $op group by user) order by total $sort");
+        my $sth = $self->database->handle->prepare(
+        	"select user, total from (select user, sum(amount) as total from karma where subject = '$nick' and amount = $op group by user) order by total $sort"
+        );
 		$sth->execute;
 
 		my @people;
 		my $row;
 		while ( $row = $sth->fetchrow_arrayref() ) {
 			my ( $user, $total ) = @$row;
-
 			push( @people, { 'user' => $user, 'total' => $total } );
 		}
-		
+
+		my $as = ( $subject ne $nick ? '(as ' . $nick .') ' : '' );
 		if ( scalar(@people) == 1 ) {
 			my $num = abs( $people[0]->{'total'} );
 			my $who = $people[0]->{'user'};
@@ -127,25 +132,25 @@ sub parse_message : GlobalRegEx('^[\. ]*?who (hates|likes|loves|doesn\'t like|pl
 			my $howmuch = ( $num == 1 ? "once" : $num == 2 ? "twice" : "$num times" );
 
 			if ( $who eq $message->from ) {
-				return $message->from . ': It was YOU! ' . ucfirst($howmuch) . ".";
+				return $message->from . ': ' . $as . 'It was YOU! ' . ucfirst($howmuch) . ".";
 			} else {
-				return $message->from . ': It was ' . $people[0]->{'user'} . ", $howmuch.";
+				return $message->from . ': ' . $as . 'It was ' . $people[0]->{'user'} . ", $howmuch.";
 			}
-			
+
 		#} elsif (scalar(@people) > 10) {
 		#	return $message->from . ': More than 10 people, so nearly everyone.';
-			
+
 		} elsif ( scalar(@people) > 0 ) {
 			my $peopleText = join( ', ', map { $_->{'user'} . " (" . $_->{'total'} . ")" } @people );
 			my $sum = 0;
 			$sum += $_->{'total'} foreach (@people);
-			return $message->from . ": $peopleText = $sum";
-			
+			return $message->from . ": ' . $as . $peopleText = $sum";
+
 		} else {
 			return $message->from . ': Nobody!';
 		}
 	}
-	
+
 	return;
 }
 
