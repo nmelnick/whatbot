@@ -124,7 +124,7 @@ sub parse_message : GlobalRegEx('^[\. ]*?who (hates|likes|loves|doesn\'t like|pl
 			push( @people, { 'user' => $user, 'total' => $total } );
 		}
 
-		my $as = ( $subject ne $nick ? '(as ' . $nick .') ' : '' );
+		my $as = ( $subject ne $nick ? '(as ' . $nick . ') ' : '' );
 		if ( scalar(@people) == 1 ) {
 			my $num = abs( $people[0]->{'total'} );
 			my $who = $people[0]->{'user'};
@@ -144,7 +144,7 @@ sub parse_message : GlobalRegEx('^[\. ]*?who (hates|likes|loves|doesn\'t like|pl
 			my $peopleText = join( ', ', map { $_->{'user'} . " (" . $_->{'total'} . ")" } @people );
 			my $sum = 0;
 			$sum += $_->{'total'} foreach (@people);
-			return $message->from . ": ' . $as . $peopleText = $sum";
+			return $message->from . ": $as$peopleText = $sum";
 
 		} else {
 			return $message->from . ': Nobody!';
