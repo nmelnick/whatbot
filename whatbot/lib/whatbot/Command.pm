@@ -57,6 +57,7 @@ class whatbot::Command extends whatbot::Component {
     }
 
     method web_url() {
+        return unless ( $self->ios->{Web} );
         return sprintf( '%s:%d', $self->ios->{Web}->my_config->{url}, $self->ios->{Web}->my_config->{port} );
     }
 

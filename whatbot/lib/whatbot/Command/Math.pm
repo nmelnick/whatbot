@@ -62,7 +62,7 @@ sub roll : GlobalRegEx('^roll ([0-9]+)') {
 
   return undef unless $sides;
 
-  return $message->from . ": " . (int(rand($sides)) + 1);
+  return $message->from . ": " . (int( CORE::rand($sides) ) + 1);
 }
 
 sub _parse {

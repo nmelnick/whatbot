@@ -46,7 +46,7 @@ sub help : Command {
     ];
 }
 
-sub add_quote : GlobalRegEx('^quote (.*) "(.*?)"\s*$') {
+sub add_quote : GlobalRegEx('^quote (.*?)[,\:]? "(.*?)"\s*$') {
 	my ( $self, $message, $captures ) = @_;
 	
 	my $quoted = $captures->[0];
@@ -57,7 +57,7 @@ sub add_quote : GlobalRegEx('^quote (.*) "(.*?)"\s*$') {
 		'content' => encode_entities($content),
 	});
 	if ($quote) {
-		return 'Quote added to quoteboard. ' . $self->web_url . '/quote';
+		return 'Quote added to quoteboard. ' . ( $self->web_url ? $self->web_url . '/quote' : 'No URL available.' );
 	}
 	return 'Could not create quote.';
 }
