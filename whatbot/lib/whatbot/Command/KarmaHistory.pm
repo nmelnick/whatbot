@@ -33,9 +33,10 @@ sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
 
 	my ( $who, $verb ) = @$captures;
 
-	my $lcfrom = lc( $message->from );
-	my $nick   = $self->model('UserAlias')->canonical_user($lcfrom);
-	my $op	   = ( $verb eq 'like' ? 1 : -1 );
+	my $from = $message->from;
+	my $op	 = ( $verb eq 'like' ? 1 : -1 );
+
+	my $nick = $self->model('UserAlias')->canonical_user( lc($who) );
 
 	my $query = "
 		SELECT subject, amount FROM karma WHERE 
