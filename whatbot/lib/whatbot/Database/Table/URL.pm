@@ -100,6 +100,14 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
                 },
             }
         });
+
+        if (my $config = $self->config->{'commands'}->{'url'}->{'basic_auth'}) {
+          foreach my $entry (@$config) {
+            $self->agent->credentials( $entry->{domain}, $entry->{realm},
+                                       $entry->{user}, $entry->{password});
+          }
+        }
+
         $self->table_domain($domain);
     }
 
