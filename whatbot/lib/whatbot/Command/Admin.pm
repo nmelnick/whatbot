@@ -151,19 +151,19 @@ sub convertalias : Command {
 
 	my ( $alias ) = split( / /, join( ' ', @$args ) );
 	return unless ( $alias );
-	$alias = lc($alias);
+	my $lcalias = lc($alias);
 
-	my $user = $self->model('UserAlias')->user_for_alias($alias);
+	my $user = $self->model('UserAlias')->user_for_alias($lcalias);
 	unless ($user) {
 		return 'That alias is not assigned to a user.';
 	}
 
-	my $karmas = $self->model('Karma')->search({ 'user' => { 'LIKE' => $alias } });
+	my $karmas = $self->model('Karma')->search({ 'user' => { 'LIKE' => $lcalias } });
 	foreach my $karma (@$karmas) {
 		$karma->user($user);
 		$karma->save();
 	}
-	$karmas = $self->model('Karma')->search({ 'subject' => $alias });
+	$karmas = $self->model('Karma')->search({ 'subject' => $lcalias });
 	foreach my $karma (@$karmas) {
 		$karma->subject($user);
 		$karma->save();
