@@ -1,133 +1,10 @@
 ###########################################################################
-# whatbot/Database/Table/Karma.pm
-###########################################################################
-#
-###########################################################################
+# Karma.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-package whatbot::Database::Table::Karma;
-use Moose;
-extends 'whatbot::Database::Table';
-
-sub BUILD {
-    my ( $self ) = @_;
-    
-    $self->init_table({
-        'name'        => 'karma',
-        'primary_key' => 'karma_id',
-        'indexed'     => [ 'subject', 'user' ],
-        'defaults'    => {
-            'created'   => { 'database' => 'now' }
-        },
-        'columns'     => {
-            'karma_id' => {
-                'type'  => 'serial'
-            },
-            'subject' => {
-                'type'  => 'varchar',
-                'size'  => 255
-            },
-            'user' => {
-                'type'  => 'varchar',
-                'size'  => 255
-            },
-            'created' => {
-                'type'  => 'integer'
-            },
-            'amount' => {
-                'type'  => 'integer'
-            }
-        }
-    });
-}
-
-sub _top_bottom_n {
-	my ( $self, $user, $n, $istop ) = @_;
-	
-	my $query = "
-		SELECT subject, sum FROM (
-			SELECT subject, sum(amount) AS sum FROM karma WHERE user LIKE '$user'
-			GROUP BY subject
-			)
-		 ORDER BY sum " . ($istop ? "desc" : "asc") . "
-		 LIMIT $n";
-	
-	my $sth = $self->database->handle->prepare($query);
-    $sth->execute();
-    return $sth->fetchall_arrayref({});
-}
-
-sub top_n {
-	return _top_bottom_n(@_, 1);
-}
-
-sub bottom_n {
-	return _top_bottom_n(@_, 0);
-}
-
-sub decrement {
-    my ( $self, $topic, $user ) = @_;
-    
-    $self->create({
-        'subject'   => $topic,
-        'user'      => $user,
-        'amount'    => -1
-    });
-}
-
-sub increment {
-    my ( $self, $topic, $user ) = @_;
-    
-    $self->create({
-        'subject'   => $topic,
-        'user'      => $user,
-        'amount'    => 1
-    });
-}
-
-sub get {
-    my ( $self, $topic ) = @_;
-    
-    my $row = $self->search_one({
-        '_select' => 'SUM(amount)',
-        'subject' => lc($topic)
-    });
-    return ( $row ? $row->column_data->[0] : '' );
-}
-
-sub get_extended {
-    my ( $self, $topic ) = @_;
-    
-    my $increment_row = $self->search_one({
-        '_select' => 'COUNT(amount)',
-        'subject' => $topic,
-        'amount'  => 1
-    });
-    my $decrement_row = $self->search_one({
-        '_select' => 'COUNT(amount)',
-        'subject' => $topic,
-        'amount'  => -1
-    });
-    my $last_row = $self->search_one({
-        'subject'   => $topic,
-        '_order_by' => 'karma_id DESC',
-        '_limit'    => 1
-    });
-    
-    return $last_row ? {
-        'Increments' => $increment_row->column_data->[0],
-        'Decrements' => $decrement_row->column_data->[0],
-        'Last'       => [
-            $last_row->user,
-            $last_row->amount
-        ]
-    } : undef;
-}
-
-1;
-
-=pod
+use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 =head1 NAME
 
@@ -135,9 +12,13 @@ whatbot::Database::Table::Karma - Database functionality for karma.
 
 =head1 SYNOPSIS
 
+ # In whatbot
+ $self->model('Karma')->increment( 'whatbot, 'awesome_user' );
+
+ # Outside whatbot
  use whatbot::Database::Table::Karma;
  my $model = whatbot::Database::Table::Karma->new();
- $model->increment( 'whatbot', 'awesome_guy' );
+ $model->increment( 'whatbot', 'awesome_user' );
 
 =head1 DESCRIPTION
 
@@ -147,17 +28,102 @@ whatbot::Database::Table::Karma provides database functionality for karma.
 
 =over 4
 
-=item increment( $topic, $user )
+=cut
 
-Increment the karma on a topic.
+class whatbot::Database::Table::Karma extends whatbot::Database::Table {
+    method BUILD(...) {
+        $self->init_table({
+            'name'        => 'karma',
+            'primary_key' => 'karma_id',
+            'indexed'     => [ 'subject', 'user' ],
+            'defaults'    => {
+                'created'   => { 'database' => 'now' }
+            },
+            'columns'     => {
+                'karma_id' => {
+                    'type'  => 'serial'
+                },
+                'subject' => {
+                    'type'  => 'varchar',
+                    'size'  => 255
+                },
+                'user' => {
+                    'type'  => 'varchar',
+                    'size'  => 255
+                },
+                'created' => {
+                    'type'  => 'integer'
+                },
+                'amount' => {
+                    'type'  => 'integer'
+                }
+            }
+        });
+    }
+
+    method _top_bottom_n( Str $user, Num $n, Bool $istop? ) {
+    	my $query = "
+    		SELECT subject, sum FROM (
+    			SELECT subject, sum(amount) AS sum FROM karma WHERE user LIKE '$user'
+    			GROUP BY subject
+    			)
+    		 ORDER BY sum " . ($istop ? "desc" : "asc") . "
+    		 LIMIT $n";
+    	
+    	my $sth = $self->database->handle->prepare($query);
+        $sth->execute();
+        return $sth->fetchall_arrayref({});
+    }
+
+    sub top_n {
+    	return _top_bottom_n(@_, 1);
+    }
+
+    sub bottom_n {
+    	return _top_bottom_n(@_, 0);
+    }
 
 =item decrement( $topic, $user )
 
 Decrement the karma on a topic.
 
+=cut
+
+    method decrement( Str $topic, Str $user ) {
+        $self->create({
+            'subject'   => $topic,
+            'user'      => $user,
+            'amount'    => -1
+        });
+    }
+
+=item increment( $topic, $user )
+
+Increment the karma on a topic.
+
+=cut
+
+    method increment( Str $topic, Str $user ) {
+        $self->create({
+            'subject'   => $topic,
+            'user'      => $user,
+            'amount'    => 1
+        });
+    }
+
 =item get( $topic )
 
 Retrieve the karma on a topic.
+
+=cut
+
+    method get( Str $topic ) {
+        my $row = $self->search_one({
+            '_select' => 'SUM(amount)',
+            'subject' => lc($topic)
+        });
+        return ( $row ? $row->column_data->[0] : '' );
+    }
 
 =item get_extended( $topic )
 
@@ -166,31 +132,39 @@ Retrieve extended info on a topic's karma. Returns a hashref containing
 containing the total volume of decrements, and 'Last', which is an arrayref
 containing the last changing user and the amount of karma given.
 
-=back
+=cut
 
-=head1 INHERITANCE
+    method get_extended( Str $topic ) {
+        my $increment_row = $self->search_one({
+            '_select' => 'COUNT(amount)',
+            'subject' => $topic,
+            'amount'  => 1
+        });
+        my $decrement_row = $self->search_one({
+            '_select' => 'COUNT(amount)',
+            'subject' => $topic,
+            'amount'  => -1
+        });
+        my $last_row = $self->search_one({
+            'subject'   => $topic,
+            '_order_by' => 'karma_id DESC',
+            '_limit'    => 1
+        });
+        
+        return $last_row ? {
+            'Increments' => $increment_row->column_data->[0],
+            'Decrements' => $decrement_row->column_data->[0],
+            'Last'       => [
+                $last_row->user,
+                $last_row->amount
+            ]
+        } : undef;
+    }
+}
 
-=over 4
+1;
 
-=item whatbot::Component
-
-=over 4
-
-=item whatbot::Database
-
-=over 4
-
-=item whatbot::Database::Table
-
-=over 4
-
-=item whatbot::Database::Table::Karma
-
-=back
-
-=back
-
-=back
+=pod
 
 =back
 
