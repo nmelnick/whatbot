@@ -9,6 +9,7 @@ license  'perl';
 # Specific dependencies
 requires       'whatbot'                      => 0.12;
 requires       'whatbot::Command::Annoying'   => 0.1;
+requires       'whatbot::Command::Bitcoin'    => 0.1;
 requires       'whatbot::Command::Blackjack'  => 0.1;
 requires       'whatbot::Command::Excuse'     => 0.1;
 requires       'whatbot::Command::Market'     => 0.1;
@@ -21,5 +22,6 @@ requires       'whatbot::Command::Trade'      => 0.1;
 requires       'whatbot::Command::Translate'  => 0.1;
 requires       'whatbot::Command::Weather'    => 0.1;
 requires       'whatbot::IO::AIM'             => 0.1;
+requires       'whatbot::IO::Jabber'          => 0.1;
 
 WriteAll;

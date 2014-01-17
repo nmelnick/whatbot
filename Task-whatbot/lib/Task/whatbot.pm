@@ -23,6 +23,8 @@ provided by whatbot.org for a given release.
 
 =head3 L<whatbot::Command::Annoying>
 
+=head3 L<whatbot::Command::Bitcoin>
+
 =head3 L<whatbot::Command::Blackjack>
 
 =head3 L<whatbot::Command::Excuse>
@@ -46,6 +48,8 @@ provided by whatbot.org for a given release.
 =head3 L<whatbot::Command::Weather>
 
 =head3 L<whatbot::IO::AIM>
+
+=head3 L<whatbot::IO::Jabber>
 
 =head1 LICENSE/COPYRIGHT
 
