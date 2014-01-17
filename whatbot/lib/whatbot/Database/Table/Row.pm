@@ -1,98 +1,10 @@
 ###########################################################################
-# whatbot/Database/Table/Row.pm
-###########################################################################
-# Class wrapper for a database table row.
-###########################################################################
+# Row.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-package whatbot::Database::Table::Row;
-use Moose;
-extends 'whatbot::Component';
-
-has 'primary_key' => ( is => 'rw', isa => 'Str' );
-has 'table'       => ( is => 'rw', isa => 'Str' );
-has 'columns'     => ( is => 'rw', isa => 'ArrayRef' );
-has 'column_data' => ( is => 'rw', isa => 'ArrayRef' );
-has 'column_hash' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
-has 'changed'     => ( is => 'ro', isa => 'HashRef', default => sub { {} } );
-
-sub BUILD {
-    my ( $self ) = @_;
-    
-    $self->_fill();
-}
-
-sub delete {
-    my ( $self ) = @_;
-    
-    unless ( $self->primary_key ) {
-        warn 'Sorry, I suck, I am not sure how to delete a row without a pkey.';
-        return;
-    }
-    my $query = sprintf(
-        'DELETE FROM %s WHERE %s = %s',
-        $self->table,
-        $self->database->handle->quote_identifier( $self->primary_key ),
-        $self->database->handle->quote( $self->column_hash->{ $self->primary_key } ),
-    );
-    if ( $ENV{'WB_DATABASE_DEBUG'} ) {
-        $self->log->write($query);
-    }
-    $self->database->handle->do($query) or warn $DBI::errstr;
-}
-
-sub save {
-    my ( $self ) = @_;
-    
-    unless ( $self->primary_key ) {
-        warn 'Sorry, I suck, I am not sure how to save a row without a pkey.';
-        return;
-    }
-    delete ( $self->changed->{ $self->primary_key } );
-    my $query = 
-        'UPDATE ' . $self->table . 
-        ' SET ' . join( ', ', map { $self->database->handle->quote_identifier($_) . ' = ' . $self->database->handle->quote( $self->column_hash->{$_} ) } keys %{ $self->changed } ) .
-        ' WHERE ' . $self->database->handle->quote_identifier( $self->primary_key ) . ' = ' . $self->database->handle->quote( $self->column_hash->{ $self->primary_key } );
-    
-    if ( $ENV{'WB_DATABASE_DEBUG'} ) {
-        $self->log->write($query);
-    }
-
-    my $sth = $self->database->handle->do($query) or warn $DBI::errstr;
-}
-
-sub _fill {
-    my ( $self ) = @_;
-    
-    for ( my $i = 0; $i < scalar(@{ $self->columns }); $i++ ) {
-        my $column = $self->columns->[$i];
-        $self->_create_column_accessor($column); 
-        if ( $self->column_data->[$i] ) {
-            $self->column_hash->{$column} = $self->column_data->[$i];
-        }
-    }
-}
-
-sub _fill_array {
-    my ( $self ) = @_;
-    
-    for ( my $i = 0; $i < scalar(@{ $self->columns }); $i++ ) {
-        my $column = $self->columns->[$i];
-        $self->column_data->[$i] = $self->column_hash->{$column};
-    }
-}
-
-sub _create_column_accessor {
-    my ( $self, $name ) = @_;
-    
-    no warnings 'redefine';
-    eval "sub $name { my ( \$self, \$value ) = \@_; if ( defined \$value ) { \$self->column_hash->{$name} = \$value; \$self->changed->{$name} = 1; } \$self->_fill_array(); return \$self->column_hash->{$name}; }";
-}
-
-1;
-
-=pod
+use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 =head1 NAME
 
@@ -115,27 +27,93 @@ primary key at this time.
 
 =over 4
 
-=item save
+=cut
 
-Saves changes made back to the database.
+class whatbot::Database::Table::Row extends whatbot::Component {
+    has 'primary_key' => ( is => 'rw', isa => 'Str' );
+    has 'table'       => ( is => 'rw', isa => 'Str' );
+    has 'columns'     => ( is => 'rw', isa => 'ArrayRef' );
+    has 'column_data' => ( is => 'rw', isa => 'ArrayRef' );
+    has 'column_hash' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
+    has 'changed'     => ( is => 'ro', isa => 'HashRef', default => sub { {} } );
 
-=item delete
+    method BUILD(...) {
+        $self->_fill();
+    }
+
+=item delete()
 
 Delete this record from the database.
 
-=back
+=cut
 
-=head1 INHERITANCE
+    method delete() {
+        unless ( $self->primary_key ) {
+            warn 'Sorry, I suck, I am not sure how to delete a row without a pkey.';
+            return;
+        }
+        my $query = sprintf(
+            'DELETE FROM %s WHERE %s = %s',
+            $self->table,
+            $self->database->handle->quote_identifier( $self->primary_key ),
+            $self->database->handle->quote( $self->column_hash->{ $self->primary_key } ),
+        );
+        if ( $ENV{'WB_DATABASE_DEBUG'} ) {
+            $self->log->write($query);
+        }
+        $self->database->handle->do($query) or warn $DBI::errstr;
+    }
 
-=over 4
+=item save()
 
-=item whatbot::Component
+Saves changes made back to the database.
 
-=over 4
+=cut
 
-=item whatbot::Database::Table::Row
+    method save() {
+        unless ( $self->primary_key ) {
+            warn 'Sorry, I suck, I am not sure how to save a row without a pkey.';
+            return;
+        }
+        delete ( $self->changed->{ $self->primary_key } );
+        my $query = 
+            'UPDATE ' . $self->table . 
+            ' SET ' . join( ', ', map { $self->database->handle->quote_identifier($_) . ' = ' . $self->database->handle->quote( $self->column_hash->{$_} ) } keys %{ $self->changed } ) .
+            ' WHERE ' . $self->database->handle->quote_identifier( $self->primary_key ) . ' = ' . $self->database->handle->quote( $self->column_hash->{ $self->primary_key } );
+        
+        if ( $ENV{'WB_DATABASE_DEBUG'} ) {
+            $self->log->write($query);
+        }
 
-=back
+        my $sth = $self->database->handle->do($query) or warn $DBI::errstr;
+    }
+
+    method _fill() {
+        for ( my $i = 0; $i < scalar(@{ $self->columns }); $i++ ) {
+            my $column = $self->columns->[$i];
+            $self->_create_column_accessor($column); 
+            if ( $self->column_data->[$i] ) {
+                $self->column_hash->{$column} = $self->column_data->[$i];
+            }
+        }
+    }
+
+    method _fill_array() {
+        for ( my $i = 0; $i < scalar(@{ $self->columns }); $i++ ) {
+            my $column = $self->columns->[$i];
+            $self->column_data->[$i] = $self->column_hash->{$column};
+        }
+    }
+
+    method _create_column_accessor( Str $name ) {
+        no warnings 'redefine';
+        eval "sub $name { my ( \$self, \$value ) = \@_; if ( defined \$value ) { \$self->column_hash->{$name} = \$value; \$self->changed->{$name} = 1; } \$self->_fill_array(); return \$self->column_hash->{$name}; }";
+    }
+}
+
+1;
+
+=pod
 
 =back
 
