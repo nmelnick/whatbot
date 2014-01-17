@@ -1,13 +1,29 @@
 ###########################################################################
-# whatbot/Database/Table/Factoid.pm
-###########################################################################
-#
-###########################################################################
+# Factoid.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
+
+=head1 NAME
+
+whatbot::Database::Table::Factoid - Database functionality for factoids.
+
+=head1 SYNOPSIS
+
+ # In whatbot
+ my $factoid = $self->model('Factoid')->factoid('example');
+
+=head1 DESCRIPTION
+
+whatbot::Database::Table::Factoid provides database functionality for factoids.
+
+=head1 METHODS
+
+=over 4
+
+=cut
 
 class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
 	use Digest::SHA1 qw(sha1_hex);
@@ -98,6 +114,12 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
 		$self->table_ignore($ignore);
 	}
 
+=item is_silent($subject)
+
+Determine if the factoid is silenced.
+
+=cut
+
 	method is_silent ($subject) {
 		$subject = lc($subject);
 		
@@ -110,6 +132,12 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
 		
 		return;
 	}
+
+=item toggle_silence($subject)
+
+Flip the toggle on whether a factoid is silenced, and return the new state.
+
+=cut
 
 	method toggle_silence ($subject) {
 		$subject = lc($subject);
@@ -128,6 +156,10 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
 		
 		return $self->is_silent($subject);
 	}
+
+=item factoid( $subject, $is?, $from?, $plural? )
+
+=cut
 
 	method factoid ( $subject, $is?, $from?, $plural? ) {
 		my $original = $subject;
@@ -241,6 +273,12 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
 		return;
 	}
 
+=item forget($subject)
+
+Forget/delete a factoid.
+
+=cut
+
 	method forget ( Str $subject ) {
 		$subject = lc($subject);
 	
@@ -259,6 +297,13 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
 	
 		return 1;
 	}
+
+=item ignore( $subject, $store? )
+
+Return true if this factoid is ignoring future additions. Setting the $store
+flag will set the factoid to ignore future additions.
+
+=cut
 
 	method ignore ( Str $subject, $store? ) {
 		$subject = lc($subject);
@@ -283,62 +328,6 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
 1;
 
 =pod
-
-=head1 NAME
-
-whatbot::Database::Table::Factoid - Database functionality for factoids.
-
-=head1 SYNOPSIS
-
- use whatbot::Database::Table::Factoid;
-
-=head1 DESCRIPTION
-
-whatbot::Database::Table::Factoid provides database functionality for factoids.
-
-=head1 PUBLIC ACCESSORS
-
-=over 4
-
-=item table_description
-
-=item table_ignore
-
-=back
-
-=head1 METHODS
-
-=over 4
-
-=item is_silent()
-
-=item toggle_silence()
-
-=item factoid()
-
-=item forget($subject)
-
-=item ignore($subject)
-
-=back
-
-=head1 INHERITANCE
-
-=over 4
-
-=item whatbot::Component
-
-=over 4
-
-=item whatbot::Database::Table
-
-=over 4
-
-=item whatbot::Database::Table::Factoid
-
-=back
-
-=back
 
 =back
 
