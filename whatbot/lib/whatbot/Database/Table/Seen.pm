@@ -1,104 +1,86 @@
-package whatbot::Database::Table::Seen;
-use Moose;
-extends 'whatbot::Database::Table';
+###########################################################################
+# Seen.pm
+# the whatbot project - http://www.whatbot.org
+###########################################################################
 
-sub BUILD {
-    my ( $self ) = @_;
-    
-    $self->init_table({
-        'name'        => 'seen',
-        'primary_key' => 'seen_id',
-        'indexed'     => ['user'],
-        'defaults'    => {
-            'timestamp' => { 'database' => 'now' }
-        },
-        'columns'     => {
-            'seen_id' => {
-                'type'  => 'serial'
-            },
-            'timestamp' => {
-                'type'  => 'integer'
-            },
-            'user' => {
-                'type'  => 'varchar',
-                'size'  => 255
-            },
-            'message' => {
-                'type'  => 'text'
-            }
-        }
-    });
-}
-
-sub seen {
-	my ( $self, $user, $message ) = @_;
-	
-	return unless ($user);
-	$user = lc($user);
-	
-	my $seen_row = $self->search_one({
-	    'user' => $user
-	});
-	if ( defined $message ) {
-	    $seen_row->delete() if ( defined $seen_row );
-	    return $self->create({
-	        'user'      => $user,
-	        'message'   => $message
-	    });
-	}
-
-	return $seen_row;
-}
-
-1;
-
-=pod
+use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
 =head1 NAME
 
-whatbot::Database::Table::Seen - Database model for seen
+whatbot::Database::Table::Seen - Database functionality for seen.
 
 =head1 SYNOPSIS
 
- use whatbot::Database::Table::Seen;
+ # In whatbot
+ $self->model('Seen')->seen( 'example', 'Hello, everyone!' );
 
 =head1 DESCRIPTION
 
-whatbot::Database::Table::Seen does stuff.
+whatbot::Database::Table::Factoid provides database functionality for seen.
 
 =head1 METHODS
 
 =over 4
 
-=item set( $key, $value )
+=cut
 
-Set a key/value pair. Auto creates an entry if it doesn't exist, or updates
-the existing entry.
+class whatbot::Database::Table::Seen extends whatbot::Database::Table {
 
-=item get( $key )
+    method BUILD(...) {
+        $self->init_table({
+            'name'        => 'seen',
+            'primary_key' => 'seen_id',
+            'indexed'     => ['user'],
+            'defaults'    => {
+                'timestamp' => { 'database' => 'now' }
+            },
+            'columns'     => {
+                'seen_id' => {
+                    'type'  => 'serial'
+                },
+                'timestamp' => {
+                    'type'  => 'integer'
+                },
+                'user' => {
+                    'type'  => 'varchar',
+                    'size'  => 255
+                },
+                'message' => {
+                    'type'  => 'text'
+                }
+            }
+        });
+    }
 
-Get a value for the specified key. Returns undef if the key doesn't exist in
-the database.
+=item seen( $user, $message? )
 
-=back
+If a user is provided, return the row corresponding to the last seen message
+from that user. If a message is provided, store that seen, and return the row.
 
-=head1 INHERITANCE
+=cut
 
-=over 4
+    method seen( Str $user, Str $message? ) {
+    	$user = lc($user);
+    	
+    	my $seen_row = $self->search_one({
+    	    'user' => $user
+    	});
+    	if ( defined $message ) {
+    	    $seen_row->delete() if ( defined $seen_row );
+    	    return $self->create({
+    	        'user'      => $user,
+    	        'message'   => $message
+    	    });
+    	}
 
-=item whatbot::Component
+    	return $seen_row;
+    }
+}
 
-=over 4
+1;
 
-=item whatbot::Database::Table
-
-=over 4
-
-=item whatbot::Database::Table::Seen
-
-=back
-
-=back
+=pod
 
 =back
 
