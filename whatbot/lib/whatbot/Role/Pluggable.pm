@@ -1,36 +1,14 @@
 ###########################################################################
-# whatbot/Role/Pluggable.pm
-###########################################################################
-#
-# provides pluggable to whatbot classes. Module::Pluggable seems to hate
-# MooseX::Declare, so we go manual.
-#
-###########################################################################
+# Pluggable.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
-role whatbot::Role::Pluggable {
-    use Module::Pluggable::Object;
-
-    requires 'search_base';
-
-    method plugins {
-        my $o = Module::Pluggable::Object->new( package => __PACKAGE__ );
-        $o->{'search_path'} = $self->search_base;
-        return $o->plugins;
-    }
-}
-
-1;
-
-=pod
-
 =head1 NAME
 
-whatbot::Role::Pluggable - Role to provide Pluggable
+whatbot::Role::Pluggable - Role to provide Pluggable.
 
 =head1 SYNOPSIS
 
@@ -47,10 +25,11 @@ whatbot::Role::Pluggable - Role to provide Pluggable
 =head1 DESCRIPTION
 
 whatbot::Role::Pluggable solves a strange problem where Module::Pluggable does
-not create the plugins sub in MooseX::Declare. Instead, we create this role to
-use Module::Pluggable::Object to get the plugin list, and provide a 'plugins'
-method to return the same data as Module::Pluggable. This implementation does
-not instantiate any of the classes, only returns the class names.
+not create the plugins sub in MooseX::Declare, likely due to autoclean. Instead,
+we create this role to use Module::Pluggable::Object to get the plugin list, and
+provide a 'plugins' method to return the same data as Module::Pluggable. This
+implementation does not instantiate any of the classes, only returns the class
+names.
 
 Consumers of this role need to define a 'search_base' accessor to give M::P the
 root class name to search from.
@@ -59,15 +38,29 @@ root class name to search from.
 
 =over 4
 
+=cut
+
+role whatbot::Role::Pluggable {
+    use Module::Pluggable::Object;
+
+    requires 'search_base';
+
 =item plugins()
 
 Returns an array of class names from @INC.
 
-=head1 INHERITANCE
+=cut
 
-=over 4
+    method plugins() {
+        my $o = Module::Pluggable::Object->new( package => __PACKAGE__ );
+        $o->{'search_path'} = $self->search_base;
+        return $o->plugins;
+    }
+}
 
-=item whatbot::Role::Pluggable
+1;
+
+=pod
 
 =back
 
