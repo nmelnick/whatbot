@@ -1,13 +1,16 @@
 ###########################################################################
-# whatbot/Database/PostgreSQL.pm
-###########################################################################
-# PostgreSQL Connection
-###########################################################################
+# PostgreSQL.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
+
+=head1 NAME
+
+whatbot::Database::PostgreSQL - Connect whatbot to a PostgreSQL database.
+
+=cut
 
 class whatbot::Database::PostgreSQL extends whatbot::Database::DBI {
 
@@ -41,3 +44,13 @@ class whatbot::Database::PostgreSQL extends whatbot::Database::DBI {
 }
 
 1;
+
+=pod
+
+=back
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut
