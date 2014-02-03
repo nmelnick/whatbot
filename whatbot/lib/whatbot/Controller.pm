@@ -1,13 +1,39 @@
 ###########################################################################
-# whatbot/Controller.pm
-###########################################################################
-# Handles incoming messages and where they go
-###########################################################################
+# Controller.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
+
+=head1 NAME
+
+whatbot::Controller - Command processor and dispatcher
+
+=head1 SYNOPSIS
+
+ use whatbot::Controller;
+ 
+ my $controller = whatbot::Controller->new();
+ $controller->build_command_map();
+ 
+ ...
+ 
+ my $messages = $controller->handle_message( $incoming_message );
+
+=head1 DESCRIPTION
+
+whatbot::Controller is the master command dispatcher for whatbot. When whatbot
+is started, Controller builds the run paths based on the attributes in the
+whatbot::Command namespace. When a message event is fired during runtime,
+Controller parses the message and directs the event to each appropriate
+command.
+
+=head1 METHODS
+
+=over 4
+
+=cut
 
 class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggable {
 	use whatbot::Message;
@@ -128,6 +154,12 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 		$self->command_short_name(\%command_short_name);
 	}
 
+=item handle_message( whatbot::Message $message )
+
+Run incoming message through commands, parse responses, and deliver back to IO.
+
+=cut
+
 	method handle_message ( $message, $me? ) {
 		my @messages;
 		foreach my $priority ( qw( primary core extension last ) ) {
@@ -165,6 +197,12 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 	
 		return \@messages;
 	}
+
+=item handle_event( $event, $event_info )
+
+Run incoming event through commands, parse responses, and delivery back to IO.
+
+=cut
 
 	# dear god refactor
 	method handle_event ( $target, Str $event, HashRef $event_info, $me? ) {
@@ -365,53 +403,6 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 1;
 
 =pod
-
-=head1 NAME
-
-whatbot::Controller - Command processor and dispatcher
-
-=head1 SYNOPSIS
-
- use whatbot::Controller;
- 
- my $controller = whatbot::Controller->new();
- $controller->build_command_map();
- 
- ...
- 
- my $messages = $controller->handle_message( $incoming_message );
-
-=head1 DESCRIPTION
-
-whatbot::Controller is the master command dispatcher for whatbot. When whatbot
-is started, Controller builds the run paths based on the attributes in the
-whatbot::Command namespace. When a message event is fired during runtime,
-Controller parses the message and directs the event to each appropriate
-command.
-
-=head1 METHODS
-
-=over 4
-
-=item handle_message( whatbot::Message $message )
-
-Run incoming message through commands, parse responses, and deliver back to IO.
-
-=item handle_event( $event, $event_info )
-
-Run incoming event through commands, parse responses, and delivery back to IO.
-
-=head1 INHERITANCE
-
-=over 4
-
-=item whatbot::Component
-
-=over 4
-
-=item whatbot::Controller
-
-=back
 
 =back
 
