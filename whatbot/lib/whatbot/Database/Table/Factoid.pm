@@ -77,15 +77,15 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
 				'updated'   => { 'database' => 'now' }
 			},
 			'columns'     => {
+				'hash'  => {
+					'type'  => 'char',
+					'size'  => 40
+				},
 				'factoid_id' => {
 					'type'  => 'integer'
 				},
 				'updated'      => {
 					'type'  => 'integer'
-				},
-				'hash'  => {
-					'type'  => 'char',
-					'size'  => 40
 				},
 				'user'    => {
 					'type'  => 'varchar',

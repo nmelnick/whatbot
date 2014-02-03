@@ -162,7 +162,7 @@ class whatbot::Database::Table extends whatbot::Database {
                 '%s %s primary key %s, ',
                 $self->database->handle->quote_identifier( $table_data->{'primary_key'} ),
                 $self->database->$type( $column_data->{'size'} or undef ),
-                ( $self->database->postfix ? $self->database->serial_postfix() : '' ),
+                ( $type eq 'serial' and $self->database->postfix ? $self->database->serial_postfix() : '' ),
             );
             delete( $local_columns->{ $table_data->{'primary_key'} } );
         }
