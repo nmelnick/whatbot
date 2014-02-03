@@ -1,15 +1,16 @@
 ###########################################################################
-# whatbot/Config.pm
-###########################################################################
-#
-# whatbot config handler
-#
-###########################################################################
+# Config.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
+
+=head1 NAME
+
+whatbot::Config - Config handler for whatbot
+
+=cut
 
 class whatbot::Config {
 	use JSON::XS;
@@ -67,3 +68,11 @@ class whatbot::Config {
 }
 
 1;
+
+=pod
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut
