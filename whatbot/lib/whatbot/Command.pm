@@ -41,8 +41,7 @@ to hook into events.
 =head1 RETURN VALUES
 
 Each subroutine called by the Controller can return either a string or a 
-whatbot::Message. Anywhere in an outgoing message where the word '!who' is
-found will be replaced by the name of the sender of the triggering message.
+whatbot::Message.
 
 =head1 PUBLIC ACCESSORS
 

@@ -233,11 +233,7 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 				my $outmessage;
 				if ( ref($result_single) eq 'whatbot::Message' ) {
 					$outmessage = $result_single;
-					my $content = $outmessage->content;
-					$content =~ s/!who/$message->from/;
-					$outmessage->content($content);
 				} else {
-					$result_single =~ s/!who/$message->from/;
 					$outmessage = $message->reply({
 						'content' => $result_single,
 					});
