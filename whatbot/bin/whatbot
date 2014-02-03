@@ -7,10 +7,8 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-$|++;
 use strict;
 use warnings;
-
 use Cwd qw(realpath getcwd);
 use Getopt::Long;
 use EV;
@@ -29,14 +27,6 @@ eval {
 };
 if ($@) {
 	print 'ERROR: whatbot requires perl 5.8 or higher.' . "\n";
-	exit(-1);
-}
-eval {
-    require Moose;
-    require MooseX::Declare;
-};
-if ($@) {
-	print 'ERROR: whatbot requires Moose and MooseX::Declare.' . "\n";
 	exit(-1);
 }
 require whatbot;
@@ -71,7 +61,7 @@ sub usage {
 	print qq{whatbot $whatbot::VERSION:
 
  -c --config  Path to configuration file (default: conf/whatbot.conf)
- -D --daemon  Daemonize on successful launch
+ -d --daemon  Daemonize on successful launch
  -h --help	  Print this help screen\n
 };
 	exit(0);

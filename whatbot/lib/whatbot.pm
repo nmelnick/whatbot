@@ -234,7 +234,7 @@ class whatbot with whatbot::Role::Pluggable {
 
 	method stop() {
 		EV::unloop();
-		return;
+		exit(0);
 	}
 }
 
