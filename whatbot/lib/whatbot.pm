@@ -1,10 +1,5 @@
 ###########################################################################
 # whatbot.pm
-###########################################################################
-#
-# primary logic controller for whatbot
-#
-###########################################################################
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
@@ -14,6 +9,21 @@ use Method::Signatures::Modifiers;
 BEGIN {
 	$whatbot::VERSION = '0.12';
 }
+
+=head1 NAME
+
+whatbot - an extensible, sane chat bot for pluggable chat applications
+
+=head1 DESCRIPTION
+
+This bot was written purely as an exercise in futility, to try, desperately, to
+replace the functionality of infobot without driving us insane. Part of that
+goal has been accomplished, and so we leave it out there for the world to use.
+
+This is the primary entry point for the whatbot application, and is called
+through the whatbot shell script.
+
+=cut
 
 class whatbot with whatbot::Role::Pluggable {
 	use whatbot::Component::Base;
@@ -232,11 +242,15 @@ class whatbot with whatbot::Role::Pluggable {
 
 =pod
 
-=head1 NAME
+=head1 LINKS
 
-whatbot - an extensible, sane chat bot for pluggable chat applications
+=over 4
 
-=head1 DESCRIPTION
+=item Home page: L<http://www.whatbot.org/>
+
+=item GitHub: L<http://github.com/nmelnick/whatbot>
+
+=back
 
 =head1 LICENSE/COPYRIGHT
 
