@@ -1,13 +1,16 @@
 ###########################################################################
-# whatbot/Database/DBI.pm
-###########################################################################
-# Base for any DBI connection
-###########################################################################
+# DBI.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
+
+=head1 NAME
+
+whatbot::Database::DBI - Basic functionality for DBI-based databases.
+
+=cut
 
 class whatbot::Database::DBI extends whatbot::Database {
     use DBI;
@@ -83,3 +86,13 @@ class whatbot::Database::DBI extends whatbot::Database {
 }
 
 1;
+
+=pod
+
+=back
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut
