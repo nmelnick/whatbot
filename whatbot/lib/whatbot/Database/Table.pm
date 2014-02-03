@@ -1,13 +1,54 @@
 ###########################################################################
-# whatbot/Database/Table.pm
-###########################################################################
-# Class wrapper for a database table
-###########################################################################
+# Table.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
+
+=head1 NAME
+
+whatbot::Database::Table - Class wrapper for a database table
+
+=head1 SYNOPSIS
+
+ class whatbot::Database::Table::ATable extends whatbot::Database::Table {
+   sub BUILD(...) {
+     $table->init_table({
+        'name'        => 'a_table',
+        'primary_key' => 'a_table_id',
+        'indexed'     => ['thing'],
+        'columns'     => {
+            'a_table_id' => {
+                'type' => 'serial'
+            },
+            'thing' => {
+                'type' => 'varchar',
+                'size' => 32
+            },
+        },
+     });
+     $table->create({
+        'thing' => 'Test',
+     });
+   }
+ }
+
+=head1 DESCRIPTION
+
+whatbot::Database::Table wraps a database table into a simple class to add
+and return data from. To generate a class for a given table, pass 'init_table'
+to a new Table object with the table name and column definitions. If the table
+doesn't exist in the database, it will be auto created for you. Once the object
+is live, 'create' and 'search' methods are available to add and retrieve rows
+(L<whatbot::Database::Table::Row>) from the database. To delete or update data,
+perform those actions directly on the returned rows.
+
+=head1 METHODS
+
+=over 4
+
+=cut
 
 class whatbot::Database::Table extends whatbot::Database {
     use whatbot::Database::Table::Row;
@@ -18,6 +59,41 @@ class whatbot::Database::Table extends whatbot::Database {
     has 'columns'       => ( is => 'rw', isa => 'ArrayRef' );
     has 'defaults'      => ( is => 'rw', isa => 'HashRef' );
     # has 'column_info'   => ( is => 'rw', isa => 'HashRef' );
+
+=item init_table( \%table_params )
+
+Create a new table definition, generally called in BUILD. Possible keys are:
+
+=over 4
+
+=item name
+
+Table name, as it should be referred to in the data store.
+
+=item primary_key
+
+Optional. The primary key name in the table.
+
+=item columns
+
+A hashref, where the key is the column name, and the value is another hashref
+containing a "type", and optionally, a "size". For example:
+
+ columns => {
+   'a_column' => {
+     'type' => 'varchar',
+     'size' => 32,
+   }
+ }
+
+=item defaults
+
+Optional. A hashref where the key is a column name, and the value is a default
+value for that column on create.
+
+=back
+
+=cut
 
     method init_table ($table_data) {
         warn 'Missing name for table' unless ( $table_data->{'name'} );
@@ -35,6 +111,16 @@ class whatbot::Database::Table extends whatbot::Database {
         $self->defaults( $table_data->{'defaults'} or {} );
         # $self->column_info( $table_data->{'columns'} );
     }
+
+=item create( \%column_data )
+
+Create a new row in this table. The passed hashref should contain the column
+names as keys, with the desired data in values. Any column not listed in the
+hashref will be filled by the corresponding entry in init_table's 'defaults' if
+available, or will be left to the database to decide. Returns a
+L<whatbot::Database::Table::Row> object if successful, undef on failure.
+
+=cut
 
     method create ($column_data) {
         my $params;
@@ -68,17 +154,59 @@ class whatbot::Database::Table extends whatbot::Database {
         return $self->find( $self->database->last_insert_id( $self->table_name ) );
     }
 
+=item find($key_id)
+
+Search the table to find the given value in the primary key column. Returns
+nothing if not found.
+
+=cut
+
     method find ($key_id) {
         return $self->search_one({
             $self->primary_key => $key_id
         });
     }
 
+=item count(<\%search_data>)
+
+Return the number of rows in the table. Can be filtered with a search query
+similar to what would be sent to search_one() or search().
+
+=cut
+
     method count ($search_data?) {
         $search_data->{'_select'} = 'COUNT(*) AS column_1';
         my $result = $self->search($search_data);
         return $result->[0]->{'column_data'}->[0];
     }
+
+=item search(<\%search_data>)
+
+Search the table and return results. The optional search_data hashref allows
+filtering of the results. Return an empty arrayref if no results are found, or
+an arrayref of L<whatbot::Database::Table::Row> instances. The search_data
+hashref can contain key => value pairs that correspond to a column name and a
+value for equal searches, otherwise, a value can be a hashref that contains a
+key of 'LIKE' and a value of the like query. Keys that start with underscore
+are reserved, and can include:
+
+=over 4
+
+=item _select
+
+Select a specific set of columns in the given arrayref, rather than all columns.
+
+=item _order_by
+
+A fully qualified order by clause.
+
+=item _limit
+
+Limit to a given number of rows.
+
+=back
+
+=cut
 
     method search ($search_data?) {
         my $columns = $self->columns;
@@ -143,7 +271,14 @@ class whatbot::Database::Table extends whatbot::Database {
         return \@results;
     }
 
-    method search_one ($search_data) {
+=item search_one(<\%search_data>)
+
+Search the table and return one L<whatbot::Database::Table::Row> instance, or
+nothing if it is not found.
+
+=cut
+
+    method search_one ($search_data?) {
         my $rows = $self->search($search_data);
         return $rows->[0] if ( @$rows );
         return;
@@ -203,70 +338,6 @@ class whatbot::Database::Table extends whatbot::Database {
 1;
 
 =pod
-
-=head1 NAME
-
-whatbot::Database::Table - Class wrapper for a database table
-
-=head1 SYNOPSIS
-
- my $table = whatbot::Database::Table->new();
- $table->init_table({});
- $table->create({});
-
-=head1 DESCRIPTION
-
-whatbot::Database::Table wraps a database table into a simple class to add
-and return data from. To generate a class for a given table, pass 'init_table'
-to a new Table object with the table name and column definitions. If the table
-doesn't exist in the database, it will be auto created for you. Once the object
-is live, 'create' and 'search' methods are available to add and retrieve rows
-(L<whatbot::Database::Table::Row>) from the database. To delete or update data,
-perform those actions directly on the returned rows.
-
-=head1 METHODS
-
-=over 4
-
-=item init_table( \%table_params )
-
-Create a new table definition.
-
-=item create( \%column_data )
-
-Create a new row in this table. The passed hashref should contain the column
-names as keys, with the desired data in values. Any column not listed in the
-hashref will be filled by the corresponding entry in init_table's 'defaults' if
-available, or will be left to the database to decide. Returns a
-L<whatbot::Database::Table::Row> object if successful, undef on failure.
-
-=item find()
-
-=item search()
-
-=item search_one()
-
-=item count()
-
-=back
-
-=head1 INHERITANCE
-
-=over 4
-
-=item whatbot::Component
-
-=over 4
-
-=item whatbot::Database
-
-=over 4
-
-=item whatbot::Database::Table
-
-=back
-
-=back
 
 =back
 
