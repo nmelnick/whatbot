@@ -89,8 +89,6 @@ class whatbot::Database::DBI extends whatbot::Database {
 
 =pod
 
-=back
-
 =head1 LICENSE/COPYRIGHT
 
 Be excellent to each other and party on, dudes.

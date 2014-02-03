@@ -47,8 +47,6 @@ class whatbot::Database::PostgreSQL extends whatbot::Database::DBI {
 
 =pod
 
-=back
-
 =head1 LICENSE/COPYRIGHT
 
 Be excellent to each other and party on, dudes.
