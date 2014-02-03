@@ -1,10 +1,5 @@
 ###########################################################################
-# whatbot/Command.pm
-###########################################################################
-#
-# Base class for whatbot commands
-#
-###########################################################################
+# Command.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
@@ -37,6 +32,9 @@ a command is not implemented properly.
 To create a new command, subclass this module using Moose's 'extends' pragma,
 and override the given methods with your own. Set attributes to your methods
 to hook into events.
+
+Keep in mind that if you're looking for functionality that you'd expect in your
+command, and not seeing it here, double check L<whatbot::Component>.
 
 =head1 RETURN VALUES
 

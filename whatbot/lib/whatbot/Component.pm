@@ -1,14 +1,64 @@
 ###########################################################################
-# whatbot/Component.pm
-###########################################################################
-# base class for all whatbot components. add this to each component of
-# whatbot to give base functionality.
-###########################################################################
+# Component.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
+
+=head1 NAME
+
+whatbot::Component - Base component for all whatbot modules.
+
+=head1 SYNOPSIS
+
+ use MooseX::Declare;
+ use Method::Signatures::Modifiers;
+
+ class whatbot::Command extends whatbot::Component {
+    method foo() {
+       $self->log->write('I am so awesome.');
+    }
+ }
+
+=head1 DESCRIPTION
+
+whatbot::Component is the base component for all whatbot modules. This requires
+a little bit of magic from the caller, as the accessors all need to be filled
+by whatbot::Controller, or the calling method needs to pass 'base_component'
+to the Component subclass to fill the proper accessors.
+
+=head1 PUBLIC ACCESSORS
+
+=over 4
+
+=item base_component
+
+The base component for this whatbot instance.
+
+=item parent
+
+The parent component of this module.
+
+=item config
+
+The L<whatbot::Config> instance.
+
+=item ios
+
+An arrayref of available L<whatbot::IO> instances.
+
+=item log
+
+The available L<whatbot::Log> instance, commonly used as $self->log->write('Foo');.
+
+=back
+
+=head1 PUBLIC METHODS
+
+=over 4
+
+=cut
 
 class whatbot::Component {
     use whatbot::Component::Base;
@@ -34,11 +84,27 @@ class whatbot::Component {
     	}
     }
 
+=item model($model_name)
+
+Retrieve the model (or whatbot::Database::Table::*) instance associated with the
+provided name. For example, to retrieve the active instance of
+L<whatbot::Database::Table::Factoid>, call $self->model('Factoid'). This will
+warn and return nothing if the model is not found.
+
+=cut
+
     method model ( Str $model_name ) {
         return $self->models->{ lc($model_name) } if ( $self->models->{ lc($model_name) } );
         warn ref($self) . ' tried to reference model "' . $model_name . '" even though it does not exist.';
         return;
     }
+
+=item search_ios($search_string)
+
+Retrieve the IO with a partial match to the given string. This is handy for
+getting the reference to an IO that may have an odd name, like IRC_127.0.0.1.
+
+=cut
 
     method search_ios ( Str $io_search ) {
         foreach my $io ( keys %{ $self->ios } ) {
@@ -48,6 +114,13 @@ class whatbot::Component {
         }
         return;
     }
+
+=item dispatch_message( $io_path, $message )
+
+Dispatch a L<whatbot::Message>, corresponding to the given IO path, through
+the command dispatcher.
+
+=cut
 
     method dispatch_message ( Str $io_path, $message ) {
         my ( $io_search, $target ) = split( /\:/, $io_path );
@@ -59,6 +132,12 @@ class whatbot::Component {
         $message->to($target) if ($target);
         return $io->event_message($message);
     }
+
+=item dispatch_message( $io_path, $message )
+
+Send a L<whatbot::Message> via the given IO name or partial IO name.
+
+=cut
 
     method send_message ( Str $io_path, $message ) {
         my ( $io_search, $target ) = split( /\:/, $io_path );
@@ -81,23 +160,7 @@ class whatbot::Component {
 
 =pod
 
-=head1 NAME
-
-whatbot::Component - Base component for all whatbot modules.
-
-=head1 SYNOPSIS
-
- use Moose;
- extends 'whatbot::Component';
- 
- $self->log->write('I am so awesome.');
-
-=head1 DESCRIPTION
-
-whatbot::Component is the base component for all whatbot modules. This requires
-a little bit of magic from the caller, as the accessors all need to be filled
-by whatbot::Controller, or the calling method needs to pass 'base_component'
-to the Component subclass to fill the proper accessors.
+=back
 
 =head1 LICENSE/COPYRIGHT
 
