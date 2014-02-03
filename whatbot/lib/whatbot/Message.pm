@@ -1,91 +1,10 @@
 ###########################################################################
-# whatbot/Message.pm
-###########################################################################
-# whatbot message object, created for each incoming and outgoing message.
-###########################################################################
+# Message.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
-
-class whatbot::Message extends whatbot::Component {
-    use Encode;
-
-    has 'from'          => ( is => 'rw', isa => 'Str', required => 1 );
-    has 'to'            => ( is => 'rw', isa => 'Str', required => 1 );
-    has 'reply_to'      => ( is => 'rw', isa => 'Str', required => 0 );
-    has 'content'       => ( is => 'rw', isa => 'Str', required => 1, trigger => \&check_content );
-    has 'timestamp'     => ( is => 'rw', isa => 'Int', default => sub { time } );
-    has 'is_direct'     => ( is => 'rw', isa => 'Int', default => 0 );
-    has 'me'            => ( is => 'rw', isa => 'Str' );
-    has 'origin'        => ( is => 'rw', isa => 'Str' );
-    has 'invisible'     => ( is => 'rw', isa => 'Bool', default => 0 );
-
-    method BUILD(...) {
-    	my $me = $self->me;
-
-	    # Determine if the message is talking about me
-    	if ( defined $me ) {
-    		if ( $self->content =~ /, ?$me[\?\!\. ]*?$/i ) {
-    			my $content = $self->content;
-    			$content =~ s/, ?$me[\?\!\. ]*?$//i;
-    			$self->content($content);
-    			$self->is_direct(1);
-			
-    		} elsif ( $self->content =~ /^$me[\:\,\- ]+/i ) {
-    			my $content = $self->content;
-    			$content =~ s/^$me[\:\,\- ]+//i;
-    			$self->content($content);
-    			$self->is_direct(1);
-			
-    		} elsif ( $self->content =~ /^$me \-+ /i ) {
-    			my $content = $self->content;
-    			$content =~ s/^$me \-+ //i;
-    			$self->content($content);
-    			$self->is_direct(1);
-			
-    		}
-    	}
-
-        $self->is_direct(1) if ( $self->is_private );
-    }
-
-    method content_utf8 {
-        return Encode::encode_utf8( $self->content );
-    }
-
-    method is_private {
-        return ( $self->me ? ( $self->to eq $self->me ) : 0 );
-    }
-
-    method check_content( Str $content, ... ) {
-        $content =~ s/^\s+//;
-        $content =~ s/\s+$//;
-        $self->{'content'} = $content;
-    }
-
-    method reply ( HashRef $overrides? ) {
-        my $message = whatbot::Message->new({
-            'from'    => $self->me,
-            'to'      => $self->reply_to || ( $self->is_private ? $self->from : $self->to ),
-            'me'      => $self->me,
-            'content' => '',
-        });
-        foreach my $key ( keys %$overrides ) {
-            $message->$key( $overrides->{$key} );
-        }
-        return $message;
-    }
-
-    method clone() {
-        return whatbot::Message->new( { %$self } );
-    }
-}
-
-1;
-
-=pod
 
 =head1 NAME
 
@@ -156,6 +75,76 @@ irc.example.org, channel #foo, this would be IRC_irc.example.org:#foo.
 
 =over 4
 
+=cut
+
+class whatbot::Message extends whatbot::Component {
+    use Encode;
+
+    has 'from'          => ( is => 'rw', isa => 'Str', required => 1 );
+    has 'to'            => ( is => 'rw', isa => 'Str', required => 1 );
+    has 'reply_to'      => ( is => 'rw', isa => 'Str', required => 0 );
+    has 'content'       => ( is => 'rw', isa => 'Str', required => 1, trigger => \&check_content );
+    has 'timestamp'     => ( is => 'rw', isa => 'Int', default => sub { time } );
+    has 'is_direct'     => ( is => 'rw', isa => 'Int', default => 0 );
+    has 'me'            => ( is => 'rw', isa => 'Str' );
+    has 'origin'        => ( is => 'rw', isa => 'Str' );
+    has 'invisible'     => ( is => 'rw', isa => 'Bool', default => 0 );
+
+    method BUILD(...) {
+    	my $me = $self->me;
+
+	    # Determine if the message is talking about me
+    	if ( defined $me ) {
+    		if ( $self->content =~ /, ?$me[\?\!\. ]*?$/i ) {
+    			my $content = $self->content;
+    			$content =~ s/, ?$me[\?\!\. ]*?$//i;
+    			$self->content($content);
+    			$self->is_direct(1);
+			
+    		} elsif ( $self->content =~ /^$me[\:\,\- ]+/i ) {
+    			my $content = $self->content;
+    			$content =~ s/^$me[\:\,\- ]+//i;
+    			$self->content($content);
+    			$self->is_direct(1);
+			
+    		} elsif ( $self->content =~ /^$me \-+ /i ) {
+    			my $content = $self->content;
+    			$content =~ s/^$me \-+ //i;
+    			$self->content($content);
+    			$self->is_direct(1);
+			
+    		}
+    	}
+
+        $self->is_direct(1) if ( $self->is_private );
+    }
+
+=item content_utf8()
+
+Return message content as converted by encode_utf8.
+
+=cut
+
+    method content_utf8 {
+        return Encode::encode_utf8( $self->content );
+    }
+
+=item is_private()
+
+Determine if message is a private message, by checking if "to" matches "me".
+
+=cut
+
+    method is_private {
+        return ( $self->me ? ( $self->to eq $self->me ) : 0 );
+    }
+
+    method check_content( Str $content, ... ) {
+        $content =~ s/^\s+//;
+        $content =~ s/\s+$//;
+        $self->{'content'} = $content;
+    }
+
 =item reply( \%overrides )
 
 Generate a whatbot::Message in reply to the current message. If is_private is
@@ -163,24 +152,36 @@ true, to will be set to the originator, otherwise, it will be set to the public
 context for public IO. Optionally handles an override hashref to preset fields,
 similar to the new constructor.
 
+=cut
+
+    method reply ( HashRef $overrides? ) {
+        my $message = whatbot::Message->new({
+            'from'    => $self->me,
+            'to'      => $self->reply_to || ( $self->is_private ? $self->from : $self->to ),
+            'me'      => $self->me,
+            'content' => '',
+        });
+        foreach my $key ( keys %$overrides ) {
+            $message->$key( $overrides->{$key} );
+        }
+        return $message;
+    }
+
 =item clone()
 
 Return a new whatbot::Message with the same content as the current message.
 References inside the object are reused, not duplicated.
 
-=back
+=cut
 
-=head1 INHERITANCE
+    method clone() {
+        return whatbot::Message->new( { %$self } );
+    }
+}
 
-=over 4
+1;
 
-=item whatbot::Component
-
-=over 4
-
-=item whatbot::Message
-
-=back
+=pod
 
 =back
 
