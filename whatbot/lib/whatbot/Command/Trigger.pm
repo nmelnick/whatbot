@@ -148,6 +148,12 @@ sub listener : GlobalRegEx('(.+)') {
 			if ( $response =~ /<reply>/ ) {
 				$response =~ s/^<reply> +//;
 			}
+			
+			# Parse <who> if there
+			if ( $response =~ /<who>/ ) {
+				my $from = $message->from;
+				$response =~ s/<who>/$from/g;
+			}
 
 			# Replace captures within response
 			if (@captures) {

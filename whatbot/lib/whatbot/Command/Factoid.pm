@@ -212,6 +212,14 @@ sub retrieve {
 		} else {
 			@facts = @{ $factoid_package->{'facts'} };
 		}
+
+		for ( my $i = 0; $i < @facts; $i++ ) {
+			# Parse <who> if there
+			if ( $facts[$i] =~ /<who>/ ) {
+				my $from = $message->from;
+				$facts[$i] =~ s/<who>/$from/g;
+			}
+		}
 		
 		if ( scalar(@facts) == 1 ) {
 			$self->who_said( $factoid_package->{'user'} ) if ( $factoid_package->{'user'} );
@@ -249,7 +257,7 @@ sub retrieve {
 					}
 				}
 			}
-			return $subject . ' ' . ($factoid->is_plural ? 'are' : 'is') . ' ' . $factoid_data;
+			return $subject . ' ' . ( $factoid->is_plural ? 'are' : 'is' ) . ' ' . $factoid_data;
 		}
 		
 	} elsif ( $direct and $message->is_direct ) {

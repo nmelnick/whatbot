@@ -98,6 +98,15 @@ is( keys %{$trigger->triggers}, 0, 'triggers are empty' );
 is( $trigger->stats(), 'There are 0 triggers set.', 'stats shows empty/0/plural' );
 is( @{ $trigger->find( $message, ['ba'] ) }, 0, 'find has 0 results' );
 
+
+$response = $trigger->set( $message, ['/idk/ <who> is odd'] );
+is( $response, 'Trigger set.', '/idk/ is valid' );
+
+my $who_message = $message->clone();
+$who_message->content('idk');
+$response = $trigger->listener($who_message);
+is( $response->[0], 'Test is odd', 'idk message is Test is odd' );
+
 clear_soup();
 
 $response = $trigger->set( $message, ['event:random foo'] );
