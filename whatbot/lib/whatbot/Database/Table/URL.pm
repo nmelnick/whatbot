@@ -1,13 +1,28 @@
 ###########################################################################
-# whatbot/Database/Table/URL.pm
-###########################################################################
-#
-###########################################################################
+# URL.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
+
+=head1 NAME
+
+whatbot::Database::Table::URL - Database model for url
+
+=head1 SYNOPSIS
+
+ use whatbot::Database::Table::URL;
+
+=head1 DESCRIPTION
+
+whatbot::Database::Table::URL does stuff.
+
+=head1 METHODS
+
+=over 4
+
+=cut
 
 class whatbot::Database::Table::URL extends whatbot::Database::Table {
     use Image::Size qw(imgsize);
@@ -111,6 +126,12 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
         $self->table_domain($domain);
     }
 
+=item get_protocol($protocol)
+
+Retrieve, or create and retrieve, the given protocol's id.
+
+=cut
+
     method get_protocol ( Str $protocol ) {
         my $protocol_row = $self->table_protocol->search_one({
             'name' => $protocol
@@ -124,6 +145,12 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
         return $protocol_row->protocol_id;
     }
 
+=item get_domain($domain)
+
+Retrieve, or create and retrieve, the given domain's id.
+
+=cut
+
     method get_domain ( Str $domain ) {
         my $domain_row = $self->table_domain->search_one({
             'name' => $domain
@@ -136,6 +163,12 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
 
         return $domain_row->domain_id;
     }
+
+=item url($url, $from)
+
+Retrieve, or create and retrieve, the given URL.
+
+=cut
 
     method url ( Str $url, Str $from? ) {
         my $uri = URI->new($url);
@@ -159,6 +192,12 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
             });
         }
     }
+
+=item retrieve_url($url)
+
+GET the given URL using LWP.
+
+=cut
 
     method retrieve_url ($url) {
         my $title;
@@ -214,43 +253,6 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
 1;
 
 =pod
-
-=head1 NAME
-
-whatbot::Database::Table::URL - Database model for url
-
-=head1 SYNOPSIS
-
- use whatbot::Database::Table::URL;
-
-=head1 DESCRIPTION
-
-whatbot::Database::Table::URL does stuff.
-
-=head1 METHODS
-
-=over 4
-
-
-=back
-
-=head1 INHERITANCE
-
-=over 4
-
-=item whatbot::Component
-
-=over 4
-
-=item whatbot::Database::Table
-
-=over 4
-
-=item whatbot::Database::Table::URL
-
-=back
-
-=back
 
 =back
 
