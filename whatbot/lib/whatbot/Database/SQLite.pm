@@ -9,6 +9,12 @@
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
+=head1 NAME
+
+whatbot::Database::SQLite - Connect whatbot to a SQLite database.
+
+=cut
+
 class whatbot::Database::SQLite extends whatbot::Database::DBI {
 
 	before connect() {
@@ -50,3 +56,11 @@ class whatbot::Database::SQLite extends whatbot::Database::DBI {
 }
 
 1;
+
+=pod
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut
