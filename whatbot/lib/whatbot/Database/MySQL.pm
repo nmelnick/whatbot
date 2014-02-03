@@ -1,13 +1,16 @@
 ###########################################################################
-# whatbot/Database/MySQL.pm
-###########################################################################
-# MySQL Connection
-###########################################################################
+# MySQL.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
+
+=head1 NAME
+
+whatbot::Database::MySQL - Connect whatbot to a MySQL database.
+
+=cut
 
 class whatbot::Database::MySQL extends whatbot::Database::DBI {
 
@@ -41,3 +44,13 @@ class whatbot::Database::MySQL extends whatbot::Database::DBI {
 }
 
 1;
+
+=pod
+
+=back
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut
