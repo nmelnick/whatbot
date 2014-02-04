@@ -13,6 +13,7 @@ $test->initialize_state();
 
 unless ( $ENV{'WB_WUNDERGROUND_API_KEY'} ) {
 	plan skip_all => 'Requires WB_WUNDERGROUND_API_KEY environment variable to run live tests.';
+	done_testing();
 }
 
 ok( my $wunderground = whatbot::Command::Weather::Wunderground->new({

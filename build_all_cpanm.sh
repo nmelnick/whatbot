@@ -16,6 +16,6 @@ for module_name in whatbot \
                    whatbot-IO-AIM; do
     cd $module_name
     rm Makefile
-    cpanm .
+    cpanm --prompt .
     cd ..
 done
