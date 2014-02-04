@@ -2,6 +2,7 @@
 
 for module_name in whatbot \
                    whatbot-Command-Annoying \
+                   whatbot-Command-Bitcoin \
                    whatbot-Command-Blackjack \
                    whatbot-Command-Excuse \
                    whatbot-Command-Market \
@@ -13,7 +14,8 @@ for module_name in whatbot \
                    whatbot-Command-Trade \
                    whatbot-Command-Translate \
                    whatbot-Command-Weather \
-                   whatbot-IO-AIM; do
+                   whatbot-IO-AIM \
+                   whatbot-IO-Jabber; do
     cd $module_name
     rm Makefile
     cpanm --prompt .
