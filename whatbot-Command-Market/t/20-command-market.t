@@ -8,10 +8,9 @@ use whatbot::Test;
 use_ok( 'whatbot::Command::Market', 'Load Module' );
 
 my $test = whatbot::Test->new();
-my $base_component = $test->get_base_component();
+$test->initialize_state();
 
 ok( my $market = whatbot::Command::Market->new({
-	'base_component' => $base_component,
 	'my_config'      => {},
 	'name'           => 'Market',
 }), 'new' );

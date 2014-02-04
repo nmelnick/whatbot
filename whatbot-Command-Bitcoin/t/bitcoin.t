@@ -9,10 +9,9 @@ use JSON ();
 use_ok( 'whatbot::Command::Bitcoin', 'Load Module' );
 
 my $test = whatbot::Test->new();
-my $base_component = $test->get_base_component();
+$test->initialize_state();
 
 ok( my $bitcoin = whatbot::Command::Bitcoin->new({
-	'base_component' => $base_component,
 	'my_config'      => {},
 	'name'           => 'Bitcoin',
 }), 'new' );

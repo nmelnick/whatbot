@@ -116,7 +116,6 @@ sub _submit_form {
 						$self->web_url,
 						$paste->paste_id
 					),
-					'base_component' => $self->parent->base_component,
 					'invisible'      => 1,
 				}),
 			);

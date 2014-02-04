@@ -9,7 +9,7 @@ use whatbot::Test;
 use_ok( 'whatbot::Command::Weather::Wunderground', 'Load Module' );
 
 my $test = whatbot::Test->new();
-my $base_component = $test->get_base_component();
+$test->initialize_state();
 
 unless ( $ENV{'WB_WUNDERGROUND_API_KEY'} ) {
 	plan skip_all => 'Requires WB_WUNDERGROUND_API_KEY environment variable to run live tests.';

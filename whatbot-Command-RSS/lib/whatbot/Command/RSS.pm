@@ -110,7 +110,6 @@ sub retrieve_rss : Command {
 							'to' => '',
 							'from' => '',
 							'content' => '[RSS] ' . $xml_doc->{'channel'}->{'title'} . ': ' . $entry->{'text'} . ' (' . $entry->{'url'} . ')',
-							'base_component'	=> $self->parent->base_component
 						);
 						$self->ios->{ $feed->{'io'} }->send_message($message);
 					

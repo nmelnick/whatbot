@@ -7,11 +7,10 @@ use whatbot::Test;
 use_ok( 'whatbot::IO::AIM', 'Load module' );
 
 my $test = whatbot::Test->new();
-my $base_component = $test->get_base_component();
+$test->initialize_state();
 
 eval {
 	my $aim = whatbot::IO::AIM->new({
-		'base_component' => $base_component,
 		'my_config'      => {},
 	});
 };
@@ -19,7 +18,6 @@ like( $@, qr/AIM component requires a/, 'Error when missing screenname and passw
 
 eval {
 	my $aim = whatbot::IO::AIM->new({
-		'base_component' => $base_component,
 		'my_config'      => {
 			'screenname' => 'foo',
 		},
@@ -29,7 +27,6 @@ like( $@, qr/AIM component requires a/, 'Error when missing password' );
 
 eval {
 	my $aim = whatbot::IO::AIM->new({
-		'base_component' => $base_component,
 		'my_config'      => {
 			'password' => 'foo',
 		},

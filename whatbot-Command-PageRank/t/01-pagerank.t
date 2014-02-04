@@ -7,10 +7,9 @@ use whatbot::Test;
 use_ok( 'whatbot::Command::PageRank', 'Load module' );
 
 my $test = whatbot::Test->new();
-my $base_component = $test->get_base_component();
+$test->initialize_state();
 
 ok( my $pr = whatbot::Command::PageRank->new({
-	'base_component' => $base_component,
 	'my_config'      => {},
 	'name'           => 'PageRank',
 }), 'new' );
