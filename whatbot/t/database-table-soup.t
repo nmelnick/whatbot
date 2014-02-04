@@ -8,9 +8,9 @@ use whatbot::Test;
 use_ok( 'whatbot::Database::Table::Soup', 'Load Module' );
 
 my $test = whatbot::Test->new();
-my $base_component = $test->get_base_component();
+$test->initialize_state();
 
-my $soup = whatbot::Database::Table::Soup->new( base_component => $base_component );
+my $soup = whatbot::Database::Table::Soup->new();
 ok( $soup, 'Object created' );
 
 is( $soup->count(), 0, 'table has zero records' );

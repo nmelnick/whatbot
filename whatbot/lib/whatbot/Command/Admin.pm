@@ -96,7 +96,6 @@ sub throw : Command {
         'to'             => '',
         'from'           => '',
         'content'        => join( ' ', @message_split ),
-		'base_component' => $self->parent->base_component
     );
     foreach my $io ( keys %{ $self->ios } ) {
         if ( $io =~ /$io_search/ ) {

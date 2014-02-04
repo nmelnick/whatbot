@@ -29,7 +29,6 @@ class whatbot::IO::Log::Infobot extends whatbot::IO::Log {
 				'content'			=> $message_text,
 				'timestamp'		    => $date,
 				'me'				=> $self->me,
-				'base_component'	=> $self->parent->base_component
 			);
 		
 			$self->event_message($message);

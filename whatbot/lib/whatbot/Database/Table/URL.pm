@@ -74,9 +74,7 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
                 }
             }
         });
-        my $protocol = whatbot::Database::Table->new(
-            'base_component' => $self->parent->base_component
-        );
+        my $protocol = whatbot::Database::Table->new();
         $protocol->init_table({
             'name'        => 'url_protocol',
             'primary_key' => 'protocol_id',
@@ -92,9 +90,7 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
             }
         });
         $self->table_protocol($protocol);
-        my $domain = whatbot::Database::Table->new(
-            'base_component' => $self->parent->base_component
-        );
+        my $domain = whatbot::Database::Table->new();
         $domain->init_table({
             'name'        => 'url_domain',
             'primary_key' => 'domain_id',

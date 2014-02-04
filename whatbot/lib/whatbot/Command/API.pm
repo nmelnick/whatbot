@@ -55,7 +55,6 @@ sub message {
 				'to'             => '',
 				'from'           => '',
 				'content'        => $req->parm('message'),
-				'base_component' => $self->parent->base_component,
 				'invisible'      => 1,
 			}),
 		);

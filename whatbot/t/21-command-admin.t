@@ -8,10 +8,9 @@ use whatbot::Test;
 use_ok( 'whatbot::Command::Admin', 'Load Module' );
 
 my $test = whatbot::Test->new();
-my $base_component = $test->get_base_component();
+$test->initialize_state();
 
 ok( my $admin = whatbot::Command::Admin->new({
-	'base_component' => $base_component,
 	'my_config'      => { 'user' => 'testuser' },
 	'name'           => 'Market',
 }), 'new' );

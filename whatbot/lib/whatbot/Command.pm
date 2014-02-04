@@ -136,8 +136,10 @@ Provides access to whatbot::Timer functionality.
 
 class whatbot::Command extends whatbot::Component {
     use whatbot::Types qw( HTTPRequest );
+    use whatbot::State;
 
     has 'name'             => ( is => 'rw', isa => 'Str' );
+    has 'command_priority' => ( is => 'rw', isa => 'Str' );
     has 'require_direct'   => ( is => 'rw', isa => 'Int', default => 0 );
     has 'my_config'        => ( is => 'ro', isa => 'Maybe[HashRef]' );
     has 'timer'            => ( is => 'rw', lazy_build => 1 );
@@ -172,7 +174,9 @@ new() or BUILD() for your command.
 =cut
 
     method register() {
-        $self->log->write(ref($self) . ' works without a register method, but it is recommended to make one.');
+        $self->log->write(
+            ref($self) . ' works without a register method, but it is recommended to make one.'
+        );
     }
 
 =item help()
@@ -215,7 +219,7 @@ Returns the URL that the web server is currently responding to.
     }
 
     before log() {
-        $self->base_component->log->name( $self->name );
+        whatbot::State->instance->log->name( $self->name );
     }
 
 }

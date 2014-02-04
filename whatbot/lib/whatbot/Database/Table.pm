@@ -246,7 +246,6 @@ Limit to a given number of rows.
                 push(
                     @results,
                     whatbot::Database::Table::Row->new(
-                        'base_component' => $self->base_component,
                         'primary_key'    => $self->primary_key,
                         'table'          => $self->table_name,
                         'columns'        => $columns,
@@ -259,7 +258,6 @@ Limit to a given number of rows.
                 push(
                     @results,
                     whatbot::Database::Table::Row->new(
-                        'base_component' => $self->base_component,
                         'primary_key'    => $self->primary_key,
                         'table'          => $self->table_name,
                         'columns'        => $columns,

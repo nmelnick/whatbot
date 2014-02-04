@@ -51,9 +51,7 @@ class whatbot::Database::Table::Soup extends whatbot::Database::Table {
                 }
             }
         });
-        my $module = whatbot::Database::Table->new(
-            'base_component' => $self->parent->base_component
-        );
+        my $module = whatbot::Database::Table->new();
         $module->init_table({
             'name'        => 'soup_module',
             'primary_key' => 'module_id',

@@ -8,11 +8,10 @@ use whatbot::Test;
 use_ok( 'whatbot::Command::Tell', 'Load Module' );
 
 my $test = whatbot::Test->new();
-my $base_component = $test->get_base_component();
-$test->initialize_models($base_component);
+$test->initialize_state();
+$test->initialize_models();
 
 ok( my $tell = whatbot::Command::Tell->new({
-	'base_component' => $base_component,
 	'my_config'      => {},
 	'name'           => 'Tell',
 }), 'new' );

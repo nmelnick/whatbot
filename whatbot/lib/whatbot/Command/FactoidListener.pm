@@ -21,9 +21,7 @@ sub register {
 	
 	$self->command_priority('Last');
 	$self->require_direct(0);
-	$self->{'factoid'} = whatbot::Command::Factoid->new(
-		'base_component' => $self->base_component,
-    );
+	$self->{'factoid'} = whatbot::Command::Factoid->new();
 }
 
 sub listener : GlobalRegEx('(.+)') {

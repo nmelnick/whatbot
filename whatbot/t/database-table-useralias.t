@@ -7,9 +7,9 @@ use whatbot::Test;
 use_ok( 'whatbot::Database::Table::UserAlias', 'Load Module' );
 
 my $test = whatbot::Test->new();
-my $base_component = $test->get_base_component();
+$test->initialize_state();
 
-my $url = whatbot::Database::Table::UserAlias->new( base_component => $base_component );
+my $url = whatbot::Database::Table::UserAlias->new();
 ok( $url, 'Object created' );
 
 is( $url->count(), 0, 'table has zero records' );

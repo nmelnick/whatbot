@@ -26,19 +26,15 @@ through the whatbot shell script.
 =cut
 
 class whatbot with whatbot::Role::Pluggable {
-	use whatbot::Component::Base;
 	use whatbot::Controller;
 	use whatbot::Config;
 	use whatbot::Log;
+	use whatbot::State;
 
 	use AnyEvent;
 	use EV;
 	use Class::Load qw(load_class);
 
-	has 'base_component' => (
-		is  => 'rw',
-		isa => 'whatbot::Component::Base',
-	);
 	has 'initial_config' => (
 		is  => 'rw',
 		isa => 'whatbot::Config'
@@ -112,24 +108,22 @@ class whatbot with whatbot::Role::Pluggable {
 		$self->report_error('Invalid configuration: Missing or unavailable log directory')
 			unless ( defined $log and $log->log_directory );
 
-		# Build base component
-		my $base_component = whatbot::Component::Base->new(
+		# Build state
+		whatbot::State->initialize({
 			'parent'	=> $self,
 			'config'	=> $self->initial_config,
 			'log'		=> $log
-		);
-		$self->base_component($base_component);
+		});
 	
 		# Initialize loadable modules
-		$self->_initialize_models($base_component);
-		my $ios = $self->_initialize_io($base_component);
+		$self->_initialize_models();
+		my $ios = $self->_initialize_io();
 	
 		# Parse Commands
 		my $controller = whatbot::Controller->new(
-			'base_component' 	=> $base_component,
 			'skip_extensions'	=> $self->skip_extensions
 		);
-		$base_component->controller($controller);
+		whatbot::State->instance->controller($controller);
 		$controller->dump_command_map();
 	
 		# Connect to IO
@@ -156,32 +150,32 @@ class whatbot with whatbot::Role::Pluggable {
 	}
 
 	method report_error( Str $error ) {
-		if ( defined $self->base_component and defined $self->base_component->log ) {
-			$self->base_component->log->error($error);
+		if ( my $log = whatbot::State->instance->log ) {
+			$log->error($error);
 		}
 		die 'ERROR: ' . $error;
 	}
 
-	method _initialize_models( $base_component ) {
+	method _initialize_models() {
+		my $state = whatbot::State->instance;
+
 		# Find and store models
 		$self->report_error( 
-			'Invalid connection type: ' . $base_component->config->database->{'handler'} 
-		) unless ( $base_component->config->database and $base_component->config->database->{'handler'} );
+			'Invalid connection type: ' . $state->config->database->{'handler'} 
+		) unless ( $state->config->database and $state->config->database->{'handler'} );
 		
 		# Start database handler
-		my $connection_class = 'whatbot::Database::' . $base_component->config->database->{'handler'};
+		my $connection_class = 'whatbot::Database::' . $state->config->database->{'handler'};
 		eval "require $connection_class";
 		if ( my $err = $@ ) {
 			$self->report_error( 'Problem loading $connection_class: ' . $err);
 		}
 
-		my $database = $connection_class->new(
-			'base_component' => $base_component
-		);
+		my $database = $connection_class->new();
 		$database->connect();
 		$self->report_error('Configured connection failed to load properly')
 			unless ( defined $database and defined $database->handle );
-		$base_component->database($database);
+		$state->database($database);
 
 		# Read in table definitions
 		my %model;
@@ -194,25 +188,25 @@ class whatbot with whatbot::Role::Pluggable {
 			eval {
 				load_class($class_name);
 				$model{ lc($name) } = $class_name->new({
-					'base_component' => $base_component,
-					'handle'         => $database->handle
+					'handle' => $database->handle
 				});
 			};
 			if ($@) {
 				warn 'Error loading ' . $class_name . ': ' . $@;
 			} else {
-				$base_component->log->write('-> ' . $class_name . ' loaded.');
+				$state->log->write('-> ' . $class_name . ' loaded.');
 			}
 		};
-		$base_component->models(\%model);
+		$state->models(\%model);
 		return;
 	}
 
-	method _initialize_io($base_component) {
+	method _initialize_io() {
 		my @io;
 		my %ios;
+		my $state = whatbot::State->instance;
 		foreach my $io_module ( @{ $self->initial_config->io } ) {
-			$base_component->log->error('No interface designated for one or more IO modules')
+			$state->log->error('No interface designated for one or more IO modules')
 				unless ( $io_module->{'interface'} );
 		
 			my $io_class = 'whatbot::IO::' . $io_module->{'interface'};
@@ -220,7 +214,6 @@ class whatbot with whatbot::Role::Pluggable {
 			$self->report_error('Error loading ' . $io_class . ': ' . $@ ) if ($@);
 			my $io_object = $io_class->new(
 				'my_config'         => $io_module,
-				'base_component'    => $base_component
 			);
 			$self->report_error('IO interface "' . $io_module->{'interface'} . '" failed to load properly') 
 				unless ($io_object);
@@ -228,7 +221,7 @@ class whatbot with whatbot::Role::Pluggable {
 			$ios{ $io_object->name } = $io_object;
 			push( @io, $io_object );
 		}
-		$base_component->ios(\%ios);
+		$state->ios(\%ios);
 		return \@io;
 	}
 

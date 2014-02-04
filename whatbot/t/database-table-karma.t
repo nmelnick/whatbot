@@ -8,9 +8,9 @@ use whatbot::Test;
 use_ok( 'whatbot::Database::Table::Karma', 'Load Module' );
 
 my $test = whatbot::Test->new();
-my $base_component = $test->get_base_component();
+$test->initialize_state();
 
-my $karma = whatbot::Database::Table::Karma->new( base_component => $base_component );
+my $karma = whatbot::Database::Table::Karma->new();
 ok( $karma, 'Object created' );
 
 is( $karma->count(), 0, 'table has zero records' );

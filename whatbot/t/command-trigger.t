@@ -8,11 +8,10 @@ use whatbot::Test;
 use_ok( 'whatbot::Command::Trigger', 'Load Module' );
 
 my $test = whatbot::Test->new();
-my $base_component = $test->get_base_component();
-$test->initialize_models($base_component);
+$test->initialize_state();
+$test->initialize_models();
 
 ok( my $trigger = whatbot::Command::Trigger->new({
-	'base_component' => $base_component,
 	'my_config'      => {},
 	'name'           => 'Trigger',
 }), 'new' );
@@ -125,7 +124,7 @@ $response = $trigger->set( $message, ['event:enter (foo=bar) foo'] );
 is( $response, 'Trigger set.', 'params in event is valid' );
 
 sub clear_soup {
-	$base_component->database->handle->do('delete from soup');
+	whatbot::State->instance->database->handle->do('delete from soup');
 	return;
 }
 

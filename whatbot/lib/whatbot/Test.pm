@@ -23,16 +23,16 @@ This object provides helper methods for unit testing whatbot commands.
 class whatbot::Test {
 	use whatbot;
 	use whatbot::Log;
-	use whatbot::Component::Base;
 	use whatbot::Config;
 	use whatbot::Database::SQLite;
+	use whatbot::State;
 
 	has config_hash => ( is => 'rw', isa => 'HashRef' );
 
 =item get_default_config()
 
 Provide a default whatbot::Config instance with an empty test database already
-configured. This is used by get_base_component().
+configured. This is used by initialize_state().
 
 =cut
 
@@ -52,45 +52,43 @@ configured. This is used by get_base_component().
 		);
 	}
 
-=item get_base_component()
+=item initialize_state()
 
-Provide a default whatbot::Component::Base instance for initializing new
-Commands or other Components. This utilizes the test database in
-get_default_config() and logs to the screen.
+Initializes a default whatbot::State for initializing new Commands or other
+Components. This utilizes the test database in get_default_config() and logs to
+the screen.
 
 =cut
 
-	method get_base_component() {
-		# Build base component
-		my $base_component = whatbot::Component::Base->new(
+	method initialize_state() {
+		whatbot::State->initialize({
 			'log'    => whatbot::Log->new(),
 			'config' => $self->get_default_config()
-		);
-		$base_component->log->log_enabled(0);
-		$base_component->parent( whatbot->new({ 'base_component' => $base_component }) );
-		my $database = whatbot::Database::SQLite->new(
-		    'base_component' => $base_component
-		);
+		});
+		my $state = whatbot::State->instance;
+		$state->log->log_enabled(0);
+		$state->parent( whatbot->new() );
+		my $database = whatbot::Database::SQLite->new();
 		$database->connect();
-		$base_component->database($database);
-		$base_component->log->log_enabled(1);
+		$state->database($database);
+		$state->log->log_enabled(1);
 
-		return $base_component;
+		return $state;
 	}
 
-=item initialize_models( $base_component )
+=item initialize_models()
 
 Loads and initializes all available models/databases. Must be used before
 testing a command that utilizes database calls.
 
 =cut
 
-	method initialize_models( $base_component ) {
-		my $whatbot = $base_component->parent;
-		$base_component->log->log_enabled(0);
-		$whatbot->_initialize_models($base_component);
-		$whatbot->_initialize_models($base_component);
-		$base_component->log->log_enabled(1);
+	method initialize_models() {
+		my $state = whatbot::State->instance;
+		my $whatbot = $state->parent;
+		$state->log->log_enabled(0);
+		$whatbot->_initialize_models();
+		$state->log->log_enabled(1);
 		return;
 	}
 }

@@ -66,9 +66,7 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
 			}
 		});
 
-		my $description = whatbot::Database::Table->new(
-			'base_component' => $self->parent->base_component
-		);
+		my $description = whatbot::Database::Table->new();
 		$description->init_table({
 			'name'        => 'factoid_description',
 			'primary_key' => 'hash',
@@ -96,9 +94,7 @@ class whatbot::Database::Table::Factoid extends whatbot::Database::Table {
 				}
 			}
 		});
-		my $ignore = whatbot::Database::Table->new(
-			'base_component' => $self->parent->base_component
-		);
+		my $ignore = whatbot::Database::Table->new();
 		$ignore->init_table({
 			'name'        => 'factoid_ignore',
 			'primary_key' => 'subject',

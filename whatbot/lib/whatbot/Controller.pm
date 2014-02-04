@@ -109,9 +109,8 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 						$config = $self->config->commands->{lc($name)};
 					}
 					my $new_command = $class_name->new(
-						'base_component' => $self->parent->base_component,
-						'my_config'      => $config,
-						'name'           => $command_root,
+						'my_config' => $config,
+						'name'      => $command_root,
 					);
 					$new_command->controller($self);
 				
@@ -246,41 +245,6 @@ Run incoming event through commands, parse responses, and delivery back to IO.
 		return \@messages;
 	}
 
-	method _return_error( $command_name, $message, $error ) {
-		$self->log->error( 'Failure in ' . $command_name . ': ' . $error );
-		return $message->reply({
-			'content' => $command_name . ' completely failed at that last remark.',
-		});
-	}
-
-	# Parse the result from a event or message call
-	method _parse_result( $command_name, $message?, $result?, ArrayRef $messages? ) {
-		$message ||= whatbot::Message->new({
-			'from'    => '',
-			'to'      => 'public',
-			'content' => '',
-		});
-		if ( defined $result ) {
-			last if ( $result eq 'last_run' );
-	
-			$self->log->write( '%%% Message handled by ' . $command_name )
-				unless ( defined $self->config->io->[0]->{'silent'} );
-			$result = [ $result ] if ( ref($result) ne 'ARRAY' );
-		
-			foreach my $result_single ( @$result ) {
-				my $outmessage;
-				if ( ref($result_single) eq 'whatbot::Message' ) {
-					$outmessage = $result_single;
-				} else {
-					$outmessage = $message->reply({
-						'content' => $result_single,
-					});
-				}
-				push( @$messages, $outmessage );
-			}
-		}
-	}
-
 	method dump_command_map {
 		foreach my $priority ( qw( primary core extension ) ) {
 			my $commands = 0;
@@ -395,6 +359,41 @@ Run incoming event through commands, parse responses, and delivery back to IO.
 						$class_name . ': Invalid attribute "' . $command . '" on method "' . $function . '", ignoring.'
 					);
 				}
+			}
+		}
+	}
+
+	method _return_error( $command_name, $message, $error ) {
+		$self->log->error( 'Failure in ' . $command_name . ': ' . $error );
+		return $message->reply({
+			'content' => $command_name . ' completely failed at that last remark.',
+		});
+	}
+
+	# Parse the result from a event or message call
+	method _parse_result( $command_name, $message?, $result?, ArrayRef $messages? ) {
+		$message ||= whatbot::Message->new({
+			'from'    => '',
+			'to'      => 'public',
+			'content' => '',
+		});
+		if ( defined $result ) {
+			last if ( $result eq 'last_run' );
+	
+			$self->log->write( '%%% Message handled by ' . $command_name )
+				unless ( defined $self->config->io->[0]->{'silent'} );
+			$result = [ $result ] if ( ref($result) ne 'ARRAY' );
+		
+			foreach my $result_single ( @$result ) {
+				my $outmessage;
+				if ( ref($result_single) eq 'whatbot::Message' ) {
+					$outmessage = $result_single;
+				} else {
+					$outmessage = $message->reply({
+						'content' => $result_single,
+					});
+				}
+				push( @$messages, $outmessage );
 			}
 		}
 	}

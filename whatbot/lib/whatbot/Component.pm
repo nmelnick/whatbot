@@ -25,16 +25,11 @@ whatbot::Component - Base component for all whatbot modules.
 
 whatbot::Component is the base component for all whatbot modules. This requires
 a little bit of magic from the caller, as the accessors all need to be filled
-by whatbot::Controller, or the calling method needs to pass 'base_component'
-to the Component subclass to fill the proper accessors.
+by whatbot::Controller.
 
 =head1 PUBLIC ACCESSORS
 
 =over 4
-
-=item base_component
-
-The base component for this whatbot instance.
 
 =item parent
 
@@ -46,7 +41,7 @@ The L<whatbot::Config> instance.
 
 =item ios
 
-An arrayref of available L<whatbot::IO> instances.
+A HashRef of available L<whatbot::IO> instances.
 
 =item log
 
@@ -61,12 +56,12 @@ The available L<whatbot::Log> instance, commonly used as $self->log->write('Foo'
 =cut
 
 class whatbot::Component {
-    use whatbot::Component::Base;
+    use whatbot::State;
 
-    has 'base_component' => (
+    has 'state' => (
         is => 'rw',
-        isa => 'whatbot::Component::Base',
-        default => sub { whatbot::Component::Base->new() },
+        isa => 'whatbot::State',
+        default => sub { whatbot::State->instance() },
         handles => [qw(
             parent
             config

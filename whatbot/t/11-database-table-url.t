@@ -6,9 +6,9 @@ use whatbot::Test;
 use_ok( 'whatbot::Database::Table::URL', 'Load Module' );
 
 my $test = whatbot::Test->new();
-my $base_component = $test->get_base_component();
+$test->initialize_state();
 
-my $url = whatbot::Database::Table::URL->new( base_component => $base_component );
+my $url = whatbot::Database::Table::URL->new();
 ok( $url, 'Object created' );
 
 my $title;
