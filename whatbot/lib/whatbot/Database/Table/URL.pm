@@ -219,7 +219,7 @@ GET the given URL using LWP.
         if ( ( not $@ ) and $response ) {
             if ( $self->agent->status < 400 ) {
                 $title = 'No parsable title';
-                if ( $url =~ /twitter\.com/ ) {
+                if ( $url =~ /twitter\.com.*status/ ) {
                   my $dom = Mojo::DOM->new($self->agent->content);
                   my $tweet_id = (split("/", $url))[-1];
                   my $tweet = $dom->at('[data-tweet-id="' . $tweet_id . '"]');
