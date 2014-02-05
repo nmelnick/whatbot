@@ -24,7 +24,6 @@ lib/whatbot/Command/Tell.pm
 lib/whatbot/Command/Trigger.pm
 lib/whatbot/Command/URL.pm
 lib/whatbot/Command.pm
-lib/whatbot/Component/Base.pm
 lib/whatbot/Component.pm
 lib/whatbot/Config.pm
 lib/whatbot/Controller.pm
@@ -51,6 +50,7 @@ lib/whatbot/Log.pm
 lib/whatbot/Message.pm
 lib/whatbot/Progress.pm
 lib/whatbot/Role/Pluggable.pm
+lib/whatbot/State.pm
 lib/whatbot/Test.pm
 lib/whatbot/Types.pm
 lib/whatbot.pm
