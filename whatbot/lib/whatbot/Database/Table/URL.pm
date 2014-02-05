@@ -189,6 +189,21 @@ Retrieve, or create and retrieve, the given URL.
         }
     }
 
+=item url_title($url, $from)
+
+Retrieve, or create and retrieve, the given URL, and return the title.
+
+=cut
+
+    method url_title( Str $url, Str $from? ) {
+    	my $row = $self->url( $url, $from );
+    	my $title = $row->title;
+    	if ( $title =~ /^! / ) {
+    		$row->delete;
+    	}
+    	return $title;
+    }
+
 =item retrieve_url($url)
 
 GET the given URL using LWP.

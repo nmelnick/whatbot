@@ -27,10 +27,10 @@ sub store_url : GlobalRegEx('.*?((https|http|ftp|feed):\/\/[^\s]+).*') {
     return if ( $message->invisible );
 
     my $url = $captures->[0];
-    my $row = $self->model('URL')->url( $url, $message->from );
+    my $title = $self->model('URL')->url_title( $url, $message->from );
     
-    if ( $row and $row->title ) {
-        return '[URL: ' . $row->title . ']';
+    if ($title) {
+        return '[URL: ' . $title . ']';
     }
 
     return;

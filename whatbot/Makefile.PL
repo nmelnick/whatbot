@@ -12,7 +12,7 @@ provides
 	'whatbot::Command' => {
 		'file' => 'lib/whatbot/Command.pm',
 	},
-	'whatbot::Command' => {
+	'whatbot::Component' => {
 		'file' => 'lib/whatbot/Component.pm',
 	},
 	'whatbot::Test' => {
