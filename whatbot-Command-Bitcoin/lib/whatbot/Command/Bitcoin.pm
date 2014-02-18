@@ -49,7 +49,7 @@ sub parse_message : GlobalRegEx('^(?i)bitcoin( \w+)?') {
 sub _get_prices {
 	my ( $self, $currency ) = @_;
 
-	my $url = 'http://preev.com/pulse/source:bitstamp,btce,localbitcoins,mtgox/unit:btc,%s';
+	my $url = 'http://preev.com/pulse/source:bitstamp,btce,localbitcoins/unit:btc,%s';
 	my $response = $self->ua->get( sprintf( $url, $currency ) );
 	if ( $response->is_success ) {
 		return 'Invalid currency, maybe?' unless ( $response->decoded_content() );
