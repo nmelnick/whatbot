@@ -190,34 +190,6 @@ attribute so someone may ask your command for help directly.
         return 'Help is not available for this module.';
     }
 
-=item web( $path, \&callback )
-
-Set up a web endpoint, used within the register() function. The first parameter
-is a path to respond to after the hostname and port of the request. Note that
-the first path registered wins, so choose your paths carefully. The second
-parameter is a callback when a request is received. Three parameters are sent to
-the callback: $self, which is your command's instance, $httpd, which is an
-L<AnyEvent::HTTPD> object, and $req, which is a L<AnyEvent::HTTPD::Request>
-object.
-
-=cut
-
-    method web( $path, $callback ) {
-        return unless ( $self->ios->{Web} );
-        return $self->ios->{Web}->add_dispatch( $self, $path, $callback );
-    }
-
-=item web_url()
-
-Returns the URL that the web server is currently responding to.
-
-=cut
-
-    method web_url() {
-        return unless ( $self->ios->{Web} );
-        return sprintf( '%s:%d', $self->ios->{Web}->my_config->{url}, $self->ios->{Web}->my_config->{port} );
-    }
-
     before log() {
         whatbot::State->instance->log->name( $self->name );
     }

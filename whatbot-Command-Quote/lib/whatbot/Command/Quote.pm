@@ -10,7 +10,8 @@ package whatbot::Command::Quote;
 use Moose;
 BEGIN {
 	extends 'whatbot::Command';
-	with    'whatbot::Command::Role::BootstrapTemplate';
+	with    'whatbot::Command::Role::Web',
+	        'whatbot::Command::Role::BootstrapTemplate';
 }
 
 use HTML::Entities;
