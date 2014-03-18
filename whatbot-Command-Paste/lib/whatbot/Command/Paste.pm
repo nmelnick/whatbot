@@ -10,7 +10,7 @@ package whatbot::Command::Paste;
 use Moose;
 BEGIN {
 	extends 'whatbot::Command';
-	with 'whatbot::Command::Role::Template';
+	with 'whatbot::Command::Role::BootstrapTemplate';
 }
 
 use HTML::Entities;
@@ -23,6 +23,8 @@ sub register {
 	
 	$self->command_priority('Extension');
 	$self->require_direct(0);
+
+	whatbot::Helper::Bootstrap->add_application( 'Paste', '/paste' );
 	
 	$self->web(
 		'/paste',
@@ -56,7 +58,8 @@ sub paste_form {
 	}
 
 	my %state = (
-		'channels' => [ sort @channels ],
+		'page_title' => 'whatbot Paste',
+		'channels'   => [ sort @channels ],
 	);
 
 	if ( $req->method eq 'POST' ) {
@@ -75,8 +78,9 @@ sub paste_view {
 	return '' unless ($id);
 
 	my %state = (
-		'title' => 'Viewing paste ' . $id,
-		'paste' => $self->model('Paste')->find($id),
+		'page_title' => 'whatbot Paste',
+		'title'      => 'Viewing paste ' . $id,
+		'paste'      => $self->model('Paste')->find($id),
 	);
 
 	return $self->render( $req, _paste_view_tt2(), \%state );
@@ -136,80 +140,10 @@ sub check_access {
 	return 1;
 }
 
-sub _header {
-	return q{
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="utf-8">
-	<title>[% title OR 'whatbot Paste' %]</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<style type="text/css">
-		body {
-			padding-top: 60px;
-			font-family: Candara, sans-serif;
-			font-size: 14px;
-		}
-		div.error {
-			padding: 14px;
-			background-color: #fee;
-			border: 1px solid #f00;
-			margin-bottom: 18px;
-		}
-		div.success {
-			padding: 14px;
-			background-color: #efe;
-			border: 1px solid #0f0;
-			margin-bottom: 18px;
-		}
-		div.pastedata {
-			margin-bottom: 18px;
-		}
-		div.code {
-			padding: 14px;
-		}
-	</style>
-	<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
-</head>
-<body>
-	<div class="navbar navbar-inverse navbar-fixed-top">
-		<div class="navbar-inner">
-		<div class="container">
-			<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-			<span class="icon-bar"></span>
-			<span class="icon-bar"></span>
-			<span class="icon-bar"></span>
-			</button>
-			<a class="brand" href="/paste">whatbot Paste</a>
-			<div class="nav-collapse collapse">
-			<ul class="nav"></ul>
-			</div>
-		</div>
-		</div>
-	</div>
-
-	<div class="container">
-[% IF error %]
-		<div class="error">
-			[% error %]
-		</div>
-[% END %]
-};
-}
-
-sub _footer {
-	return q{
-	</div>
-	<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
-</body>
-</html>
-};
-}
-
 sub _paste_form_tt2 {
-	my $string = _header() . q{
+	my $string = q{
 [% IF url %]
-		<div class="success">
+		<div class="bg-success">
 			Paste created successfully. You may view it <a href="[% url %]">here</a>.
 		</div>
 [% END %]
@@ -218,33 +152,59 @@ sub _paste_form_tt2 {
 			the channel you'd like to broadcast to (if any), and the contents
 			of your paste.
 		</p>
-		<form method="POST">
-		<fieldset class="form-inline">
-			<legend>Paste Information</legend>
-			<input type="text" name="nickname" placeholder="Your Nickname">
-			<select name="channel">
-				<option name="">&lt;no channel&gt;</option>
+		<form method="post" role="form">
+			<fieldset class="form-inline">
+				<h2>Paste Information</h2>
+				<div class="form-group">
+					<label class="sr-only" for="f-nickname">Your Nickname</label>
+					<div class="col-xs-3">
+						<input type="text" class="form-control" id="f-nickname" name="nickname" placeholder="Your Nickname">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="sr-only" for="f-channel">Channel</label>
+					<div class="col-xs-3">
+						<select name="channel" class="form-control" id="f-channel">
+							<option name="">&lt;no channel&gt;</option>
 [% FOREACH channel IN channels %]
-				<option name="[% channel %]">[% channel %]</option>
+							<option name="[% channel %]">[% channel %]</option>
 [% END %]
-			</select>
-		</fieldset>
-		<fieldset>
-			<legend>Content</legend>
-			<input type="text" name="summary" class="input-xxlarge" placeholder="Summary (optional)">
-			<br />
-			<textarea rows="8" name="content" class="input-xxlarge"></textarea>
-		</fieldset>
-		<fieldset>
-			<button type="submit" class="btn">Paste</button>
-		</fieldset>
+						</select>
+					</div>
+				</div>
+			</fieldset>
+			<fieldset>
+				<h2>Content</h2>
+				<div class="form-group">
+					<div class="col-xs-6">
+						<input type="text" class="form-control" name="summary" placeholder="Summary (optional)">
+						<br />
+						<textarea rows="8" class="form-control" name="content"></textarea>
+					</div>
+				</div>
+			</fieldset>
+			<fieldset>
+				<div class="form-group">
+					<div class="col-xs-6">
+						<button type="submit" class="btn btn-primary">Paste</button>
+					</div>
+				</div>
+			</fieldset>
 		</form>
-} . _footer();
+};
 	return \$string;
 }
 
 sub _paste_view_tt2 {
-	my $string = _header() . q{
+	my $string = q{
+<style type="text/css">
+	div.pastedata {
+		margin-bottom: 18px;
+	}
+	div.code {
+		padding: 14px;
+	}
+</style>
 [% USE date(format='%Y-%m-%d %H:%M:%S %Z') %]
 [% IF paste %]
 	<div class="pastedata">
@@ -267,7 +227,7 @@ sub _paste_view_tt2 {
 [% ELSE %]
 	No paste.
 [% END %]
-} . _footer();
+};
 	return \$string;
 }
 
