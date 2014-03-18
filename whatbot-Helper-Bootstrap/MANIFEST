@@ -1,0 +1,9 @@
+lib/whatbot/Helper/Bootstrap.pm
+lib/whatbot/Helper/Bootstrap/Link.pm
+lib/whatbot/Command/Role/BootstrapTemplate.pm
+Makefile.PL
+MANIFEST
+t/00-compile.t
+t/link.t
+t/helper-bootstrap.t
+t/role-bootstraptemplate.t
