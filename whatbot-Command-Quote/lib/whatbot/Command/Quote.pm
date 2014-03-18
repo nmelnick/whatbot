@@ -10,10 +10,11 @@ package whatbot::Command::Quote;
 use Moose;
 BEGIN {
 	extends 'whatbot::Command';
-	with 'whatbot::Command::Role::Template';
+	with    'whatbot::Command::Role::BootstrapTemplate';
 }
 
 use HTML::Entities;
+use whatbot::Helper::Bootstrap::Link;
 use namespace::autoclean;
 
 our $VERSION = '0.1';
@@ -23,6 +24,12 @@ sub register {
 	
 	$self->command_priority('Extension');
 	$self->require_direct(0);
+
+	whatbot::Helper::Bootstrap->add_application( 'Quote', '/quote' );
+	$self->add_menu_item( whatbot::Helper::Bootstrap::Link->new({
+		'title' => 'Random Quote',
+		'href'  => '/quote/view?id=random',
+	}) );
 
 	$self->web(
 		'/quote',
@@ -132,87 +139,16 @@ sub check_access {
 	return 1;
 }
 
-sub _header {
-	return q{
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="utf-8">
-	<title>[% title OR 'whatbot Quoteboard' %]</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<style type="text/css">
-		body {
-			padding-top: 60px;
-			font-family: Candara, sans-serif;
-			font-size: 14px;
-		}
-		div.error {
-			padding: 14px;
-			background-color: #fee;
-			border: 1px solid #f00;
-			margin-bottom: 18px;
-		}
-		div.success {
-			padding: 14px;
-			background-color: #efe;
-			border: 1px solid #0f0;
-			margin-bottom: 18px;
-		}
-		div.pastedata {
-			margin-bottom: 18px;
-		}
-		div.code {
-			padding: 14px;
-		}
-		div.quote-body {
-			margin-bottom: 18px;
-		}
-	</style>
-	<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
-</head>
-<body>
-	<div class="navbar navbar-inverse navbar-fixed-top">
-		<div class="navbar-inner">
-		<div class="container">
-			<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-			<span class="icon-bar"></span>
-			<span class="icon-bar"></span>
-			<span class="icon-bar"></span>
-			</button>
-			<a class="brand" href="/quote">whatbot Quoteboard</a>
-			<div class="nav-collapse collapse">
-			<ul class="nav">
-				<li><a href="/quote/view?id=random">Random Quote</a></li>
-			</ul>
-			</div>
-		</div>
-		</div>
-	</div>
-
-	<div class="container">
-[% IF error %]
-		<div class="error">
-			[% error %]
-		</div>
-[% END %]
-};
-}
-
-sub _footer {
-	return q{
-	</div>
-	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-	<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
-</body>
-</html>
-};
-}
-
 sub _quote_list_tt2 {
-	my $string = _header() . q{
+	my $string = q{
+<style type="text/css">
+	div.quote-body {
+		margin-bottom: 18px;
+	}
+</style>
 [% USE date(format='%Y-%m-%d at %H:%M:%S %Z') %]
 [% IF success %]
-		<div class="success">
+		<div class="bg-success">
 			Quote added successfully.
 		</div>
 [% END %]
@@ -228,18 +164,30 @@ sub _quote_list_tt2 {
 				</div>
 				<div id="collapseOne" class="accordion-body collapse">
 					<div class="accordion-inner">
-						<form method="post">
+						<form method="post" role="form">
 						<fieldset class="form-inline">
-							<legend>Quote Info</legend>
-							<input type="text" name="nickname" placeholder="Submitted By">
-							<input type="text" name="quoted" placeholder="Nickname to Quote">
+							<h2>Quote Info</h2>
+							<div class="form-group">
+								<input type="text" class="form-control" name="nickname" placeholder="Submitted By">
+							</div>
+							<div class="form-group">
+								<input type="text" class="form-control" name="quoted" placeholder="Nickname to Quote">
+							</div>
 						</fieldset>
 						<fieldset>
-							<legend>Quote Text</legend>
-							<textarea rows="8" name="content" class="input-xxlarge"></textarea>
+							<h2>Quote Text</h2>
+							<div class="form-group">
+								<div class="col-xs-6">
+									<textarea rows="8" class="form-control" name="content" class="input-xxlarge"></textarea>
+								</div>
+							</div>
 						</fieldset>
 						<fieldset>
-							<button type="submit" class="btn">Quote</button>
+							<div class="form-group">
+								<div class="col-xs-6">
+									<button type="submit" class="btn btn-primary">Quote</button>
+								</div>
+							</div>
 						</fieldset>
 						</form>
 					</div>
@@ -257,12 +205,12 @@ sub _quote_list_tt2 {
 	</div>
 [% END %]
 		</div>
-} . _footer();
+};
 	return \$string;
 }
 
 sub _quote_single_tt2 {
-	my $string = _header() . q{
+	my $string = q{
 <style type="text/css">
 	.big-and-center {
 		margin: 40px auto;
@@ -285,7 +233,7 @@ sub _quote_single_tt2 {
 		</blockquote>
 	</div>
 </div>
-} . _footer();
+};
 	return \$string;
 }
 
