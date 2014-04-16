@@ -6,6 +6,8 @@
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
+our $VERSION = '0.1';
+
 =head1 NAME
 
 whatbot::Helper::Bootstrap - Provide a helper shell to render a Bootstrap page.
