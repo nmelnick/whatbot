@@ -1,9 +1,11 @@
 #!/bin/sh
 
 for module_name in whatbot \
+                   whatbot-Helper-Bootstrap \
                    whatbot-Command-Annoying \
                    whatbot-Command-Bitcoin \
                    whatbot-Command-Blackjack \
+                   whatbot-Command-Dogecoin \
                    whatbot-Command-Excuse \
                    whatbot-Command-Market \
                    whatbot-Command-Nickometer \
