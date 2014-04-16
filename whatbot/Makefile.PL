@@ -31,6 +31,7 @@ requires       'Class::Inspector'                    => 0;
 requires       'Class::Load'                         => 0;
 requires       'DateTime::Format::Natural'           => 0;
 requires       'DBI'                                 => 0;
+requires       'DBD::SQLite'                         => 0;
 requires       'Digest::SHA1'                        => 0;
 requires       'EV'                                  => 0;
 requires       'HTTP::Cookies'                       => 0;
