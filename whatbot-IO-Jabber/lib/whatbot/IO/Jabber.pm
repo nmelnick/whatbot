@@ -73,6 +73,12 @@ class whatbot::IO::Jabber extends whatbot::IO {
 	}
 
 	method BUILD (...) {
+		die 'Jabber component requires a "jabber_id", a "password", and a "host"' unless (
+			$self->my_config->{'jabber_id'}
+			and $self->my_config->{'password'}
+			and $self->my_config->{'host'}
+		);
+
 		my $name = 'Jabber_' . $self->my_config->{'host'};
 		$name =~ s/[\s\.]/_/g;
 		$self->name($name);
