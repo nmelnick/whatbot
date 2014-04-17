@@ -29,6 +29,7 @@ requires       'AnyEvent::IRC'                       => 0;
 requires       'AnyEvent::HTTPD'                     => 0;
 requires       'Class::Inspector'                    => 0;
 requires       'Class::Load'                         => 0;
+requires       'Crypt::SSLeay'                       => 0;
 requires       'DateTime::Format::Natural'           => 0;
 requires       'DBI'                                 => 0;
 requires       'DBD::SQLite'                         => 0;
@@ -54,6 +55,7 @@ requires       'MooseX::Singleton'                   => 0.29;
 requires       'Number::Format'                      => 0;
 requires       'Template'                            => 0;
 requires       'URI::Escape'                         => 0;
+requires       'WWW::Mechanize'                      => 0;
 requires       'WWW::Mechanize::GZip'                => 0;
 
 test_requires  'Test::More'                          => 0;
