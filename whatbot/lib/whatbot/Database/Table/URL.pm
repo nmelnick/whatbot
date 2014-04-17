@@ -247,6 +247,7 @@ GET the given URL using LWP.
 				} elsif ( $status == 404 ) {
 					$title = '! Not Found';
 				} else {
+					warn $response->content;
 					$title = '! Error ' . $self->agent->status;
 				}
 			}
