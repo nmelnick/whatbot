@@ -8,7 +8,10 @@
 
 package whatbot::Command::API;
 use Moose;
-BEGIN { extends 'whatbot::Command'; }
+BEGIN {
+	extends 'whatbot::Command';
+	with    'whatbot::Command::Role::Web';
+}
 
 use namespace::autoclean;
 
