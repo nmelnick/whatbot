@@ -15,6 +15,18 @@ class whatbot::IO extends whatbot::Component {
 	has 'my_config' => ( is => 'rw', isa => 'HashRef' );
 	has 'name'      => ( is => 'rw', isa => 'Str' );
 	has 'me'        => ( is => 'rw', isa => 'Str', default => '' );
+	has 'ignore'    => ( is => 'rw', isa => 'Maybe[ArrayRef]', lazy_build => 1 );
+
+	method _build_ignore(...) {
+		if (
+			$self->my_config->{ignore}
+			and ref( $self->my_config->{ignore} )
+			and ref( $self->my_config->{ignore} ) eq 'ARRAY'
+		) {
+			return $self->my_config->{ignore};
+		}
+		return;
+	}
 
 	method BUILD(...) {
 		unless ( defined $self->my_config ) {
@@ -110,7 +122,9 @@ class whatbot::IO extends whatbot::Component {
 		if ( $message->from eq $self->me ) {
 			$self->parent->last_message($message);
 		} else {
-			$self->parse_response( $self->controller->handle_message($message) );
+			unless ( $self->_is_ignored_user( $message->from ) ) {
+				$self->parse_response( $self->controller->handle_message($message) );
+			}
 		}
 	}
 
@@ -133,6 +147,15 @@ class whatbot::IO extends whatbot::Component {
 			'me' => $self->me,
 			%$params
 		})
+	}
+
+	method _is_ignored_user( Str $user ) {
+		if ( $self->ignore ) {
+			foreach my $ignore_user ( @{ $self->ignore } ) {
+				return 1 if ( $user eq $ignore_user );
+			}
+		}
+		return;
 	}
 }
 
