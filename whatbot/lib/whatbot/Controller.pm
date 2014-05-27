@@ -112,7 +112,6 @@ class whatbot::Controller extends whatbot::Component with whatbot::Role::Pluggab
 						'my_config' => $config,
 						'name'      => $command_root,
 					);
-					$new_command->controller($self);
 				
 					# Determine runpaths
 					foreach my $function ( @{Class::Inspector->functions($class_name)} ) {

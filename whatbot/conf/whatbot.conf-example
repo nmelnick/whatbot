@@ -5,7 +5,6 @@
       "host" : "localhost",
       "port" : "6667",
       "username" : "whatbot",
-      "charactersperline" : "460",
       "realname" : "whatbot",
       "nickservpassword" : "",
       "hostpassword" : "",

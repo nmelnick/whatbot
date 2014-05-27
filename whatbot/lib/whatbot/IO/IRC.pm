@@ -115,13 +115,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 	# Send a message
 	method send_message ( $message ) {
 		# We're going to try and be smart.
-		my $characters_per_line = 450;
-		if (
-			defined( $self->my_config->{'charactersperline'} )
-			and ref( $self->my_config->{'charactersperline'} ) ne 'HASH'
-		) {
-			$characters_per_line = $self->my_config->{'charactersperline'};
-		}
+		my $characters_per_line = 502 - length( $message->to ) - 10;
 		my @lines;
 		my @message_words = split( /\s/, $message->content );
 
