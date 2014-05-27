@@ -281,7 +281,7 @@ Run incoming event through commands, parse responses, and delivery back to IO.
 		push(
 			@$run_paths,
 			{
-				'match'    => $match,
+				'match'    => qr/$match/,
 				'function' => $function
 			}
 		);

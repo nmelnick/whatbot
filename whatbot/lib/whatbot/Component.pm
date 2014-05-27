@@ -58,25 +58,42 @@ The available L<whatbot::Log> instance, commonly used as $self->log->write('Foo'
 class whatbot::Component {
     use whatbot::State;
 
-    has 'state' => (
-        is => 'rw',
-        isa => 'whatbot::State',
-        default => sub { whatbot::State->instance() },
-        handles => [qw(
-            parent
-            config
-            ios
-            database
-            log
-            controller
-            models
-        )]
-    );
-
     method BUILD(...) {
     	unless ( ref($self) =~ /Message/ or ref($self) =~ /Command::/ or ref($self) =~ /::Table/ ) {
     		$self->log->write(ref($self) . ' loaded.') ;
     	}
+    }
+
+    sub state {
+        return whatbot::State->instance();
+    }
+
+    sub parent {
+        return state()->parent;
+    }
+
+    sub config {
+        return state()->config;
+    }
+
+    sub ios {
+        return state()->ios;
+    }
+
+    sub database {
+        return state()->database;
+    }
+
+    sub log {
+        return state()->log;
+    }
+
+    sub controller {
+        return state()->controller;
+    }
+
+    sub models {
+        return state()->models;
     }
 
 =item model($model_name)

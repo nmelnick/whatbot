@@ -111,7 +111,7 @@ sub parse_operator {
 	$subject =~ s/\++$//;
 	$subject =~ s/\-+$//;
 	$subject = lc($subject);
-	return undef if ( $subject eq lc($from) );
+	return if ( $subject eq lc($from) );
 	$subject = $self->model('UserAlias')->canonical_user($subject);
 
 	if ( $operator eq '++' ) {

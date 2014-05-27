@@ -19,10 +19,6 @@ class whatbot::IO::IRC extends whatbot::IO {
 		is  => 'rw',
 		isa => 'AnyEvent::IRC::Client',
 	);
-	has 'irc_handle' => (
-		is  => 'ro',
-		isa => 'AnyEvent::IRC::Client',
-	);
 	has 'force_disconnect' => (
 		is  => 'rw',
 		isa => 'Int',
@@ -156,7 +152,6 @@ class whatbot::IO::IRC extends whatbot::IO {
 
 		# Send messages
 		if ( $message->content =~ /^\/me (.*)/ ) {
-			# $self->irc_handle->me( $message->to, $1 );
 			$self->event_action( $self->me, $message->from, $message->content );
 		} else {
 			foreach my $out_line (@lines) {

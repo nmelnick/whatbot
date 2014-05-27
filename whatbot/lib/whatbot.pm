@@ -30,6 +30,7 @@ class whatbot with whatbot::Role::Pluggable {
 	use whatbot::Config;
 	use whatbot::Log;
 	use whatbot::State;
+	use whatbot::Message;
 
 	use AnyEvent;
 	use EV;

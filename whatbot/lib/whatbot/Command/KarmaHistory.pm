@@ -98,58 +98,58 @@ sub superlative : GlobalRegEx('^[\. ]*?what(?: is|\'s)(?: the)? (best|worst)') {
 sub parse_message : GlobalRegEx('^[\. ]*?who (hates|likes|loves|doesn\'t like|plussed|minused) (.*)') {
 	my ( $self, $message, $captures ) = @_;
 
-	if ($captures) {
-		my $what = $captures->[0];
+	return unless ($captures);
 
-		my $subject = lc( $captures->[1] );
-		$subject =~ s/[\.\?\! ]+$//;	# Remove punctuation
-		$subject =~ s/^(the|a|an) //;	# Remove articles, if they exist
-		my $nick = $self->model('UserAlias')->canonical_user($subject);
+	my $what = $captures->[0];
 
-		my $sort = "desc";
-		my $op = "1";
-		if ( $what and ( $what eq 'hates' or $what eq 'minused' or $what eq 'doesn\'t like' ) ) {
-			$sort = "asc";
-			$op = "-1";
-		}
+	my $subject = lc( $captures->[1] );
+	$subject =~ s/[\.\?\! ]+$//;	# Remove punctuation
+	$subject =~ s/^(the|a|an) //;	# Remove articles, if they exist
+	my $nick = $self->model('UserAlias')->canonical_user($subject);
 
-        my $sth = $self->database->handle->prepare(
-        	"select user, total from (select user, sum(amount) as total from karma where subject = '$nick' and amount = $op group by user) order by total $sort"
-        );
-		$sth->execute;
+	my $sort = "desc";
+	my $op = "1";
+	if ( $what and ( $what eq 'hates' or $what eq 'minused' or $what eq 'doesn\'t like' ) ) {
+		$sort = "asc";
+		$op = "-1";
+	}
 
-		my @people;
-		my $row;
-		while ( $row = $sth->fetchrow_arrayref() ) {
-			my ( $user, $total ) = @$row;
-			push( @people, { 'user' => $user, 'total' => $total } );
-		}
+    my $sth = $self->database->handle->prepare(
+    	"select user, total from (select user, sum(amount) as total from karma where subject = '$nick' and amount = $op group by user) order by total $sort"
+    );
+	$sth->execute;
 
-		my $as = ( $subject ne $nick ? '(as ' . $nick . ') ' : '' );
-		if ( scalar(@people) == 1 ) {
-			my $num = abs( $people[0]->{'total'} );
-			my $who = $people[0]->{'user'};
+	my @people;
+	my $row;
+	while ( $row = $sth->fetchrow_arrayref() ) {
+		my ( $user, $total ) = @$row;
+		push( @people, { 'user' => $user, 'total' => $total } );
+	}
 
-			my $howmuch = ( $num == 1 ? "once" : $num == 2 ? "twice" : "$num times" );
+	my $as = ( $subject ne $nick ? '(as ' . $nick . ') ' : '' );
+	if ( scalar(@people) == 1 ) {
+		my $num = abs( $people[0]->{'total'} );
+		my $who = $people[0]->{'user'};
 
-			if ( $who eq $message->from ) {
-				return $message->from . ': ' . $as . 'It was YOU! ' . ucfirst($howmuch) . ".";
-			} else {
-				return $message->from . ': ' . $as . 'It was ' . $people[0]->{'user'} . ", $howmuch.";
-			}
+		my $howmuch = ( $num == 1 ? "once" : $num == 2 ? "twice" : "$num times" );
 
-		#} elsif (scalar(@people) > 10) {
-		#	return $message->from . ': More than 10 people, so nearly everyone.';
-
-		} elsif ( scalar(@people) > 0 ) {
-			my $peopleText = join( ', ', map { $_->{'user'} . " (" . $_->{'total'} . ")" } @people );
-			my $sum = 0;
-			$sum += $_->{'total'} foreach (@people);
-			return $message->from . ": $as$peopleText = $sum";
-
+		if ( $who eq $message->from ) {
+			return $message->from . ': ' . $as . 'It was YOU! ' . ucfirst($howmuch) . ".";
 		} else {
-			return $message->from . ': Nobody!';
+			return $message->from . ': ' . $as . 'It was ' . $people[0]->{'user'} . ", $howmuch.";
 		}
+
+	#} elsif (scalar(@people) > 10) {
+	#	return $message->from . ': More than 10 people, so nearly everyone.';
+
+	} elsif ( scalar(@people) > 0 ) {
+		my $peopleText = join( ', ', map { $_->{'user'} . " (" . $_->{'total'} . ")" } @people );
+		my $sum = 0;
+		$sum += $_->{'total'} foreach (@people);
+		return $message->from . ": $as$peopleText = $sum";
+
+	} else {
+		return $message->from . ': Nobody!';
 	}
 
 	return;
