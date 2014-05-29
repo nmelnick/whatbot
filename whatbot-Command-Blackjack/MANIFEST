@@ -15,5 +15,4 @@ lib/whatbot/Command/Blackjack/Stack/Deck.pm
 lib/whatbot/Command/Blackjack/Stack/Shoe.pm
 Makefile.PL
 MANIFEST
-MANIFEST.SKIP
 pm_to_blib

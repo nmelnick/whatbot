@@ -11,5 +11,4 @@ lib/whatbot/Helper/Bootstrap.pm
 lib/whatbot/Helper/Bootstrap/Link.pm
 Makefile.PL
 MANIFEST
-MANIFEST.SKIP
 pm_to_blib

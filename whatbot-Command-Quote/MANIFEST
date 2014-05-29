@@ -10,5 +10,4 @@ lib/whatbot/Command/Quote.pm
 lib/whatbot/Database/Table/Quote.pm
 Makefile.PL
 MANIFEST
-MANIFEST.SKIP
 pm_to_blib

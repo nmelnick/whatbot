@@ -9,4 +9,3 @@ inc/Module/Install/WriteAll.pm
 lib/whatbot/IO/Jabber.pm
 Makefile.PL
 MANIFEST
-MANIFEST.SKIP
