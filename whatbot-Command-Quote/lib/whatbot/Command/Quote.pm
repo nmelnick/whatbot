@@ -16,6 +16,7 @@ BEGIN {
 
 use HTML::Entities;
 use whatbot::Helper::Bootstrap::Link;
+use Try::Tiny;
 use namespace::autoclean;
 
 our $VERSION = '0.1';
@@ -59,13 +60,23 @@ sub add_quote : GlobalRegEx('^quote (.*?)[,\:]? "(.*?)"\s*$') {
 	
 	my $quoted = $captures->[0];
 	my $content = $captures->[1];
-	my $quote = $self->model('Quote')->create({
-		'user'    => $message->from,
-		'quoted'  => $quoted,
-		'content' => encode_entities($content),
-	});
-	if ($quote) {
+	my $quote = try {
+		$self->model('Quote')->create({
+			'user'    => $message->from,
+			'quoted'  => $quoted,
+			'content' => encode_entities($content),
+		});
+	} catch {
+		if ( ref($_) eq 'Exception::QuoteExists' ) {
+			return 'Sorry, this was already quoted by ' . $_->{user} . '.';
+		}
+		warn $_;
+		return 'Could not create quote, not sure why.';
+	};
+	if ( ref($quote) ) {
 		return 'Quote added to quoteboard. ' . ( $self->web_url ? $self->web_url . '/quote' : 'No URL available.' );
+	} elsif ($quote) {
+		return $quote;
 	}
 	return 'Could not create quote.';
 }
@@ -117,15 +128,25 @@ sub _submit_form {
 		}
 	}
 
-	my $paste = $self->model('Quote')->create({
-		'user'    => $req->parm('nickname'),
-		'quoted'  => $req->parm('quoted'),
-		'content' => encode_entities( $req->parm('content') ),
-	});
-	if ($paste) {
+	my $paste = try {
+		$self->model('Quote')->create({
+			'user'    => $req->parm('nickname'),
+			'quoted'  => $req->parm('quoted'),
+			'content' => encode_entities( $req->parm('content') ),
+		});
+	} catch {
+		if ( ref($_) eq 'Exception::QuoteExists' ) {
+			return 'Sorry, this was already quoted by ' . $_->{user} . '.';
+		}
+		warn $_;
+		return 'Could not create quote, not sure why.';
+	};
+	if ( ref($paste) ) {
 		$state->{'success'} = 1;
+	} elsif ($paste) {
+		$state->{'error'} = $paste;
 	} else {
-		$state->{'error'} = 'Unknown error creating quote.';		
+		$state->{'error'} = 'Unknown error creating quote.';	
 	}
 	return;
 }
@@ -184,6 +205,7 @@ sub _quote_list_tt2 {
 							</div>
 						</fieldset>
 						<fieldset>
+							<br>
 							<div class="form-group">
 								<div class="col-xs-6">
 									<button type="submit" class="btn btn-primary">Quote</button>

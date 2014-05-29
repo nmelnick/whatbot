@@ -115,6 +115,10 @@ string.
 			padding: 10px 6px;
 			margin-bottom: 10px;
 		}
+		.bg-danger {
+			padding: 10px 6px;
+			margin-bottom: 10px;
+		}
 	</style>
 </head>
 <body>

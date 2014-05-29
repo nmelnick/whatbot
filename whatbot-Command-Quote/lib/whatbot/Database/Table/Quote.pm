@@ -1,45 +1,49 @@
 ###########################################################################
-# whatbot/Database/Table/Quote.pm
-###########################################################################
-#
-###########################################################################
+# Quote.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-package whatbot::Database::Table::Quote;
-use Moose;
-extends 'whatbot::Database::Table';
+use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
-sub BUILD { 
-	my ($self) = @_;
+class whatbot::Database::Table::Quote extends whatbot::Database::Table {
+	method BUILD(...) {
+		$self->init_table({
+			'name'        => 'quote',
+			'primary_key' => 'quote_id',
+			'indexed'     => [ 'user', 'quoted' ],
+			'defaults'    => {
+				'timestamp' => { 'database' => 'now' }
+			},
+			'columns'     => {
+				'quote_id' => {
+					'type'  => 'integer'
+				},
+				'timestamp' => {
+					'type'  => 'integer'
+				},
+				'user' => {
+					'type'  => 'varchar',
+					'size'  => 255
+				},
+				'quoted' => {
+					'type'  => 'varchar',
+					'size'  => 255
+				},
+				'content' => {
+					'type'  => 'text'
+				},
+			}
+		});
+	}
 
-	$self->init_table({
-		'name'        => 'quote',
-		'primary_key' => 'quote_id',
-		'indexed'     => [ 'user', 'quoted' ],
-		'defaults'    => {
-			'timestamp' => { 'database' => 'now' }
-		},
-		'columns'     => {
-			'quote_id' => {
-				'type'  => 'integer'
-			},
-			'timestamp' => {
-				'type'  => 'integer'
-			},
-			'user' => {
-				'type'  => 'varchar',
-				'size'  => 255
-			},
-			'quoted' => {
-				'type'  => 'varchar',
-				'size'  => 255
-			},
-			'content' => {
-				'type'  => 'text'
-			},
-		}
-	});
+    before create ($column_data) {
+    	my $content = $column_data->{content};
+    	if ( my $quote = $self->search_one({ 'content' => $content }) ) {
+    		die bless( { 'user' => $quote->user }, 'Exception::QuoteExists' );
+    	}
+    	return;
+    }
 }
 
 1;
