@@ -72,21 +72,21 @@ sub info : Command {
 sub parse_message : GlobalRegEx('[\+\-]{2}') {
 	my ( $self, $message ) = @_;
 
-    if ( $message->content =~ /\((.*?)\)([\+\-][\+\-])/ ) {
+	my $content = $message->content;
+    while ( $content =~ m/\(([^\-\+]+?)\)([\+\-]{2})/g ) {
 		# more than one word
 		my $phrase = $1;
 		my $op = $2;
-		return $self->parse_operator( $phrase, $op, $message->from );
-
-	} elsif  ( $message->content =~ /([^ ]+)([\+\-][\+\-])/ ) {
+		$self->parse_operator( $phrase, $op, $message->from );
+	}
+	while ( $content =~ m/([^ \-\+\)\(]+)([\+\-]{2})/g ) {
 		# one word
 		my $word = $1;
 		my $op = $2;
-		return $self->parse_operator( $word, $op, $message->from );
-
+		$self->parse_operator( $word, $op, $message->from );
 	}
 
-	return undef;
+	return;
 }
 
 sub karma : CommandRegEx('(.*)') {
