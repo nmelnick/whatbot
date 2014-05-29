@@ -6,10 +6,7 @@ inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
-lib/whatbot/Command/Role/BootstrapTemplate.pm
-lib/whatbot/Helper/Bootstrap.pm
-lib/whatbot/Helper/Bootstrap/Link.pm
+lib/whatbot/IO/Jabber.pm
 Makefile.PL
 MANIFEST
 MANIFEST.SKIP
-pm_to_blib

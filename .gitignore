@@ -9,3 +9,4 @@ conf/whatbot.conf
 pm_to_blib
 whatbot.db
 whatbot.log
+MANIFEST.bak

@@ -1,3 +1,11 @@
+inc/Module/Install.pm
+inc/Module/Install/Base.pm
+inc/Module/Install/Can.pm
+inc/Module/Install/Fetch.pm
+inc/Module/Install/Makefile.pm
+inc/Module/Install/Metadata.pm
+inc/Module/Install/Win32.pm
+inc/Module/Install/WriteAll.pm
 lib/whatbot/Command/Weather.pm
 lib/whatbot/Command/Weather/ConvertRole.pm
 lib/whatbot/Command/Weather/Current.pm
@@ -6,6 +14,5 @@ lib/whatbot/Command/Weather/SourceRole.pm
 lib/whatbot/Command/Weather/Wunderground.pm
 Makefile.PL
 MANIFEST
-t/00-compile.t
-t/20-command-weather.t
-t/wunderground.t
+MANIFEST.SKIP
+pm_to_blib
