@@ -14,7 +14,6 @@ for module_name in whatbot \
                    whatbot-Command-Paste \
                    whatbot-Command-Quote \
                    whatbot-Command-RSS \
-                   whatbot-Command-Trade \
                    whatbot-Command-Translate \
                    whatbot-Command-Weather \
                    whatbot-IO-AIM \
