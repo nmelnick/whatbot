@@ -1,12 +1,12 @@
 ###########################################################################
-# whatbot/Command/Trade.pm
+# whatbot/Command/Lightwire.pm
 ###########################################################################
 # incredibly overcomplicated fake stock trading
 ###########################################################################
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-package whatbot::Command::Trade;
+package whatbot::Command::Lightwire;
 use Moose;
 BEGIN { extends 'whatbot::Command' }
 use namespace::autoclean;
@@ -41,7 +41,7 @@ sub register {
 
 sub help : Command {
 	return [
-		'Trade is a completely made up stock market simulator that is way too complicated than is necessary.',
+		'Lightwire is a completely made up stock market simulator that is way too complicated than is necessary.',
 		'Actions: buy 4 msft, sell 4 msft',
 		'  buyfx 100 USD with CAD, sellfx 100 USD for CAD',
 		'  ex[ecute] <txn #>, ca[ncel] <txn #>',
@@ -50,11 +50,11 @@ sub help : Command {
 	];
 }
 
-sub buy : CommandRegEx('buy (\d+) (\S+)$') {
+sub buy : GlobalRegEx('^trade buy (\d+) (\S+)$') {
 	return buy_sell('buy', @_);
 }
 
-sub sell : CommandRegEx('sell (\d+) (\S+)$') {
+sub sell : GlobalRegEx('^trade sell (\d+) (\S+)$') {
 	return buy_sell('sell', @_);
 }
 
@@ -75,11 +75,11 @@ sub buy_sell {
 	return format_transaction($result);
 }
 
-sub buyforex : CommandRegEx('buyfx (\d+) (\S+) with (\S+)$') {
+sub buyforex : GlobalRegEx('^trade buyfx (\d+) (\S+) with (\S+)$') {
 	return forex_buy_sell('buy', @_);
 }
 
-sub sellforex : CommandRegEx('sellfx (\d+) (\S+) for (\S+)$') {
+sub sellforex : GlobalRegEx('^trade sellfx (\d+) (\S+) for (\S+)$') {
 	return forex_buy_sell('sell', @_);
 }
 
@@ -100,11 +100,11 @@ sub forex_buy_sell {
 	return format_transaction($result);
 }
 
-sub execute : CommandRegEx('ex(?:ecute)? (\d+)$') {
+sub execute : GlobalRegEx('^trade ex(?:ecute)? (\d+)$') {
 	return execute_cancel('execute', @_);
 }
 
-sub cancel : CommandRegEx('ca(?:ncel)? (\d+)$') {
+sub cancel : GlobalRegEx('^trade ca(?:ncel)? (\d+)$') {
 	return execute_cancel('cancel', @_);
 }
 
@@ -125,7 +125,7 @@ sub execute_cancel {
 	return format_transaction($result);
 }
 
-sub status : CommandRegEx('st(?:at(?:us)?)?$') {
+sub status : GlobalRegEx('^trade st(?:at(?:us)?)?$') {
 	my ($self, $message) = @_;
 
 	my $user = lc($message->from);
@@ -139,13 +139,13 @@ sub status : CommandRegEx('st(?:at(?:us)?)?$') {
 
 	return format_status($result);
 }
-sub forex : CommandRegEx('(?:forex|fx)$') {
+sub forex : GlobalRegEx('^trade (?:forex|fx)$') {
 	simple_command('forex', @_);
 }
-sub securities : CommandRegEx('sec(?:urities)?$') {
+sub securities : GlobalRegEx('^trade sec(?:urities)?$') {
 	simple_command('securities', @_);
 }
-sub history : CommandRegEx('his(?:t(?:ory)?)?$') {
+sub history : GlobalRegEx('^trade his(?:t(?:ory)?)?$') {
 	simple_command('history', @_);
 }
 sub simple_command {
@@ -163,7 +163,7 @@ sub simple_command {
 	return format_simple($result);
 }
 
-sub start : CommandRegEx('start with (\w+)$') {
+sub start : GlobalRegEx('^trade start with (\w+)$') {
 	my ( $self, $message, $captures ) = @_;
 
 	return "regex problem" unless ( $captures and @$captures );
@@ -370,7 +370,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-whatbot::Command::Trade - incredibly overcomplicated fake stock trading
+whatbot::Command::Lightwire - incredibly overcomplicated fake stock trading
 
 =head1 DESCRIPTION
 
