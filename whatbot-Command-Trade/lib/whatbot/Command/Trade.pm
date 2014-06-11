@@ -92,7 +92,9 @@ sub holdings : Command {
 	my ( $self, $message ) = @_;
 
 	my $holdings = $self->model('Trade')->holdings( lc( $message->from ) );
-	return join( ", ", ( map { sprintf( '%s: %d (%0.2f)', $_, $holdings->{$_}, ( $holdings->{$_} * $self->price_for_ticker($_) ) ) } keys %$holdings ) );
+	my @pretty = ( map { sprintf( '%s: %d (%0.2f)', $_, $holdings->{$_}, ( $holdings->{$_} * $self->price_for_ticker($_) ) ) } keys %$holdings );
+	return sprintf( 'Cash: %0.2f. ', $self->model('Trade')->balance( lc( $message->from ) ) )
+	       . ( @pretty ? join( ", ", @pretty ) : 'You have no holdings.' );
 }
 
 sub shares : Command {
@@ -128,7 +130,6 @@ sub price_for_ticker {
 	my ( $self, $ticker ) = @_;
 
     my $market = whatbot::Command::Market->new(
-		'base_component' => $self->base_component,
 		'my_config'      => {},
 		'name'           => 'Market'
 	);

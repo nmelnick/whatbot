@@ -6,6 +6,7 @@ inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
-lib/whatbot/Command/Dogecoin.pm
+lib/whatbot/Command/Trade.pm
+lib/whatbot/Database/Table/Trade.pm
 Makefile.PL
 MANIFEST
