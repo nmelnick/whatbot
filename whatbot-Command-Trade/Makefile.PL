@@ -8,8 +8,10 @@ license  'perl';
 
 # Specific dependencies
 requires      'whatbot'                   => 0.12;
+requires      'whatbot::Command::Market'  => 0;
 requires      'Moose'                     => 2.04;
 requires      'namespace::autoclean'      => 0;
+requires      'Number::Format'            => 0;
 test_requires 'Test::More'                => 0;
 
 WriteAll;

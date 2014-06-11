@@ -8,6 +8,13 @@ use Moose;
 BEGIN { extends 'whatbot::Command' }
 use namespace::autoclean;
 use whatbot::Command::Market;
+use Number::Format;
+
+has 'formatter' => (
+	is      => 'ro',
+	isa     => 'Number::Format',
+	default => sub { return Number::Format->new(); }
+);
 
 sub register {
 	my ( $self ) = @_;
@@ -46,7 +53,16 @@ sub buy : Command {
 
 	my $result = $self->model('Trade')->trade( lc( $message->from ), $number_shares, $ticker, $price );
 	if ($result) {
-		return sprintf( "%s, you purchased %d shares of %s at %0.2f, totalling %0.2f minus %0.2f fee. Your balance is %0.2f.", $message->from, $number_shares, $ticker, $price, ( $price * $number_shares ), $self->model('Trade')->trade_fee, $self->model('Trade')->balance( lc( $message->from ) ) );
+		return sprintf(
+			'%s, you purchased %s shares of %s at %s, totalling %s minus %0.2f fee. Your balance is %s.',
+			$message->from,
+			$self->formatter->format_number($number_shares),
+			$ticker,
+			$self->formatter->format_number($price, 2, 1 ),
+			$self->formatter->format_number( $price * $number_shares, 2, 1 ),
+			$self->model('Trade')->trade_fee,
+			$self->formatter->format_number( $self->model('Trade')->balance( lc( $message->from ) ), 2, 1 )
+		);
 	}
 	return 'Uh.';
 }
@@ -70,13 +86,28 @@ sub sell : Command {
 	# Do we have that many shares
 	my $shares = $self->model('Trade')->get_share_count( $user, $ticker );
 	if ( $shares < $number_shares ) {
-		return sprintf( "%s, you have %d shares of %s. You cannot sell %d shares.", $message->from, $shares, $ticker, $number_shares );
+		return sprintf( 
+			'%s, you have %s shares of %s. You cannot sell %s shares.',
+			$message->from,
+			$self->formatter->format_number($shares),
+			$ticker,
+			$self->formatter->format_number($number_shares),
+		);
 	}
 
 	# Perform trade
 	my $result = $self->model('Trade')->trade( $user, ( $number_shares * -1 ), $ticker, $price );
 	if ($result) {
-		return sprintf( "%s, you sold %d shares of %s at %0.2f, totalling %0.2f minus %0.2f fee. Your balance is %0.2f.", $message->from, $number_shares, $ticker, $price, ( $price * $number_shares ), $self->model('Trade')->trade_fee, $self->model('Trade')->balance( lc( $message->from ) ) );
+		return sprintf(
+			'%s, you sold %s shares of %s at %s, totalling %s minus %0.2f fee. Your balance is %s.',
+			$message->from,
+			$self->formatter->format_number($number_shares),
+			$ticker,
+			$price,
+			$self->formatter->format_number( $price * $number_shares, 2, 1 ),
+			$self->model('Trade')->trade_fee,
+			$self->formatter->format_number( $self->model('Trade')->balance( lc( $message->from ) ), 2, 1 )
+		);
 	}
 	return 'Uh.';
 }
@@ -85,15 +116,22 @@ sub balance : Command {
 	my ( $self, $message ) = @_;
 
 	my $balance = $self->model('Trade')->balance( lc( $message->from ) );
-	return sprintf( '%s, your balance is %0.2f.', $message->from, $balance );
+	return sprintf( '%s, your balance is %s.', $message->from, $self->formatter->format_number( $balance ), 2, 1 );
 }
 
 sub holdings : Command {
 	my ( $self, $message ) = @_;
 
 	my $holdings = $self->model('Trade')->holdings( lc( $message->from ) );
-	my @pretty = ( map { sprintf( '%s: %d (%0.2f)', $_, $holdings->{$_}, ( $holdings->{$_} * $self->price_for_ticker($_) ) ) } keys %$holdings );
-	return sprintf( 'Cash: %0.2f. ', $self->model('Trade')->balance( lc( $message->from ) ) )
+	my @pretty = ( map {
+		sprintf(
+			'%s: %s (%s)',
+			$_,
+			$self->formatter->format_number( $holdings->{$_} ),
+			$self->formatter->format_number( $holdings->{$_} * $self->price_for_ticker($_) )
+		)
+	} keys %$holdings );
+	return sprintf( 'Cash: %s. ', $self->formatter->format_number( $self->model('Trade')->balance( lc( $message->from ) ), 2, 1 ) )
 	       . ( @pretty ? join( ", ", @pretty ) : 'You have no holdings.' );
 }
 
@@ -102,7 +140,14 @@ sub shares : Command {
 
 	my $ticker = uc( $captures->[0] );
 	my $shares = $self->model('Trade')->get_share_count( lc( $message->from ), $ticker );
-	return sprintf( '%s, you have %d share%s of %s, valued at %0.2f.', $message->from, $shares, ( $shares != 1 ? 's' : '' ), $ticker, ( $shares * $self->price_for_ticker($ticker) ) );
+	return sprintf(
+		'%s, you have %s share%s of %s, valued at %s.',
+		$message->from,
+		$self->formatter->format_number($shares),
+		( $shares != 1 ? 's' : '' ),
+		$ticker,
+		$self->formatter->format_number( $shares * $self->price_for_ticker($ticker), 2, 1 )
+	);
 }
 
 sub parse_hurf {
@@ -135,7 +180,7 @@ sub price_for_ticker {
 	);
 	my $string_result = $market->parse_message( undef, [$ticker] );
 	$string_result =~ s/[^ \-0-9A-Za-z\(\)\.]//g;
-	if ( $string_result =~ /couldnt find/ ) {
+	if ( $string_result =~ /couldn.?t find/ ) {
 		return;
 	} elsif ( $string_result =~ /\s([\d\.]+)\s*\d{2}\-?[\d\.]+\s*\(/ ) {
 		return $1;
