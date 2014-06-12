@@ -165,9 +165,9 @@ sub parse_hurf {
     # Parse message
     my $shares;
     my $ticker;
-    if ( $search_text =~ /([\d\.]+) (shares? )?of (\w+)/ ) {
+    if ( $search_text =~ /([\d\.]+) (shares )?(of )?(\w+)/ ) {
     	$shares = $1;
-    	$ticker = $3;
+    	$ticker = $4;
     }
     return unless ( $shares and $ticker );
 
