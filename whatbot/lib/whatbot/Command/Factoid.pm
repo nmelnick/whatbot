@@ -48,6 +48,9 @@ sub assign : GlobalRegEx('^(.+?) (is|are) (.*)') {
 	foreach my $factoid ( split( / or /, $description ) ) {
 		$self->model('Factoid')->factoid( $subject, $factoid, $message->from, $is_plural );
 	}
+	if ( $message->is_direct ) {
+		return 'OK, ' . $message->from . '.';
+	}
 	return;
 }
 
