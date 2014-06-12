@@ -123,16 +123,22 @@ sub holdings : Command {
 	my ( $self, $message ) = @_;
 
 	my $holdings = $self->model('Trade')->holdings( lc( $message->from ) );
+	my $assets = 0;
 	my @pretty = ( map {
+		$assets += $holdings->{$_} * $self->price_for_ticker($_);
 		sprintf(
 			'%s: %s (%s)',
 			$_,
 			$self->formatter->format_number( $holdings->{$_} ),
-			$self->formatter->format_number( $holdings->{$_} * $self->price_for_ticker($_) )
+			$self->formatter->format_number( $holdings->{$_} * $self->price_for_ticker($_), 2, 1 )
 		)
 	} keys %$holdings );
-	return sprintf( 'Cash: %s. ', $self->formatter->format_number( $self->model('Trade')->balance( lc( $message->from ) ), 2, 1 ) )
-	       . ( @pretty ? join( ", ", @pretty ) : 'You have no holdings.' );
+	my $balance = $self->model('Trade')->balance( lc( $message->from ) );
+	unshift(
+		@pretty,
+		sprintf( 'Cash: %s', $self->formatter->format_number( $balance, 2, 1 ) )
+	);
+	return join( ", ", @pretty ) . '. Total assets: ' . $self->formatter->format_number( $assets + $balance, 2, 1 );
 }
 
 sub shares : Command {
