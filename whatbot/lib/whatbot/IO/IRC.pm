@@ -226,6 +226,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 	method cb_message( $client, $to, $irc_message ) {
 		#return if ( $irc_message->{'command'} eq 'NOTICE' );
 		my $nick = $irc_message->{'prefix'};
+		return unless ($nick);
 		$nick =~ s/!.*//;
 		my $message = $irc_message->{'params'}->[-1];
 		eval {
