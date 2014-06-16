@@ -162,6 +162,18 @@ Get all pairs for the current module. Returns a hashref of the key-value pairs.
         }
         return \%results;
     }
+
+=item get_count()
+
+Return number of entries for this module.
+
+=cut
+
+    method get_count() {
+        return $self->count({
+            'module_id' => $self->_get_module( caller() )
+        });
+    }
 }
 
 1;
