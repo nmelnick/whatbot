@@ -18,10 +18,9 @@ ok( my $bitcoin = whatbot::Command::Bitcoin->new({
 
 $bitcoin->register();
 
-my $pricing = '{"markets":{"bitstamp":{"price":"1.029e+03","vol":"5.429e+04"},"btce":{"price":"1.002e+03","vol":"5.852e+04"}},"slot":null}';
+my $pricing = '{"btc":{"usd":{"bitfinex":{"last":594.3,"volume":1537383.1},"bitstamp":{"last":592.41,"volume":984693.28},"btce":{"last":586.101,"volume":1532807.6},"localbitcoins":{"last":777.82947,"volume":181936.35}}},"other":{"slot":1401580800,"ver":"river"}}';
 my $pricing_object = JSON::from_json($pricing);
-my $expected = ( ( 1029 * 54290 ) + ( 1002 * 58520 ) ) / ( 54290 + 58520 );
-is( $bitcoin->_average_pricing($pricing_object), sprintf( '%0.02f', $expected ) );
+is( $bitcoin->_average_pricing($pricing_object), 598.78, 'average matches' );
 
 done_testing();
 
