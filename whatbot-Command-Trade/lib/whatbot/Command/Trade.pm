@@ -184,12 +184,9 @@ sub price_for_ticker {
 		'my_config'      => {},
 		'name'           => 'Market'
 	);
-	my $string_result = $market->parse_message( undef, [$ticker] );
-	$string_result =~ s/[^ \-0-9A-Za-z\(\)\.]//g;
-	if ( $string_result =~ /couldn.?t find/ ) {
-		return;
-	} elsif ( $string_result =~ /\s([\d\.]+)\s*\d{2}\-?[\d\.]+\s*\(/ ) {
-		return $1;
+	my $ticker_data = $market->get_data($ticker);
+	if ( $ticker_data and ref($ticker_data) and ref($ticker_data) eq 'HASH' and %$ticker_data) {
+		return $ticker_data->{price};
 	}
 	return;
 }
