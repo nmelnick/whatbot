@@ -11,7 +11,7 @@ use Moose;
 BEGIN { extends 'whatbot::Command' }
 use namespace::autoclean;
 
-use XML::Simple qw(XMLin);
+use HTML::TreeBuilder::XPath;
 use String::IRC; # for colors!
 use LWP::UserAgent ();
 use HTML::Entities qw(decode_entities);
@@ -31,7 +31,7 @@ has 'htmlstrip' => (
 	default	=> sub { HTML::Strip->new; }
 );
 
-my $SOURCE_NAME = 'Yahoo! Finance';
+my $URL_BASE = 'http://www.google.com/finance?q=';
 
 sub register {
 	my ( $self ) = @_;
@@ -41,143 +41,55 @@ sub register {
 	$self->ua->timeout(15);
 }
 
-sub process {
-	my ( $self, $stocks, $fields, $format ) = @_;
-	
-	unless ($format) {
-		$format = join( ' ', ('%s') x @$fields );
-	}
-	
-	my @out;
-	
-	foreach my $symbol (@$stocks) {
-		my $output = $self->_retrieve_yql( $symbol, $fields, $format );
-		if ( not $output or $output =~ /weird XML/ ) {
-			$output = $self->_retrieve_yahoo_scrape( $symbol, $fields, $format );
-		}
-
-		if ($output) {
-			push( @out, $output );
-		}
-	}
-	
-	return join( ' || ', @out );
+sub get_printable_data {
+      my ( $self, $symbol, $fields, $format ) = @_;
+      
+      my $data = $self->get_data($symbol);
+      my @values;
+      foreach (@$fields) {
+        my $v = $data->{$_};
+        if (/change/i and $v =~ /^[\d\.-]+$/) {
+          $v = colorize($v);
+        }
+        push @values, $v;
+      }
+      return sprintf($format, @values);
 }
 
-sub _retrieve_yql {
-	my ( $self, $symbol, $fields, $format ) = @_;
+sub get_data {
+       my ( $self, $symbol ) = @_;
 
-	my @out;
+       my $tree = HTML::TreeBuilder::XPath->new_from_url($URL_BASE . $symbol);
 
-	my $response = $self->ua->get(
-		'http://query.yahooapis.com/v1/public/yql?'
-		. 'q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22'
-	    . $symbol . '%22)&env=store://datatables.org/alltableswithkeys'
-	);
-	
-	unless ( $response->is_success ) {
-		return "got " . $response->code . " for $symbol";
-	}
+       my %h; 
 
-	my $info = eval { XMLin( $response->decoded_content, SuppressEmpty => 1 ) };
-	if ( my $err = $@ ) {
-		$self->log->error("Decoding $SOURCE_NAME response for $symbol: $err");
-		return "error decoding XML for $symbol";
-	}
-	
-	unless ( defined($info->{results}->{quote}) ) {
-		# $self->log->error("No quote element in $SOURCE_NAME response for $symbol");
-		return "weird XML for $symbol";
-	}
+       my $metanodes = $tree->findnodes('//meta[@itemprop]');
+       my $n;
+       foreach $n ($metanodes->get_nodelist) {
+         my ($k,$v);
+         $v = $n->findvalue('./@content');
+         $k = $n->findvalue('./@itemprop');
+         $h{$k} = $v;
+       }
 
-	$info = $info->{results}->{quote};
+       $h{sector} = $tree->findvalue('//a[@id="sector"]');
 
-	if ( $info->{ErrorIndicationreturnedforsymbolchangedinvalid} ) {
-		my $val = $self->htmlstrip->parse($info->{ErrorIndicationreturnedforsymbolchangedinvalid});
-		$self->htmlstrip->eof;
-		return $val;
-	}
-	
-	my %data;
-	
-	foreach my $field (@$fields) {
-		my $value;
-		if ($field =~ /^(\w+)\[(\d+)\]$/) {
-			$value = ( split(/ +/,$info->{$1}) )[$2];
-		} else {
-			$value = $info->{$field};
-		}
-
-		$value =~ s|</?b>||g;
-		$value =~ s|N/A - ||g;
-		$value = decode_entities($value);
-		
-		if ( $field =~ /Change/ ) {
-			if ($field =~ /Percent/) {
-				$value = "$value";
-			}
-			$value = colorize($value);
-		}
-		$data{$field} = $value;
-	}
-	
-	return sprintf( $format, map { $data{$_} } @$fields );
-}
-
-sub _retrieve_yahoo_scrape {
-	my ( $self, $symbol, $fields, $format ) = @_;
-
-	$symbol = uc($symbol);
-
-	my @out;
-
-	my $response = $self->ua->get(
-		'http://finance.yahoo.com/q?s=' . $symbol
-	);
-	
-	unless ( $response->is_success ) {
-		return "got " . $response->code . " for $symbol";
-	}
-
-	my %data = (
-		'Symbol' => $symbol,
-	);
-
-	my $content = $response->decoded_content();
-
-	# Name
-	if ( $content =~ /<div class="title"><h2>(.*?)\(/ ) {
-		$data{'Name'} = $1;
-	}
-
-	# PreviousClose
-	if ( $content =~ /Prev Close:<\/th><td class="yfnc_tabledata1">([\d,\.]+)</ ) {
-		$data{'PreviousClose'} = $1;
-		$data{'PreviousClose'} =~ s/,//g;
-	}
-
-	# ChangeRealtime / ChangePercentRealtime
-	if ( $content =~ /<span id="yfs_c\d\d_[^"]+"><img.*?alt="(\w+)">\s*([\d,\.]+)<\/span><span id="yfs_p20_[^"]+">\(([\d,\.]+%)\)<\/span>/ ) {
-		$data{'ChangeRealtime'} = colorize( ( $1 eq 'Down' ? '-' : '+' ) . $2 );
-		$data{'ChangePercentRealtime'} = colorize( ( $1 eq 'Down' ? '-' : '+' ) . $3 );
-	}
-
-	# LastTradeRealtimeWithTime
-	if ( $content =~ /<span class="time_rtq_ticker"><span id="yfs_l\d\d_[^"]+">([\d,\.]+)<\/span><\/span>/ ) {
-		$data{'LastTradeRealtimeWithTime'} = $1;
-		$data{'LastTradeRealtimeWithTime'} =~ s/,//g;
-	}
-
-	unless (%data) {
-		return 'unable to scrape for ' . $symbol;
-	}
-	
-	return sprintf( $format, map { ( $data{$_} or '' ) } @$fields );
+       my $rownodes = $tree->findnodes('//table[@class="snap-data"]/tr');
+       foreach $n ($rownodes->get_nodelist) {
+         my ($k,$v);
+         $v = $n->findvalue('./td[@class="val"]');
+         $k = $n->findvalue('./td[@class="key"]');
+         $h{$k} = $v;
+       }
+       return \%h;
 }
 
 sub colorize {
 	my ($string) = @_;
-	
+
+        if ($string !~ /^[\-+]/) {
+          $string = "+$string";
+        }	
 	$string = String::IRC->new($string);
 	if ($string =~ /^\-/) {
 		$string->red;
@@ -190,49 +102,33 @@ sub colorize {
 sub detail : GlobalRegEx('^stockrep (.+)$') {
 	my ( $self, $message, $captures ) = @_;
 	
-	my $target = $captures->[0];
+	my @stocks = split /[\s,+]/, $captures->[0];
+ 
+        my @fields = ("tickerSymbol", "name", "52 Week", "Mkt cap", "Div/yield", "Vol / Avg.", "P/E");
 
-	# from here on we're dealing with stocks
-	my @stocks = map { s/\s//g; uc } split /,/, $target;
+        my @results = map { $self->get_printable_data($_, \@fields, "%s (%s): 52wk %s -- Mkt cap %s -- Div/yield %s -- Vol/avg %s -- P/E %s") } @stocks;
 	
-	my $detail_fields = [qw(Name PreviousClose BidRealtime AskRealtime DaysLow DaysHigh YearLow YearHigh TwoHundreddayMovingAverage FiftydayMovingAverage)];
-	my $format = "%s - prev close %s - bid %s / ask %s - day lo %s / hi %s - year lo %s / hi %s - ma 200d %s 50d %s";
-	
-	my $results = $self->process(\@stocks, $detail_fields, $format);
-	
-	if (!$results) {
-		return "I couldn't find anything for $target.";
-	}
-	
-	return $results;
+	return (@results > 1 ? \@results : $results[0]);
 }
 
 sub indices : GlobalRegEx('^market$') {
 	my ( $self, $message, $captures ) = @_;
 
-	my $results = $self->process([qw(^DJI ^GSPC ^IXIC ^GSPTSE)], [qw(Name[0] LastTradeRealtimeWithTime[2] ChangeRealtime ChangePercentRealtime[2])], "%s %s %s (%s)");
-	return $results if $results;
+	return $self->parse_message(undef, [qw(^dji ^inx)]);
 }
 
 sub parse_message : CommandRegEx('(.+)') {
 	my ( $self, $message, $captures ) = @_;
 	
-	my $target = $captures->[0];
-	
-	if ( $target =~ m!/!o ) {
-		return $self->do_currency($target);
-	}
-	 
-	# from here on we're dealing with stocks
-	my @stocks = map { s/\s//g; uc } split /,/, $target;
-	
-	my $results = $self->process(\@stocks, [qw(Symbol Name PreviousClose TickerTrend LastTradeRealtimeWithTime ChangeRealtime ChangePercentRealtime)], "%s %s %s %s %s %s (%s)");
-	
-	if (!$results) {
-		return "I couldn't find anything for $target.";
+	my @stocks = split /[\s,]+/, $captures->[0];
+        
+ 	my @results = map { $self->get_printable_data($_, [qw(tickerSymbol name price priceChange priceChangePercent dataSource)], "%s (%s) %s (%s %s%%) [%s]") } @stocks;	
+
+	if (!@results) {
+		return "I couldn't find anything for " . (join ', ', @stocks);
 	}
 
-	return $results;
+	return (@results > 1 ? \@results : $results[0]);
 }
 
 __PACKAGE__->meta->make_immutable;
