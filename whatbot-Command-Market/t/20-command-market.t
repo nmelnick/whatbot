@@ -17,6 +17,13 @@ ok( my $market = whatbot::Command::Market->new({
 
 $market->register();
 
+foreach my $stock ( qw( MS ) ) {
+	my $response = $market->detail( 'stockrep ' . $stock, [$stock] );
+	ok( $response, $stock . ' has response' );
+	ok( $response =~ /$stock/, $stock . ' contains ticker' );
+	ok( $response =~ /\d\d\./, $stock . ' contains actual numbers...' );
+}
+
 # Known good
 foreach my $stock ( qw( AAPL MSFT GOOG CSCO DRIV ) ) {
 	my $response = $market->parse_message( 'market ' . $stock, [$stock] );
@@ -25,6 +32,12 @@ foreach my $stock ( qw( AAPL MSFT GOOG CSCO DRIV ) ) {
 	ok( $response =~ /\d+\.\d+/, $stock . ' contains price' );
 }
 
+foreach my $query ( "AAPL,MSFT" ) {
+	my $response = $market->parse_message( 'market ' . $query, [$query] );
+	ok( $response, $query . ' has response' );
+        ok( ref($response) eq 'ARRAY', "response is array" );
+        ok( @$response == 2, "response has 2 parts" );
+}
 # Known weird
 foreach my $stock ( '^DJI', 'DRIV' ) {
 	my $sanitized = $stock;

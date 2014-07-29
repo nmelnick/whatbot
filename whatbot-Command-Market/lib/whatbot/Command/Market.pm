@@ -32,7 +32,8 @@ sub get_printable_data {
       my @values;
       foreach (@$fields) {
         my $v = $data->{$_};
-        if (/change/i and $v =~ /^[\d\.-]+$/) {
+        $v = "" unless defined($v);
+        if (/change/i and $v =~ /^[\d\.\-\+]+$/) {
           $v = colorize($v);
         }
         push @values, $v;
@@ -63,6 +64,8 @@ sub get_data {
          my ($k,$v);
          $v = $n->findvalue('./td[@class="val"]');
          $k = $n->findvalue('./td[@class="key"]');
+         $k =~ s/\s+$//;
+         $v =~ s/\s+$//;
          $h{$k} = $v;
        }
        return \%h;
@@ -98,7 +101,7 @@ sub detail : GlobalRegEx('^stockrep (.+)$') {
 sub indices : GlobalRegEx('^market$') {
 	my ( $self, $message, $captures ) = @_;
 
-	return $self->parse_message(undef, [qw(^dji ^inx)]);
+	return $self->parse_message(undef, ["^dji ^inx"]);
 }
 
 sub parse_message : CommandRegEx('(.+)') {
@@ -106,7 +109,7 @@ sub parse_message : CommandRegEx('(.+)') {
 	
 	my @stocks = split /[\s,]+/, $captures->[0];
         
- 	my @results = map { $self->get_printable_data($_, [qw(tickerSymbol name price priceChange priceChangePercent dataSource)], "%s (%s) %s (%s %s%%) [%s]") } @stocks;	
+ 	my @results = map { $self->get_printable_data($_, [qw(tickerSymbol name price priceCurrency priceChange priceChangePercent dataSource)], "%s (%s) %s %s (%s %s%%) [%s]") } @stocks;	
 
 	if (!@results) {
 		return "I couldn't find anything for " . (join ', ', @stocks);
