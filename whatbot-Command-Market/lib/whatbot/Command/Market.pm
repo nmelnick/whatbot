@@ -13,23 +13,8 @@ use namespace::autoclean;
 
 use HTML::TreeBuilder::XPath;
 use String::IRC; # for colors!
-use LWP::UserAgent ();
-use HTML::Entities qw(decode_entities);
-use HTML::Strip;
 
 our $VERSION = '0.1';
-
-has 'ua' => (
-	is		=> 'ro',
-	isa		=> 'LWP::UserAgent',
-	default => sub { LWP::UserAgent->new; }
-);
-
-has 'htmlstrip' => (
-	is 		=> 'ro',
-	isa 	=> 'HTML::Strip',
-	default	=> sub { HTML::Strip->new; }
-);
 
 my $URL_BASE = 'http://www.google.com/finance?q=';
 
@@ -38,7 +23,6 @@ sub register {
 	
 	$self->command_priority('Extension');
 	$self->require_direct(0);
-	$self->ua->timeout(15);
 }
 
 sub get_printable_data {
