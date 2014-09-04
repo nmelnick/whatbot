@@ -313,7 +313,7 @@ sub split : GlobalRegEx('^bj? (p|split)$') {
 	
 	my @hands = $self->game->split( $self->active_hand );
 	$self->{'active_hand'} = $hands[0];
-	splice( @{$self->hands}, 1, 0, $hands[1] );
+	splice( @{$self->hands}, 0, 0, $hands[1] );
 	return $self->hand_action();
 }
 
