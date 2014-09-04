@@ -26,57 +26,57 @@ sub register {
 }
 
 sub get_printable_data {
-      my ( $self, $symbol, $fields, $format ) = @_;
-      
-      my $data = $self->get_data($symbol);
-      my @values;
-      foreach (@$fields) {
-        my $v = $data->{$_};
-        $v = "" unless defined($v);
-        if (/change/i and $v =~ /^[\d\.\-\+]+$/) {
-          $v = colorize($v);
-        }
-        push @values, $v;
-      }
-      return sprintf($format, @values);
+	my ( $self, $symbol, $fields, $format ) = @_;
+	
+	my $data = $self->get_data($symbol);
+	my @values;
+	foreach (@$fields) {
+		my $v = $data->{$_};
+		$v = "" unless defined($v);
+		if (/change/i and $v =~ /^[\d\.\-\+]+$/) {
+			$v = colorize($v);
+		}
+		push @values, $v;
+	}
+	return sprintf($format, @values);
 }
 
 sub get_data {
-       my ( $self, $symbol ) = @_;
+	my ( $self, $symbol ) = @_;
 
-       my $tree = HTML::TreeBuilder::XPath->new_from_url($URL_BASE . $symbol);
+	my $tree = HTML::TreeBuilder::XPath->new_from_url($URL_BASE . $symbol);
 
-       my %h; 
+	my %h; 
 
-       my $metanodes = $tree->findnodes('//meta[@itemprop]');
-       my $n;
-       foreach $n ($metanodes->get_nodelist) {
-         my ($k,$v);
-         $v = $n->findvalue('./@content');
-         $k = $n->findvalue('./@itemprop');
-         $h{$k} = $v;
-       }
+	my $metanodes = $tree->findnodes('//meta[@itemprop]');
+	my $n;
+	foreach $n ($metanodes->get_nodelist) {
+		my ($k,$v);
+		$v = $n->findvalue('./@content');
+		$k = $n->findvalue('./@itemprop');
+		$h{$k} = $v;
+	}
 
-       $h{sector} = $tree->findvalue('//a[@id="sector"]');
+	$h{sector} = $tree->findvalue('//a[@id="sector"]');
 
-       my $rownodes = $tree->findnodes('//table[@class="snap-data"]/tr');
-       foreach $n ($rownodes->get_nodelist) {
-         my ($k,$v);
-         $v = $n->findvalue('./td[@class="val"]');
-         $k = $n->findvalue('./td[@class="key"]');
-         $k =~ s/\s+$//;
-         $v =~ s/\s+$//;
-         $h{$k} = $v;
-       }
-       return \%h;
+	my $rownodes = $tree->findnodes('//table[@class="snap-data"]/tr');
+	foreach $n ($rownodes->get_nodelist) {
+		my ($k,$v);
+		$v = $n->findvalue('./td[@class="val"]');
+		$k = $n->findvalue('./td[@class="key"]');
+		$k =~ s/\s+$//;
+		$v =~ s/\s+$//;
+		$h{$k} = $v;
+	}
+	return \%h;
 }
 
 sub colorize {
 	my ($string) = @_;
 
-        if ($string !~ /^[\-+]/) {
-          $string = "+$string";
-        }	
+	if ($string !~ /^[\-+]/) {
+		$string = "+$string";
+	}	
 	$string = String::IRC->new($string);
 	if ($string =~ /^\-/) {
 		$string->red;
@@ -90,10 +90,8 @@ sub detail : GlobalRegEx('^stockrep (.+)$') {
 	my ( $self, $message, $captures ) = @_;
 	
 	my @stocks = split /[\s,+]/, $captures->[0];
- 
-        my @fields = ("tickerSymbol", "name", "52 Week", "Mkt cap", "Div/yield", "Vol / Avg.", "P/E");
-
-        my @results = map { $self->get_printable_data($_, \@fields, "%s (%s): 52wk %s -- Mkt cap %s -- Div/yield %s -- Vol/avg %s -- P/E %s") } @stocks;
+	my @fields = ("tickerSymbol", "name", "52 Week", "Mkt cap", "Div/yield", "Vol / Avg.", "P/E");
+	my @results = map { $self->get_printable_data($_, \@fields, "%s (%s): 52wk %s -- Mkt cap %s -- Div/yield %s -- Vol/avg %s -- P/E %s") } @stocks;
 	
 	return (@results > 1 ? \@results : $results[0]);
 }
@@ -108,8 +106,8 @@ sub parse_message : CommandRegEx('(.+)') {
 	my ( $self, $message, $captures ) = @_;
 	
 	my @stocks = split /[\s,]+/, $captures->[0];
-        
- 	my @results = map { $self->get_printable_data($_, [qw(tickerSymbol name price priceCurrency priceChange priceChangePercent dataSource)], "%s (%s) %s %s (%s %s%%) [%s]") } @stocks;	
+	  
+	my @results = map { $self->get_printable_data($_, [qw(tickerSymbol name price priceCurrency priceChange priceChangePercent dataSource)], "%s (%s) %s %s (%s %s%%) [%s]") } @stocks;	
 
 	if (!@results) {
 		return "I couldn't find anything for " . (join ', ', @stocks);
