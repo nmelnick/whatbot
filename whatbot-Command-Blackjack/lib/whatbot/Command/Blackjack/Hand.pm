@@ -10,7 +10,7 @@ sub clone {
     my ( $self ) = @_;
     
     return whatbot::Command::Blackjack::Hand->new(
-        'player'    => $self->player
+        'player' => $self->player
     );
 }
 

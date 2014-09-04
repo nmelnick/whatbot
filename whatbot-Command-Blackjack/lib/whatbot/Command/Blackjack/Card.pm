@@ -1,6 +1,5 @@
 package whatbot::Command::Blackjack::Card;
 use Moose;
-# use String::IRC;
 use namespace::autoclean;
 
 has 'value'     => ( is => 'rw' );
@@ -34,13 +33,6 @@ sub ircize {
     my ( $self ) = @_;
     
     my $string = $self->value . $self->unicode;
-    # I think this sucks.
-    # if ( $self->color eq 'red' ) {
-    #     my $irc = String::IRC->new( ' ' . $string . ' ' );
-    #     $irc->red();
-    #     $string = $irc->stringify();
-    # }
-    
     return $string;
 }
 
