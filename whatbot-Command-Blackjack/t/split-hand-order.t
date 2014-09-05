@@ -100,10 +100,10 @@ my $player2_hand = whatbot::Command::Blackjack::Hand->new(
 		whatbot::Command::Blackjack::Card->new({ value => 4, suit => 'clubs' }),
 	]
 );
+
 $jack->{'dealer_hand'} = $dealer_hand;
 $jack->{'hands'} = [ $player2_hand ];
 $jack->{'active_hand'} = $player_hand;
-use Data::Dumper;
 ok(
 	$jack->hand_action(),
 	'action'
