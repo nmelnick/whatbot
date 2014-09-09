@@ -1,33 +1,16 @@
 package whatbot::Command::Blackjack::Card;
 use Moose;
 use namespace::autoclean;
+use whatbot::Command::Blackjack::Constants;
 
-has 'value'     => ( is => 'rw' );
-has 'color'     => ( is => 'rw', isa => 'Str' );
-has 'unicode'   => ( is => 'rw', isa => 'Str' );
-has 'suit'      => ( is => 'rw', isa => 'Str', trigger => sub {
+has 'value'   => ( is => 'rw' );
+has 'color'   => ( is => 'rw', isa => 'Str' );
+has 'unicode' => ( is => 'rw', isa => 'Str' );
+has 'suit'    => ( is => 'rw', isa => 'Str', trigger => sub {
     my $self = shift;
-    $self->color( $self->suits->{ $self->suit }->{'color'} );
-    $self->unicode( $self->suits->{ $self->suit }->{'uni'} );
+    $self->color( whatbot::Command::Blackjack::Constants::suits()->{ $self->suit }->{'color'} );
+    $self->unicode( whatbot::Command::Blackjack::Constants::suits()->{ $self->suit }->{'uni'} );
 } );
-has 'suits'     => ( is => 'ro', isa => 'HashRef', default => sub { {
-    'diamonds'  => {
-        'color' => 'red',
-        'uni'   => "\x{2666}"
-    },
-    'hearts'    => {
-        'color' => 'red',
-        'uni'   => "\x{2665}"
-    },
-    'clubs'     => {
-        'color' => 'black',
-        'uni'   => "\x{2663}"
-    },
-    'spades'    => {
-        'color' => 'black',
-        'uni'   => "\x{2660}"
-    },
-} } );
 
 sub ircize {
     my ( $self ) = @_;

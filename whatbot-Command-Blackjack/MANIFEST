@@ -8,6 +8,7 @@ inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/whatbot/Command/Blackjack.pm
 lib/whatbot/Command/Blackjack/Card.pm
+lib/whatbot/Command/Blackjack/Constants.pm
 lib/whatbot/Command/Blackjack/Game.pm
 lib/whatbot/Command/Blackjack/Hand.pm
 lib/whatbot/Command/Blackjack/Stack.pm
