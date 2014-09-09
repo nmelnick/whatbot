@@ -133,7 +133,7 @@ sub finish_hand {
 		} elsif ( $hand->score eq $dealer->score and not $hand->blackjack ) {
 			$self->players->{ $hand->player } += int( $self->bets->{ $hand->player } );
 		} elsif ( $hand->blackjack ) {
-			my $score = $self->bets->{ $hand->player } * 2.5;
+			my $score = $self->bets->{ $hand->player } + ( $self->bets->{ $hand->player } * (3/2) );
 			$self->players->{ $hand->player } += int($score);
 		} elsif ( $hand->score > $dealer->score ) {
 			$self->players->{ $hand->player } += int( $self->bets->{ $hand->player } * 2 );

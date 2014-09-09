@@ -44,12 +44,14 @@ sub help : Command {
 	return [
 		'Blackjack is a game of blackjack for whatbot. Hello, obvious. To ' .
 		'begin, give the command "blackjack play". Blackjack will prompt ' .
-		'you from there.',
+		'you from there. To change the buy in, add that value after play.',
 		'As a quick reference, once you initiate a game, enter "b me" to add ' .
 		'yourself to a game, and the initater can do "b start" to start the ' .
 		'game. At any time, you can type "b amounts" to see your holdings.',
 		'You can add yourself to an existing game at any time by saying "b ' .
 		'me".',
+		'Standard rules. Double/Split offered, Blackjack pays 3:2, default ' .
+		'buy in is $100.',
 		'To end an existing game, give the command "blackjack end".'
 	];
 }
