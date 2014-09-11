@@ -11,6 +11,44 @@
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
+
+
+=head1 NAME
+
+whatbot::IO::Timer - Timer functionality for whatbot.
+
+=head1 SYNOPSIS
+
+ sub something_awesome : GlobalRegEx('do it later') {
+	 my ( $self, $message ) = @_;
+	 
+	 my $medium = $message->origin;
+	 $self->timer->enqueue(10, \&done_later, $self, $medium, "it");
+	 return "ok";
+ }
+
+ sub done_later {
+	 my ( $self, $medium, $what ) = @_;
+	 
+	 my $response = whatbot::Message->new(
+		 from    => $medium->me,
+		 to      => "",
+		 content => "I did $what"
+	 );
+	 
+	 $medium->send_message($response);
+ }
+
+=head1 DESCRIPTION
+
+whatbot::IO::Timer - Timer functionality for whatbot.
+
+=head1 PUBLIC METHODS
+
+=over 4
+
+=cut
+
 class whatbot::IO::Timer extends whatbot::IO::Legacy {
 	# time_queue is an array. each item is of the form:
 	#  [ int time (in seconds), coderef sub, ...  ]
@@ -23,6 +61,15 @@ class whatbot::IO::Timer extends whatbot::IO::Legacy {
 		$self->name('Timer');
 		$self->me( $self->name );
 	}
+
+=item enqueue($when, $sub, [@args ...])
+
+The only way to really interact with the timer. C<$when> is in seconds -- 
+either seconds since Jan 1 1970 (epoch), or, if less than 86400, seconds from now. 
+C<$sub> is a reference to any code, and C<@args>, if provided, are passed 
+directly to that subroutine at call-time.
+
+=cut
 
 	method enqueue ( Int $time, $sub, @args ) {
 		$time += time if ( $time < 86400 );
@@ -82,6 +129,52 @@ ITEMLOOP:   foreach my $index (0 .. $#{$queue}) {
 		return 0;
 	}
 
+=item remove_where_arg( $arg_index, $match )
+
+Allow one to remove an item from the queue, based on matching an argument. The
+queued item must have one or more args, and then the arg at $arg_index must be
+a reference or number matching $match.
+
+=cut
+
+	method remove_where_arg( Int $arg_index, $match ) {
+		my $queue = $self->time_queue;
+
+		if (@$queue) {
+ITEMLOOP:   foreach my $index (0 .. $#{$queue}) {
+				my $item = $queue->[$index];
+
+				next if ( !$item->[2] || $item->[2] ne $match );
+
+				# remove it!
+				splice @$queue, $index, 1;
+					
+				# if we took it off the front, adjust next_time
+				if ($index == 0) {
+					if (@$queue) {
+						# next time is the time of the thing at the front
+						$self->next_time($queue->[0]->[0]);
+					} else {
+						$self->next_time(0);
+					}
+				}
+
+				return 1;
+
+			} # end foreach
+
+		} # end if queue
+	
+		return 0;
+	}
+
+=item event_loop()
+
+Called every event loop, from the main whatbot class. Runs all code scheduled
+for this second. If called multiple times per second, only runs once.
+
+=cut
+
 	method event_loop() {
 		my $next = $self->next_time;
 		return unless $next;
@@ -115,72 +208,6 @@ ITEMLOOP:   foreach my $index (0 .. $#{$queue}) {
 1;
 
 =pod
-
-=head1 NAME
-
-whatbot::IO::Timer - Timer functionality for whatbot.
-
-=head1 SYNOPSIS
-
- sub something_awesome : GlobalRegEx('do it later') {
-	 my ( $self, $message ) = @_;
-	 
-	 my $medium = $message->origin;
-	 $self->timer->enqueue(10, \&done_later, $self, $medium, "it");
-	 return "ok";
- }
-
- sub done_later {
-	 my ( $self, $medium, $what ) = @_;
-	 
-	 my $response = whatbot::Message->new(
-		 from    => $medium->me,
-		 to      => "",
-		 content => "I did $what"
-	 );
-	 
-	 $medium->send_message($response);
- }
-
-=head1 DESCRIPTION
-
-whatbot::IO::Timer - Timer functionality for whatbot.
-
-=head1 PUBLIC METHODS
-
-=over 4
-
-=item enqueue($when, $sub, [@args ...])
-
-The only way to really interact with the timer. C<$when> is in seconds -- 
-either seconds since Jan 1 1970, or, if less than 86400, seconds from now. 
-C<$sub> is a reference to any code, and C<@args>, if provided, are passed 
-directly to that subroutine at call-time.
-
-=item event_loop()
-
-Called every event loop, from the main whatbot class. Runs all code scheduled
-for this second. If called multiple times per second, only runs once.
-
-=back
-
-=head1 INHERITANCE
-
-=over 4
-
-=item whatbot::Component
-
-=over 4
-
-=item whatbot::IO
-
-=over 4
-
-=item whatbot::IO::Timer
-
-=back
-
-=back
 
 =back
 
