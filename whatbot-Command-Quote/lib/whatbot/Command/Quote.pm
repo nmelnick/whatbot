@@ -21,12 +21,48 @@ use namespace::autoclean;
 
 our $VERSION = '0.1';
 
+has 'random_enabled' => ( is => 'rw', isa => 'Bool', default => 0 );
+has 'random_start' => ( is => 'rw', isa => 'Int' );
+has 'random_end' => ( is => 'rw', isa => 'Int' );
+has 'random_days' => ( is => 'rw', isa => 'ArrayRef' );
+has 'random_minimum' => ( is => 'rw', isa => 'Int', default => 3600 );
+has 'random_maximum' => ( is => 'rw', isa => 'Int', default => 28800 );
+has 'random_channel' => ( is => 'rw', isa => 'Str' );
+
 sub register {
 	my ( $self ) = @_;
 	
 	$self->command_priority('Extension');
 	$self->require_direct(0);
 
+	# Init random quote, if requested
+	if ( my $rq = $self->my_config->{random_quote} ) {
+		my $start = $rq->{start};
+		my $end = $rq->{end};
+		my $days = $rq->{days};
+		my $channel = $rq->{channel};
+		if ( not $days or ref($days) ne 'ARRAY' ) {
+			$days = [ 0, 1, 2, 3, 4, 5, 6 ];
+		}
+		if ( $start and $end and $channel and $start =~ /^\d\d\:\d\d$/ and $end =~ /^\d\d\:\d\d$/ ) {
+			$start =~ s/\://;
+			$start = '1' . $start;
+			$end =~ s/\://;
+			$end = '1' . $end;
+			$self->random_start($start);
+			$self->random_end($end);
+			$self->random_days($days);
+			$self->random_channel($channel);
+			$self->random_minimum( $rq->{minimum_time} ) if ( $rq->{minimum_time} );
+			$self->random_maximum( $rq->{maximum_time} ) if ( $rq->{maximum_time} );
+			$self->log->write('Random quote enabled.');
+			$self->_check_queue_quote();
+		} else {
+			$self->log->write('start or end not in the format HH:MM, or no channel');
+		}
+	}
+
+	# Init Web
 	whatbot::Helper::Bootstrap->add_application( 'Quote', '/quote' );
 	$self->add_menu_item( whatbot::Helper::Bootstrap::Link->new({
 		'title' => 'Random Quote',
@@ -79,6 +115,16 @@ sub add_quote : GlobalRegEx('^quote (.*?)[,\:]? "(.*?)"\s*$') {
 		return $quote;
 	}
 	return 'Could not create quote.';
+}
+
+sub get_quote_by_id : GlobalRegEx('^quote (\d+)$') {
+	my ( $self, $message, $captures ) = @_;
+	
+	my $quote = $self->model('Quote')->find( $captures->[0] );
+	if ($quote) {
+		return sprintf( '<%s> %s', $quote->quoted, decode_entities( $quote->content ) );
+	}
+	return 'Could not find quote #' . $captures->[0] . '.';
 }
 
 sub quote_list {
@@ -159,6 +205,61 @@ sub check_access {
 	}
 
 	return 1;
+}
+
+sub dispatch_random_quote {
+	my ($self) = @_;
+
+	$self->_check_queue_quote();
+
+	my $try_count = 0;
+	my $quote = $self->model('Quote')->get_random();
+	return unless ($quote);
+	while ( $quote->content =~ /[\r\n]/ and $try_count < 30 ) {
+		$quote = $self->model('Quote')->get_random();
+		$try_count++;
+	}
+	return unless ($quote);
+
+	$self->send_message(
+		$self->random_channel,
+		whatbot::Message->new({
+	    	'from'      => 'me',
+	    	'to'        => 'public',
+	    	'content'   => decode_entities( $quote->content ),
+	    	'invisible' => 1,
+		})
+	);
+	return;
+}
+
+sub _check_queue_quote {
+	my ( $self ) = @_;
+
+	my ( $seconds, $minutes, $hours, $day, $month, $year, $weekday ) = localtime(time);
+	my $current_time = sprintf( '1%02d%02d', $hours, $minutes );
+
+	# If time >= start and <= end based on our crappy conversion
+	if (
+		$current_time >= $self->random_start
+		and $current_time <= $self->random_end
+		and ( grep { $_ == $weekday } @{$self->random_days} )
+	) {
+		my $time = $self->_calculate_random_time();
+		$self->timer->remove_where_arg( 0, $self );
+		$self->timer->enqueue(
+			$time,
+			\&dispatch_random_quote,
+			$self,
+		);
+	}
+
+	return;
+}
+
+sub _calculate_random_time {
+	my ($self) = @_;
+	return ( $self->random_minimum + int( rand( $self->random_maximum - $self->random_minimum ) ) );
 }
 
 sub _quote_list_tt2 {
@@ -275,7 +376,15 @@ whatbot::Command::Quote - Provide a web-based quote board
 Config:
 
 "quote" : {
-	"enabled" : "yes"
+	"enabled" : "yes",
+	"random_quote" : {
+	   "start" : "10:00",
+	   "end" : "23:00",
+	   "days" : [ 1, 2, 3, 4, 5 ],
+	   "minimum_time" : 1,
+	   "maximum_time" : 60,
+	   "channel" : "#tesing"
+	}
 }
 
 =head1 DESCRIPTION

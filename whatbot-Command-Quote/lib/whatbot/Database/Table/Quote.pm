@@ -44,6 +44,17 @@ class whatbot::Database::Table::Quote extends whatbot::Database::Table {
     	}
     	return;
     }
+
+    method get_random( $user? ) {
+    	my $params = {
+			'_order_by' => 'RANDOM()',
+			'_limit'    => 1,
+		};
+		if ($user) {
+			$params->{'quoted'} = { 'LIKE' => $user },
+		}
+		return $self->search_one($params);
+    }
 }
 
 1;
