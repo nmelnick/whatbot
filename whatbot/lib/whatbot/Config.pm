@@ -25,26 +25,29 @@ class whatbot::Config {
 
 	method BUILD (...) {
 		my $config;
+
+		# Build config from built in hash if provided, otherwise, read from 
+		# defined config file
 		if ( $self->config_hash ) {
 			$config = $self->config_hash;
 		} else {
 			die 'ERROR: Error finding config file "' . $self->config_file . '"!' unless ( -e $self->config_file );
 			eval {
-                open( my $fh, '<:utf8', $self->config_file ) or die 'Cannot read file';
-                my $text;
-                while(<$fh>) {
-                    $text .= $_;
-                }
-                close($fh);
-                if ( $text =~ /^<whatbot/ ) {
-                    die 'Configuration in XML. Please run bin/convert_xml_config.pl.';
-                }
+				open( my $fh, '<:utf8', $self->config_file ) or die 'Cannot read file';
+				my $text;
+				while(<$fh>) {
+					$text .= $_;
+				}
+				close($fh);
+				if ( $text =~ /^<whatbot/ ) {
+					die 'Configuration in XML. Please run bin/convert_xml_config.pl.';
+				}
 				$config = decode_json($text);
 			};
 			if ($@) {
 				die 'ERROR: Error in config file "' . $self->config_file . '"! Parser reported: ' . $@;
 			}
-            $self->config_hash($config);
+			$self->config_hash($config);
 		}
 
 		# Verify we have IO modules, and convert a single module to an array if necessary

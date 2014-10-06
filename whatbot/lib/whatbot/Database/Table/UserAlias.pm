@@ -26,26 +26,26 @@ relationship.
 =cut
 
 class whatbot::Database::Table::UserAlias extends whatbot::Database::Table {
-    method BUILD(...) {
-        $self->init_table({
-            'name'        => 'user_alias',
-            'primary_key' => 'user_alias_id',
-            'indexed'     => [ 'user' ],
-            'columns'     => {
-                'user_alias_id' => {
-                    'type'  => 'serial',
-                },
-                'user' => {
-                    'type'  => 'varchar',
-                    'size'  => 255,
-                },
-                'alias' => {
-                    'type'  => 'varchar',
-                    'size'  => 255,
-                }
-            }
-        });
-    }
+	method BUILD(...) {
+		$self->init_table({
+			'name'        => 'user_alias',
+			'primary_key' => 'user_alias_id',
+			'indexed'     => [ 'user' ],
+			'columns'     => {
+				'user_alias_id' => {
+					'type'  => 'serial',
+				},
+				'user' => {
+					'type'  => 'varchar',
+					'size'  => 255,
+				},
+				'alias' => {
+					'type'  => 'varchar',
+					'size'  => 255,
+				}
+			}
+		});
+	}
 
 =item alias( $user, $alias )
 
@@ -54,22 +54,22 @@ tracked. If the alias already exists, this is a no-op. Returns true on success.
 
 =cut
 
-    method alias( Str $user, Str $alias ) {
-        $user = lc($user);
-        $alias = lc($alias) or return;
-        my $row = $self->search_one({
-            'user'  => $user,
-            'alias' => $alias,
-        });
-        unless ($row) {
-            $row = $self->create({
-                'user'  => $user,
-                'alias' => $alias,
-            });
-            return $row;
-        }
-        return;
-    }
+	method alias( Str $user, Str $alias ) {
+		$user = lc($user);
+		$alias = lc($alias) or return;
+		my $row = $self->search_one({
+			'user'  => $user,
+			'alias' => $alias,
+		});
+		unless ($row) {
+			$row = $self->create({
+				'user'  => $user,
+				'alias' => $alias,
+			});
+			return $row;
+		}
+		return;
+	}
 
 =item user_for_alias( $alias )
 
@@ -78,15 +78,15 @@ not found.
 
 =cut
 
-    method user_for_alias( Str $alias ) {
-        my $row = $self->search_one({
-            'alias' => $alias,
-        });
-        if ($row) {
-            return $row->user;
-        }
-        return;
-    }
+	method user_for_alias( Str $alias ) {
+		my $row = $self->search_one({
+			'alias' => $alias,
+		});
+		if ($row) {
+			return $row->user;
+		}
+		return;
+	}
 
 =item aliases_for_user( $user )
 
@@ -94,15 +94,15 @@ Return an arrayref of aliases for the given user.
 
 =cut
 
-    method aliases_for_user( Str $user ) {
-        my $rows = $self->search({
-            'user' => $user,
-        });
-        if ($rows) {
-            return [ map { $_->alias } @$rows ];
-        }
-        return;
-    }
+	method aliases_for_user( Str $user ) {
+		my $rows = $self->search({
+			'user' => $user,
+		});
+		if ($rows) {
+			return [ map { $_->alias } @$rows ];
+		}
+		return;
+	}
 
 =item related_users( $user_or_alias )
 
@@ -111,18 +111,18 @@ an attached user.
 
 =cut
 
-    method related_users( Str $user_or_alias ) {
-        my @users;
-        my $aliases = $self->aliases_for_user($user_or_alias);
-        if ($aliases) {
-            push( @users, @$aliases );
-        }
-        my $user = $self->user_for_alias($user_or_alias);
-        if ($user) {
-            push( @users, $user );
-        }
-        return \@users;
-    }
+	method related_users( Str $user_or_alias ) {
+		my @users;
+		my $aliases = $self->aliases_for_user($user_or_alias);
+		if ($aliases) {
+			push( @users, @$aliases );
+		}
+		my $user = $self->user_for_alias($user_or_alias);
+		if ($user) {
+			push( @users, $user );
+		}
+		return \@users;
+	}
 
 =item canonical_user( $user_or_alias )
 
@@ -131,10 +131,10 @@ exists, but returns the alias if a parent username is not found.
 
 =cut
 
-    method canonical_user( Str $user ) {
-        my $lcuser = lc($user) or return;
-        return ( $self->user_for_alias($lcuser) or $user );
-    }
+	method canonical_user( Str $user ) {
+		my $lcuser = lc($user) or return;
+		return ( $self->user_for_alias($lcuser) or $user );
+	}
 
 =item remove( $user, $alias? )
 
@@ -143,31 +143,31 @@ that user. Returns true on success.
 
 =cut
 
-    method remove( Str $user, Str $alias? ) {
-        $user = lc($user);
-        if ($alias) {
-            $alias = lc($alias);
-            my $row = $self->search_one({
-                'user'  => $user,
-                'alias' => $alias,
-            });
-            if ($row) {
-                $row->delete();
-                return 1;
-            }
-        } else {
-            my $rows = $self->search({
-                'user'  => $user,
-            });
-            if ($rows) {
-                foreach (@$rows) {
-                    $_->delete();
-                }
-                return 1;
-            }
-        }
-        return;
-    }
+	method remove( Str $user, Str $alias? ) {
+		$user = lc($user);
+		if ($alias) {
+			$alias = lc($alias);
+			my $row = $self->search_one({
+				'user'  => $user,
+				'alias' => $alias,
+			});
+			if ($row) {
+				$row->delete();
+				return 1;
+			}
+		} else {
+			my $rows = $self->search({
+				'user'  => $user,
+			});
+			if ($rows) {
+				foreach (@$rows) {
+					$_->delete();
+				}
+				return 1;
+			}
+		}
+		return;
+	}
 }
 
 1;

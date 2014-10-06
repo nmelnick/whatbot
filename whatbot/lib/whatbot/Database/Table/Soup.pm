@@ -28,62 +28,62 @@ updates. Auto handles update-or-create, expunging entries, etc.
 =cut
 
 class whatbot::Database::Table::Soup extends whatbot::Database::Table {
-    has 'module' => ( is => 'rw', isa => 'whatbot::Database::Table' );
+	has 'module' => ( is => 'rw', isa => 'whatbot::Database::Table' );
 
-    method BUILD(...) {
-        $self->init_table({
-            'name'        => 'soup',
-            'primary_key' => 'soup_id',
-            'indexed'     => [ 'module_id', 'subject' ],
-            'columns'     => {
-                'soup_id' => {
-                    'type'  => 'serial',
-                },
-                'module_id' => {
-                    'type'  => 'integer',
-                },
-                'subject' => {
-                    'type'  => 'varchar',
-                    'size'  => 255
-                },
-                'value' => {
-                    'type'  => 'text'
-                }
-            }
-        });
-        my $module = whatbot::Database::Table->new();
-        $module->init_table({
-            'name'        => 'soup_module',
-            'primary_key' => 'module_id',
-            'indexed'     => ['name'],
-            'columns'     => {
-                'module_id' => {
-                    'type'  => 'serial'
-                },
-                'name' => {
-                    'type'  => 'varchar',
-                    'size'  => 255
-                },
-            }
-        });
-        $self->module($module);
-    }
+	method BUILD(...) {
+		$self->init_table({
+			'name'        => 'soup',
+			'primary_key' => 'soup_id',
+			'indexed'     => [ 'module_id', 'subject' ],
+			'columns'     => {
+				'soup_id' => {
+					'type'  => 'serial',
+				},
+				'module_id' => {
+					'type'  => 'integer',
+				},
+				'subject' => {
+					'type'  => 'varchar',
+					'size'  => 255
+				},
+				'value' => {
+					'type'  => 'text'
+				}
+			}
+		});
+		my $module = whatbot::Database::Table->new();
+		$module->init_table({
+			'name'        => 'soup_module',
+			'primary_key' => 'module_id',
+			'indexed'     => ['name'],
+			'columns'     => {
+				'module_id' => {
+					'type'  => 'serial'
+				},
+				'name' => {
+					'type'  => 'varchar',
+					'size'  => 255
+				},
+			}
+		});
+		$self->module($module);
+	}
 
-    method _get_module( $caller, ... ) {
-        my $module = $self->module->search_one({
-            'name' => $caller
-        });
-        if ($module) {
-            return $module->module_id;
-        } else {
-            $module = $self->module->create({
-                'name' => $caller
-            });
-            return $module->module_id;
-        }
+	method _get_module( $caller, ... ) {
+		my $module = $self->module->search_one({
+			'name' => $caller
+		});
+		if ($module) {
+			return $module->module_id;
+		} else {
+			$module = $self->module->create({
+				'name' => $caller
+			});
+			return $module->module_id;
+		}
 
-        return;
-    }
+		return;
+	}
 
 =item set( $key, $value )
 
@@ -92,24 +92,24 @@ the existing entry. Returns the new value as set.
 
 =cut
 
-    method set( Str $key, Str $value ) {
-        my $row = $self->search_one({
-            'module_id' => $self->_get_module( caller() ),
-            'subject'   => $key
-        });
-        if ($row) {
-            $row->value($value);
-            $row->save();
-        } else {
-            $row = $self->create({
-                'module_id' => $self->_get_module( caller() ),
-                'subject'   => $key,
-                'value'     => $value
-            });
-        }
+	method set( Str $key, Str $value ) {
+		my $row = $self->search_one({
+			'module_id' => $self->_get_module( caller() ),
+			'subject'   => $key
+		});
+		if ($row) {
+			$row->value($value);
+			$row->save();
+		} else {
+			$row = $self->create({
+				'module_id' => $self->_get_module( caller() ),
+				'subject'   => $key,
+				'value'     => $value
+			});
+		}
 
-        return $row->value;
-    }
+		return $row->value;
+	}
 
 =item get( $key )
 
@@ -118,16 +118,16 @@ the database.
 
 =cut
 
-    method get( Str $key ) {
-        my $row = $self->search_one({
-            'module_id' => $self->_get_module( caller() ),
-            'subject'   => $key
-        });
-        if ($row) {
-            return $row->value;
-        }
-        return;
-    }
+	method get( Str $key ) {
+		my $row = $self->search_one({
+			'module_id' => $self->_get_module( caller() ),
+			'subject'   => $key
+		});
+		if ($row) {
+			return $row->value;
+		}
+		return;
+	}
 
 =item clear( $key )
 
@@ -135,16 +135,16 @@ Clear key from storage.
 
 =cut
 
-    method clear( Str $key ) {
-        my $row = $self->search_one({
-            'module_id' => $self->_get_module( caller() ),
-            'subject'   => $key
-        });
-        if ($row) {
-            $row->delete;
-        }
-        return;
-    }
+	method clear( Str $key ) {
+		my $row = $self->search_one({
+			'module_id' => $self->_get_module( caller() ),
+			'subject'   => $key
+		});
+		if ($row) {
+			$row->delete;
+		}
+		return;
+	}
 
 =item get_hashref()
 
@@ -152,16 +152,16 @@ Get all pairs for the current module. Returns a hashref of the key-value pairs.
 
 =cut
 
-    method get_hashref() {
-        my $rows = $self->search({
-            'module_id' => $self->_get_module( caller() )
-        });
-        my %results;
-        foreach my $row (@$rows) {
-        	$results{ $row->subject } = $row->value;
-        }
-        return \%results;
-    }
+	method get_hashref() {
+		my $rows = $self->search({
+			'module_id' => $self->_get_module( caller() )
+		});
+		my %results;
+		foreach my $row (@$rows) {
+			$results{ $row->subject } = $row->value;
+		}
+		return \%results;
+	}
 
 =item get_count()
 
@@ -169,11 +169,11 @@ Return number of entries for this module.
 
 =cut
 
-    method get_count() {
-        return $self->count({
-            'module_id' => $self->_get_module( caller() )
-        });
-    }
+	method get_count() {
+		return $self->count({
+			'module_id' => $self->_get_module( caller() )
+		});
+	}
 }
 
 1;

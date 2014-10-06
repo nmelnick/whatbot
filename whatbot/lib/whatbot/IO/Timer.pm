@@ -11,8 +11,6 @@
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
-
-
 =head1 NAME
 
 whatbot::IO::Timer - Timer functionality for whatbot.
@@ -21,7 +19,7 @@ whatbot::IO::Timer - Timer functionality for whatbot.
 
  sub something_awesome : GlobalRegEx('do it later') {
 	 my ( $self, $message ) = @_;
-	 
+
 	 my $medium = $message->origin;
 	 $self->timer->enqueue(10, \&done_later, $self, $medium, "it");
 	 return "ok";
@@ -29,13 +27,13 @@ whatbot::IO::Timer - Timer functionality for whatbot.
 
  sub done_later {
 	 my ( $self, $medium, $what ) = @_;
-	 
+
 	 my $response = whatbot::Message->new(
 		 from    => $medium->me,
 		 to      => "",
 		 content => "I did $what"
 	 );
-	 
+
 	 $medium->send_message($response);
  }
 
@@ -73,10 +71,10 @@ directly to that subroutine at call-time.
 
 	method enqueue ( Int $time, $sub, @args ) {
 		$time += time if ( $time < 86400 );
-	
+
 		my $new_item = [$time, $sub, @args];
 		my $queue = $self->time_queue;
-	
+
 		# add and sort 
 		push @$queue, $new_item;
 		@$queue = sort { $a->[0] <=> $b->[0] } @$queue;
@@ -89,7 +87,7 @@ directly to that subroutine at call-time.
 		# but here it is anyway
 		my $match_item = [$time, $sub, @args];
 		my $queue = $self->time_queue;
-	
+
 		print STDERR "match item: (", join(', ', @$match_item), ")\n";
 
 		if (@$queue) {
@@ -97,7 +95,7 @@ ITEMLOOP:   foreach my $index (0 .. $#{$queue}) {
 				my $item = $queue->[$index];
 
 				print STDERR "item $index: (", join(', ', @$item), ")\n";
-			
+
 				next if (@$item != @$match_item);
 
 				my $i;
@@ -109,7 +107,7 @@ ITEMLOOP:   foreach my $index (0 .. $#{$queue}) {
 
 				# remove it!
 				splice @$queue, $index, 1;
-					
+
 				# if we took it off the front, adjust next_time
 				if ($index == 0) {
 					if (@$queue) {
@@ -125,7 +123,7 @@ ITEMLOOP:   foreach my $index (0 .. $#{$queue}) {
 			} # end foreach
 
 		} # end if queue
-	
+
 		return 0;
 	}
 
@@ -148,7 +146,7 @@ ITEMLOOP:   foreach my $index (0 .. $#{$queue}) {
 
 				# remove it!
 				splice @$queue, $index, 1;
-					
+
 				# if we took it off the front, adjust next_time
 				if ($index == 0) {
 					if (@$queue) {
@@ -164,7 +162,7 @@ ITEMLOOP:   foreach my $index (0 .. $#{$queue}) {
 			} # end foreach
 
 		} # end if queue
-	
+
 		return 0;
 	}
 
@@ -178,22 +176,22 @@ for this second. If called multiple times per second, only runs once.
 	method event_loop() {
 		my $next = $self->next_time;
 		return unless $next;
-	
+
 		my $now  = time;
 		return if ($now <= $next);
-	
+
 		my $queue = $self->time_queue;
-	
+
 		if (@$queue) {
 			my ($when, $sub, @args) = @{$queue->[0]};
-		
+
 			if ($when > $now) {
 				# uh oh...
 				$self->log->error("last_time in timer was not the same as the first item in the queue...");
 			} else {
 				&$sub(@args);
 				shift @$queue;
-			
+
 				if (@$queue) {
 					# next time is the time of the thing at the front
 					$self->next_time($queue->[0]->[0]);

@@ -34,12 +34,12 @@ class whatbot::Database::MySQL extends whatbot::Database::DBI {
 	};
 
 	method integer ( Int $size ) {
-	    return 'int(' . $size . ')';
+		return 'int(' . $size . ')';
 	}
 
-    method random() {
-        return 'rand()';
-    }
+	method random() {
+		return 'rand()';
+	}
 
 }
 

@@ -31,57 +31,57 @@ whatbot::Database::Table::Karma provides database functionality for karma.
 =cut
 
 class whatbot::Database::Table::Karma extends whatbot::Database::Table {
-    method BUILD(...) {
-        $self->init_table({
-            'name'        => 'karma',
-            'primary_key' => 'karma_id',
-            'indexed'     => [ 'subject', 'user' ],
-            'defaults'    => {
-                'created'   => { 'database' => 'now' }
-            },
-            'columns'     => {
-                'karma_id' => {
-                    'type'  => 'serial'
-                },
-                'subject' => {
-                    'type'  => 'varchar',
-                    'size'  => 255
-                },
-                'user' => {
-                    'type'  => 'varchar',
-                    'size'  => 255
-                },
-                'created' => {
-                    'type'  => 'integer'
-                },
-                'amount' => {
-                    'type'  => 'integer'
-                }
-            }
-        });
-    }
+	method BUILD(...) {
+		$self->init_table({
+			'name'        => 'karma',
+			'primary_key' => 'karma_id',
+			'indexed'     => [ 'subject', 'user' ],
+			'defaults'    => {
+				'created'   => { 'database' => 'now' }
+			},
+			'columns'     => {
+				'karma_id' => {
+					'type'  => 'serial'
+				},
+				'subject' => {
+					'type'  => 'varchar',
+					'size'  => 255
+				},
+				'user' => {
+					'type'  => 'varchar',
+					'size'  => 255
+				},
+				'created' => {
+					'type'  => 'integer'
+				},
+				'amount' => {
+					'type'  => 'integer'
+				}
+			}
+		});
+	}
 
-    method _top_bottom_n( Str $user, Num $n, Bool $istop? ) {
-    	my $query = "
-    		SELECT subject, sum FROM (
-    			SELECT subject, sum(amount) AS sum FROM karma WHERE user LIKE '$user'
-    			GROUP BY subject
-    			)
-    		 ORDER BY sum " . ($istop ? "desc" : "asc") . "
-    		 LIMIT $n";
-    	
-    	my $sth = $self->database->handle->prepare($query);
-        $sth->execute();
-        return $sth->fetchall_arrayref({});
-    }
+	method _top_bottom_n( Str $user, Num $n, Bool $istop? ) {
+		my $query = "
+			SELECT subject, sum FROM (
+				SELECT subject, sum(amount) AS sum FROM karma WHERE user LIKE '$user'
+				GROUP BY subject
+				)
+			 ORDER BY sum " . ($istop ? "desc" : "asc") . "
+			 LIMIT $n";
+		
+		my $sth = $self->database->handle->prepare($query);
+		$sth->execute();
+		return $sth->fetchall_arrayref({});
+	}
 
-    sub top_n {
-    	return _top_bottom_n(@_, 1);
-    }
+	sub top_n {
+		return _top_bottom_n(@_, 1);
+	}
 
-    sub bottom_n {
-    	return _top_bottom_n(@_, 0);
-    }
+	sub bottom_n {
+		return _top_bottom_n(@_, 0);
+	}
 
 =item decrement( $topic, $user )
 
@@ -89,13 +89,13 @@ Decrement the karma on a topic.
 
 =cut
 
-    method decrement( Str $topic, Str $user ) {
-        $self->create({
-            'subject'   => $topic,
-            'user'      => $user,
-            'amount'    => -1
-        });
-    }
+	method decrement( Str $topic, Str $user ) {
+		$self->create({
+			'subject'   => $topic,
+			'user'      => $user,
+			'amount'    => -1
+		});
+	}
 
 =item increment( $topic, $user )
 
@@ -103,13 +103,13 @@ Increment the karma on a topic.
 
 =cut
 
-    method increment( Str $topic, Str $user ) {
-        $self->create({
-            'subject'   => $topic,
-            'user'      => $user,
-            'amount'    => 1
-        });
-    }
+	method increment( Str $topic, Str $user ) {
+		$self->create({
+			'subject'   => $topic,
+			'user'      => $user,
+			'amount'    => 1
+		});
+	}
 
 =item get( $topic )
 
@@ -117,13 +117,13 @@ Retrieve the karma on a topic.
 
 =cut
 
-    method get( Str $topic ) {
-        my $row = $self->search_one({
-            '_select' => 'SUM(amount)',
-            'subject' => lc($topic)
-        });
-        return ( $row ? $row->column_data->[0] : '' );
-    }
+	method get( Str $topic ) {
+		my $row = $self->search_one({
+			'_select' => 'SUM(amount)',
+			'subject' => lc($topic)
+		});
+		return ( $row ? $row->column_data->[0] : '' );
+	}
 
 =item get_extended( $topic )
 
@@ -134,32 +134,32 @@ containing the last changing user and the amount of karma given.
 
 =cut
 
-    method get_extended( Str $topic ) {
-        my $increment_row = $self->search_one({
-            '_select' => 'COUNT(amount)',
-            'subject' => $topic,
-            'amount'  => 1
-        });
-        my $decrement_row = $self->search_one({
-            '_select' => 'COUNT(amount)',
-            'subject' => $topic,
-            'amount'  => -1
-        });
-        my $last_row = $self->search_one({
-            'subject'   => $topic,
-            '_order_by' => 'karma_id DESC',
-            '_limit'    => 1
-        });
-        
-        return $last_row ? {
-            'Increments' => $increment_row->column_data->[0],
-            'Decrements' => $decrement_row->column_data->[0],
-            'Last'       => [
-                $last_row->user,
-                $last_row->amount
-            ]
-        } : undef;
-    }
+	method get_extended( Str $topic ) {
+		my $increment_row = $self->search_one({
+			'_select' => 'COUNT(amount)',
+			'subject' => $topic,
+			'amount'  => 1
+		});
+		my $decrement_row = $self->search_one({
+			'_select' => 'COUNT(amount)',
+			'subject' => $topic,
+			'amount'  => -1
+		});
+		my $last_row = $self->search_one({
+			'subject'   => $topic,
+			'_order_by' => 'karma_id DESC',
+			'_limit'    => 1
+		});
+		
+		return $last_row ? {
+			'Increments' => $increment_row->column_data->[0],
+			'Decrements' => $decrement_row->column_data->[0],
+			'Last'       => [
+				$last_row->user,
+				$last_row->amount
+			]
+		} : undef;
+	}
 }
 
 1;

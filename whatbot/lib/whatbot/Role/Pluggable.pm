@@ -13,13 +13,13 @@ whatbot::Role::Pluggable - Role to provide Pluggable.
 =head1 SYNOPSIS
 
  class whatbot::Foo with whatbot::Role::Pluggable {
-     has 'search_base' => ( is => 'ro', default => 'whatbot::Foo' );
+	 has 'search_base' => ( is => 'ro', default => 'whatbot::Foo' );
 
-     method foo {
-         foreach my $plugin ( $self->plugins ) {
-             # do something
-         }
-     }
+	 method foo {
+		 foreach my $plugin ( $self->plugins ) {
+			 # do something
+		 }
+	 }
  }
 
 =head1 DESCRIPTION
@@ -41,9 +41,9 @@ root class name to search from.
 =cut
 
 role whatbot::Role::Pluggable {
-    use Module::Pluggable::Object;
+	use Module::Pluggable::Object;
 
-    requires 'search_base';
+	requires 'search_base';
 
 =item plugins()
 
@@ -51,11 +51,11 @@ Returns an array of class names from @INC.
 
 =cut
 
-    method plugins() {
-        my $o = Module::Pluggable::Object->new( package => __PACKAGE__ );
-        $o->{'search_path'} = $self->search_base;
-        return $o->plugins;
-    }
+	method plugins() {
+		my $o = Module::Pluggable::Object->new( package => __PACKAGE__ );
+		$o->{'search_path'} = $self->search_base;
+		return $o->plugins;
+	}
 }
 
 1;

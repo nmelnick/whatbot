@@ -33,25 +33,25 @@ class whatbot::Database::SQLite extends whatbot::Database::DBI {
 	}
 
 	method last_insert_id( $table_name ) {
-	    return $self->handle->func('last_insert_rowid');
+		return $self->handle->func('last_insert_rowid');
 	}
 
 	method timestamp() {
-	    return 'integer';
+		return 'integer';
 	}
 
-    method serial ( $null? ) {
-    	$self->postfix(1);
-        return $self->integer();
-    }
+	method serial ( $null? ) {
+		$self->postfix(1);
+		return $self->integer();
+	}
 
 	method now() {
-	    return $self->handle->quote(time);
+		return $self->handle->quote(time);
 	}
 
-    method serial_postfix() {
-        return 'autoincrement';
-    }
+	method serial_postfix() {
+		return 'autoincrement';
+	}
 
 }
 

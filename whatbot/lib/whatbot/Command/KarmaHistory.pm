@@ -19,13 +19,13 @@ sub register {
 }
 
 sub fisher_yates_shuffle {
-    my $array = shift;
-    my $i;
-    for ($i = @$array; --$i; ) {
-        my $j = int rand ($i+1);
-        next if ( $i == $j );
-        @$array[$i,$j] = @$array[$j,$i];
-    }
+	my $array = shift;
+	my $i;
+	for ($i = @$array; --$i; ) {
+		my $j = int rand ($i+1);
+		next if ( $i == $j );
+		@$array[$i,$j] = @$array[$j,$i];
+	}
 }
 
 sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
@@ -45,7 +45,7 @@ sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
 		  subject NOT IN (SELECT subject FROM karma WHERE amount = $op and user NOT LIKE '$nick')
 	";
 	my $sth = $self->model('karma')->database->handle->prepare($query);
-    $sth->execute();
+	$sth->execute();
 	my $karmas = $sth->fetchall_arrayref();
 
 	if ( !$karmas or !@$karmas ) {
@@ -58,20 +58,20 @@ sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
 }
 
 sub controversy : GlobalRegEx('^[\. ]*?fightin(?:'|g)? words\??$') {
-    my ( $self, $message, $captures ) = @_;
+	my ( $self, $message, $captures ) = @_;
 
-    my $limit = 10;
+	my $limit = 10;
 
-    my $sth = $self->model('karma')->database->handle->prepare("select subject, votes - votesum as score from (select subject, sum(amount) as votesum, sum(abs(amount)) as votes from karma group by subject) order by score desc limit $limit");
-    $sth->execute();
+	my $sth = $self->model('karma')->database->handle->prepare("select subject, votes - votesum as score from (select subject, sum(amount) as votesum, sum(abs(amount)) as votes from karma group by subject) order by score desc limit $limit");
+	$sth->execute();
 
-    my $row;
-    my @stuff;
-    while ( $row = $sth->fetchrow_arrayref ) {
-        my ( $subject, $score ) = @$row;
-        push @stuff, "$subject ($score)";
-    }
-    return join(', ', @stuff);
+	my $row;
+	my @stuff;
+	while ( $row = $sth->fetchrow_arrayref ) {
+		my ( $subject, $score ) = @$row;
+		push @stuff, "$subject ($score)";
+	}
+	return join(', ', @stuff);
 }
 
 sub superlative : GlobalRegEx('^[\. ]*?what(?: is|\'s)(?: the)? (best|worst)') {
@@ -114,9 +114,9 @@ sub parse_message : GlobalRegEx('^[\. ]*?who (hates|likes|loves|doesn\'t like|pl
 		$op = "-1";
 	}
 
-    my $sth = $self->database->handle->prepare(
-    	"select user, total from (select user, sum(amount) as total from karma where subject = '$nick' and amount = $op group by user) order by total $sort"
-    );
+	my $sth = $self->database->handle->prepare(
+		"select user, total from (select user, sum(amount) as total from karma where subject = '$nick' and amount = $op group by user) order by total $sort"
+	);
 	$sth->execute;
 
 	my @people;

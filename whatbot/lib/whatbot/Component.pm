@@ -16,9 +16,9 @@ whatbot::Component - Base component for all whatbot modules.
  use Method::Signatures::Modifiers;
 
  class whatbot::Command extends whatbot::Component {
-    method foo() {
-       $self->log->write('I am so awesome.');
-    }
+	method foo() {
+	   $self->log->write('I am so awesome.');
+	}
  }
 
 =head1 DESCRIPTION
@@ -56,45 +56,45 @@ The available L<whatbot::Log> instance, commonly used as $self->log->write('Foo'
 =cut
 
 class whatbot::Component {
-    use whatbot::State;
+	use whatbot::State;
 
-    method BUILD(...) {
-    	unless ( ref($self) =~ /Message/ or ref($self) =~ /Command::/ or ref($self) =~ /::Table/ ) {
-    		$self->log->write(ref($self) . ' loaded.') ;
-    	}
-    }
+	method BUILD(...) {
+		unless ( ref($self) =~ /Message/ or ref($self) =~ /Command::/ or ref($self) =~ /::Table/ ) {
+			$self->log->write(ref($self) . ' loaded.') ;
+		}
+	}
 
-    sub state {
-        return whatbot::State->instance();
-    }
+	sub state() {
+		return whatbot::State->instance();
+	}
 
-    sub parent {
-        return state()->parent;
-    }
+	sub parent() {
+		return state()->parent;
+	}
 
-    sub config {
-        return state()->config;
-    }
+	sub config() {
+		return state()->config;
+	}
 
-    sub ios {
-        return state()->ios;
-    }
+	sub ios() {
+		return state()->ios;
+	}
 
-    sub database {
-        return state()->database;
-    }
+	sub database() {
+		return state()->database;
+	}
 
-    sub log {
-        return state()->log;
-    }
+	sub log() {
+		return state()->log;
+	}
 
-    sub controller {
-        return state()->controller;
-    }
+	sub controller() {
+		return state()->controller;
+	}
 
-    sub models {
-        return state()->models;
-    }
+	sub models() {
+		return state()->models;
+	}
 
 =item model($model_name)
 
@@ -105,11 +105,11 @@ warn and return nothing if the model is not found.
 
 =cut
 
-    method model ( Str $model_name ) {
-        return $self->models->{ lc($model_name) } if ( $self->models->{ lc($model_name) } );
-        warn ref($self) . ' tried to reference model "' . $model_name . '" even though it does not exist.';
-        return;
-    }
+	method model ( Str $model_name ) {
+		return $self->models->{ lc($model_name) } if ( $self->models->{ lc($model_name) } );
+		warn ref($self) . ' tried to reference model "' . $model_name . '" even though it does not exist.';
+		return;
+	}
 
 =item search_ios($search_string)
 
@@ -118,14 +118,14 @@ getting the reference to an IO that may have an odd name, like IRC_127.0.0.1.
 
 =cut
 
-    method search_ios ( Str $io_search ) {
-        foreach my $io ( keys %{ $self->ios } ) {
-            if ( $io =~ /$io_search/ ) {
-                return $self->ios->{$io};
-            }
-        }
-        return;
-    }
+	method search_ios ( Str $io_search ) {
+		foreach my $io ( keys %{ $self->ios } ) {
+			if ( $io =~ /$io_search/ ) {
+				return $self->ios->{$io};
+			}
+		}
+		return;
+	}
 
 =item dispatch_message( $io_path, $message )
 
@@ -134,16 +134,16 @@ the command dispatcher.
 
 =cut
 
-    method dispatch_message ( Str $io_path, $message ) {
-        my ( $io_search, $target ) = split( /\:/, $io_path );
-        my $io = $self->search_ios($io_search);
-        unless ($io) {
-            $self->log->write( 'IO could not be found for "' . $io_search . '".' );
-            return;
-        }
-        $message->to($target) if ($target);
-        return $io->event_message($message);
-    }
+	method dispatch_message ( Str $io_path, $message ) {
+		my ( $io_search, $target ) = split( /\:/, $io_path );
+		my $io = $self->search_ios($io_search);
+		unless ($io) {
+			$self->log->write( 'IO could not be found for "' . $io_search . '".' );
+			return;
+		}
+		$message->to($target) if ($target);
+		return $io->event_message($message);
+	}
 
 =item dispatch_message( $io_path, $message )
 
@@ -151,21 +151,21 @@ Send a L<whatbot::Message> via the given IO name or partial IO name.
 
 =cut
 
-    method send_message ( Str $io_path, $message ) {
-        my ( $io_search, $target ) = split( /\:/, $io_path );
-        if ( ( not $target ) and $io_search =~ /^#/ ) {
-            $target = $io_search;
-            $io_search = 'IRC';
-        }
-        my $io = $self->search_ios($io_search);
-        unless ($io) {
-            $self->log->write( 'IO could not be found for "' . $io_search . '".' );
-            return;
-        }
-        $message->from( $io->me );
-        $message->to($target) if ($target);
-        return $io->send_message($message);
-    }
+	method send_message ( Str $io_path, $message ) {
+		my ( $io_search, $target ) = split( /\:/, $io_path );
+		if ( ( not $target ) and $io_search =~ /^#/ ) {
+			$target = $io_search;
+			$io_search = 'IRC';
+		}
+		my $io = $self->search_ios($io_search);
+		unless ($io) {
+			$self->log->write( 'IO could not be found for "' . $io_search . '".' );
+			return;
+		}
+		$message->from( $io->me );
+		$message->to($target) if ($target);
+		return $io->send_message($message);
+	}
 }
 
 1;

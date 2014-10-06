@@ -17,18 +17,18 @@ whatbot::Command::Role::Web - Provide web endpoints for your Command
  BEGIN { extends 'whatbot::Command'; with 'whatbot::Command::Role::Web'; }
  
  sub register {
-     my ($self) = @_;
-     
-     $self->require_direct(0);
-     $self->web( '/example', \&example );
+	 my ($self) = @_;
+	 
+	 $self->require_direct(0);
+	 $self->web( '/example', \&example );
  }
 
  sub example {
-     my ( $self, $httpd, $req ) = @_;
+	 my ( $self, $httpd, $req ) = @_;
 
-     my $id = $req->parm('id');
-     $req->respond( 'content' => [ 'text/html', $out ] );
-     return;
+	 my $id = $req->parm('id');
+	 $req->respond( 'content' => [ 'text/html', $out ] );
+	 return;
  }
 
 =head1 DESCRIPTION
@@ -66,10 +66,10 @@ object.
 
 =cut
 
-    method web( $path, $callback ) {
-        return unless ( $self->ios->{Web} );
-        return $self->ios->{Web}->add_dispatch( $self, $path, $callback );
-    }
+	method web( $path, $callback ) {
+		return unless ( $self->ios->{Web} );
+		return $self->ios->{Web}->add_dispatch( $self, $path, $callback );
+	}
 
 =item web_url()
 
@@ -77,10 +77,10 @@ Returns the URL that the web server is currently responding to.
 
 =cut
 
-    method web_url() {
-        return unless ( $self->ios->{Web} );
-        return sprintf( '%s:%d', $self->ios->{Web}->my_config->{url}, $self->ios->{Web}->my_config->{port} );
-    }
+	method web_url() {
+		return unless ( $self->ios->{Web} );
+		return sprintf( '%s:%d', $self->ios->{Web}->my_config->{url}, $self->ios->{Web}->my_config->{port} );
+	}
 
 }
 

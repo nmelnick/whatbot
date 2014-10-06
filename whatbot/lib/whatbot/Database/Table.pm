@@ -14,23 +14,23 @@ whatbot::Database::Table - Class wrapper for a database table
 
  class whatbot::Database::Table::ATable extends whatbot::Database::Table {
    sub BUILD(...) {
-     $table->init_table({
-        'name'        => 'a_table',
-        'primary_key' => 'a_table_id',
-        'indexed'     => ['thing'],
-        'columns'     => {
-            'a_table_id' => {
-                'type' => 'serial'
-            },
-            'thing' => {
-                'type' => 'varchar',
-                'size' => 32
-            },
-        },
-     });
-     $table->create({
-        'thing' => 'Test',
-     });
+	 $table->init_table({
+		'name'        => 'a_table',
+		'primary_key' => 'a_table_id',
+		'indexed'     => ['thing'],
+		'columns'     => {
+			'a_table_id' => {
+				'type' => 'serial'
+			},
+			'thing' => {
+				'type' => 'varchar',
+				'size' => 32
+			},
+		},
+	 });
+	 $table->create({
+		'thing' => 'Test',
+	 });
    }
  }
 
@@ -51,14 +51,14 @@ perform those actions directly on the returned rows.
 =cut
 
 class whatbot::Database::Table extends whatbot::Database {
-    use whatbot::Database::Table::Row;
-    use Clone qw(clone);
+	use whatbot::Database::Table::Row;
+	use Clone qw(clone);
 
-    has 'table_name'    => ( is => 'rw', isa => 'Str' );
-    has 'primary_key'   => ( is => 'rw', isa => 'Maybe[Str]' );
-    has 'columns'       => ( is => 'rw', isa => 'ArrayRef' );
-    has 'defaults'      => ( is => 'rw', isa => 'HashRef' );
-    # has 'column_info'   => ( is => 'rw', isa => 'HashRef' );
+	has 'table_name'    => ( is => 'rw', isa => 'Str' );
+	has 'primary_key'   => ( is => 'rw', isa => 'Maybe[Str]' );
+	has 'columns'       => ( is => 'rw', isa => 'ArrayRef' );
+	has 'defaults'      => ( is => 'rw', isa => 'HashRef' );
+	# has 'column_info'   => ( is => 'rw', isa => 'HashRef' );
 
 =item init_table( \%table_params )
 
@@ -81,8 +81,8 @@ containing a "type", and optionally, a "size". For example:
 
  columns => {
    'a_column' => {
-     'type' => 'varchar',
-     'size' => 32,
+	 'type' => 'varchar',
+	 'size' => 32,
    }
  }
 
@@ -95,22 +95,22 @@ value for that column on create.
 
 =cut
 
-    method init_table ($table_data) {
-        warn 'Missing name for table' unless ( $table_data->{'name'} );
-        warn 'Missing column data for table' unless ( $table_data->{'columns'} );
-        
-        # Create table if it doesn't exist
-        unless ( $self->database and $self->database->tables->{ $table_data->{'name'} } ) {
-            $self->log->write('Creating table "' . $table_data->{'name'} . '" for ' . caller() . '.' );
-            $self->_make_table($table_data);
-        }
-        
-        $self->table_name( $table_data->{'name'} );
-        $self->primary_key( $table_data->{'primary_key'} ) if ( $table_data->{'primary_key'} );
-        $self->columns([ keys %{ $table_data->{'columns'} } ]);
-        $self->defaults( $table_data->{'defaults'} or {} );
-        # $self->column_info( $table_data->{'columns'} );
-    }
+	method init_table ($table_data) {
+		warn 'Missing name for table' unless ( $table_data->{'name'} );
+		warn 'Missing column data for table' unless ( $table_data->{'columns'} );
+		
+		# Create table if it doesn't exist
+		unless ( $self->database and $self->database->tables->{ $table_data->{'name'} } ) {
+			$self->log->write('Creating table "' . $table_data->{'name'} . '" for ' . caller() . '.' );
+			$self->_make_table($table_data);
+		}
+		
+		$self->table_name( $table_data->{'name'} );
+		$self->primary_key( $table_data->{'primary_key'} ) if ( $table_data->{'primary_key'} );
+		$self->columns([ keys %{ $table_data->{'columns'} } ]);
+		$self->defaults( $table_data->{'defaults'} or {} );
+		# $self->column_info( $table_data->{'columns'} );
+	}
 
 =item create( \%column_data )
 
@@ -122,37 +122,37 @@ L<whatbot::Database::Table::Row> object if successful, undef on failure.
 
 =cut
 
-    method create ($column_data) {
-        my $params;
-        foreach ( keys %{ $self->defaults } ) {
-            $params->{$_} = $self->defaults->{$_};
-        }
-        foreach ( keys %$column_data ) {
-            $params->{$_} = $column_data->{$_};
-        }
-        my $query = 'INSERT INTO ' . $self->table_name .
-                    ' (' . join( ', ', ( map { $self->database->handle->quote_identifier($_) } keys %$params ) ) . ') ' .
-                    'VALUES ' .
-                    ' (' . join( ', ', map {
-                        if ( ref($_) eq 'SCALAR' ) {
-                            ${$$_};
-                        } elsif ( ref($_) eq 'HASH' ) {
-                            my ($module) = keys(%$_);
-                            my ($method) = values(%$_);
-                            $self->$module->$method();
-                        } else {
-                            $self->database->handle->quote($_);
-                        }
-                    } values %$params ) . ')';
+	method create ($column_data) {
+		my $params;
+		foreach ( keys %{ $self->defaults } ) {
+			$params->{$_} = $self->defaults->{$_};
+		}
+		foreach ( keys %$column_data ) {
+			$params->{$_} = $column_data->{$_};
+		}
+		my $query = 'INSERT INTO ' . $self->table_name .
+					' (' . join( ', ', ( map { $self->database->handle->quote_identifier($_) } keys %$params ) ) . ') ' .
+					'VALUES ' .
+					' (' . join( ', ', map {
+						if ( ref($_) eq 'SCALAR' ) {
+							${$$_};
+						} elsif ( ref($_) eq 'HASH' ) {
+							my ($module) = keys(%$_);
+							my ($method) = values(%$_);
+							$self->$module->$method();
+						} else {
+							$self->database->handle->quote($_);
+						}
+					} values %$params ) . ')';
 
-        if ( $ENV{'WB_DATABASE_DEBUG'} ) {
-            $self->log->write($query);
-        }
+		if ( $ENV{'WB_DATABASE_DEBUG'} ) {
+			$self->log->write($query);
+		}
 
-        $self->database->handle->do($query) or warn 'Error executing query [[' . $query . ']], error: ' . $DBI::errstr;
+		$self->database->handle->do($query) or warn 'Error executing query [[' . $query . ']], error: ' . $DBI::errstr;
 
-        return $self->find( $self->database->last_insert_id( $self->table_name ) );
-    }
+		return $self->find( $self->database->last_insert_id( $self->table_name ) );
+	}
 
 =item find($key_id)
 
@@ -161,11 +161,11 @@ nothing if not found.
 
 =cut
 
-    method find ($key_id) {
-        return $self->search_one({
-            $self->primary_key => $key_id
-        });
-    }
+	method find ($key_id) {
+		return $self->search_one({
+			$self->primary_key => $key_id
+		});
+	}
 
 =item count(<\%search_data>)
 
@@ -174,11 +174,11 @@ similar to what would be sent to search_one() or search().
 
 =cut
 
-    method count ($search_data?) {
-        $search_data->{'_select'} = 'COUNT(*) AS column_1';
-        my $result = $self->search($search_data);
-        return $result->[0]->{'column_data'}->[0];
-    }
+	method count ($search_data?) {
+		$search_data->{'_select'} = 'COUNT(*) AS column_1';
+		my $result = $self->search($search_data);
+		return $result->[0]->{'column_data'}->[0];
+	}
 
 =item search(<\%search_data>)
 
@@ -208,66 +208,78 @@ Limit to a given number of rows.
 
 =cut
 
-    method search ($search_data?) {
-        my $columns = $self->columns;
-        my $query = 'SELECT ';
-        if ( $search_data->{'_select'} ) {
-            $query .= $search_data->{'_select'};
-            $columns = [];
-            foreach my $select ( split( /\s*,\s*/, $search_data->{'_select'} ) ) {
-                push( @$columns, 'column_' . ( @$columns + 1 ) );
-            }
-        } else {
-            $query .= join( ', ', @{ $self->columns } );
-        }
-        $query .= ' FROM ' . $self->table_name;
-        my @wheres;
-        foreach my $column ( keys %$search_data ) {
-            next if ( $column =~ /^_/ );
-            if ( ref( $search_data->{$column} ) eq 'HASH' ) {
-                push( @wheres, $self->database->handle->quote_identifier($column) . ' LIKE ' . $self->database->handle->quote( $search_data->{$column}->{'LIKE'} ) );
-            } else {
-                push( @wheres, $self->database->handle->quote_identifier($column) . ' = ' . $self->database->handle->quote( $search_data->{$column} ) );
-            }
-        }
-        $query .= ' WHERE ' . join( ' AND ', @wheres ) if (@wheres);
-        $query .= ' ORDER BY ' . $search_data->{'_order_by'} if ( $search_data->{'_order_by'} );
-        $query .= ' LIMIT ' . $search_data->{'_limit'} if ( $search_data->{'_limit'} );
+	method search ($search_data?) {
+		my $columns = $self->columns;
+		my $query = 'SELECT ';
+		if ( $search_data->{'_select'} ) {
+			$query .= $search_data->{'_select'};
+			$columns = [];
+			foreach my $select ( split( /\s*,\s*/, $search_data->{'_select'} ) ) {
+				push( @$columns, 'column_' . ( @$columns + 1 ) );
+			}
+		} else {
+			$query .= join( ', ', @{ $self->columns } );
+		}
+		$query .= ' FROM ' . $self->table_name;
+		my @wheres;
+		foreach my $column ( keys %$search_data ) {
+			next if ( $column =~ /^_/ );
+			if ( ref( $search_data->{$column} ) eq 'HASH' ) {
+				push(
+					@wheres, 
+					sprintf( '%s LIKE %s',
+						$self->database->handle->quote_identifier($column),
+						$self->database->handle->quote( $search_data->{$column}->{'LIKE'} )
+					)
+				);
+			} else {
+				push(
+					@wheres, 
+					sprintf( '%s = %s',
+						$self->database->handle->quote_identifier($column),
+						$self->database->handle->quote( $search_data->{$column} )
+					)
+				);
+			}
+		}
+		$query .= ' WHERE ' . join( ' AND ', @wheres ) if (@wheres);
+		$query .= ' ORDER BY ' . $search_data->{'_order_by'} if ( $search_data->{'_order_by'} );
+		$query .= ' LIMIT ' . $search_data->{'_limit'} if ( $search_data->{'_limit'} );
 
-        if ( $ENV{'WB_DATABASE_DEBUG'} ) {
-            $self->log->write($query);
-        }
+		if ( $ENV{'WB_DATABASE_DEBUG'} ) {
+			$self->log->write($query);
+		}
 
-        my @results;
-        my $sth = $self->database->handle->prepare($query);
-        $sth->execute();
-        if ( $search_data->{'_select'} ) {   
-            while ( my @record = $sth->fetchrow_array() ) {
-                push(
-                    @results,
-                    whatbot::Database::Table::Row->new(
-                        'primary_key'    => $self->primary_key,
-                        'table'          => $self->table_name,
-                        'columns'        => $columns,
-                        'column_data'    => \@record
-                    )
-                );
-            }
-        } else {        
-            while ( my $record = $sth->fetchrow_hashref() ) {
-                push(
-                    @results,
-                    whatbot::Database::Table::Row->new(
-                        'primary_key'    => $self->primary_key,
-                        'table'          => $self->table_name,
-                        'columns'        => $columns,
-                        'column_data'    => [ map { $record->{$_} } @$columns ]
-                    )
-                );
-            }
-        }
-        return \@results;
-    }
+		my @results;
+		my $sth = $self->database->handle->prepare($query);
+		$sth->execute();
+		if ( $search_data->{'_select'} ) {   
+			while ( my @record = $sth->fetchrow_array() ) {
+				push(
+					@results,
+					whatbot::Database::Table::Row->new(
+						'primary_key'    => $self->primary_key,
+						'table'          => $self->table_name,
+						'columns'        => $columns,
+						'column_data'    => \@record
+					)
+				);
+			}
+		} else {        
+			while ( my $record = $sth->fetchrow_hashref() ) {
+				push(
+					@results,
+					whatbot::Database::Table::Row->new(
+						'primary_key'    => $self->primary_key,
+						'table'          => $self->table_name,
+						'columns'        => $columns,
+						'column_data'    => [ map { $record->{$_} } @$columns ]
+					)
+				);
+			}
+		}
+		return \@results;
+	}
 
 =item search_one(<\%search_data>)
 
@@ -276,61 +288,61 @@ nothing if it is not found.
 
 =cut
 
-    method search_one ($search_data?) {
-        my $rows = $self->search($search_data);
-        return $rows->[0] if ( @$rows );
-        return;
-    }
+	method search_one ($search_data?) {
+		my $rows = $self->search($search_data);
+		return $rows->[0] if ( @$rows );
+		return;
+	}
 
-    method _make_table ($table_data) {
-        my $query = 'CREATE TABLE ' . $table_data->{'name'} . ' (';
-        
-        my $local_columns = clone( $table_data->{'columns'} );
-        # Primary Key
-        if ( $table_data->{'primary_key'} ) {
-            warn 'Primary key specified but not given in column data.' unless ( $local_columns->{ $table_data->{'primary_key'} } );
-            my $column_data = $local_columns->{ $table_data->{'primary_key'} };
-            my $type = $column_data->{'type'};
-            $query .= sprintf(
-                '%s %s primary key %s, ',
-                $self->database->handle->quote_identifier( $table_data->{'primary_key'} ),
-                $self->database->$type( $column_data->{'size'} or undef ),
-                ( $type eq 'serial' and $self->database->postfix ? $self->database->serial_postfix() : '' ),
-            );
-            delete( $local_columns->{ $table_data->{'primary_key'} } );
-        }
+	method _make_table ($table_data) {
+		my $query = 'CREATE TABLE ' . $table_data->{'name'} . ' (';
+		
+		my $local_columns = clone( $table_data->{'columns'} );
+		# Primary Key
+		if ( $table_data->{'primary_key'} ) {
+			warn 'Primary key specified but not given in column data.' unless ( $local_columns->{ $table_data->{'primary_key'} } );
+			my $column_data = $local_columns->{ $table_data->{'primary_key'} };
+			my $type = $column_data->{'type'};
+			$query .= sprintf(
+				'%s %s primary key %s, ',
+				$self->database->handle->quote_identifier( $table_data->{'primary_key'} ),
+				$self->database->$type( $column_data->{'size'} or undef ),
+				( $type eq 'serial' and $self->database->postfix ? $self->database->serial_postfix() : '' ),
+			);
+			delete( $local_columns->{ $table_data->{'primary_key'} } );
+		}
 
-        # Other Columns
-        foreach my $column ( keys %{$local_columns} ) {
-            my $column_data = $local_columns->{$column};
-            my $type = $column_data->{'type'};
-            $query .= $self->database->handle->quote_identifier($column) . ' ' . $self->database->$type( $column_data->{'size'} or undef ) . ', ';
-        }
-        
-        # Close Query
-        $query = substr( $query, 0, length($query) - 2 );
-        $query .= ')';
-        if ( $ENV{'WB_DATABASE_DEBUG'} ) {
-            $self->log->write($query);
-        }
-        $self->database->handle->do($query) or warn 'DBI: ' . $DBI::errstr . '  Query: ' . $query;
+		# Other Columns
+		foreach my $column ( keys %{$local_columns} ) {
+			my $column_data = $local_columns->{$column};
+			my $type = $column_data->{'type'};
+			$query .= $self->database->handle->quote_identifier($column) . ' ' . $self->database->$type( $column_data->{'size'} or undef ) . ', ';
+		}
+		
+		# Close Query
+		$query = substr( $query, 0, length($query) - 2 );
+		$query .= ')';
+		if ( $ENV{'WB_DATABASE_DEBUG'} ) {
+			$self->log->write($query);
+		}
+		$self->database->handle->do($query) or warn 'DBI: ' . $DBI::errstr . '  Query: ' . $query;
 
-        # Index
-        if ( $table_data->{'indexed'} ) {
-            foreach my $indexed_column ( @{ $table_data->{'indexed'} } ) {
-                my $index_name = 'idx_' . $table_data->{'name'} . '_' . $indexed_column;
-                $query = sprintf(
-                    'CREATE INDEX %s ON %s (%s)',
-                    $index_name,
-                    $table_data->{'name'},
-                    $self->database->handle->quote_identifier($indexed_column)
-                );
-                $self->database->handle->do($query) or warn 'DBI: ' . $DBI::errstr . '  Query: ' . $query;
-            }
-        }
+		# Index
+		if ( $table_data->{'indexed'} ) {
+			foreach my $indexed_column ( @{ $table_data->{'indexed'} } ) {
+				my $index_name = 'idx_' . $table_data->{'name'} . '_' . $indexed_column;
+				$query = sprintf(
+					'CREATE INDEX %s ON %s (%s)',
+					$index_name,
+					$table_data->{'name'},
+					$self->database->handle->quote_identifier($indexed_column)
+				);
+				$self->database->handle->do($query) or warn 'DBI: ' . $DBI::errstr . '  Query: ' . $query;
+			}
+		}
 
-        $self->database->get_tables();
-    }
+		$self->database->get_tables();
+	}
 }
 
 1;

@@ -17,9 +17,9 @@ whatbot::Command - Base class for whatbot commands
  BEGIN { extends 'whatbot::Command' }
  
  sub register {
-     my ($self) = @_;
-     
-     $self->require_direct(0);
+	 my ($self) = @_;
+	 
+	 $self->require_direct(0);
  }
 
 =head1 DESCRIPTION
@@ -135,35 +135,41 @@ Provides access to whatbot::Timer functionality.
 =cut
 
 class whatbot::Command extends whatbot::Component {
-    use whatbot::Types qw( HTTPRequest );
-    use whatbot::State;
+	use whatbot::Types qw( HTTPRequest );
+	use whatbot::State;
 
-    has 'name'             => ( is => 'rw', isa => 'Str' );
-    has 'command_priority' => ( is => 'rw', isa => 'Str' );
-    has 'require_direct'   => ( is => 'rw', isa => 'Int', default => 0 );
-    has 'my_config'        => ( is => 'ro', isa => 'Maybe[HashRef]' );
-    has 'timer'            => ( is => 'rw', lazy_build => 1 );
+	has 'name'             => ( is => 'rw', isa => 'Str' );
+	has 'command_priority' => ( is => 'rw', isa => 'Str' );
+	has 'require_direct'   => ( is => 'rw', isa => 'Int', default => 0 );
+	has 'my_config'        => ( is => 'ro', isa => 'Maybe[HashRef]' );
+	has 'timer'            => ( is => 'rw', lazy_build => 1 );
 
-    sub _build_timer {
-        return $_[0]->ios->{Timer};
-    }
+	sub _build_timer {
+		return $_[0]->ios->{Timer};
+	}
 
-    our $_attribute_cache = {};
+	# Perl attribute hacking. At least it always looks like a hack to me. These
+	# routines will scoop up sub attributes defined in the subclass and store
+	# then in $_attribute_cache for us to parse using Dispatcher.
 
-    sub MODIFY_CODE_ATTRIBUTES {
-        my ( $class, $code, @attrs ) = @_;
-    
-        $_attribute_cache = { %{ $_attribute_cache }, $code => [@attrs] };
-        return ();
-    }
+	our $_attribute_cache = {};
 
-    sub FETCH_CODE_ATTRIBUTES {
-        $_attribute_cache->{ $_[1] } || ();
-    }
+	sub MODIFY_CODE_ATTRIBUTES {
+		my ( $class, $code, @attrs ) = @_;
+	
+		$_attribute_cache = { %{ $_attribute_cache }, $code => [@attrs] };
+		return ();
+	}
 
-    method BUILD(...) {
-        $self->register();
-    }
+	sub FETCH_CODE_ATTRIBUTES {
+		$_attribute_cache->{ $_[1] } || ();
+	}
+
+	# End attribute hacks
+
+	method BUILD(...) {
+		$self->register();
+	}
 
 =item register()
 
@@ -173,11 +179,11 @@ new() or BUILD() for your command.
 
 =cut
 
-    method register() {
-        $self->log->write(
-            ref($self) . ' works without a register method, but it is recommended to make one.'
-        );
-    }
+	method register() {
+		$self->log->write(
+			ref($self) . ' works without a register method, but it is recommended to make one.'
+		);
+	}
 
 =item help()
 
@@ -186,13 +192,13 @@ attribute so someone may ask your command for help directly.
 
 =cut
 
-    method help() {
-        return 'Help is not available for this module.';
-    }
+	method help() {
+		return 'Help is not available for this module.';
+	}
 
-    before log() {
-        whatbot::State->instance->log->name( $self->name );
-    }
+	before log() {
+		whatbot::State->instance->log->name( $self->name );
+	}
 
 }
 

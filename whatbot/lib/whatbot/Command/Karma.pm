@@ -20,12 +20,12 @@ sub register {
 }
 
 sub what_does : GlobalRegEx('(what|who) does (\w+) (like|hate)') {
-    my ( $self, $message, $captures ) = @_;
+	my ( $self, $message, $captures ) = @_;
 
-    # summarize someone's like/hates
-    my $who = $captures->[1];
-    my $verb = $captures->[2];
-    my $nick = $self->model('UserAlias')->canonical_user( $message->from );
+	# summarize someone's like/hates
+	my $who = $captures->[1];
+	my $verb = $captures->[2];
+	my $nick = $self->model('UserAlias')->canonical_user( $message->from );
 
 	my $karmas;
 	if ($verb eq 'like') {
@@ -34,28 +34,28 @@ sub what_does : GlobalRegEx('(what|who) does (\w+) (like|hate)') {
 		$karmas = $self->model('karma')->bottom_n($who, 10);
 	}
 
-    if (!$karmas or !@$karmas) {
-        return "$nick: I don't know what $who ${verb}s.";
-    }
+	if (!$karmas or !@$karmas) {
+		return "$nick: I don't know what $who ${verb}s.";
+	}
 
- 	# filter non-liked or non-hated things (happens with people with few karma entries)
+	# filter non-liked or non-hated things (happens with people with few karma entries)
 	@$karmas = grep { $verb eq 'like'? ($_->{'sum'} > 0) : ($_->{'sum'} < 0)  } @$karmas;
 
-    my @results = map { $_->{'subject'} . ' (' . $_->{'sum'} . ')' } @$karmas;
+	my @results = map { $_->{'subject'} . ' (' . $_->{'sum'} . ')' } @$karmas;
 
-    return "$who ${verb}s: " . join ( ', ', @results );
+	return "$who ${verb}s: " . join ( ', ', @results );
 }
 
 sub info : Command {
-    my ( $self, $message, $captures ) = @_;
+	my ( $self, $message, $captures ) = @_;
 
-    if ($captures) {
+	if ($captures) {
 		my $phrase = lc( join( ' ', @$captures ) );
 		my $user = $self->model('UserAlias')->canonical_user($phrase);
 		my $karma_info = $self->model('karma')->get_extended($user);
 		if (
-		    defined $karma_info
-		    and ( $karma_info->{'Increments'} != 0 or $karma_info->{'Decrements'} != 0 )
+			defined $karma_info
+			and ( $karma_info->{'Increments'} != 0 or $karma_info->{'Decrements'} != 0 )
 		) {
 			my $rocks = sprintf( "%0.1f", 100 * ($karma_info->{'Increments'} / ($karma_info->{'Increments'} + $karma_info->{'Decrements'})) );
 			my $sucks = sprintf( "%0.1f", 100 * ($karma_info->{'Decrements'} / ($karma_info->{'Increments'} + $karma_info->{'Decrements'})) );
@@ -73,7 +73,7 @@ sub parse_message : GlobalRegEx('[\+\-]{2}') {
 	my ( $self, $message ) = @_;
 
 	my $content = $message->content;
-    while ( $content =~ m/\(([^\-\+]+?)\)([\+\-]{2})/g ) {
+	while ( $content =~ m/\(([^\-\+]+?)\)([\+\-]{2})/g ) {
 		# more than one word
 		my $phrase = $1;
 		my $op = $2;
@@ -90,9 +90,9 @@ sub parse_message : GlobalRegEx('[\+\-]{2}') {
 }
 
 sub karma : CommandRegEx('(.*)') {
-    my ( $self, $message, $captures ) = @_;
+	my ( $self, $message, $captures ) = @_;
 
-    if ($captures) {
+	if ($captures) {
 		my $phrase = $captures->[0];
 		return if ( $phrase =~ /^info/ );   # Hack to pass through if requesting info
 		my $user = $self->model('UserAlias')->canonical_user($phrase);
@@ -102,7 +102,7 @@ sub karma : CommandRegEx('(.*)') {
 		} else {
 			return "$phrase has no karma";
 		}
-    }
+	}
 }
 
 sub parse_operator {
