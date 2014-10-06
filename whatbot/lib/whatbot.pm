@@ -7,7 +7,7 @@ use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
 BEGIN {
-	$whatbot::VERSION = '0.12';
+	$whatbot::VERSION = '0.13';
 }
 
 =head1 NAME
