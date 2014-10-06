@@ -12,4 +12,5 @@ More information
 ----------------
 
 GitHub: http://github.com/nmelnick/whatbot
+
 Home: http://www.whatbot.org
