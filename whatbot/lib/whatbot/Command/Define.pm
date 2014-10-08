@@ -119,7 +119,7 @@ sub wikipedia {
 	my ( $self, $phrase ) = @_;
 
 	my $content = $self->get("http://en.wikipedia.org/wiki/Special:Search?search=!dongs!", $phrase);
-	return undef unless $content;
+	return unless $content;
 
 	# In certain circumstances, a redirect will go to an anchor, which is done via javascript:
 	my ($fragment) = ($content =~ m!^redirectToFragment\("\#([^"]+)"\);$!m);
@@ -132,7 +132,7 @@ sub wikipedia {
 
 RETRY:
 	my $found = ($content =~ m!\G.*?<p>(.*?)</p>!gcs);
-	return undef unless $found;
+	return unless $found;
 	my $first_p = $1;
 
 	# get rid of <sup></sup> before the tags are gone, because <sup>?</sup>
@@ -147,7 +147,7 @@ RETRY:
 	if ($first_p =~ /may refer to:/) {
 		return "Multiple definitions for $phrase - be more specific.";
 	}
-	return undef if ( $first_p =~ /see Wikipedia:Searching\./ or $first_p =~ /You may create the page/ );
+	return if ( $first_p =~ /see Wikipedia:Searching\./ or $first_p =~ /You may create the page/ );
 
 	goto RETRY unless $first_p =~ /\./;
 
@@ -155,7 +155,7 @@ RETRY:
 
 	if (!$sentences || (@$sentences < 1)) {
 		$self->error("get_sentences failed on first paragraph from wikipedia");
-		return undef;
+		return;
 	}
 
 	my $def = $sentences->[0];

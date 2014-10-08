@@ -52,6 +52,7 @@ class whatbot::IO::IRC extends whatbot::IO {
 		my $config = $self->my_config;
 		my $handle = AnyEvent::IRC::Client->new();
 		$self->handle($handle);
+		$self->force_disconnect(0);
 		$self->log->write(
 			sprintf(
 				'Connecting to %s:%d.',
