@@ -206,10 +206,9 @@ sub _parse {
 
 	my @default_sources;
 	if ( !$self->my_config or !exists($self->my_config->{sourcelist}) ) {
-	@default_sources = qw(urbandictionary google wikipedia);
-	}
-	else {
-	@default_sources = split / /, $self->my_config->{sourcelist};
+		@default_sources = qw(urbandictionary google wikipedia);
+	} else {
+		@default_sources = split / /, $self->my_config->{sourcelist};
 	}
 
 	my @sources;
