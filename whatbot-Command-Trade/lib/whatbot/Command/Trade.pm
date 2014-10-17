@@ -10,6 +10,8 @@ use namespace::autoclean;
 use whatbot::Command::Market;
 use Number::Format;
 
+our $VERSION = '1.0';
+
 has 'formatter' => (
 	is      => 'ro',
 	isa     => 'Number::Format',
