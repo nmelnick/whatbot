@@ -2,7 +2,6 @@
 
 cpanm --prompt Module::Install
 for module_name in whatbot \
-                   whatbot-Helper-Bootstrap \
                    whatbot-Command-Annoying \
                    whatbot-Command-Bitcoin \
                    whatbot-Command-Blackjack \

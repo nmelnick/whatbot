@@ -8,7 +8,6 @@ license  'perl';
 
 # Specific dependencies
 requires       'whatbot'                      => 0.13;
-requires       'whatbot::Helper::Bootstrap'   => 0.1;
 requires       'whatbot::Command::Annoying'   => 0.1;
 requires       'whatbot::Command::Bitcoin'    => 0.1;
 requires       'whatbot::Command::Blackjack'  => 0.1;
