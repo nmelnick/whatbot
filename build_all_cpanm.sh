@@ -13,7 +13,6 @@ for module_name in whatbot \
                    whatbot-Command-Paste \
                    whatbot-Command-Quote \
                    whatbot-Command-RSS \
-                   whatbot-Command-Translate \
                    whatbot-Command-Weather \
                    whatbot-IO-AIM \
                    whatbot-IO-Jabber; do

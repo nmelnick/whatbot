@@ -20,7 +20,6 @@ requires       'whatbot::Command::Paste'      => 0.1;
 requires       'whatbot::Command::Quote'      => 0.1;
 requires       'whatbot::Command::RSS'        => 0.1;
 requires       'whatbot::Command::Trade'      => 0.1;
-requires       'whatbot::Command::Translate'  => 0.1;
 requires       'whatbot::Command::Weather'    => 0.2;
 requires       'whatbot::IO::AIM'             => 0.1;
 requires       'whatbot::IO::Jabber'          => 0.1;
