@@ -33,7 +33,10 @@ class whatbot::Database::Table::URL extends whatbot::Database::Table {
 	has 'table_protocol' => ( is => 'rw', isa => 'whatbot::Database::Table' );
 	has 'table_domain'   => ( is => 'rw', isa => 'whatbot::Database::Table' );
 	has 'agent'          => ( is => 'ro', isa => 'Any', default => sub {
-		my $mech = WWW::Mechanize::GZip->new( agent => 'whatbot/' . $whatbot::VERSION );
+		my $mech = WWW::Mechanize::GZip->new(
+			agent    => 'whatbot/' . $whatbot::VERSION,
+			ssl_opts => { verify_hostname => 0 },
+		);
 		$mech->timeout(5);
 		$mech->add_header( 'Referer' => undef );
 		$mech->stack_depth(0);
