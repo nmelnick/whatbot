@@ -11,6 +11,6 @@ whatbot works. Grab it from github, copy over the example configuration, and edi
 More information
 ----------------
 
-GitHub: http://github.com/nmelnick/whatbot
+GitHub: http://github.com/nmelnick/Whatbot
 
 Home: http://www.whatbot.org

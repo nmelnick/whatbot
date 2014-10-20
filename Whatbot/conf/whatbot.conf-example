@@ -1,0 +1,34 @@
+{
+   "io" : {
+      "interface" : "IRC",
+      "nick" : "whatbot",
+      "host" : "localhost",
+      "port" : "6667",
+      "username" : "whatbot",
+      "realname" : "whatbot",
+      "nickservpassword" : "",
+      "hostpassword" : "",
+      "quitmessage" : "whatbot",
+      "channel" : {
+         "joinmessage" : "hello, everybody.",
+         "channelpassword" : "",
+         "chanservpassword" : "",
+         "name" : "#whatbot"
+      }
+   },
+   "database" : {
+      "database" : "/etc/Whatbot/Whatbot.db",
+      "handler" : "SQLite"
+   },
+   "commands" : {
+      "admin" : {
+         "user" : "adminuser"
+      },
+      "define" : {
+         "sourcelist" : "urbandictionary google wikipedia"
+      }
+   },
+   "log" : {
+      "directory" : "/var/log/Whatbot"
+   }
+}
