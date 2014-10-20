@@ -60,7 +60,7 @@ if ( $whatbot->config( $basedir, $config_path ) ) {
 sub usage {
 	print qq{whatbot $Whatbot::VERSION:
 
- -c --config  Path to configuration file (default: conf/Whatbot.conf)
+ -c --config  Path to configuration file (default: conf/whatbot.conf)
  -d --daemon  Daemonize on successful launch
  -h --help	  Print this help screen\n
 };

@@ -12,7 +12,7 @@ BEGIN {
 
 =head1 NAME
 
-whatbot - an extensible, sane chat bot for pluggable chat applications
+Whatbot - an extensible, sane chat bot for pluggable chat applications
 
 =head1 DESCRIPTION
 
@@ -20,8 +20,23 @@ This bot was written purely as an exercise in futility, to try, desperately, to
 replace the functionality of infobot without driving us insane. Part of that
 goal has been accomplished, and so we leave it out there for the world to use.
 
+Installing the 'Whatbot' module from CPAN will provide you with a decent set of
+features, but you may actually want L<Task::whatbot> to provide all of the
+plugins available from whatbot.org.
+
 This is the primary entry point for the whatbot application, and is called
 through the whatbot shell script.
+
+=head1 INSTALLATION
+
+Once Whatbot is installed, a configuration file must be added to configure the
+services to connect to, as well as plugin-specific settings. The distribution
+provides whatbot.conf-example to copy and alter to support an IRC connection
+and a SQLite database. Additional configuration may be required for other
+optional plugins. You may place whatbot.conf in /etc/whatbot, or provide the
+path to the config file using the -c flag when executing whatbot.
+
+To start, execute the 'whatbot' binary.
 
 =cut
 
@@ -67,12 +82,12 @@ class Whatbot with Whatbot::Role::Pluggable {
 		# Find configuration file
 		unless ( $config_path and -e $config_path ) {
 			my @try_config = (
-				$ENV{'HOME'} . '/.Whatbot/Whatbot.conf',
-				'/usr/local/etc/Whatbot/Whatbot.conf',
-				'/usr/local/etc/Whatbot.conf',
-				'/etc/Whatbot/Whatbot.conf',
-				'/etc/Whatbot.conf',
-				$basedir . '/conf/Whatbot.conf',
+				$ENV{'HOME'} . '/.whatbot/whatbot.conf',
+				'/usr/local/etc/whatbot/whatbot.conf',
+				'/usr/local/etc/whatbot.conf',
+				'/etc/whatbot/whatbot.conf',
+				'/etc/whatbot.conf',
+				$basedir . '/conf/whatbot.conf',
 			);
 			foreach (@try_config) {
 				if (-e $_) {
@@ -242,7 +257,7 @@ class Whatbot with Whatbot::Role::Pluggable {
 
 =item Home page: L<http://www.whatbot.org/>
 
-=item GitHub: L<http://github.com/nmelnick/Whatbot>
+=item GitHub: L<http://github.com/nmelnick/whatbot>
 
 =back
 
