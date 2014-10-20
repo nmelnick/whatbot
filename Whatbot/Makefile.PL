@@ -11,15 +11,6 @@ provides
 	},
 	'Whatbot::Command' => {
 		'file' => 'lib/Whatbot/Command.pm',
-	},
-	'Whatbot::Component' => {
-		'file' => 'lib/Whatbot/Component.pm',
-	},
-	'Whatbot::Test' => {
-		'file' => 'lib/Whatbot/Test.pm',
-	},
-	'Whatbot::Types' => {
-		'file' => 'lib/Whatbot/Types.pm',
 	}
 ;
 
