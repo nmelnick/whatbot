@@ -81,7 +81,8 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Whatbot::Command::Dogecoin - Checks value of Dogecoin.
+Whatbot::Command::Dogecoin - Checks value of Dogecoin using Dogepay, and then
+converts to USD through the L<Whatbot::Command::Bitcoin> command.
 
 =head1 LICENSE/COPYRIGHT
 
