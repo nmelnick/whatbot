@@ -1,17 +1,12 @@
 ###########################################################################
-# Whatbot/IO/Jabber.pm
-###########################################################################
-#
-# whatbot Jabber connector
-#
-###########################################################################
+# Jabber.pm
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 class Whatbot::IO::Jabber extends Whatbot::IO {
 	use AnyEvent::XMPP::Client;
@@ -86,17 +81,26 @@ class Whatbot::IO::Jabber extends Whatbot::IO {
 	}
 
 	after connect {
-		my $config = $self->my_config;
+		my $config  = $self->my_config;
 		my $handle  = AnyEvent::XMPP::Client->new(debug => $config->{xmpp_debug});
 		my $version = AnyEvent::XMPP::Ext::Version->new;
 		my $disco   = $self->_disco;
 		my $muc     = $self->_muc;
+		$config->{port} ||= 5222;
+		$config->{presence_status} ||= '';
+		$config->{presence_priority} ||= 0;
 
 		$handle->add_extension($disco);
 		$handle->add_extension($version);
 		$handle->add_extension($muc);
 
-		$handle->add_account($config->{jabber_id}, $config->{password}, $config->{host}, $config->{port}, {dont_retrieve_roster => 1});
+		$handle->add_account(
+			$config->{jabber_id},
+			$config->{password},
+			$config->{host},
+			$config->{port},
+			{dont_retrieve_roster => 1}
+		);
 
 		$handle->set_presence(undef, $config->{presence_status}, $config->{presence_priority});
 
@@ -122,7 +126,7 @@ class Whatbot::IO::Jabber extends Whatbot::IO {
 			message => sub { $s->cb_client_message(@_) },
 		);
 		$muc->reg_cb(
-		  message => sub { $self->cb_muc_message(@_) },
+			message => sub { $self->cb_muc_message(@_) },
 			join => sub { $self->cb_muc_join(@_) },
 			part => sub { $self->cb_muc_part(@_) },
 		);
@@ -157,18 +161,11 @@ class Whatbot::IO::Jabber extends Whatbot::IO {
 	# INTERNAL
 	###########
 
-	method privmsg ( $to, $message ) {
-		$self->handle->send_srv(
-			'PRIVMSG' => $to,
-			encode_utf8($message),
-		);
-		return;
-	}
-
 	# Event: Connected to server
 	method cb_client_session_ready ( $client, $acc ) {
 		$self->me( $acc->jid );
 		for my $room ( @{ $self->channels } ) {
+			$self->log->write( 'Joining ' . $room );
 			$self->_muc->join_room(
 				$acc->connection, join('@', $room, $self->my_config->{conference_server}),
 				node_jid( $acc->jid ),
@@ -245,7 +242,7 @@ class Whatbot::IO::Jabber extends Whatbot::IO {
 	}
 
 	# Event: User left a channel
-	method cb_muc_part( $muc, $client, $room, $user ) {
+	method cb_muc_part( $client, $room, $user ) {
 		return if ($user eq $self->me);
 		$self->event_user_leave( $room, $user );
 	}
@@ -254,3 +251,75 @@ class Whatbot::IO::Jabber extends Whatbot::IO {
 
 1;
 
+=pod
+
+=head1 NAME
+
+Whatbot::IO::Jabber - Provide Jabber/XMPP connections to Whatbot.
+
+=head1 CONFIG
+
+	"io": [
+		{
+			"interface": "Jabber",
+			"host": "example.jabber.org",
+			"conference_server": "conference.example.jabber.org",
+			"jabber_id": "user@example.jabber.org",
+			"password": "s0methingm4deup!",
+			"channels": [
+				"examplechannel"
+			]
+		}
+	]
+
+=over 4
+
+=item host
+
+Hostname of the Jabber server.
+
+=item port
+
+(Optional) Port to connect to on the Jabber server. Defaults to 5222.
+
+=item jabber_id
+
+Jabber ID (username) to connect with. This must be a full name@domain.
+
+=item password
+
+Password to connect with.
+
+=item presence_status
+
+(Optional) Status to send for presence. This is a freetext status.
+
+=item presence_priority
+
+(Optional) Presence priority from -127 to 127.
+
+=item conference_server
+
+(Optional, unless you plan to join channels) Conference server for MUC channels.
+
+=item channel
+
+(Optional, unless you plan to join channels) String channel, or JSON array of
+channels to join.
+
+=item xmpp_debug
+
+(Optional) Set to true to output debug XML output.
+
+=back
+
+=head1 DESCRIPTION
+
+Whatbot::IO::Jabber connects to most Jabber/XMPP providers, and responds over
+private messages or inside MUC/chat rooms.
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut
