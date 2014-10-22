@@ -19,7 +19,7 @@ class Whatbot::IO::Legacy extends Whatbot::IO {
 	method connect() {
 		my $timer = AnyEvent->timer(
 			'after'    => 3,
-			'interval' => 5,
+			'interval' => 2,
 			'cb'       => sub {
 				$self->event_loop(),
 			},

@@ -197,3 +197,21 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+=pod
+
+=head1 NAME
+
+Whatbot::Command::Trade - A super fake stock market trade "game".
+
+=head1 DESCRIPTION
+
+Whatbot::Command::Trade provides a fake stock market to trade stock. Utilizes
+L<Whatbot::Command::Market> to look up quotes, and executes trades with
+invisible money. Does not have a limit on how many shares one can purchase,
+trades are instant, and one can go into debt.
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut

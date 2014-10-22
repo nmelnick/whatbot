@@ -9,7 +9,7 @@
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 	use HTML::Strip;
@@ -18,6 +18,7 @@ class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 
 	has 'aim_handle' => ( is => 'rw' );
 	has 'strip'      => ( is => 'ro', default => sub { HTML::Strip->new() } );
+	has 'rooms'      => ( is => 'ro', default => sub { [] } );
 
 	method BUILD(...) {
 		die 'AIM component requires a "screenname" and a "password"' unless (
@@ -29,6 +30,11 @@ class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 		$name =~ s/ /_/g;
 		$self->name($name);
 		$self->me( $self->my_config->{'screenname'} );
+		if ( $self->my_config->{'rooms'} ) {
+			my $rooms = $self->my_config->{'rooms'};
+			$rooms = [$rooms] unless ( ref($rooms) );
+			push( @{ $self->rooms }, @$rooms );
+		}
 	}
 
 	after connect() {
@@ -40,6 +46,9 @@ class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 		$oscar->set_callback_signon_done(\&cb_connected);
 		$oscar->set_callback_error(\&cb_error);
 		$oscar->set_callback_snac_unknown( sub {} );
+		$oscar->set_callback_chat_buddy_in(\&cb_chat_join);
+		$oscar->set_callback_chat_buddy_out(\&cb_chat_part);
+		$oscar->set_callback_chat_im_in(\&cb_chat_message);
 	
 		# Sign on
 		$oscar->signon(
@@ -59,6 +68,9 @@ class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 		eval {
 			$self->aim_handle->do_one_loop();
 		};
+		if ($@) {
+			$self->log->error($@);
+		}
 		return;
 	}
 
@@ -117,26 +129,65 @@ class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 	# INTERNAL
 	#
 
-	# Event: Received a message
+	# Event: Received a private message
 	method cb_message( $from?, $message?, $is_away_response? ) {
 		$message = $self->{'_whatbot'}->strip->parse($message);
 		$message =~ s/^[^A-z0-9]+//;
 		$message =~ s/[\s]+$//;
 		$self->{'_whatbot'}->event_message( Whatbot::Message->new({
 			'from'    => $$from,
-			'to'      => $self->me,
+			'to'      => $self->{'_whatbot'}->me,
 			'content' => $message,
 		}) ) unless ( $is_away_response );
+	}
+
+	# Event: Received a chat message
+	method cb_chat_message( $from?, $chat?, $message? ) {
+		$message = $self->{'_whatbot'}->strip->parse($message);
+		$message =~ s/^[^A-z0-9]+//;
+		$message =~ s/[\s]+$//;
+		$self->{'_whatbot'}->event_message(
+			$self->{'_whatbot'}->get_new_message(
+				{
+					reply_to => $chat->name,
+					from     => $from,
+					to       => $chat->name,
+					content  => $message,
+					me       => $self->{'_whatbot'}->me,
+				}
+			)
+		);
+		return;
 	}
 
 	# Event: Connected
 	method cb_connected {
 		$self->{'_whatbot'}->notify( '', 'Connected successfully.' );
+
+		# Join chats
+		foreach my $room ( @{ $self->{'_whatbot'}->rooms } ) {
+			$self->{'_whatbot'}->log->write( 'Joining ' . $room );
+			$self->chat_join($room);
+		}
 	}
 
 	# Event: Error
 	method cb_error( $connection, $error, $description, $fatal ) {
-		$self->{'_whatbot'}->notify($error);
+		$self->{'_whatbot'}->log->error($description);
+	}
+
+	# Event: User joined chat
+	method cb_chat_join( $screenname, $chat, $buddy_data ) {
+		return if ($screenname eq $self->{'_whatbot'}->me);
+		$self->{'_whatbot'}->event_user_enter( $chat->name, $screenname );
+		return;
+	}
+
+	# Event: User left chat
+	method cb_chat_part( $screenname, $chat ) {
+		return if ($screenname eq $self->me);
+		$self->{'_whatbot'}->event_user_leave( $chat->name, $screenname );
+		return;
 	}
 }
 
@@ -153,7 +204,10 @@ Whatbot::IO::AIM - Provide chat through AOL Instant Messenger.
  "io" : {
      "AIM" : {
          "screenname" : "myaimscreenname",
-         "password" : "myaimpassword"
+         "password" : "myaimpassword",
+         "rooms" : [
+         	"optionaltestroom"
+         ]
      }
  }
 
