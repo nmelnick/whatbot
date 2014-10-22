@@ -336,3 +336,20 @@ sub generate_insult {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+=pod
+
+=head1 NAME
+
+Whatbot::Command::Blackjack - A reasonable multiplayer blackjack implementation.
+
+=head1 DESCRIPTION
+
+Whatbot::Command::Blackjack provides a blackjack game in private messaging or
+in a chat room. No configurationr required.
+
+=head1 LICENSE/COPYRIGHT
+
+Be excellent to each other and party on, dudes.
+
+=cut

@@ -100,7 +100,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Whatbot::Command::Bitcoin - Checks value of Bitcoin.
+Whatbot::Command::Bitcoin - Checks value of Bitcoin using Preev.
 
 =head1 LICENSE/COPYRIGHT
 
