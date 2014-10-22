@@ -19,6 +19,7 @@ class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 	has 'aim_handle' => ( is => 'rw' );
 	has 'strip'      => ( is => 'ro', default => sub { HTML::Strip->new() } );
 	has 'rooms'      => ( is => 'ro', default => sub { [] } );
+	has 'room_chat'  => ( is => 'ro', default => sub { {} } );
 
 	method BUILD(...) {
 		die 'AIM component requires a "screenname" and a "password"' unless (
@@ -49,6 +50,7 @@ class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 		$oscar->set_callback_chat_buddy_in(\&cb_chat_join);
 		$oscar->set_callback_chat_buddy_out(\&cb_chat_part);
 		$oscar->set_callback_chat_im_in(\&cb_chat_message);
+		$oscar->set_callback_chat_joined(\&cb_chat_joined);
 	
 		# Sign on
 		$oscar->signon(
@@ -114,7 +116,12 @@ class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 	
 		# Send messages
 		foreach my $out_line (@lines) {
-			my $result = $self->aim_handle->send_im( $message->to, $out_line );
+			my $result;
+			if ( $self->room_chat->{$message->to} ) {
+				$result = $self->room_chat->{$message->to}->chat_send($out_line);
+			} else {
+				$result = $self->aim_handle->send_im( $message->to, $out_line );
+			}
 			if ($result > 0) {
 				$message->content($out_line);
 				$self->event_message($message);
@@ -135,9 +142,10 @@ class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 		$message =~ s/^[^A-z0-9]+//;
 		$message =~ s/[\s]+$//;
 		$self->{'_whatbot'}->event_message( Whatbot::Message->new({
-			'from'    => $$from,
-			'to'      => $self->{'_whatbot'}->me,
-			'content' => $message,
+			'from'       => $$from,
+			'to'         => $self->{'_whatbot'}->me,
+			'content'    => $message,
+			'is_private' => 1
 		}) ) unless ( $is_away_response );
 	}
 
@@ -149,11 +157,12 @@ class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 		$self->{'_whatbot'}->event_message(
 			$self->{'_whatbot'}->get_new_message(
 				{
-					reply_to => $chat->name,
-					from     => $from,
-					to       => $chat->name,
-					content  => $message,
-					me       => $self->{'_whatbot'}->me,
+					'reply_to'   => $chat->name,
+					'from'       => $from,
+					'to'         => $chat->name,
+					'content'    => $message,
+					'me'         => $self->{'_whatbot'}->me,
+					'is_private' => 0,
 				}
 			)
 		);
@@ -187,6 +196,13 @@ class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 	method cb_chat_part( $screenname, $chat ) {
 		return if ($screenname eq $self->me);
 		$self->{'_whatbot'}->event_user_leave( $chat->name, $screenname );
+		return;
+	}
+
+	# Event: We joined chat
+	method cb_chat_joined( $chatname, $chat ) {
+		$self->{'_whatbot'}->log->write('Joined "' . $chatname . '".');
+		$self->{'_whatbot'}->room_chat->{$chatname} = $chat;
 		return;
 	}
 }
