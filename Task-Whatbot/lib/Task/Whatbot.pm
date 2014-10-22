@@ -27,6 +27,8 @@ provided by whatbot.org for a given release.
 
 =head3 L<Whatbot::Command::Blackjack>
 
+=head3 L<Whatbot::Command::Dogecoin>
+
 =head3 L<Whatbot::Command::Excuse>
 
 =head3 L<Whatbot::Command::Market>
@@ -42,8 +44,6 @@ provided by whatbot.org for a given release.
 =head3 L<Whatbot::Command::RSS>
 
 =head3 L<Whatbot::Command::Trade>
-
-=head3 L<Whatbot::Command::Translate>
 
 =head3 L<Whatbot::Command::Weather>
 
