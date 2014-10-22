@@ -376,7 +376,6 @@ Whatbot::Command::Quote - Provide a web-based quote board
 Config:
 
 "quote" : {
-	"enabled" : "yes",
 	"random_quote" : {
 	   "start" : "10:00",
 	   "end" : "23:00",

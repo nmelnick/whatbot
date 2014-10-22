@@ -22,6 +22,7 @@
    },
    "commands" : {
       "admin" : {
+         "enabled" : false,
          "user" : "adminuser"
       },
       "define" : {

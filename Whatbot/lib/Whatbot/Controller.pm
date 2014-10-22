@@ -108,6 +108,10 @@ class Whatbot::Controller extends Whatbot::Component with Whatbot::Role::Pluggab
 					if (defined $self->config->commands->{lc($name)}) {
 						$config = $self->config->commands->{lc($name)};
 					}
+					if ( $config and ref($config) and defined $config->{enabled} and not $config->{enabled} ) {
+						$self->log->write( '-> ' . $class_name . ' disabled in config.' );
+						next;
+					}
 					my $new_command = $class_name->new(
 						'my_config' => $config,
 						'name'      => $command_root,
