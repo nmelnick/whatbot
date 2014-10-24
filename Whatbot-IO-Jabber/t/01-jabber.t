@@ -10,14 +10,14 @@ my $test = Whatbot::Test->new();
 $test->initialize_state();
 
 eval {
-	my $aim = Whatbot::IO::Jabber->new({
+	my $jab = Whatbot::IO::Jabber->new({
 		'my_config'      => {},
 	});
 };
 like( $@, qr/Jabber component requires a/, 'Error when missing jabber_id and password' );
 
 eval {
-	my $aim = Whatbot::IO::Jabber->new({
+	my $jab = Whatbot::IO::Jabber->new({
 		'my_config'      => {
 			'jabber_id' => 'foo@bar.com/resource',
 		},
@@ -26,7 +26,7 @@ eval {
 like( $@, qr/Jabber component requires a/, 'Error when missing password' );
 
 eval {
-	my $aim = Whatbot::IO::Jabber->new({
+	my $jab = Whatbot::IO::Jabber->new({
 		'my_config'      => {
 			'password' => 'foo',
 		},

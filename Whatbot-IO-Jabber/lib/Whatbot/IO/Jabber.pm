@@ -6,7 +6,9 @@
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
-our $VERSION = '0.2';
+BEGIN { 
+	$Whatbot::IO::Jabber::VERSION = '0.2';
+}
 
 class Whatbot::IO::Jabber extends Whatbot::IO {
 	use AnyEvent::XMPP::Client;

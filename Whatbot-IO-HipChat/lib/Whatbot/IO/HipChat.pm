@@ -6,7 +6,9 @@
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
-our $VERSION = '0.1';
+BEGIN {
+	$Whatbot::IO::HipChat::VERSION = '0.1';
+}
 
 class Whatbot::IO::HipChat extends Whatbot::IO::Jabber {
 	method BUILDARGS ( %arg_hash ) {

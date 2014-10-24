@@ -9,7 +9,9 @@
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
-our $VERSION = '0.2';
+BEGIN {
+	$Whatbot::IO::AIM::VERSION = '0.2';
+}
 
 class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 	use HTML::Strip;
