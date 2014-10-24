@@ -13,6 +13,7 @@ requires      'namespace::autoclean' => 0;
 requires      'Method::Signatures'   => 20130505;
 requires      'MooseX::Declare'      => 0.35;
 requires      'AnyEvent::XMPP'       => 0;
+requires      'XML::Twig'            => 0;
 test_requires 'Test::More'           => 0;
 
 WriteAll;
