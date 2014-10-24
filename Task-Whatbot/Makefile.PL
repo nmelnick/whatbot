@@ -23,5 +23,6 @@ requires       'Whatbot::Command::Trade'      => 0.1;
 requires       'Whatbot::Command::Weather'    => 0.2;
 requires       'Whatbot::IO::AIM'             => 0.2;
 requires       'Whatbot::IO::Jabber'          => 0.2;
+requires       'Whatbot::IO::HipChat'         => 0.1;
 
 WriteAll;

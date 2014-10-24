@@ -49,6 +49,8 @@ provided by whatbot.org for a given release.
 
 =head3 L<Whatbot::IO::AIM>
 
+=head3 L<Whatbot::IO::HipChat>
+
 =head3 L<Whatbot::IO::Jabber>
 
 =head1 LICENSE/COPYRIGHT
