@@ -36,7 +36,7 @@ sub register {
 	$self->require_direct(0);
 
 	# Init random quote, if requested
-	if ( my $rq = $self->my_config->{random_quote} ) {
+	if ( $self->my_config and my $rq = $self->my_config->{random_quote} ) {
 		my $start = $rq->{start};
 		my $end = $rq->{end};
 		my $days = $rq->{days};
