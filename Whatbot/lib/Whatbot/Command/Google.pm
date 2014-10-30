@@ -12,8 +12,6 @@ use LWP::UserAgent ();
 use URI::Escape qw(uri_escape uri_unescape);
 use HTML::Entities qw(decode_entities);
 use JSON::XS qw(decode_json encode_json);
-use Encode;
-use utf8;
 use Whatbot::Utility;
 use namespace::autoclean;
 
