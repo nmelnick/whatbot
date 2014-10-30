@@ -6,6 +6,9 @@ use HTML::Strip;
 use Encode;
 use utf8;
 
+# HTML::Strip does not inherently know anything about utf8, it seems to be
+# a simpler XS translation. Since this series of lines appeared a lot, it is
+# now moved to its own module.
 sub html_strip {
 	my ($to_strip) = @_;
 
