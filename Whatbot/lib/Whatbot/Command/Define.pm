@@ -15,19 +15,13 @@ use LWP::UserAgent ();
 use URI::Escape qw(uri_escape);
 use HTML::Entities qw(decode_entities);
 use Lingua::EN::Sentence qw(get_sentences);
-use HTML::Strip ();
+use Whatbot::Utility;
 use namespace::autoclean;
 
 has 'ua' => (
 	is      => 'ro',
 	isa     => 'LWP::UserAgent',
 	default => sub { LWP::UserAgent->new; }
-);
-
-has 'stripper' => (
-	is      => 'ro',
-	isa     => 'HTML::Strip',
-	default => sub { HTML::Strip->new( emit_spaces => 0, decode_entities => 1 ); }
 );
 
 has 'error' => (
@@ -71,8 +65,7 @@ RETRY:
 	# (for example) messes with sentence structure
 	$first_p =~ s!<sup>.*?</sup>!!g;
 
-	$first_p = $self->stripper->parse($first_p);
-	$self->stripper->eof;
+	$first_p = Whatbot::Utility::html_strip($first_p);
 
 	goto RETRY unless $first_p;
 	
@@ -139,8 +132,7 @@ RETRY:
 	# (for example) messes with sentence structure
 	$first_p =~ s!<sup>.*?</sup>!!g;
 
-	$first_p = $self->stripper->parse($first_p);
-	$self->stripper->eof;
+	$first_p = Whatbot::Utility::html_strip($first_p);
 	
 	goto RETRY unless $first_p;
 	

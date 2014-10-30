@@ -13,7 +13,6 @@ requires      'namespace::autoclean' => 0;
 requires      'Method::Signatures'   => 20130505;
 requires      'MooseX::Declare'      => 0.35;
 requires      'Net::OSCAR'           => 0;
-requires      'HTML::Strip'          => 0;
 test_requires 'Test::More'           => 0;
 
 WriteAll;

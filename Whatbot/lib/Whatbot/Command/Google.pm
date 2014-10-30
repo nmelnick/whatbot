@@ -11,22 +11,16 @@ BEGIN { extends 'Whatbot::Command' }
 use LWP::UserAgent ();
 use URI::Escape qw(uri_escape uri_unescape);
 use HTML::Entities qw(decode_entities);
-use HTML::Strip ();
 use JSON::XS qw(decode_json encode_json);
 use Encode;
 use utf8;
+use Whatbot::Utility;
 use namespace::autoclean;
 
 has 'ua' => (
 	is      => 'ro',
 	isa     => 'LWP::UserAgent',
 	default => sub { LWP::UserAgent->new; }
-);
-
-has 'stripper' => (
-	is      => 'ro',
-	isa     => 'HTML::Strip',
-	default => sub { HTML::Strip->new( emit_spaces => 0, decode_entities => 1 ); }
 );
 
 sub register {
@@ -68,16 +62,8 @@ sub _search {
 		my @results = ( $response->decoded_content =~ /(<h3 class="r"><a href="\/url\?q=http[^"]+">.+?<\/a>.*?<span class="st">.+?<\/span>)/g );
 		if ( @results and $results[0] =~ /<a href="\/url\?q=(http[^"]+)">(.+?)<\/a>.*?<span class="st">(.+?)<\/span/ ) {
 			my ( $url, $title, $description ) = ( decode_entities($1), decode_entities($2), decode_entities($3) );
-			my $octets = encode_utf8($title);
-			utf8::downgrade($octets);
-			$title = $self->stripper->parse($octets);
-			$self->stripper->eof;
-			$title = decode_utf8($title);
-			$octets = encode_utf8($description);
-			utf8::downgrade($octets);
-			$description = $self->stripper->parse($octets);
-			$self->stripper->eof;
-			$description = decode_utf8($description);
+			$title = Whatbot::Utility::html_strip($title);
+			$description = Whatbot::Utility::html_strip($description);
 			$description =~ s/\d+ (hours|days|minutes) ago //;
 			return [
 				sprintf( "%s - %s", $title, $description ),

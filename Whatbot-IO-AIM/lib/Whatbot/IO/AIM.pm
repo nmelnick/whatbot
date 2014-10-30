@@ -14,12 +14,11 @@ BEGIN {
 }
 
 class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
-	use HTML::Strip;
 	use Net::OSCAR qw(:standard);
 	use Whatbot::Message;
+	use Whatbot::Utility;
 
 	has 'aim_handle' => ( is => 'rw' );
-	has 'strip'      => ( is => 'ro', default => sub { HTML::Strip->new() } );
 	has 'rooms'      => ( is => 'ro', default => sub { [] } );
 	has 'room_chat'  => ( is => 'ro', default => sub { {} } );
 
@@ -140,7 +139,7 @@ class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 
 	# Event: Received a private message
 	method cb_message( $from?, $message?, $is_away_response? ) {
-		$message = $self->{'_whatbot'}->strip->parse($message);
+		$message = Whatbot::Utility::html_strip($message);
 		$message =~ s/^[^A-z0-9]+//;
 		$message =~ s/[\s]+$//;
 		$self->{'_whatbot'}->event_message( Whatbot::Message->new({
@@ -153,7 +152,7 @@ class Whatbot::IO::AIM extends Whatbot::IO::Legacy {
 
 	# Event: Received a chat message
 	method cb_chat_message( $from?, $chat?, $message? ) {
-		$message = $self->{'_whatbot'}->strip->parse($message);
+		$message = Whatbot::Utility::html_strip($message);
 		$message =~ s/^[^A-z0-9]+//;
 		$message =~ s/[\s]+$//;
 		$self->{'_whatbot'}->event_message(

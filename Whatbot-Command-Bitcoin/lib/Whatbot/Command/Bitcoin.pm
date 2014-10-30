@@ -11,7 +11,6 @@ BEGIN { extends 'Whatbot::Command' }
 use JSON ();
 use LWP::UserAgent ();
 use HTML::Entities qw(decode_entities);
-use HTML::Strip;
 use HTTP::Headers;
 use namespace::autoclean;
 
@@ -32,12 +31,6 @@ has 'ua' => (
 			),
 		);
 	}
-);
-
-has 'htmlstrip' => (
-	is 		=> 'ro',
-	isa 	=> 'HTML::Strip',
-	default	=> sub { HTML::Strip->new; }
 );
 
 sub register {
