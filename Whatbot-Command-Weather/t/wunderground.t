@@ -6,15 +6,15 @@ use Test::More;
 use Test::Exception;
 use Whatbot::Test;
 
-use_ok( 'Whatbot::Command::Weather::Wunderground', 'Load Module' );
-
-my $test = Whatbot::Test->new();
-$test->initialize_state();
-
 unless ( $ENV{'WB_WUNDERGROUND_API_KEY'} ) {
 	plan skip_all => 'Requires WB_WUNDERGROUND_API_KEY environment variable to run live tests.';
 	done_testing();
 }
+
+use_ok( 'Whatbot::Command::Weather::Wunderground', 'Load Module' );
+
+my $test = Whatbot::Test->new();
+$test->initialize_state();
 
 ok( my $wunderground = Whatbot::Command::Weather::Wunderground->new({
 	'api_key' => $ENV{'WB_WUNDERGROUND_API_KEY'},
