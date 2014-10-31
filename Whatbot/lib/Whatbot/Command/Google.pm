@@ -13,6 +13,7 @@ use URI::Escape qw(uri_escape uri_unescape);
 use HTML::Entities qw(decode_entities);
 use JSON::XS qw(decode_json encode_json);
 use Whatbot::Utility;
+use Encode;
 use namespace::autoclean;
 
 has 'ua' => (
