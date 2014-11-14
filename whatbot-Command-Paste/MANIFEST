@@ -1,5 +1,0 @@
-lib/whatbot/Command/Paste.pm
-lib/whatbot/Database/Table/Paste.pm
-Makefile.PL
-MANIFEST
-t/00-compile.t

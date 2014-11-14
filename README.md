@@ -7,3 +7,10 @@ Playing with whatbot
 --------------------
 
 whatbot works. Grab it from github, copy over the example configuration, and edit it to do what you want. We will try to wrap up some documentation by the time we hit 1.0, but it may take some time.
+
+More information
+----------------
+
+GitHub: http://github.com/nmelnick/Whatbot
+
+Home: http://www.whatbot.org

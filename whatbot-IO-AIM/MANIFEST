@@ -1,5 +1,0 @@
-lib/whatbot/IO/AIM.pm
-Makefile.PL
-MANIFEST
-t/00-compile.t
-t/01-aim.t

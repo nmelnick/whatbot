@@ -1,0 +1,12 @@
+^blib
+^whatbot.conf$
+^whatbot\-
+.*old$
+.*out$
+^t\/.*
+^Makefile$
+^Makefile\.[^P].*
+^MANIFEST.bak
+^META.*
+^MYMETA.*
+^MANIFEST.SKIP
