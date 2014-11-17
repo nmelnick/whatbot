@@ -87,7 +87,7 @@ class Whatbot::Command::Weather::Wunderground with Whatbot::Command::Weather::So
 	method _location( Str $location ) {
 		my $query;
 
-		if ( $location =~ /^\d{5}$/ ) {
+		if ( $location =~ /^\d{5}$/ || $location =~ /^[a-zA-Z]{3}$/ ) {
 			$query = $location;
 		} elsif ( $location =~ /([^,]+), (\w\w+)/ ) {
 			$query = $2 . '/' . $1;
