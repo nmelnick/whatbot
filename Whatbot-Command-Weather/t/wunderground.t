@@ -36,7 +36,7 @@ my $temp_string = $object->temp_string('80');
 is( $temp_string, '80 F (26.67 C)', 'temp_string converts properly' );
 
 throws_ok(
-	sub { $wunderground->get_current('abc') },
+	sub { $wunderground->get_current('abcd') },
 	qr/^Unwilling to figure out what you meant by\: abc/,
 	'get_current handles bad location'
 );
@@ -52,7 +52,7 @@ ok( defined $first->low_temperature_f, 'has low temperature' );
 ok( $first->to_string, 'to_string works' );
 
 throws_ok(
-	sub { $wunderground->get_forecast('abc') },
+	sub { $wunderground->get_forecast('abcd') },
 	qr/^Unwilling to figure out what you meant by\: abc/,
 	'get_forecast handles bad location'
 );
