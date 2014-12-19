@@ -74,8 +74,8 @@ Whatbot::IO::HipChat - Provide HipChat connection via XMPP.
 
 =item nick
 
-Nickname to use in the channel, should match the "Real Name" as provided to
-HipChat.
+Nickname to use in the channel, MUST match the "Real Name" as provided to
+HipChat, as it is used to register to a HipChat room.
 
 =item username 
 
