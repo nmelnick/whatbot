@@ -58,8 +58,8 @@ sub _search {
 	my $url = sprintf( 'http://www.google.com/search?q=%s', uri_escape($query) );
 	my $response = $self->ua->get($url);
 	if ( $response->is_success ) {
-		my @results = ( $response->decoded_content =~ /(<h3 class="r"><a href="\/url\?q=http[^"]+">.+?<\/a>.*?<span class="st">.+?<\/span>)/g );
-		if ( @results and $results[0] =~ /<a href="\/url\?q=(http[^"]+)">(.+?)<\/a>.*?<span class="st">(.+?)<\/span/ ) {
+		my @results = ( $response->decoded_content =~ /(<h3 class="r"><a href="\/url\?q=http[^"]+">.+?<\/a>.*?<span class="st">.+?<\/span>)/sg );
+		if ( @results and $results[0] =~ /<a href="\/url\?q=(http[^"]+)">(.+?)<\/a>.*?<span class="st">(.+?)<\/span/s ) {
 			my ( $url, $title, $description ) = ( decode_entities($1), decode_entities($2), decode_entities($3) );
 			$title = Whatbot::Utility::html_strip($title);
 			$description = Whatbot::Utility::html_strip($description);
