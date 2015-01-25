@@ -43,7 +43,7 @@ sub get_insult {
 	return $self->last_insult($insult);
 }
 
-sub parse_message : CommandRegEx('(\w+)') {
+sub parse_message : CommandRegEx('(@?\w+)') {
 	my ( $self, $message, $captures ) = @_;
 	
 	return unless ( $captures and @$captures );
