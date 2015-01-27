@@ -11,6 +11,7 @@ BEGIN {
 }
 
 class Whatbot::IO::HipChat extends Whatbot::IO::Jabber {
+        use AnyEvent::XMPP::Util qw(res_jid);
 	method BUILDARGS ( %arg_hash ) {
 		my $args = \%arg_hash;
 		die 'HipChat component requires a "username" and a "password".' unless (
@@ -36,9 +37,29 @@ class Whatbot::IO::HipChat extends Whatbot::IO::Jabber {
 	}
 
 	method BUILD(...) {
-		$self->me( $self->{'my_config'}->{'nick'} );
+	        my $me = $self->{'my_config'}->{'nick'};
+	        my $alias = $self->{'my_config'}->{'alias'} || "@".($me=~s/\s//gr);
+	        $self->me( "($alias|$me)" );
 	}
-}
+
+	# Event: Received a message
+	method cb_muc_message( $client, $room, $msg, $is_echo ) {
+		return if $is_echo;
+		return if !defined $msg->from_nick;
+
+		$self->event_message(
+			$self->get_new_message(
+				{
+					reply_to => $msg->room->jid,
+					from    => '@'.(res_jid($msg->from) =~ s/\s//gr),
+					to      => $msg->room->jid,
+					content => $msg->any_body
+				}
+			)
+		);
+		return;
+	      }
+	}
 
 1;
 
