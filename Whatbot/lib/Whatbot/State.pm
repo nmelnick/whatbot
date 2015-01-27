@@ -3,7 +3,8 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::DeclareX plugins => [qw/ build singleton /];
+package Whatbot::State;
+use MooseX::Singleton;
 
 =head1 NAME
 
@@ -37,15 +38,13 @@ The available L<Whatbot::Log> instance, commonly used as $self->log->write('Foo'
 
 =cut
 
-class Whatbot::State is singleton {
-	has 'parent'     => ( is => 'rw', isa => 'Whatbot' );
-	has 'config'     => ( is => 'rw', isa => 'Whatbot::Config' );
-	has 'ios'        => ( is => 'rw', isa => 'HashRef' );
-	has 'database'   => ( is => 'rw', isa => 'Whatbot::Database' );
-	has 'log'        => ( is => 'rw', isa => 'Whatbot::Log' );
-	has 'controller' => ( is => 'rw', isa => 'Whatbot::Controller' );
-	has 'models'     => ( is => 'rw', isa => 'HashRef' );
-}
+has 'parent'     => ( is => 'rw', isa => 'Whatbot' );
+has 'config'     => ( is => 'rw', isa => 'Whatbot::Config' );
+has 'ios'        => ( is => 'rw', isa => 'HashRef' );
+has 'database'   => ( is => 'rw', isa => 'Whatbot::Database' );
+has 'log'        => ( is => 'rw', isa => 'Whatbot::Log' );
+has 'controller' => ( is => 'rw', isa => 'Whatbot::Controller' );
+has 'models'     => ( is => 'rw', isa => 'HashRef' );
 
 1;
 
