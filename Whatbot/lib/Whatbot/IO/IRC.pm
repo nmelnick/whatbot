@@ -17,7 +17,7 @@ class Whatbot::IO::IRC extends Whatbot::IO {
 
 	has 'handle' => (
 		is  => 'rw',
-		isa => 'AnyEvent::IRC::Client',
+		isa => 'Maybe[AnyEvent::IRC::Client]',
 	);
 	has 'force_disconnect' => (
 		is  => 'rw',
