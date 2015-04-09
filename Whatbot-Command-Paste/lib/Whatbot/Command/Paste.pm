@@ -53,9 +53,10 @@ sub paste_form {
 	return unless ( $self->check_access($req) );
 
 	my @channels;
-	foreach my $io ( values %{ $self->ios } ) {
+	foreach my $interface ( keys %{ $self->ios } ) {
+		my $io = $self->ios->{$interface};
 		next unless ( $io->can('channels') );
-		push( @channels, ( map { $_->{'name'} } @{ $io->channels } ) );
+		push( @channels, ( map { ref($_) ? $_->{name} : sprintf('%s:%s@%s',$interface,$_,$io->{my_config}->{conference_server}) } @{ $io->channels } ) );
 	}
 
 	my %state = (
