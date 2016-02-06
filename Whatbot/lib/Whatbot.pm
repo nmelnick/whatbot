@@ -3,11 +3,10 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
 
 BEGIN {
-	$Whatbot::VERSION = '0.13';
+	$Whatbot::VERSION = '0.2';
 }
 
 =head1 NAME

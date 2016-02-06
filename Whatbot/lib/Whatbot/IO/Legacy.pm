@@ -8,8 +8,7 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
 
 class Whatbot::IO::Legacy extends Whatbot::IO {
 	has 'instance' => (
