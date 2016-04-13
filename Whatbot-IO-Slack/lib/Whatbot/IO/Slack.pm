@@ -127,7 +127,7 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 				$self->me( $metadata->{'self'}->{'name'} );
 				$self->slack_name( $self->me );
 
-				$rtm->on( 'presence_change' => sub { $self->_presence_change(@_); } );
+				# $rtm->on( 'presence_change' => sub { $self->_presence_change(@_); } );
 			}
 		);
 	}
