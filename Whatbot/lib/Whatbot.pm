@@ -47,8 +47,8 @@ class Whatbot with Whatbot::Role::Pluggable {
 	use Whatbot::State;
 	use Whatbot::Message;
 
-	use AnyEvent;
 	use EV;
+	use AnyEvent;
 	use Class::Load qw(load_class);
 
 	has 'initial_config' => (
@@ -155,6 +155,7 @@ class Whatbot with Whatbot::Role::Pluggable {
 			'signal' => 'INT',
 			'cb'     => sub { $self->stop(); }
 		);
+		$SIG{'INT'} = sub { $self->stop(); };
 		$self->loop( EV::run() );
 	
 		# Upon kill or interrupt, exit gracefully.
@@ -163,6 +164,7 @@ class Whatbot with Whatbot::Role::Pluggable {
 			$log->write('Sending disconnect to ' . ref($io_object));
 			$io_object->disconnect;
 		}
+		exit(0);
 	}
 
 	method report_error( Str $error ) {
@@ -242,8 +244,8 @@ class Whatbot with Whatbot::Role::Pluggable {
 	}
 
 	method stop() {
-		EV::unloop();
-		exit(0);
+		Whatbot::State->log->write('Received interrupt.');
+		EV::break();
 	}
 }
 

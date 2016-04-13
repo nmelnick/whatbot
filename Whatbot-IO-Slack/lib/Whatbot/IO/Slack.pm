@@ -50,8 +50,13 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 		my $rtm = AnyEvent::SlackRTM->new($self->token);
 		$self->handle($rtm);
 		$self->register_callbacks();
-		$self->log->write('Connecting to Slack.');
-		$rtm->start();
+		$self->{'_timer_connect'} = AnyEvent->timer(
+			after    => 4,
+			cb       => sub {
+				$self->log->write('Connecting to Slack.');
+				$rtm->start();
+			},
+		);
 	};
 
 	method disconnect () {
@@ -91,13 +96,12 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 		my $rtm = $self->handle;
 
 		$rtm->on( 'hello' => sub { $self->_hello($rtm); } );
-		$rtm->on( 'message' => sub { $DB::single = 2; $self->_message(@_); } );
+		$rtm->on( 'message' => sub { $self->_message(@_); } );
 		$rtm->on( 'finish' => sub { $self->_finish(@_); } );
 		$rtm->on( 'channel_created' => sub { $self->_channel_created(@_); } );
 		$rtm->on( 'channel_joined' => sub { $self->_channel_joined(@_); } );
 		$rtm->on( 'channel_join' => sub { $self->_channel_join(@_); } );
 		$rtm->on( 'user_change' => sub { $self->_user_change(@_); } );
-		$rtm->on( 'presence_change' => sub { $self->_presence_change(@_); } );
 	}
 
 	method _hello($rtm) {
@@ -105,7 +109,7 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 
 		# Read metadata soon
 		$self->{'_timer_metadata'} = AnyEvent->timer(
-			after    => 2,
+			after    => 5,
 			cb       => sub {
 				# Fill user table
 				my $metadata = $rtm->metadata();
@@ -122,12 +126,14 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 				# Set me
 				$self->me( $metadata->{'self'}->{'name'} );
 				$self->slack_name( $self->me );
+
+				$rtm->on( 'presence_change' => sub { $self->_presence_change(@_); } );
 			}
 		);
 	}
 
 	method _message( $rtm, $message ) {
-		return if ($message->{'hidden'});
+		return if ($message->{'hidden'} or not scalar( %{ $self->users } ) );
 		$self->event_message( $self->_slack_message_to_message($message) );
 		return;
 	}
@@ -149,16 +155,23 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 		return;
 	}
 
-	method _finish(...) {
+	method _finish($rtm) {
 		$self->log->write('Disconnected from Slack.');
 		$self->force_disconnect(0);
+		$self->{'_timer_metadata'} = undef;
 		foreach my $user ( keys %{ $self->users } ) {
 			delete( $self->users->{$user} );
 		}
 		foreach my $channel ( keys %{ $self->channels } ) {
 			delete( $self->channels->{$channel} );
 		}
-		$self->connect();
+		$self->{'_timer_reconnect'} = AnyEvent->timer(
+			after    => 3,
+			cb       => sub {
+				# Reconnect in 3 seconds
+				$self->connect();
+			}
+		);
 	}
 
 	method _channel_created( $rtm, $event ) {
@@ -181,7 +194,7 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 
 	method _slack_message_to_message( $slack_message ) {
 		my $content = Whatbot::Utility::html_strip( $slack_message->{'text'} );
-		return Whatbot::Message->new({
+		return $self->get_new_message({
 			'from'    => $self->users->{ $slack_message->{'user'} },
 			'to'      => $self->channels->{ $slack_message->{'channel'} },
 			'content' => $content,
