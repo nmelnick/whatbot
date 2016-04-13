@@ -193,7 +193,9 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 	}
 
 	method _slack_message_to_message( $slack_message ) {
-		my $content = Whatbot::Utility::html_strip( $slack_message->{'text'} );
+		my $text = $slack_message->{'text'};
+		$text =~ s/<(http.*?)>/$1/g;
+		my $content = Whatbot::Utility::html_strip($text);
 		return $self->get_new_message({
 			'from'    => $self->users->{ $slack_message->{'user'} },
 			'to'      => $self->channels->{ $slack_message->{'channel'} },
