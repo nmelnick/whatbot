@@ -14,6 +14,7 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 	use AnyEvent::SlackRTM;
 	use Data::Dumper;
 	use Encode;
+	use Whatbot::Utility;
 
 	has 'handle' => (
 		is  => 'rw',
@@ -39,8 +40,8 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 	);
 
 	method BUILD (...) {
+		die 'IO->Slack is missing an access token' unless ( $self->my_config->{'token'} );
 		$self->token( $self->my_config->{'token'} );
-		die 'IO->Slack is missing an access token' unless ( $self->token );
 
 		$self->slack_name($self->token);
 	}
@@ -195,6 +196,7 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 	method _slack_message_to_message( $slack_message ) {
 		my $text = $slack_message->{'text'};
 		$text =~ s/<(http.*?)>/$1/g;
+		$text =~ s/<(\@\w+?)>/$1/g;
 		my $content = Whatbot::Utility::html_strip($text);
 		return $self->get_new_message({
 			'from'    => $self->users->{ $slack_message->{'user'} },
