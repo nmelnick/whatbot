@@ -11,13 +11,12 @@ Whatbot::Component - Base component for all whatbot modules.
 
 =head1 SYNOPSIS
 
- use MooseX::Declare;
- use Method::Signatures::Modifiers;
+ use Moops;
 
  class Whatbot::Command extends Whatbot::Component {
-	method foo() {
-	   $self->log->write('I am so awesome.');
-	}
+   method foo() {
+     $self->log->write('I am so awesome.');
+   }
  }
 
 =head1 DESCRIPTION
@@ -63,36 +62,36 @@ class Whatbot::Component {
 		}
 	}
 
-	sub state() {
+	method state() {
 		return Whatbot::State->instance();
 	}
 
-	sub parent() {
-		return state()->parent;
+	method parent() {
+		return $self->state()->parent;
 	}
 
-	sub config() {
-		return state()->config;
+	method config() {
+		return $self->state()->config;
 	}
 
-	sub ios() {
-		return state()->ios;
+	method ios(@args) {
+		return $self->state()->ios(@args);
 	}
 
-	sub database() {
-		return state()->database;
+	method database(@args) {
+		return $self->state()->database(@args);
 	}
 
-	sub log() {
-		return state()->log;
+	method log() {
+		return $self->state()->log;
 	}
 
-	sub controller() {
-		return state()->controller;
+	method controller(@args) {
+		return $self->state()->controller(@args);
 	}
 
-	sub models() {
-		return state()->models;
+	method models(@args) {
+		return $self->state()->models(@args);
 	}
 
 =item model($model_name)

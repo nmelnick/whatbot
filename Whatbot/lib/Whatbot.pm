@@ -243,7 +243,7 @@ class Whatbot with Whatbot::Role::Pluggable {
 	}
 
 	method stop() {
-		Whatbot::State->log->write('Received interrupt.');
+		Whatbot::State->instance()->log->write('Received interrupt.');
 		EV::break();
 	}
 }
