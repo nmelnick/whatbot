@@ -6,8 +6,7 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
 
 class Whatbot::Command::Weather::Current with Whatbot::Command::Weather::ConvertRole {
 	has 'display_location' => ( is  => 'rw', isa => 'Str' );

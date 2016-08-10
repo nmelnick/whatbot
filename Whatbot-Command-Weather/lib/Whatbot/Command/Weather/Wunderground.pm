@@ -6,8 +6,7 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
 
 class Whatbot::Command::Weather::Wunderground with Whatbot::Command::Weather::SourceRole {
 	use JSON::XS;

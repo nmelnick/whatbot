@@ -6,8 +6,7 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
 
 class Whatbot::Command::Weather::Forecast with Whatbot::Command::Weather::ConvertRole {
 	has 'weekday'            => ( is  => 'rw', isa => 'Str' );
