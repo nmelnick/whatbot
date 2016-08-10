@@ -41,17 +41,6 @@ sub search : Command {
 	return $content;
 }
 
-sub image : Command {
-	my ( $self, $message, $captures ) = @_;
-
-	my $query = join( ' ', @$captures );
-	my $content = $self->_image_search($query);
-	unless ($content) {
-		return 'I could not get a response from Google.';
-	}
-	return $content;
-}
-
 sub _search {
 	my ( $self, $query ) = @_;
 
@@ -70,21 +59,6 @@ sub _search {
 			];
 		}
 	}
-	return;
-}
-
-sub _image_search {
-	my ( $self, $query ) = @_;
-
-	my $url = 'https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=' . uri_escape($query);
-	my $response = $self->ua->get($url);
-	if ( $response->is_success ) {
-		my $doc = decode_json( encode_utf8( $response->decoded_content() ) );
-		if ($doc) {
-			return $doc->{responseData}->{results}->[0]->{unescapedUrl};
-		}
-	}
-
 	return;
 }
 

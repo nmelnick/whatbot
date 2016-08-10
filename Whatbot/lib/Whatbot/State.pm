@@ -54,10 +54,10 @@ class Whatbot::State {
 
 	sub instance {
 		no strict 'refs';
-		unless ( defined ${'Whatbot::State::singleton'} ) {
-			shift->initialize();
+		if ( defined ${'Whatbot::State::singleton'} ) {
+			return ${'Whatbot::State::singleton'};
 		}
-		return ${'Whatbot::State::singleton'};
+		return;
 	}
 }
 

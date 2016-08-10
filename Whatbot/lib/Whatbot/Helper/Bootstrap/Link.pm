@@ -12,8 +12,8 @@ Whatbot::Helper::Bootstrap::Link - Represents a Bootstrap link.
 =head1 SYNOPSIS
 
  my $link = Whatbot::Helper::Bootstrap::Link->new({
-	'title' => 'Example',
-	'href'  => '#',
+   'title' => 'Example',
+   'href'  => '#',
  });
  $link->class('important');
  print $link->render();

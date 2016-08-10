@@ -25,10 +25,6 @@ ok( ref($response) eq 'ARRAY', 'response is array' );
 like( $response->[0], qr/ \- /, 'title/desc has dash' );
 like( $response->[1], qr/^http/, 'url is url' );
 
-$response = $google->image( $message, [ 'the', 'count' ] );
-ok( $response !~ /^Could not/, 'image contacted google' );
-ok( $response =~ /^http/, 'responded with url' );
-
 done_testing();
 
 1;

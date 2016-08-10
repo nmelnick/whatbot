@@ -40,6 +40,7 @@ To start, execute the 'whatbot' binary.
 =cut
 
 class Whatbot with Whatbot::Role::Pluggable {
+	define VERSION = '0.2';
 	use Whatbot::Controller;
 	use Whatbot::Config;
 	use Whatbot::Log;
@@ -57,7 +58,9 @@ class Whatbot with Whatbot::Role::Pluggable {
 	has 'version' => (
 		is      => 'ro',
 		isa     => 'Str',
-		default => $Whatbot::VERSION,
+		default => sub {
+			return VERSION;
+		}
 	);
 	has 'skip_extensions' => (
 		is      => 'rw',
@@ -167,7 +170,7 @@ class Whatbot with Whatbot::Role::Pluggable {
 	}
 
 	method report_error( Str $error ) {
-		if ( my $log = Whatbot::State->instance->log ) {
+		if ( Whatbot::State->instance and my $log = Whatbot::State->instance->log ) {
 			$log->error($error);
 		}
 		die 'ERROR: ' . $error;
