@@ -111,11 +111,12 @@ class Whatbot::Controller extends Whatbot::Component with Whatbot::Role::Pluggab
 						$self->log->write( '-> ' . $class_name . ' disabled in config.' );
 						next;
 					}
+
 					my $new_command = $class_name->new(
 						'my_config' => $config,
 						'name'      => $command_root,
 					);
-				
+
 					# Determine runpaths
 					foreach my $function ( @{Class::Inspector->functions($class_name)} ) {
 						# Get subroutine attributes
@@ -127,7 +128,7 @@ class Whatbot::Controller extends Whatbot::Component with Whatbot::Role::Pluggab
 							\%end_paths
 						);
 					}
-				
+
 					$new_command->command_priority('Extension') unless ( $new_command->command_priority );
 					unless ( 
 						lc($new_command->command_priority) =~ /(extension|last)/
