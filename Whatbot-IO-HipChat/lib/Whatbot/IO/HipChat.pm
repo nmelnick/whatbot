@@ -70,17 +70,17 @@ Whatbot::IO::HipChat - Provide HipChat connection via XMPP.
 
 =head1 CONFIG
 
-	"io": [
-		{
-			"interface": "HipChat",
-			"username" : "123456_0987654"
-			"nick" : "What Bot",
-			"password": "s0methingm4deup!",
-			"rooms": [
-				"Example Room"
-			]
-		}
-	]
+  "io": [
+    {
+      "interface": "HipChat",
+      "username" : "123456_0987654"
+      "nick" : "What Bot",
+      "password": "s0methingm4deup!",
+      "rooms": [
+        "Example Room"
+      ]
+    }
+  ]
 
 =over 4
 
