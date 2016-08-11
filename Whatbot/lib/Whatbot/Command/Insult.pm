@@ -8,6 +8,7 @@
 
 package Whatbot::Command::Insult;
 use Moose;
+use Whatbot::Command;
 BEGIN { extends 'Whatbot::Command' }
 use namespace::autoclean;
 

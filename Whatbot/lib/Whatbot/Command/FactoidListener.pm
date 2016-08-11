@@ -9,6 +9,7 @@
 
 package Whatbot::Command::FactoidListener;
 use Moose;
+use Whatbot::Command;
 BEGIN { extends 'Whatbot::Command'; }
 
 use Whatbot::Command::Factoid;

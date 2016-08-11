@@ -16,18 +16,18 @@ Whatbot::Command::Role::Web - Provide web endpoints for your Command
  BEGIN { extends 'Whatbot::Command'; with 'Whatbot::Command::Role::Web'; }
  
  sub register {
-	 my ($self) = @_;
-	 
-	 $self->require_direct(0);
-	 $self->web( '/example', \&example );
+   my ($self) = @_;
+   
+   $self->require_direct(0);
+   $self->web( '/example', \&example );
  }
 
  sub example {
-	 my ( $self, $httpd, $req ) = @_;
+   my ( $self, $httpd, $req ) = @_;
 
-	 my $id = $req->parm('id');
-	 $req->respond( 'content' => [ 'text/html', $out ] );
-	 return;
+   my $id = $req->parm('id');
+   $req->respond( 'content' => [ 'text/html', $out ] );
+   return;
  }
 
 =head1 DESCRIPTION

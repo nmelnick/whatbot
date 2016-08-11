@@ -8,6 +8,7 @@
 
 package Whatbot::Command::Define;
 use Moose;
+use Whatbot::Command;
 BEGIN { extends 'Whatbot::Command' }
 
 # modules! CPAN! I don't even have to code anymore.

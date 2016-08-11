@@ -9,6 +9,7 @@
 
 package Whatbot::Command::Trigger;
 use Moose;
+use Whatbot::Command;
 BEGIN { extends 'Whatbot::Command'; }
 use namespace::autoclean;
 

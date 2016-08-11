@@ -8,6 +8,7 @@
 
 package Whatbot::Command::Admin;
 use Moose;
+use Whatbot::Command;
 BEGIN { extends 'Whatbot::Command'; }
 
 use Cwd qw(realpath);

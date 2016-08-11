@@ -8,6 +8,7 @@
 
 package Whatbot::Command::API;
 use Moose;
+use Whatbot::Command;
 BEGIN {
 	extends 'Whatbot::Command';
 	with    'Whatbot::Command::Role::Web';

@@ -6,6 +6,7 @@
 
 package Whatbot::Command::Google;
 use Moose;
+use Whatbot::Command;
 BEGIN { extends 'Whatbot::Command' }
 
 use LWP::UserAgent ();

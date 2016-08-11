@@ -301,13 +301,13 @@ Run incoming event through commands, parse responses, and delivery back to IO.
 		return;
 	}
 
-	method determine_subroutine_attributes ( $new_command, $class_name, $function, $run_paths, $end_paths ) {
+	method determine_subroutine_attributes( $new_command, $class_name, $function, $run_paths, $end_paths ) {
 		my $full_function = $class_name . '::' . $function;
 		my $coderef = \&$full_function;
 
-		if ( my $attributes = $new_command->FETCH_CODE_ATTRIBUTES($coderef) ) {
+		if ( my $attributes = $new_command->fetch_attributes($coderef) ) {
 			foreach my $attribute ( @{$attributes} ) {
-				my ( $command, $arguments ) = split( /\s*\(/, $attribute, 2 );
+				my ( $command, @arguments ) = @$attribute;
 			
 				if ( $command eq 'Command' ) {
 					my $register = '^' . $new_command->name . ' +' . $function . ' *([^\b]+)*';
@@ -319,39 +319,28 @@ Run incoming event through commands, parse responses, and delivery back to IO.
 				
 
 				} elsif ( $command eq 'CommandRegEx' ) {
-					$arguments =~ s/\)$//;
-					unless ( $arguments =~ /^'.*?'$/ ) {
-						$self->error_regex( $class_name, $function, $arguments );
+					my $arg = shift(@arguments);
+					my $register = '^' . $new_command->name . ' +' . $arg;
+					if ( $self->command_name->{$register} ) {
+						$self->error_override( $class_name, $register )
 					} else {
-						$arguments =~ s/^'(.*?)'$/$1/;
-						my $register = '^' . $new_command->name . ' +' . $arguments;
-						if ( $self->command_name->{$register} ) {
-							$self->error_override( $class_name, $register )
-						} else {
-							$self->add_run_path( $run_paths, $register, $function );
-						}
+						$self->add_run_path( $run_paths, $register, $function );
 					}
 					
 				} elsif ( $command eq 'GlobalRegEx' ) {
-					$arguments =~ s/\)$//;
-					unless ( $arguments =~ /^'.*?'$/ ) {
-						$self->error_regex( $class_name, $function, $arguments );
+					my $arg = shift(@arguments);
+					if ( $self->command_name->{$arg} ) {
+						$self->error_override( $class_name, $arg )
 					} else {
-						$arguments =~ s/^'(.*?)'$/$1/;
-						if ( $self->command_name->{$arguments} ) {
-							$self->error_override( $class_name, $arguments )
-						} else {
-							$self->add_run_path( $run_paths, $arguments, $function );
-						}
+						$self->add_run_path( $run_paths, $arg, $function );
 					}
 				
 				} elsif ( $command eq 'Monitor' ) {
 					$self->add_run_path( $run_paths, '.*', $function );
 				
 				} elsif ( $command eq 'Event' ) {
-					$arguments =~ s/\)$//;
-					$arguments =~ s/^'(.*?)'$/$1/;
-					$self->add_event( $run_paths, $arguments, $function );
+					my $arg = shift(@arguments);
+					$self->add_event( $run_paths, $arg, $function );
 				
 				} elsif ( $command eq 'StopAfter' ) {
 					$end_paths->{$function} = 1;
