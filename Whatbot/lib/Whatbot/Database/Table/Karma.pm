@@ -3,8 +3,7 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
 
 =head1 NAME
 
@@ -89,7 +88,7 @@ Decrement the karma on a topic.
 
 =cut
 
-	method decrement( Str $topic, Str $user ) {
+	method decrement( Str $topic!, Str $user! ) {
 		$self->create({
 			'subject'   => $topic,
 			'user'      => $user,
@@ -103,7 +102,7 @@ Increment the karma on a topic.
 
 =cut
 
-	method increment( Str $topic, Str $user ) {
+	method increment( Str $topic!, Str $user! ) {
 		$self->create({
 			'subject'   => $topic,
 			'user'      => $user,
@@ -117,7 +116,7 @@ Retrieve the karma on a topic.
 
 =cut
 
-	method get( Str $topic ) {
+	method get( Str $topic! ) {
 		my $row = $self->search_one({
 			'_select' => 'SUM(amount)',
 			'subject' => lc($topic)
@@ -134,7 +133,7 @@ containing the last changing user and the amount of karma given.
 
 =cut
 
-	method get_extended( Str $topic ) {
+	method get_extended( Str $topic! ) {
 		my $increment_row = $self->search_one({
 			'_select' => 'COUNT(amount)',
 			'subject' => $topic,

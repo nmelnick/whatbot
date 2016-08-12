@@ -8,6 +8,7 @@
 
 package Whatbot::Command::URL;
 use Moose;
+use Whatbot::Command;
 BEGIN { extends 'Whatbot::Command'; }
 
 use POSIX qw(strftime);

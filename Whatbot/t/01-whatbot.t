@@ -22,11 +22,6 @@ eval {
 };
 like( $@, qr/^ERROR: Example/, 'report error' );
 
-eval {
-	$whatbot->report_error();
-};
-like( $@, qr/missing required argument/, 'missing error' );
-
 done_testing();
 
 1;

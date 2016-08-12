@@ -3,8 +3,7 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
 
 class Whatbot::Database::Table::Trade extends Whatbot::Database::Table {
 	has 'trade_fee' => ( is => 'rw', default => '7.00' );

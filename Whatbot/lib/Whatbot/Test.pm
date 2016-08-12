@@ -3,8 +3,8 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
+use Whatbot;
 
 =head1 NAME
 
@@ -21,7 +21,6 @@ This object provides helper methods for unit testing whatbot commands.
 =cut
 
 class Whatbot::Test {
-	use Whatbot;
 	use Whatbot::Log;
 	use Whatbot::Config;
 	use Whatbot::Database::SQLite;

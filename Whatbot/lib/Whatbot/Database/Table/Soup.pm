@@ -3,8 +3,7 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
 
 =head1 NAME
 
@@ -92,7 +91,7 @@ the existing entry. Returns the new value as set.
 
 =cut
 
-	method set( Str $key, Str $value ) {
+	method set( Str $key!, Str $value! ) {
 		my $row = $self->search_one({
 			'module_id' => $self->_get_module( caller() ),
 			'subject'   => $key
@@ -118,7 +117,7 @@ the database.
 
 =cut
 
-	method get( Str $key ) {
+	method get( Str $key! ) {
 		my $row = $self->search_one({
 			'module_id' => $self->_get_module( caller() ),
 			'subject'   => $key
@@ -135,7 +134,7 @@ Clear key from storage.
 
 =cut
 
-	method clear( Str $key ) {
+	method clear( Str $key! ) {
 		my $row = $self->search_one({
 			'module_id' => $self->_get_module( caller() ),
 			'subject'   => $key

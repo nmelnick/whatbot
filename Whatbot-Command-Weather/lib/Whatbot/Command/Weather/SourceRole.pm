@@ -6,8 +6,7 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
 
 role Whatbot::Command::Weather::SourceRole {
 	use LWP::UserAgent;

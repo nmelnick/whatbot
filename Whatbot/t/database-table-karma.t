@@ -18,7 +18,7 @@ is( $karma->get('example'), undef, 'example has no karma' );
 
 throws_ok(
 	sub { $karma->increment('example') },
-	qr/missing required argument/,
+	qr/Expected/,
 	'increment without from throws exception'
 );
 
@@ -28,7 +28,7 @@ is( $karma->get('example'), 1, 'example has karma of 1' );
 
 throws_ok(
 	sub { $karma->decrement('example') },
-	qr/missing required argument/,
+	qr/Expected/,
 	'decrement without from throws exception'
 );
 

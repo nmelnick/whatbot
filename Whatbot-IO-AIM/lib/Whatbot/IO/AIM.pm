@@ -6,8 +6,7 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
 
 BEGIN {
 	$Whatbot::IO::AIM::VERSION = '0.2';

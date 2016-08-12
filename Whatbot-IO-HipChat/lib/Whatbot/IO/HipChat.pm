@@ -3,17 +3,16 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
 
 BEGIN {
-	$Whatbot::IO::HipChat::VERSION = '0.1';
+	$Whatbot::IO::HipChat::VERSION = '0.2';
 }
 
 class Whatbot::IO::HipChat extends Whatbot::IO::Jabber {
-        use AnyEvent::XMPP::Util qw(res_jid);
-	method BUILDARGS ( %arg_hash ) {
-		my $args = \%arg_hash;
+    use AnyEvent::XMPP::Util qw(res_jid);
+
+	method BUILDARGS ( $args ) {
 		die 'HipChat component requires a "username" and a "password".' unless (
 			$args->{'my_config'}->{'username'}
 			and $args->{'my_config'}->{'password'}
@@ -71,17 +70,17 @@ Whatbot::IO::HipChat - Provide HipChat connection via XMPP.
 
 =head1 CONFIG
 
-	"io": [
-		{
-			"interface": "HipChat",
-			"username" : "123456_0987654"
-			"nick" : "What Bot",
-			"password": "s0methingm4deup!",
-			"rooms": [
-				"Example Room"
-			]
-		}
-	]
+  "io": [
+    {
+      "interface": "HipChat",
+      "username" : "123456_0987654"
+      "nick" : "What Bot",
+      "password": "s0methingm4deup!",
+      "rooms": [
+        "Example Room"
+      ]
+    }
+  ]
 
 =over 4
 

@@ -17,7 +17,7 @@ is( $soup->count(), 0, 'table has zero records' );
 
 throws_ok(
 	sub { $soup->get() },
-	qr/missing required/,
+	qr/Expected/,
 	'get requires one param'
 );
 
@@ -25,7 +25,7 @@ is( $soup->get('example'), undef, 'example is empty' );
 
 throws_ok(
 	sub { $soup->set('example') },
-	qr/missing required/,
+	qr/Expected/,
 	'set requires one param'
 );
 
@@ -43,7 +43,7 @@ is_deeply(
 
 throws_ok(
 	sub { $soup->clear() },
-	qr/missing required/,
+	qr/Expected/,
 	'clear requires one param'
 );
 

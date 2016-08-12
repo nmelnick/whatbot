@@ -23,10 +23,10 @@ my $help;
 
 # Initial requirements check
 eval {
-    require 5.008_001;
+    require 5.014;
 };
 if ($@) {
-	print 'ERROR: whatbot requires perl 5.8 or higher.' . "\n";
+	print 'ERROR: whatbot requires perl 5.14 or higher.' . "\n";
 	exit(-1);
 }
 require Whatbot;

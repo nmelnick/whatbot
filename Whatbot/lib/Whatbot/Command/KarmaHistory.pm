@@ -8,6 +8,7 @@
 
 package Whatbot::Command::KarmaHistory;
 use Moose;
+use Whatbot::Command;
 BEGIN { extends 'Whatbot::Command' }
 use namespace::autoclean;
 
@@ -57,7 +58,7 @@ sub random : GlobalRegEx('^(\w+) (like|hate)s what') {
 	return $who . ( $who ne $nick ? ' (as ' . $nick .')' : '' ) . " ${verb}s $karma->[0].";
 }
 
-sub controversy : GlobalRegEx('^[\. ]*?fightin(?:'|g)? words\??$') {
+sub controversy : GlobalRegEx('^[\. ]*?fightin(?:\'|g)? words\??$') {
 	my ( $self, $message, $captures ) = @_;
 
 	my $limit = 10;

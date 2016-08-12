@@ -3,8 +3,7 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
 
 BEGIN { 
 	$Whatbot::IO::Slack::VERSION = '0.1';

@@ -3,8 +3,7 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
 
 =head1 NAME
 
@@ -12,14 +11,12 @@ Whatbot::Command - Base class for whatbot commands
 
 =head1 SYNOPSIS
 
- package Whatbot::Command::Example;
- use Moose;
- BEGIN { extends 'Whatbot::Command' }
- 
- sub register {
-	 my ($self) = @_;
-	 
-	 $self->require_direct(0);
+ use Moops;
+ use Whatbot::Command; # Import subroutine attributes
+ class Whatbot::Command::Example extends Whatbot::Command {
+   method register() {
+     $self->require_direct(0);
+   }
  }
 
 =head1 DESCRIPTION
@@ -29,7 +26,7 @@ whatbot command or extension. It provides a skeleton structure to create a
 new command, parses command attributes, and gives the warnings necessary when
 a command is not implemented properly.
 
-To create a new command, subclass this module using Moose's 'extends' pragma,
+To create a new command, subclass this module using Moops' 'extends' pragma,
 and override the given methods with your own. Set attributes to your methods
 to hook into events.
 
@@ -148,25 +145,6 @@ class Whatbot::Command extends Whatbot::Component {
 		return $_[0]->ios->{Timer};
 	}
 
-	# Perl attribute hacking. At least it always looks like a hack to me. These
-	# routines will scoop up sub attributes defined in the subclass and store
-	# then in $_attribute_cache for us to parse using Dispatcher.
-
-	our $_attribute_cache = {};
-
-	sub MODIFY_CODE_ATTRIBUTES {
-		my ( $class, $code, @attrs ) = @_;
-	
-		$_attribute_cache = { %{ $_attribute_cache }, $code => [@attrs] };
-		return ();
-	}
-
-	sub FETCH_CODE_ATTRIBUTES {
-		$_attribute_cache->{ $_[1] } || ();
-	}
-
-	# End attribute hacks
-
 	method BUILD(...) {
 		$self->register();
 	}
@@ -196,10 +174,39 @@ attribute so someone may ask your command for help directly.
 		return 'Help is not available for this module.';
 	}
 
+	method fetch_attributes( $coderef ) {
+		return $Whatbot::Command::_attribute_cache->{$coderef};
+	}
+
 	before log() {
 		Whatbot::State->instance->log->name( $self->name );
 	}
 
+}
+
+{
+	use v5.14;
+	use strict;
+	use warnings FATAL => 'all';
+	package Whatbot::Command;
+	use Attribute::Handlers;
+
+	our $_attribute_cache = {};
+
+	sub UNIVERSAL::Command      :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
+	sub UNIVERSAL::CommandRegEx :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
+	sub UNIVERSAL::GlobalRegEx  :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
+	sub UNIVERSAL::Monitor      :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
+	sub UNIVERSAL::StopAfter    :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
+	sub UNIVERSAL::Event        :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
+
+	sub handle {
+		my ($package, $symbol, $referent, $attr, $data, $phase, $filename, $linenum) = @_;
+
+		$Whatbot::Command::_attribute_cache->{$referent} = [];
+		push( @{ $Whatbot::Command::_attribute_cache->{$referent} }, [ $attr, ( $data ? @$data : () ) ] );
+		return;
+	}
 }
 
 1;

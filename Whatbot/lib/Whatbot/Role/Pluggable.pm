@@ -3,8 +3,7 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+use Moops;
 
 =head1 NAME
 
@@ -13,23 +12,21 @@ Whatbot::Role::Pluggable - Role to provide Pluggable.
 =head1 SYNOPSIS
 
  class Whatbot::Foo with Whatbot::Role::Pluggable {
-	 has 'search_base' => ( is => 'ro', default => 'Whatbot::Foo' );
+   has 'search_base' => ( is => 'ro', default => 'Whatbot::Foo' );
 
-	 method foo {
-		 foreach my $plugin ( $self->plugins ) {
-			 # do something
-		 }
-	 }
+   method foo {
+     foreach my $plugin ( $self->plugins ) {
+       # do something
+     }
+   }
  }
 
 =head1 DESCRIPTION
 
-Whatbot::Role::Pluggable solves a strange problem where Module::Pluggable does
-not create the plugins sub in MooseX::Declare, likely due to autoclean. Instead,
-we create this role to use Module::Pluggable::Object to get the plugin list, and
-provide a 'plugins' method to return the same data as Module::Pluggable. This
-implementation does not instantiate any of the classes, only returns the class
-names.
+Whatbot::Role::Pluggable uses Module::Pluggable::Object to get the plugin list,
+and provide a 'plugins' method to return the same data as Module::Pluggable.
+This implementation does not instantiate any of the classes, only returns the
+class names.
 
 Consumers of this role need to define a 'search_base' accessor to give M::P the
 root class name to search from.
