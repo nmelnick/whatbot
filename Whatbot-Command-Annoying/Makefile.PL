@@ -7,7 +7,7 @@ author   'Nicholas Melnick <nick@abstractwankery.com>';
 license  'perl';
 
 # Specific dependencies
-requires      'Whatbot'              => 0.12;
+requires      'Whatbot'              => 0.2;
 requires      'Moose'                => 2.04;
 requires      'namespace::autoclean' => 0;
 requires      'Acme::LOLCAT'         => 0;

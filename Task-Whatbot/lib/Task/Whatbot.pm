@@ -25,8 +25,6 @@ provided by whatbot.org for a given release.
 
 =head3 L<Whatbot::Command::Bitcoin>
 
-=head3 L<Whatbot::Command::Blackjack>
-
 =head3 L<Whatbot::Command::Dogecoin>
 
 =head3 L<Whatbot::Command::Excuse>
@@ -34,8 +32,6 @@ provided by whatbot.org for a given release.
 =head3 L<Whatbot::Command::Market>
 
 =head3 L<Whatbot::Command::Nickometer>
-
-=head3 L<Whatbot::Command::PageRank>
 
 =head3 L<Whatbot::Command::Paste>
 
@@ -52,6 +48,8 @@ provided by whatbot.org for a given release.
 =head3 L<Whatbot::IO::HipChat>
 
 =head3 L<Whatbot::IO::Jabber>
+
+=head3 L<Whatbot::IO::Slack>
 
 =head1 LICENSE/COPYRIGHT
 
