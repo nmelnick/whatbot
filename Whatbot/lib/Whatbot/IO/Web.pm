@@ -14,7 +14,7 @@ class Whatbot::IO::Web extends Whatbot::IO {
 
 	has 'server' => (
 		'is'  => 'rw',
-		'isa' => 'AnyEvent::HTTPD',
+		'isa' => 'Maybe[AnyEvent::HTTPD]',
 	);
 
 	method BUILD(...) {
