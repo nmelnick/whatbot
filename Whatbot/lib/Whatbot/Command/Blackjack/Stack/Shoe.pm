@@ -1,27 +1,23 @@
-package Whatbot::Command::Blackjack::Stack::Shoe;
-use Moose;
-extends 'Whatbot::Command::Blackjack::Stack';
-use Whatbot::Command::Blackjack::Stack::Deck;
-use namespace::autoclean;
+use Moops;
 
-has 'decks'   => ( is => 'rw', isa => 'Int', default => 4 );
+class Whatbot::Command::Blackjack::Stack::Shoe extends Whatbot::Command::Blackjack::Stack {
+    use Whatbot::Command::Blackjack::Stack::Deck;
 
-sub BUILD {
-    my ( $self ) = @_;
-    
-    my @cards;
-    foreach ( 1 .. $self->decks ) {
-        my $deck = Whatbot::Command::Blackjack::Stack::Deck->new();
-        foreach my $card ( @{ $deck->cards } ) {
-            push( @cards, $card );
+    has 'decks'   => ( is => 'rw', isa => 'Int', default => 4 );
+
+    method BUILD(...) {
+        my @cards;
+        foreach ( 1 .. $self->decks ) {
+            my $deck = Whatbot::Command::Blackjack::Stack::Deck->new();
+            foreach my $card ( @{ $deck->cards } ) {
+                push( @cards, $card );
+            }
         }
+        $self->cards(\@cards);
+        $self->shuffle();
+        $self->shuffle();
     }
-    $self->cards(\@cards);
-    $self->shuffle();
-    $self->shuffle();
 }
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

@@ -1,42 +1,34 @@
-package Whatbot::Command::Blackjack::Stack;
-use Moose;
-use namespace::autoclean;
+use Moops;
 
-has 'cards' => ( is => 'rw', isa => 'ArrayRef' );
-has 'discard' => ( is => 'ro', isa => 'ArrayRef', default => sub { [] } );
+class Whatbot::Command::Blackjack::Stack {
+    has 'cards'   => ( is => 'rw', isa => 'ArrayRef' );
+    has 'discard' => ( is => 'ro', isa => 'ArrayRef', default => sub { [] } );
 
-sub shuffle {
-    my ( $self ) = @_;
-    
-    my %seen;
-    my @cards;
-    my $stack_size = scalar( @{$self->cards} );
-    while ( scalar( keys %seen ) < $stack_size ) {
-        my $index = -1;
-        while ( $index < 0 or $seen{$index} ) {
-            $index = int( rand($stack_size) );
+    method shuffle() {
+        my %seen;
+        my @cards;
+        my $stack_size = scalar( @{$self->cards} );
+        while ( scalar( keys %seen ) < $stack_size ) {
+            my $index = -1;
+            while ( $index < 0 or $seen{$index} ) {
+                $index = int( rand($stack_size) );
+            }
+            push( @cards, $self->cards->[$index] );
+            $seen{$index} = 1;
         }
-        push( @cards, $self->cards->[$index] );
-        $seen{$index} = 1;
+        $self->cards(\@cards);
     }
-    $self->cards(\@cards);
-}
 
-sub card_count {
-    my ( $self ) = @_;
-    
-    return scalar( @{ $self->cards } );
-}
+    method card_count() {
+        return scalar( @{ $self->cards } );
+    }
 
-sub take {
-    my ( $self ) = @_;
-    
-    my $card = shift(@{ $self->cards });
-    push( @{ $self->discard }, $card );
-    return $card;
+    method take() {
+        my $card = shift(@{ $self->cards });
+        push( @{ $self->discard }, $card );
+        return $card;
+    }
 }
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

@@ -17,6 +17,11 @@ Whatbot::Command - Base class for whatbot commands
    method register() {
      $self->require_direct(0);
    }
+
+   method foo($message) : Command {
+     # I am responding to "example foo"
+     return 'Hi, ' . $message->from . '!';
+   }
  }
 
 =head1 DESCRIPTION
