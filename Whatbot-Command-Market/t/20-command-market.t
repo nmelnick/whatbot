@@ -25,7 +25,7 @@ foreach my $stock ( qw( MS ) ) {
 }
 
 # Known good
-foreach my $stock ( qw( AAPL MSFT GOOG CSCO DRIV ) ) {
+foreach my $stock ( qw( AAPL MSFT GOOG CSCO ) ) {
 	my $response = $market->parse_message( 'market ' . $stock, [$stock] );
 	ok( $response, $stock . ' has response' );
 	ok( $response =~ /$stock/, $stock . ' contains ticker' );
@@ -39,7 +39,7 @@ foreach my $query ( "AAPL,MSFT" ) {
         ok( @$response == 2, "response has 2 parts" );
 }
 # Known weird
-foreach my $stock ( '^DJI', 'DRIV' ) {
+foreach my $stock ( '^DJI' ) {
 	my $sanitized = $stock;
 	$sanitized =~ s/\^/\\^/g;
 	my $response = $market->parse_message( 'market ' . $stock, [$stock] );
