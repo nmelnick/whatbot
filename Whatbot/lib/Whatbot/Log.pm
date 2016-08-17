@@ -96,7 +96,7 @@ Writes message to standard out / log file.
 		my $output = '[' . strftime( '%Y-%m-%d %H:%M:%S', localtime(time) ) . '] ' . $entry . "\n";
 		print $fh $output;
 		if ( $self->log_directory ) {
-			open( LOG, '>>' . $self->log_directory . '/Whatbot.log' )
+			open( LOG, '>>' . $self->log_directory . '/whatbot.log' )
 				or die 'Cannot open logfile for writing: ' . $!;
 			binmode( LOG, ':utf8' );
 			print LOG $output;

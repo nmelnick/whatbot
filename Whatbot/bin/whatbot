@@ -7,12 +7,14 @@
 # the whatbot project - http://www.whatbot.org
 ###########################################################################
 
+use 5.014;
 use strict;
 use warnings;
 use Cwd qw(realpath getcwd);
 use Getopt::Long;
 use EV;
 use lib realpath( getcwd() ) . '/../lib';
+use Whatbot;
 
 my $basedir = realpath( getcwd() . '/..' );
 
@@ -21,24 +23,12 @@ my $config_path = $basedir . "/conf/whatbot.conf";
 my $daemon = 0;
 my $help;
 
-# Initial requirements check
-eval {
-    require 5.014;
-};
-if ($@) {
-	print 'ERROR: whatbot requires perl 5.14 or higher.' . "\n";
-	exit(-1);
-}
-require Whatbot;
-
 GetOptions(
     'config=s'  => \$config_path,
     'daemon'    => \$daemon,
     'help'      => \$help
 );
 usage() if ($help);
-
-whatbot->import;
 
 # Start application
 my $whatbot = Whatbot->new();

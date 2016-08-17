@@ -137,7 +137,6 @@ Provides access to Whatbot::Timer functionality.
 =cut
 
 class Whatbot::Command extends Whatbot::Component {
-	use Whatbot::Types qw( HTTPRequest );
 	use Whatbot::State;
 
 	has 'name'             => ( is => 'rw', isa => 'Str' );
