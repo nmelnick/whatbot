@@ -1,8 +1,21 @@
 ---
 language: perl
+
 perl:
   - "5.14"
   - "5.20"
   - "5.24"
+
+services:
+  - docker
+
 install: cpanm --quiet Module::Install inc::Module::Install; for MOD in Whatbot*/; do echo $MOD; cd $MOD; PERL5LIB=../Whatbot/lib cpanm --quiet --installdeps --notest .; cd ..; done
 script: "A=0; for MOD in Whatbot*/; do echo $MOD; cd $MOD; PERL5LIB=../Whatbot/lib perl Makefile.PL && make && if [ -e t ]; then prove -Ilib t; if [ $? -ne 0 ]; then A=$?; break; fi; fi; cpanm --notest .; cd ..; done; exit $A"
+
+after_success:
+  - if [ "$TRAVIS_BRANCH" == "docker" ] && [ "${TRAVIS_PERL_VERSION:0:4}" == "5.24" ]; then
+    docker build -t nmelnick/whatbot -f Dockerfile.deploy .
+    docker run -it nmelnick/whatbot bash -c 'ls -l /whatbot/'
+    docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+    docker push nmelnick/whatbot;
+    fi
