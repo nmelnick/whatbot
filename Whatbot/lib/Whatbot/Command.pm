@@ -207,7 +207,7 @@ attribute so someone may ask your command for help directly.
 	sub handle {
 		my ($package, $symbol, $referent, $attr, $data, $phase, $filename, $linenum) = @_;
 
-		$Whatbot::Command::_attribute_cache->{$referent} = [];
+		$Whatbot::Command::_attribute_cache->{$referent} ||= [];
 		push( @{ $Whatbot::Command::_attribute_cache->{$referent} }, [ $attr, ( $data ? @$data : () ) ] );
 		return;
 	}
