@@ -216,6 +216,7 @@ Limit to a given number of rows.
 		my $query = $self->_generate_query( $search_data, $columns );
 		
 		my @results;
+		warn $query;
 		my $sth = $self->database->handle->prepare($query);
 		$sth->execute();
 		if ( $search_data->{'_select'} ) {   
@@ -317,7 +318,7 @@ nothing if it is not found.
 				push( @$columns, 'column_' . ( @$columns + 1 ) );
 			}
 		} else {
-			push( @$columns, ( $self->columns ) );
+			push( @$columns, @{ $self->columns } );
 			$query .= join( ', ', @$columns );
 		}
 		$query .= ' FROM ' . $self->table_name;
@@ -333,7 +334,8 @@ nothing if it is not found.
 							$self->database->handle->quote( $search_data->{$column}->{'LIKE'} )
 						)
 					);
-				} elsif ( $search_data->{$column}->{'>'} ) {
+				}
+				if ( $search_data->{$column}->{'>'} ) {
 					push(
 						@wheres, 
 						sprintf( '%s > %s',
@@ -341,7 +343,8 @@ nothing if it is not found.
 							$self->database->handle->quote( $search_data->{$column}->{'>'} )
 						)
 					);
-				} elsif ( $search_data->{$column}->{'<'} ) {
+				}
+				if ( $search_data->{$column}->{'<'} ) {
 					push(
 						@wheres, 
 						sprintf( '%s < %s',
