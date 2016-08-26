@@ -41,6 +41,9 @@ class Whatbot::Command::Bother extends Whatbot::Command {
 			}
 			$every = $amount;
 		}
+		if ( $every !~ /^\d+$/ or $every == 0 ) {
+			return 'I am only going to worry about whole numbers greater than zero.';
+		}
 
 		foreach my $user (@users) {
 			my $added = $self->model('Bother')->add( $user, $about, $every, $message->origin );
