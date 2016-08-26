@@ -216,7 +216,6 @@ Limit to a given number of rows.
 		my $query = $self->_generate_query( $search_data, $columns );
 		
 		my @results;
-		warn $query;
 		my $sth = $self->database->handle->prepare($query);
 		$sth->execute();
 		if ( $search_data->{'_select'} ) {   
