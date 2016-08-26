@@ -185,8 +185,12 @@ Search the table and return results. The optional search_data hashref allows
 filtering of the results. Return an empty arrayref if no results are found, or
 an arrayref of L<Whatbot::Database::Table::Row> instances. The search_data
 hashref can contain key => value pairs that correspond to a column name and a
-value for equal searches, otherwise, a value can be a hashref that contains a
-key of 'LIKE' and a value of the like query. Keys that start with underscore
+value for equal searches, otherwise, a value can be a hashref that contains:
+
+- a key of 'LIKE' and a value of the like query { 'LIKE' => 'foo' }
+- a key of '<' or '>' and a value of gt or lt { '>' => 32 }
+
+Keys that start with underscore
 are reserved, and can include:
 
 =over 4
@@ -208,47 +212,9 @@ Limit to a given number of rows.
 =cut
 
 	method search ($search_data?) {
-		my $columns = $self->columns;
-		my $query = 'SELECT ';
-		if ( $search_data->{'_select'} ) {
-			$query .= $search_data->{'_select'};
-			$columns = [];
-			foreach my $select ( split( /\s*,\s*/, $search_data->{'_select'} ) ) {
-				push( @$columns, 'column_' . ( @$columns + 1 ) );
-			}
-		} else {
-			$query .= join( ', ', @{ $self->columns } );
-		}
-		$query .= ' FROM ' . $self->table_name;
-		my @wheres;
-		foreach my $column ( keys %$search_data ) {
-			next if ( $column =~ /^_/ );
-			if ( ref( $search_data->{$column} ) eq 'HASH' ) {
-				push(
-					@wheres, 
-					sprintf( '%s LIKE %s',
-						$self->database->handle->quote_identifier($column),
-						$self->database->handle->quote( $search_data->{$column}->{'LIKE'} )
-					)
-				);
-			} else {
-				push(
-					@wheres, 
-					sprintf( '%s = %s',
-						$self->database->handle->quote_identifier($column),
-						$self->database->handle->quote( $search_data->{$column} )
-					)
-				);
-			}
-		}
-		$query .= ' WHERE ' . join( ' AND ', @wheres ) if (@wheres);
-		$query .= ' ORDER BY ' . $search_data->{'_order_by'} if ( $search_data->{'_order_by'} );
-		$query .= ' LIMIT ' . $search_data->{'_limit'} if ( $search_data->{'_limit'} );
-
-		if ( $ENV{'WB_DATABASE_DEBUG'} ) {
-			$self->log->write($query);
-		}
-
+		my $columns = [];
+		my $query = $self->_generate_query( $search_data, $columns );
+		
 		my @results;
 		my $sth = $self->database->handle->prepare($query);
 		$sth->execute();
@@ -341,6 +307,68 @@ nothing if it is not found.
 		}
 
 		$self->database->get_tables();
+	}
+
+	method _generate_query( $search_data, $columns ) {
+		my $query = 'SELECT ';
+		if ( $search_data->{'_select'} ) {
+			$query .= $search_data->{'_select'};
+			foreach my $select ( split( /\s*,\s*/, $search_data->{'_select'} ) ) {
+				push( @$columns, 'column_' . ( @$columns + 1 ) );
+			}
+		} else {
+			push( @$columns, ( $self->columns ) );
+			$query .= join( ', ', @$columns );
+		}
+		$query .= ' FROM ' . $self->table_name;
+		my @wheres;
+		foreach my $column ( keys %$search_data ) {
+			next if ( $column =~ /^_/ );
+			if ( ref( $search_data->{$column} ) eq 'HASH' ) {
+				if ( $search_data->{$column}->{'LIKE'} ) {
+					push(
+						@wheres, 
+						sprintf( '%s LIKE %s',
+							$self->database->handle->quote_identifier($column),
+							$self->database->handle->quote( $search_data->{$column}->{'LIKE'} )
+						)
+					);
+				} elsif ( $search_data->{$column}->{'>'} ) {
+					push(
+						@wheres, 
+						sprintf( '%s > %s',
+							$self->database->handle->quote_identifier($column),
+							$self->database->handle->quote( $search_data->{$column}->{'>'} )
+						)
+					);
+				} elsif ( $search_data->{$column}->{'<'} ) {
+					push(
+						@wheres, 
+						sprintf( '%s < %s',
+							$self->database->handle->quote_identifier($column),
+							$self->database->handle->quote( $search_data->{$column}->{'<'} )
+						)
+					);
+				}
+			} else {
+				push(
+					@wheres, 
+					sprintf( '%s = %s',
+						$self->database->handle->quote_identifier($column),
+						$self->database->handle->quote( $search_data->{$column} )
+					)
+				);
+			}
+		}
+		$query .= ' WHERE ' . join( ' AND ', @wheres ) if (@wheres);
+		$query .= ' ORDER BY ' . $search_data->{'_order_by'} if ( $search_data->{'_order_by'} );
+		$query .= ' LIMIT ' . $search_data->{'_limit'} if ( $search_data->{'_limit'} );
+
+		if ( $ENV{'WB_DATABASE_DEBUG'} ) {
+			$self->log->write($query);
+		}
+
+		return $query;
 	}
 }
 

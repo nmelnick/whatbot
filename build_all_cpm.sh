@@ -8,6 +8,7 @@ for module_name in Whatbot Whatbot-*/ Whatbot-IO-HipChat ; do
     if [ -e Makefile ]; then
     	rm Makefile
     fi
+    perl Makefile.PL
     cpm install -g .
     cd ..
 done
