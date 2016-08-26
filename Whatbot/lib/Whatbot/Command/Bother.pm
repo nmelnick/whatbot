@@ -25,7 +25,8 @@ class Whatbot::Command::Bother extends Whatbot::Command {
 		my $word = $captures->[0];
 		if ( $every !~ /^\d+$/ ) {
 			my ( $amount, $unit ) = split( /\s+/, $every );
-			if ( $unit =~ /^minutes?/ ) {
+			if ( $unit =~ /^seconds?/ ) {
+			} elsif ( $unit =~ /^minutes?/ ) {
 				$amount *= 60;
 			} elsif ( $unit =~ /^hours?/ ) {
 				$amount = $amount * 60 * 60;
