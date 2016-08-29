@@ -18,8 +18,8 @@ class Whatbot::Command::Bother extends Whatbot::Command {
 		$self->init_timers();
 	}
 
-	method bother( $message?, $captures? ) : GlobalRegEx('^(bother|bug) ([\w, \@]+) about (.*?) every (.*)$') {
-		my @users = map { s/^\@//; $_; } ( split( /,\s+/, $captures->[1] ) );
+	method bother( $message?, $captures? ) : GlobalRegEx('^(bother|bug) ([\w\s\@,]+) about (.*?) every (.*)$') {
+		my @users = split( /,\s+/, $captures->[1] );
 		my $about = $captures->[2];
 		my $every = $captures->[3];
 		my $word = $captures->[0];
