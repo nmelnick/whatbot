@@ -20,27 +20,9 @@ class Whatbot::Command::Bother extends Whatbot::Command {
 
 	method bother( $message?, $captures? ) : GlobalRegEx('^(bother|bug) ([\w\s\@,]+) about (.*?) every (.*)$') {
 		my @users = split( /,\s+/, $captures->[1] );
-		my $about = $captures->[2];
-		my $every = $captures->[3];
 		my $word = $captures->[0];
-		if ( $every !~ /^\d+$/ ) {
-			my ( $amount, $unit ) = split( /\s+/, $every );
-			if ( $unit =~ /^seconds?/ ) {
-			} elsif ( $unit =~ /^minutes?/ ) {
-				$amount *= 60;
-			} elsif ( $unit =~ /^hours?/ ) {
-				$amount = $amount * 60 * 60;
-			} elsif ( $unit =~ /^days?/ ) {
-				$amount = $amount * 60 * 60 * 24;
-			} elsif ( $unit =~ /^weeks?/ ) {
-				$amount = $amount * 60 * 60 * 24 * 7;
-			} elsif ( $unit =~ /^months?/ ) {
-				$amount = $amount * 60 * 60 * 24 * 30;
-			} else {
-				return 'I have no idea how to deal with the unit "' . $unit . '".';
-			}
-			$every = $amount;
-		}
+		my $about = $captures->[2];
+		my $every = $self->_parse_every( $captures->[3] );
 		if ( $every !~ /^\d+$/ or $every == 0 ) {
 			return 'I am only going to worry about whole numbers greater than zero.';
 		}
@@ -120,6 +102,35 @@ class Whatbot::Command::Bother extends Whatbot::Command {
 	method dequeue_timer($record) {
    		my $key = join( '-', $record->user, $record->about );
    		undef $self->timers->{$key};
+	}
+
+	method _parse_every($capture) {
+		my $every;
+		if ( $capture !~ /^\d+$/ ) {
+			if ( $capture =~ /^[a-zA-Z]+$/ ) {
+				# Maybe it's just a unit?
+				$capture = '1 ' . $capture;
+			}
+			my ( $amount, $unit ) = split( /\s+/, $capture );
+			if ( $unit =~ /^seconds?/ ) {
+			} elsif ( $unit =~ /^minutes?/ ) {
+				$amount *= 60;
+			} elsif ( $unit =~ /^hours?/ ) {
+				$amount = $amount * 60 * 60;
+			} elsif ( $unit =~ /^days?/ ) {
+				$amount = $amount * 60 * 60 * 24;
+			} elsif ( $unit =~ /^weeks?/ ) {
+				$amount = $amount * 60 * 60 * 24 * 7;
+			} elsif ( $unit =~ /^months?/ ) {
+				$amount = $amount * 60 * 60 * 24 * 30;
+			} else {
+				return 'I have no idea how to deal with the unit "' . $unit . '".';
+			}
+			$every = $amount;
+		} else {
+			$every = $capture;
+		}
+		return $every;
 	}
 }
 
