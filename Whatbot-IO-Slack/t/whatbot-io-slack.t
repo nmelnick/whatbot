@@ -63,6 +63,10 @@ $message->{'text'} = 'well, then, <@foo>';
 $slack_message = $slack->_slack_message_to_message($message);
 is( $slack_message->content, 'well, then, @foo', '_slack_message_to_message has user normalized');
 
+$message->{'text'} = 'well, then, <@U024BE7LH|bob>, you are a tool.';
+$slack_message = $slack->_slack_message_to_message($message);
+is( $slack_message->content, 'well, then, @bob, you are a tool.', '_slack_message_to_message has user normalized with id/readable');
+
 $message->{'text'} = 'is <i>obviously</i> heading';
 $slack_message = $slack->_slack_message_to_message($message);
 is( $slack_message->content, 'is obviously heading', '_slack_message_to_message has HTML filtered');

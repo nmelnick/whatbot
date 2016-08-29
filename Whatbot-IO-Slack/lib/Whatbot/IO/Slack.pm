@@ -6,7 +6,7 @@
 use Moops;
 
 BEGIN { 
-	$Whatbot::IO::Slack::VERSION = '0.1';
+	$Whatbot::IO::Slack::VERSION = '0.2';
 }
 
 class Whatbot::IO::Slack extends Whatbot::IO {
@@ -61,7 +61,9 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 
 	method disconnect () {
 		$self->force_disconnect(1);
-		$self->handle->close();
+		if ( $self->handle ) {
+			$self->handle->close();
+		}
 	}
 
 	# Send a message
@@ -195,14 +197,26 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 
 	method _slack_message_to_message( $slack_message ) {
 		my $text = $slack_message->{'text'};
+
+		# Strip links
 		$text =~ s/<(http.*?)>/$1/g;
-		$text =~ s/<(\@\w+?)>/$1/g;
+
+		# Change users to Slack-provided user readable
+		$text =~ s/<\@\w+?\|(\w+)>/\@$1/g;
+
+		# Change users to self-provided user readable
+		$text =~ s/<\@(\w+?)>/$self->_get_user($1)/ge;
+
 		my $content = Whatbot::Utility::html_strip($text);
 		return $self->get_new_message({
 			'from'    => $self->users->{ $slack_message->{'user'} },
 			'to'      => $self->channels->{ $slack_message->{'channel'} },
 			'content' => $content,
 		});
+	}
+
+	method _get_user($id) {
+		return '@' . ( $self->users->{$id} or $id );
 	}
 
 }
