@@ -35,12 +35,14 @@ sub message : Monitor {
 		'word',
 		'hi',
 		'hello',
+		'greetings',
+		'allo',
 	);
 	if (
 		$message_ref->is_direct
 		and $message_ref->content =~ /^(hey|hi|hello|word|sup|morning|good morning)[\?\!\. ]*?$/
 	) {
-		return $greetings[rand @greetings] . ', ' . $message_ref->from . '.';
+		return $greetings[rand @greetings] . ', ' . $self->tag_user( $message_ref->from ) . '.';
 	}
 
 	return;
