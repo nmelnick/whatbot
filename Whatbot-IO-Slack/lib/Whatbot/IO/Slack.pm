@@ -67,7 +67,7 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 	}
 
 	# Send a message
-	method send_message ( $message ) {
+	method deliver_message ( $message ) {
 		my $to;
 		foreach my $channel ( keys %{ $self->channels } ) {
 			if ( $self->channels->{$channel} eq $message->to ) {
@@ -85,6 +85,18 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 		});
 		$self->event_message($message);
 		return;
+	}
+
+	method format_user($user) {
+		$user =~ s/^\@//;
+		foreach my $id ( keys %{ $self->users } ) {
+			my $name = $self->users->{$id};
+			if ( $name eq $user ) {
+				return sprintf( '<@%s|%s>', $id, $name );
+			}
+		}
+
+		return $user;
 	}
 
 	### INTERNAL
@@ -202,7 +214,7 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 		$text =~ s/<(http.*?)>/$1/g;
 
 		# Change users to Slack-provided user readable
-		$text =~ s/<\@\w+?\|(\w+)>/\@$1/g;
+		$text =~ s/<\@\w+?\|(\w+)>/$self->_get_user($1)/ge;
 
 		# Change users to self-provided user readable
 		$text =~ s/<\@(\w+?)>/$self->_get_user($1)/ge;
@@ -216,7 +228,7 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 	}
 
 	method _get_user($id) {
-		return '@' . ( $self->users->{$id} or $id );
+		return $self->tag_user( $self->users->{$id} or $id );
 	}
 
 }

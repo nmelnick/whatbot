@@ -66,7 +66,7 @@ class Whatbot::IO::Log extends Whatbot::IO::Legacy {
 	}
 
 	# Send a message
-	method send_message( $message ) {
+	method deliver_message( $message ) {
 	}
 
 

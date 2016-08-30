@@ -128,23 +128,37 @@ module, whether on first load, or after a disconnection.
 
 =item disconnect()
 
-Override this method. This method is called when Whatbot is attempting to
-disconnect from this module, generally when Whatbot is exiting.
+Optionally override this method. This method is called when Whatbot is
+attempting to disconnect from this module, generally when Whatbot is exiting.
 
 =cut
 
 	method disconnect {
 	}
 
-=item send_message($message)
+=item deliver_message($message)
 
-Override this method. This method, given a Whatbot::Message, will send the
-message out through this service.
+Optionally override this method. This method, given a Whatbot::Message, will
+send the message out through this service.
 
 =cut
 
-	method send_message( $message ) {
-		$self->log->error( ref($self) . ' does not know how to send_message' );
+	method deliver_message( $message ) {
+		$self->log->error( ref($self) . ' does not know how to deliver_message' );
+	}
+
+=item format_user($user)
+
+Optionally override this method. This method is given a username as tagged by
+a command or within Whatbot, and the module may optionally reformat it before
+the message is provided to deliver_message. Services that employ @mentions may
+use this to convert a bare username to a mention or vice versa. Default
+implementation leaves the username as is.
+
+=cut
+
+	method format_user($user) {
+		return $user;
 	}
 
 =back
@@ -152,6 +166,23 @@ message out through this service.
 =head1 PUBLIC METHODS
 
 =over 4
+
+=item send_message($message)
+
+Send a message through this provider.
+
+=cut
+
+	method send_message($message) {
+		my $content = $message->text;
+		if ( $content =~ /\{!user=/ and $content !~ /\{!user=.*?\}/ ) {
+			die 'Unclosed user tag in ' . $message->text;
+		}
+		$content =~ s/\{!user=(.*?)\}/$self->format_user($1)/ge;
+		my $new_message = $message->clone();
+		$new_message->text($content);
+		return $self->deliver_message($new_message);
+	}
 
 =item notify($context, $message)
 
@@ -273,7 +304,7 @@ invoke one or more commands. The $message variable must be a Whatbot::Message.
 =cut
 
 	method event_message( Whatbot::Message $message ) {
-		$self->notify( $message->to, '<' . $message->from . '> ' . $message->content );
+		$self->notify( $message->to, '<' . $message->from . '> ' . $message->text );
 		$message->me( $self->me );
 		$message->origin( join( ':', $self->name, ( $message->is_private ? $message->from : $message->to ) ) );
 		if ( $message->from eq $self->me ) {

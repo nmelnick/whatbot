@@ -5,6 +5,7 @@ use Test::More;
 use Whatbot::Test;
 
 {
+	# "mock" AnyEvent::SlackRTM
 	package AnyEvent::SlackRTM;
 	my $lastref;
 	sub send {
@@ -61,11 +62,13 @@ is( $slack_message->content, 'example', '_slack_message_to_message has content')
 
 $message->{'text'} = 'well, then, <@foo>';
 $slack_message = $slack->_slack_message_to_message($message);
-is( $slack_message->content, 'well, then, @foo', '_slack_message_to_message has user normalized');
+is( $slack_message->content, 'well, then, foo', '_slack_message_to_message content has user normalized');
+is( $slack_message->text, 'well, then, {!user=foo}', '_slack_message_to_message text has user normalized');
 
 $message->{'text'} = 'well, then, <@U024BE7LH|bob>, you are a tool.';
 $slack_message = $slack->_slack_message_to_message($message);
-is( $slack_message->content, 'well, then, @bob, you are a tool.', '_slack_message_to_message has user normalized with id/readable');
+is( $slack_message->content, 'well, then, bob, you are a tool.', '_slack_message_to_message content has user normalized with id/readable');
+is( $slack_message->text, 'well, then, {!user=bob}, you are a tool.', '_slack_message_to_message text has user normalized with id/readable');
 
 $message->{'text'} = 'is <i>obviously</i> heading';
 $slack_message = $slack->_slack_message_to_message($message);
@@ -77,7 +80,8 @@ is( $slack_message->content, 'to http://www.google.com', '_slack_message_to_mess
 
 $message->{'text'} = 'well, then, <@foo> is <i>obviously</i> heading to <http://www.google.com>';
 $slack_message = $slack->_slack_message_to_message($message);
-is( $slack_message->content, 'well, then, @foo is obviously heading to http://www.google.com', '_slack_message_to_message has all in place');
+is( $slack_message->content, 'well, then, foo is obviously heading to http://www.google.com', '_slack_message_to_message content has all in place');
+is( $slack_message->text, 'well, then, {!user=foo} is obviously heading to http://www.google.com', '_slack_message_to_message text has all in place');
 
 done_testing();
 

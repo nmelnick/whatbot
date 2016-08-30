@@ -182,7 +182,13 @@ Run incoming message through commands, parse responses, and deliver back to IO.
 					my $listen = ( $run_path->{'match'} or '' );
 					my $function = $run_path->{'function'};
 
-					if ( $listen eq '' or my (@matches) = $message->content =~ /$listen/i ) {
+					my $content_match = ( $run_path->{'use_text'} ? $message->text : $message->content );
+					if ( $listen eq '' or my (@matches) = $content_match =~ /$listen/i ) {
+						if ( my $filter = $run_path->{'filter'} ) {
+							for ( my $i = 0; $i < scalar(@matches); $i++ ) {
+								$matches[$i] = $filter->($matches[$i]);
+							}
+						}
 						my $result = eval {
 							$command->$function( $message, \@matches );
 						};
@@ -226,10 +232,10 @@ Run incoming event through commands, parse responses, and delivery back to IO.
 
 					my $function = $run_path->{'function'};
 					my $message = Whatbot::Message->new({
-						'from'    => $me,
-						'to'      => $context,
-						'content' => '',
-						'me'      => $me,
+						'from' => $me,
+						'to'   => $context,
+						'text' => '',
+						'me'   => $me,
 					});
 					my $result = eval {
 						$command->$function( $target, $event_info );
@@ -281,13 +287,16 @@ Run incoming event through commands, parse responses, and delivery back to IO.
 	}
 
 	method add_run_path( $run_paths, $match, $function ) {
-		push(
-			@$run_paths,
-			{
-				'match'    => qr/$match/,
-				'function' => $function
-			}
-		);
+		my $obj = {
+			'function' => $function
+		};
+		if ( $match =~ /\{!user/ ) {
+			$match =~ s/\{!user\}/(\{!user=[\\w_]+?\}|[\\w_]+)/g;
+			$obj->{'use_text'} = 1;
+			$obj->{'filter'} = sub { my $a = shift(@_); $a =~ s/\{!user=([\w_]+?)\}/$1/g; return $a; };
+		}
+		$obj->{'match'} = qr/$match/;
+		push( @$run_paths, $obj );
 		return;
 	}
 
@@ -358,16 +367,16 @@ Run incoming event through commands, parse responses, and delivery back to IO.
 	method _return_error( $command_name, $message, $error ) {
 		$self->log->error( 'Failure in ' . $command_name . ': ' . $error );
 		return $message->reply({
-			'content' => $command_name . ' completely failed at that last remark.',
+			'text' => $command_name . ' completely failed at that last remark.',
 		});
 	}
 
 	# Parse the result from a event or message call
 	method _parse_result( $command_name, $message?, $result?, ArrayRef $messages? ) {
 		$message ||= Whatbot::Message->new({
-			'from'    => '',
-			'to'      => 'public',
-			'content' => '',
+			'from' => '',
+			'to'   => 'public',
+			'text' => '',
 		});
 		if ( defined $result ) {
 			last if ( $result eq 'last_run' );
@@ -382,7 +391,7 @@ Run incoming event through commands, parse responses, and delivery back to IO.
 					$outmessage = $result_single;
 				} else {
 					$outmessage = $message->reply({
-						'content' => $result_single,
+						'text' => $result_single,
 					});
 				}
 				push( @$messages, $outmessage );

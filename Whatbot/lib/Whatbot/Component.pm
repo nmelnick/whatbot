@@ -143,7 +143,7 @@ the command dispatcher.
 		return $io->event_message($message);
 	}
 
-=item dispatch_message( $io_path, $message )
+=item send_message( $io_path, $message )
 
 Send a L<Whatbot::Message> via the given IO name or partial IO name.
 
@@ -164,6 +164,18 @@ Send a L<Whatbot::Message> via the given IO name or partial IO name.
 		$message->to($target) if ($target);
 		return $io->send_message($message);
 	}
+
+=item tag_user($user)
+
+Provide a string representing the given user for later parsing.
+
+=cut
+
+	method tag_user( Str $user ) {
+		$user =~ s/[\{\}]//g;
+		return sprintf( '{!user=%s}', $user );
+	}
+
 }
 
 1;

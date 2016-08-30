@@ -14,9 +14,9 @@ Whatbot::Message - Wrapper class for whatbot message passing
  use Whatbot::Message;
  
  my $message = Whatbot::Message->new(
-	'from'    => $me,
-	'to'      => 'a_user',
-	'content' => 'test message'
+   'from'    => $me,
+   'to'      => 'a_user',
+   'content' => 'test message'
  );
 
 =head1 DESCRIPTION
@@ -39,9 +39,14 @@ User or entity the message is from
 
 User or entity the message is to
 
+=item text
+
+The text body of the message, which may contain tags as {!tag=value}.
+
 =item content
 
-Content of the message
+Content of the message. This method is deprecated, but backwards compatible, so
+recognized tags are stripped to fallback form.
 
 =item timestamp
 
@@ -82,7 +87,8 @@ class Whatbot::Message extends Whatbot::Component {
 	has 'from'          => ( is => 'rw', isa => 'Str', required => 1 );
 	has 'to'            => ( is => 'rw', isa => 'Str', required => 1 );
 	has 'reply_to'      => ( is => 'rw', isa => 'Str', required => 0 );
-	has 'content'       => ( is => 'rw', isa => 'Str', required => 1, trigger => \&check_content );
+	has 'content'       => ( is => 'rw', isa => 'Str', required => 0, trigger => \&check_content );
+	has 'text'          => ( is => 'rw', isa => 'Str', required => 0, trigger => \&check_text );
 	has 'timestamp'     => ( is => 'rw', isa => 'Int', default => sub { time } );
 	has 'is_direct'     => ( is => 'rw', isa => 'Int', default => 0 );
 	has 'me'            => ( is => 'rw', isa => 'Str' );
@@ -94,22 +100,22 @@ class Whatbot::Message extends Whatbot::Component {
 
 		# Determine if the message is talking about me
 		if ( defined $me ) {
-			if ( $self->content =~ /, ?$me[\?\!\. ]*?$/i ) {
-				my $content = $self->content;
+			if ( $self->text =~ /, ?$me[\?\!\. ]*?$/i ) {
+				my $content = $self->text;
 				$content =~ s/, ?$me[\?\!\. ]*?$//i;
-				$self->content($content);
+				$self->text($content);
 				$self->is_direct(1);
 			
-			} elsif ( $self->content =~ /^$me[\:\,\- ]+/i ) {
-				my $content = $self->content;
+			} elsif ( $self->text =~ /^$me[\:\,\- ]+/i ) {
+				my $content = $self->text;
 				$content =~ s/^$me[\:\,\- ]+//i;
-				$self->content($content);
+				$self->text($content);
 				$self->is_direct(1);
 			
-			} elsif ( $self->content =~ /^$me \-+ /i ) {
-				my $content = $self->content;
+			} elsif ( $self->text =~ /^$me \-+ /i ) {
+				my $content = $self->text;
 				$content =~ s/^$me \-+ //i;
-				$self->content($content);
+				$self->text($content);
 				$self->is_direct(1);
 			
 			}
@@ -128,6 +134,16 @@ Return message content as converted by encode_utf8.
 		return Encode::encode_utf8( $self->content );
 	}
 
+=item text_utf8()
+
+Return message text as converted by encode_utf8.
+
+=cut
+
+	method text_utf8() {
+		return Encode::encode_utf8( $self->text );
+	}
+
 =item is_private()
 
 Determine if message is a private message, by checking if "to" matches "me".
@@ -142,6 +158,15 @@ Determine if message is a private message, by checking if "to" matches "me".
 		$content =~ s/^\s+//;
 		$content =~ s/\s+$//;
 		$self->{'content'} = $content;
+		$self->text($content);
+	}
+
+	method check_text( Str $text, ... ) {
+		$text =~ s/^\s+//;
+		$text =~ s/\s+$//;
+		$self->{'text'} = $text;
+		$text =~ s/\{!user=(.*?)\}/$1/g;
+		$self->{'content'} = $text;
 	}
 
 =item reply( \%overrides )

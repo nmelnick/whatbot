@@ -113,7 +113,7 @@ class Whatbot::IO::IRC extends Whatbot::IO {
 	}
 
 	# Send a message
-	method send_message ( $message ) {
+	method deliver_message ( $message ) {
 		# We're going to try and be smart.
 		my $characters_per_line = 502 - length( $message->to ) - 10;
 		my @lines;

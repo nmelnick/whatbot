@@ -18,8 +18,8 @@ class Whatbot::Command::Bother extends Whatbot::Command {
 		$self->init_timers();
 	}
 
-	method bother( $message?, $captures? ) : GlobalRegEx('^(bother|bug) ([\w\s\@,]+) about (.*?) every (.*)$') {
-		my @users = split( /,\s+/, $captures->[1] );
+	method bother( $message?, $captures? ) : GlobalRegEx('^(bother|bug) {!user} about (.*?) every (.*)$') {
+		my $user = $captures->[1];
 		my $word = $captures->[0];
 		my $about = $captures->[2];
 		my $every = $self->_parse_every( $captures->[3] );
@@ -27,18 +27,16 @@ class Whatbot::Command::Bother extends Whatbot::Command {
 			return 'I am only going to worry about whole numbers greater than zero.';
 		}
 
-		foreach my $user (@users) {
-			my $added = $self->model('Bother')->add( $user, $about, $every, $message->origin );
-			$self->queue_timer($added);
-		}
-		return sprintf( 'I will %s %s about "%s" every %d seconds.', $word, join( ', ', @users ), $about, $every );
+		my $added = $self->model('Bother')->add( $user, $about, $every, $message->origin );
+		$self->queue_timer($added);
+		return sprintf( 'I will %s %s about "%s" every %d seconds.', $word, $self->tag_user($user), $about, $every );
 	}
 
 	method stop( $message?, $captures? ) : GlobalRegEx('^stop b(ugg|other)ing me') {
 		return $self->do_stop( $message->from );
 	}
 
-	method stop_user( $message?, $captures? ) : GlobalRegEx('^stop b(ugg|other)ing (\w+)') {
+	method stop_user( $message?, $captures? ) : GlobalRegEx('^stop b(ugg|other)ing {!user}') {
 		my $user = $captures->[1];
 		return if ( $user eq 'me' );
 		return $self->do_stop($user);
@@ -50,7 +48,7 @@ class Whatbot::Command::Bother extends Whatbot::Command {
 			foreach my $bother (@$count) {
 				$self->dequeue_timer($bother);
 			}
-			return 'I will stop bugging ' . $user . '.';
+			return 'I will stop bugging ' . $self->tag_user($user) . '.';
 		}
 		return 'I am not bugging ' . $user . ' about anything.';
 	}
@@ -65,7 +63,7 @@ class Whatbot::Command::Bother extends Whatbot::Command {
 	}
 
 	method notify_bother( $user, $about, $origin ) {
-		my $bug = 'Hey, ' . $user . '. I am bugging you about ' . $about . '.';
+		my $bug = 'Hey, ' . $self->tag_user($user) . '. I am bugging you about ' . $about . '.';
 		my $channel = $origin;
 		$channel =~ s/^.*?\://;
 		$self->send_message(

@@ -140,7 +140,7 @@ class Whatbot::IO::Jabber extends Whatbot::IO {
 	}
 
 	# Send a message
-	method send_message ( $message ) {
+	method deliver_message( $message ) {
 		$message->{from} ||= $self->my_config->{jabber_id};
 		if ( my $account = $self->handle->find_account_for_dest_jid( $message->to ) ) {
 			if(my $room = $self->_muc->get_room( $account->connection, $message->to ) ) {
