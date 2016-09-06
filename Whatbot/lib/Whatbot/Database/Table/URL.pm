@@ -27,19 +27,19 @@ class Whatbot::Database::Table::URL extends Whatbot::Database::Table {
 	use Image::Size qw(imgsize);
 	use Mojo::DOM;
 	use URI;
-	use WWW::Mechanize::GZip;
+	use AnyEvent::HTTP::LWP::UserAgent;
 
 	has 'table_protocol' => ( is => 'rw', isa => 'Whatbot::Database::Table' );
 	has 'table_domain'   => ( is => 'rw', isa => 'Whatbot::Database::Table' );
 	has 'agent'          => ( is => 'ro', isa => 'Any', default => sub {
-		my $mech = WWW::Mechanize::GZip->new(
-			agent    => 'Whatbot/' . $Whatbot::VERSION,
-			ssl_opts => { verify_hostname => 0 },
+		my $ua = AnyEvent::HTTP::LWP::UserAgent->new(
+			'agent'    => sprintf( 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Whatbot/%s Chrome/53.0.2785.89 Safari/537.36', $Whatbot::VERSION ),
+			'ssl_opts' => { verify_hostname => 0 },
+			'timeout'  => 10,
+			'maxsize'  => 5192,
 		);
-		$mech->timeout(5);
-		$mech->add_header( 'Referer' => undef );
-		$mech->stack_depth(0);
-		return $mech;
+		$ua->default_header( 'Referer' => undef );
+		return $ua;
 	});
 
 	method BUILD (...) {
@@ -117,10 +117,10 @@ class Whatbot::Database::Table::URL extends Whatbot::Database::Table {
 		if ( my $config = $self->config->{'commands'}->{'url'}->{'basic_auth'} ) {
 		 	foreach my $entry (@$config) {
 				$self->agent->credentials(
-					$entry->{domain},
-					$entry->{realm},
-					$entry->{user},
-					$entry->{password},
+					$entry->{'domain'},
+					$entry->{'realm'},
+					$entry->{'user'},
+					$entry->{'password'},
 				);
 			}
 		}
@@ -134,7 +134,7 @@ Retrieve, or create and retrieve, the given protocol's id.
 
 =cut
 
-	method get_protocol ( Str $protocol ) {
+	method get_protocol( Str $protocol ) {
 		my $protocol_row = $self->table_protocol->search_one({
 			'name' => $protocol
 		});
@@ -153,7 +153,7 @@ Retrieve, or create and retrieve, the given domain's id.
 
 =cut
 
-	method get_domain ( Str $domain ) {
+	method get_domain( Str $domain ) {
 		my $domain_row = $self->table_domain->search_one({
 			'name' => $domain
 		});
@@ -166,13 +166,13 @@ Retrieve, or create and retrieve, the given domain's id.
 		return $domain_row->domain_id;
 	}
 
-=item url($url, $from)
+=item url_async($url, $from, $callback)
 
-Retrieve, or create and retrieve, the given URL.
+Retrieve, or create and retrieve, the given URL. Callback accepts a $row.
 
 =cut
 
-	method url ( Str $url, Str $from? ) {
+	method url_async( Str $url, Str $from, $callback ) {
 		my $uri = URI->new($url);
 		my $protocol_id = $self->get_protocol( $uri->scheme );
 		my $domain_id = $self->get_domain( $uri->host );
@@ -183,80 +183,97 @@ Retrieve, or create and retrieve, the given URL.
 			'domain_id'   => $domain_id,
 			'path'        => $uri->path,
 		});
-		unless ($row) {
-			my $title = $self->retrieve_url($url);
-			$row = $self->create({
-				'user'        => $from,
-				'title'       => $title,
-				'domain_id'   => $domain_id,
-				'protocol_id' => $protocol_id,
-				'path'        => $uri->path . ( $uri->query ? '?' . $uri->query : '' )
-			});
+		if ($row) {
+			$callback->($row);
+		} else {
+			$self->retrieve_url_async(
+				$url,
+				sub {
+					my ($title) = @_;
+					$callback->( $self->create({
+						'user'        => $from,
+						'title'       => $title,
+						'domain_id'   => $domain_id,
+						'protocol_id' => $protocol_id,
+						'path'        => $uri->path . ( $uri->query ? '?' . $uri->query : '' )
+					}) );
+				}
+			);
 		}
+		return;
 	}
 
-=item url_title($url, $from)
+=item url_title_async($url, $from, $callback)
 
-Retrieve, or create and retrieve, the given URL, and return the title.
+Retrieve, or create and retrieve, the given URL, and return the title to the
+provided callback.
 
 =cut
 
-	method url_title( Str $url, Str $from? ) {
-		my $row = $self->url( $url, $from );
-		my $title = $row->title;
-		if ( $title =~ /^! / ) {
-			$row->delete;
-		}
-		return $title;
+	method url_title_async( Str $url, Str $from, $callback ) {
+		$self->url_async(
+			$url,
+			$from,
+			sub {
+				my ($row) = @_;
+				my $title = $row->title;
+				if ( $title =~ /^! / ) {
+					$row->delete;
+				}
+				$callback->($title);
+			}
+		);
+		return;
 	}
 
-=item retrieve_url($url)
+=item retrieve_url_async( $url, $callback )
 
 GET the given URL using LWP.
 
 =cut
 
-	method retrieve_url ($url) {
+	method retrieve_url_async( $url, $callback ) {
 		my $title;
 		my $response;
 		eval {
-			$response = $self->agent->get($url);
-		};
-		if ( ( not $@ ) and $response ) {
-			if ( $self->agent->status < 400 ) {
-				$title = 'No parsable title';
-				if ( $url =~ /twitter\.com.*status/ ) {
-					my $dom = Mojo::DOM->new( $self->agent->content );
-					my $tweet_id = ( split( '/', $url ) )[-1];
-					my $tweet = $dom->at('[data-tweet-id="' . $tweet_id . '"]');
+			$self->agent->get_async($url)->cb(sub {
+				my $response = shift->recv;
+				if ( $response->code < 400 ) {
+					$title = 'No parsable title';
+					if ( $url =~ /twitter\.com.*status/ ) {
+						my $dom = Mojo::DOM->new( $response->content );
+						my $tweet_id = ( split( '/', $url ) )[-1];
+						my $tweet = $dom->at('[data-tweet-id="' . $tweet_id . '"]');
 
-					$title = '@' . $tweet->attr('data-screen-name') . ': ' . $tweet->at(".tweet-text")->all_text;
+						$title = '@' . $tweet->attr('data-screen-name') . ': ' . $tweet->at(".tweet-text")->all_text;
 
-				} elsif ( $self->agent->title ) {
-					$title = $self->agent->title;
+					} elsif ( $response->header('Content-Type') =~ /^image/ ) {
+						my ( $width, $height, $type ) = imgsize(\$response->content);
+						if ($type) {
+							$title = $type . ' Image: ' . $width . 'x' . $height;
+						}
 
-				} elsif ( $self->agent->ct =~ /^image/ ) {
-					my ( $width, $height, $type ) = imgsize(\$self->agent->content);
-					if ($type) {
-						$title = $type . ' Image: ' . $width . 'x' . $height;
+					} elsif ( $response->content =~ m/<title>(.*?)<\/title>/ ) {
+						$title = $1;
 					}
-
+				} elsif ( $self->show_failures() ) {
+					my $status = $response->code;
+					if ( $status == 401 or $status == 403 ) {
+						$title = '! Authorization required';
+					} elsif ( $status == 404 ) {
+						$title = '! Not Found';
+					} else {
+						warn $response->content;
+						$title = '! Error ' . $status;
+					}
 				}
-			} elsif ( $self->show_failures() ) {
-				my $status = $self->agent->status;
-				if ( $status == 401 or $status == 403 ) {
-					$title = '! Authorization required';
-				} elsif ( $status == 404 ) {
-					$title = '! Not Found';
-				} else {
-					warn $response->content;
-					$title = '! Error ' . $self->agent->status;
-				}
-			}
-		} else {
-			$title = '! Unable to retrieve (' . $url . ' - ' . $self->agent->status . ' ' . $self->agent->content . ')';
+				$callback->($title);
+			});
+		};
+		if ($@) {
+			$callback->('! Unable to retrieve (' . $url . ' - ' . $self->agent->status . ' ' . $self->agent->content . ')');
 		}
-		return $title;
+		return;
 	}
 
 	method show_failures() {

@@ -28,9 +28,23 @@ sub store_url : GlobalRegEx('.*?((https|http|ftp|feed):\/\/[^\s]+).*') {
 	return if ( $message->invisible );
 
 	my $url = $captures->[0];
-	my $title = $self->model('URL')->url_title( $url, $message->from );
+	my $title = $self->model('URL')->url_title_async(
+		$url,
+		$message->from,
+		sub {
+			my ($title) = @_;
+			return unless ($title);
+			$self->send_message(
+				$message->origin,
+				Whatbot::Message->new({
+					'from'      => 'me',
+					'to'        => 'public',
+					'content'   => '[URL: ' . $title . ']',
+					'invisible' => 1,
+				}),
+			);
+		});
 
-	return '[URL: ' . $title . ']' if ($title);
 	return;
 }
 
