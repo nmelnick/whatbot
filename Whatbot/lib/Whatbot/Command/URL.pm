@@ -28,6 +28,7 @@ sub store_url : GlobalRegEx('.*?((https|http|ftp|feed):\/\/[^\s]+).*') {
 	return if ( $message->invisible );
 
 	my $url = $captures->[0];
+	$url =~ s/\|.*//;
 	my $title = $self->model('URL')->url_title_async(
 		$url,
 		$message->from,
