@@ -262,6 +262,8 @@ GET the given URL using LWP.
 						$title = '! Authorization required';
 					} elsif ( $status == 404 ) {
 						$title = '! Not Found';
+					} elsif ( $status == 595 ) {
+						$title = '! Could not connect or resolve address';
 					} else {
 						warn $response->content;
 						$title = '! Error ' . $status;
