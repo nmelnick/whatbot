@@ -55,7 +55,7 @@ sub paste_form {
 	my @channels;
 	foreach my $interface ( keys %{ $self->ios } ) {
 		my $io = $self->ios->{$interface};
-		next unless ( $io->can('channels') );
+		next unless ( $io->can('channels') and ref( $io->channels ) );
 		push( @channels, ( map { ref($_) ? $_->{name} : sprintf('%s:%s@%s',$interface,$_,$io->{my_config}->{conference_server}) } @{ $io->channels } ) );
 	}
 

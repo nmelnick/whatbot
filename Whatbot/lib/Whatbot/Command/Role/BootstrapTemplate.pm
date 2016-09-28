@@ -130,7 +130,7 @@ string.
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="#">[% page_title || 'whatbot' %]</a>
+			<a class="navbar-brand" href="/">[% page_title || 'whatbot' %]</a>
 		</div>
 		<div class="collapse navbar-collapse">
 			<ul class="nav navbar-nav">

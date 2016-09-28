@@ -31,6 +31,7 @@ lib/Whatbot/Command/Blackjack.pm
 lib/Whatbot/Command/Bother.pm
 lib/Whatbot/Command/Calendar.pm
 lib/Whatbot/Command/Convert.pm
+lib/Whatbot/Command/Dashboard.pm
 lib/Whatbot/Command/Define.pm
 lib/Whatbot/Command/Factoid.pm
 lib/Whatbot/Command/FactoidListener.pm

@@ -39,12 +39,12 @@ class Whatbot::Command::Quote extends Whatbot::Command
 		}) );
 
 		$self->web(
-			'/quote',
-			\&quote_list
-		);
-		$self->web(
 			'/quote/view',
 			\&quote_single
+		);
+		$self->web(
+			'/quote',
+			\&quote_list
 		);
 	}
 

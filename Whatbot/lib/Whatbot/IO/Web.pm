@@ -16,6 +16,11 @@ class Whatbot::IO::Web extends Whatbot::IO {
 		'is'  => 'rw',
 		'isa' => 'Maybe[AnyEvent::HTTPD]',
 	);
+	has 'routes' => (
+		'is'  => 'ro',
+		'isa' => 'HashRef',
+		'default' => sub { {} },
+	);
 
 	method BUILD(...) {
 		my $name = 'Web';
@@ -30,7 +35,7 @@ class Whatbot::IO::Web extends Whatbot::IO {
 		my $httpd = $self->server(
 			AnyEvent::HTTPD->new(
 				'port'            => $self->my_config->{'port'},
-				'request_timeout' => 30,
+				'request_timeout' => 15,
 			)
 		);
 	}
@@ -42,7 +47,38 @@ class Whatbot::IO::Web extends Whatbot::IO {
 				$self->my_config->{'port'},
 			)
 		);
+		$self->server->reg_cb(
+			request => sub {
+				my ( $httpd, $req ) = @_;
+				my $url = $req->url;
+				$url =~ s/\?.*//;
+				foreach my $path ( sort { $b cmp $a } keys %{ $self->routes } ) {
+					my $info = $self->routes->{$path};
+					if ( $url =~ /^$path$/ ) {
+						eval {
+							$req->respond( $info->{'callback'}->( $info->{'command'}, $httpd, $req ) );
+						};
+						if ($@) {
+							$req->respond([ 500, 'internal server error', { 'Content-Type' => 'text/plain' }, 'internal server error' ]);
+							$self->log_response( 500, $req, $path );
+						} else {
+							$self->log_response( 200, $req, $path );
+						}
+						$httpd->stop_request();
+						return;
+					}
+				}
+				$req->respond([ 404, 'not found', { 'Content-Type' => 'text/plain' }, 'not found' ]);
+				$self->log_response( 404, $req );
+				$httpd->stop_request();
+				return;
+			}
+		);
 		return;
+	}
+
+	method log_response( $code, $req, $path? ) {
+		$self->log->write( sprintf( '(Web) %s %d %s %s [%s]', $req->client_host, $code, $req->method, $req->url, ( $path or 'none' ) ) );
 	}
 
 	method disconnect() {
@@ -55,14 +91,10 @@ class Whatbot::IO::Web extends Whatbot::IO {
 	}
 
 	method add_dispatch( $command, $path, $callback ) {
-		$self->server->reg_cb(
-			$path => sub {
-				my ( $httpd, $req ) = @_;
-
-				my $response = $callback->( $command, $httpd, $req );
-				$req->respond($response);
-			}
-		);
+		$self->routes->{$path} = {
+			'command'  => $command,
+			'callback' => $callback,
+		};
 	}
 }
 
