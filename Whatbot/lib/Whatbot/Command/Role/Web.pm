@@ -78,7 +78,7 @@ Returns the URL that the web server is currently responding to.
 
 	method web_url() {
 		return unless ( $self->ios->{Web} );
-		return sprintf( '%s:%d', $self->ios->{Web}->my_config->{url}, $self->ios->{Web}->my_config->{port} );
+		return sprintf( '%s', $self->ios->{Web}->my_config->{url} );
 	}
 
 }
