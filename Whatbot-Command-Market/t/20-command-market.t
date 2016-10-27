@@ -17,11 +17,15 @@ ok( my $market = Whatbot::Command::Market->new({
 
 $market->register();
 
+my $response = $market->get_data( 'IBM' );
+ok( exists $response->{'range_52week'}, 'data contains 52wk range' );
+ok( exists $response->{'vol_and_avg'}, 'data contains vol and avg' );
+ok( exists $response->{'pe_ratio'}, 'data contains P/E' );
+
 foreach my $stock ( qw( MS ) ) {
 	my $response = $market->detail( 'stockrep ' . $stock, [$stock] );
-	ok( $response, $stock . ' has response' );
-	ok( $response =~ /$stock/, $stock . ' contains ticker' );
-	ok( $response =~ /\d\d\./, $stock . ' contains actual numbers...' );
+	ok( $response, $stock . ' stockrep has response' );
+	ok( $response =~ /$stock/, $stock . ' stockrep contains ticker' );
 }
 
 # Known good
