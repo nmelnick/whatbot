@@ -12,6 +12,7 @@ requires      'Moose'                => 2.04;
 requires      'namespace::autoclean' => 0;
 requires      'String::IRC'          => 0.04;
 requires      'HTML::TreeBuilder::XPath' => 0.14;
+requires      'Date::Parse';
 
 test_requires 'Test::More'           => 0;
 test_requires 'DBD::SQLite'          => 0;
