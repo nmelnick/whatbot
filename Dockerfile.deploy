@@ -37,7 +37,7 @@ RUN apt-get update \
 	&& make install \
 	&& cd .. \
 	&& curl -L https://cpanmin.us | perl - App::cpanminus \
-	&& cpanm App::cpm \
+	&& cpanm -n App::cpm \
 	&& wget https://github.com/nmelnick/whatbot/archive/master.tar.gz \
 	&& tar xf master.tar.gz \
 	&& cd whatbot-master \

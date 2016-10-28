@@ -18,12 +18,10 @@ lib/Whatbot/Command/Admin.pm
 lib/Whatbot/Command/API.pm
 lib/Whatbot/Command/At.pm
 lib/Whatbot/Command/Awareness.pm
-lib/Whatbot/Command/Blackjack
 lib/Whatbot/Command/Blackjack/Card.pm
 lib/Whatbot/Command/Blackjack/Constants.pm
 lib/Whatbot/Command/Blackjack/Game.pm
 lib/Whatbot/Command/Blackjack/Hand.pm
-lib/Whatbot/Command/Blackjack/Stack
 lib/Whatbot/Command/Blackjack/Stack/Deck.pm
 lib/Whatbot/Command/Blackjack/Stack/Shoe.pm
 lib/Whatbot/Command/Blackjack/Stack.pm
@@ -57,7 +55,6 @@ lib/Whatbot/Database/DBI.pm
 lib/Whatbot/Database/MySQL.pm
 lib/Whatbot/Database/PostgreSQL.pm
 lib/Whatbot/Database/SQLite.pm
-lib/Whatbot/Database/Table
 lib/Whatbot/Database/Table/Bother.pm
 lib/Whatbot/Database/Table/Factoid.pm
 lib/Whatbot/Database/Table/Karma.pm
@@ -68,7 +65,6 @@ lib/Whatbot/Database/Table/URL.pm
 lib/Whatbot/Database/Table/UserAlias.pm
 lib/Whatbot/Database/Table.pm
 lib/Whatbot/Database.pm
-lib/Whatbot/Helper/Bootstrap
 lib/Whatbot/Helper/Bootstrap/Link.pm
 lib/Whatbot/Helper/Bootstrap.pm
 lib/Whatbot/IO/IRC.pm
