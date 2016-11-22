@@ -27,6 +27,7 @@ class Whatbot::Database::Table::URL extends Whatbot::Database::Table {
 	use Image::Size qw(imgsize);
 	use Mojo::DOM;
 	use URI;
+	use Encode qw(encode);
 	use AnyEvent::HTTP::LWP::UserAgent;
 
 	has 'table_protocol' => ( is => 'rw', isa => 'Whatbot::Database::Table' );
@@ -239,23 +240,7 @@ GET the given URL using LWP.
 			$self->agent->get_async($url)->cb(sub {
 				my $response = shift->recv;
 				if ( $response->code < 400 ) {
-					$title = 'No parsable title';
-					if ( $url =~ /twitter\.com.*status/ ) {
-						my $dom = Mojo::DOM->new( $response->content );
-						my $tweet_id = ( split( '/', $url ) )[-1];
-						my $tweet = $dom->at('[data-tweet-id="' . $tweet_id . '"]');
-
-						$title = '@' . $tweet->attr('data-screen-name') . ': ' . $tweet->at(".tweet-text")->all_text;
-
-					} elsif ( $response->header('Content-Type') =~ /^image/ ) {
-						my ( $width, $height, $type ) = imgsize(\$response->content);
-						if ($type) {
-							$title = $type . ' Image: ' . $width . 'x' . $height;
-						}
-
-					} elsif ( $response->content =~ m/<title>(.*?)<\/title>/ ) {
-						$title = $1;
-					}
+					$title = $self->parse_url_content( $url, $response );
 				} elsif ( $self->show_failures() ) {
 					my $status = $response->code;
 					if ( $status == 401 or $status == 403 ) {
@@ -276,6 +261,28 @@ GET the given URL using LWP.
 			$callback->('! Unable to retrieve (' . $url . ' - ' . $self->agent->status . ' ' . $self->agent->content . ')');
 		}
 		return;
+	}
+
+	method parse_url_content( $url, $response ) {
+		my $content = $response->content;
+		my $title = 'No parsable title';
+		if ( $url =~ /twitter\.com.*status/ ) {
+			my $dom = Mojo::DOM->new( charset => 'UTF-8')->parse($content);
+			my $tweet_id = ( split( '/', $url ) )[-1];
+			my $tweet = $dom->at('[data-tweet-id="' . $tweet_id . '"]');
+
+			$title = '@' . $tweet->attr('data-screen-name') . ': ' . $tweet->at(".tweet-text")->all_text;
+
+		} elsif ( $response->header('Content-Type') =~ /^image/ ) {
+			my ( $width, $height, $type ) = imgsize(\$content);
+			if ($type) {
+				$title = $type . ' Image: ' . $width . 'x' . $height;
+			}
+
+		} elsif ( $content =~ m/<title>(.*?)<\/title>/ ) {
+			$title = $1;
+		}
+		return $title;
 	}
 
 	method show_failures() {
