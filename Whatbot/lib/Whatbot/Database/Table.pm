@@ -51,6 +51,7 @@ perform those actions directly on the returned rows.
 
 class Whatbot::Database::Table extends Whatbot::Database {
 	use Whatbot::Database::Table::Row;
+	use Encode;
 	use Clone qw(clone);
 
 	has 'table_name'    => ( is => 'rw', isa => 'Str' );

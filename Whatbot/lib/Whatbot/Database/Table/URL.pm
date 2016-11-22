@@ -27,7 +27,7 @@ class Whatbot::Database::Table::URL extends Whatbot::Database::Table {
 	use Image::Size qw(imgsize);
 	use Mojo::DOM;
 	use URI;
-	use Encode qw(encode);
+	use Encode qw(encode decode);
 	use AnyEvent::HTTP::LWP::UserAgent;
 
 	has 'table_protocol' => ( is => 'rw', isa => 'Whatbot::Database::Table' );
@@ -270,8 +270,7 @@ GET the given URL using LWP.
 			my $dom = Mojo::DOM->new( charset => 'UTF-8')->parse($content);
 			my $tweet_id = ( split( '/', $url ) )[-1];
 			my $tweet = $dom->at('[data-tweet-id="' . $tweet_id . '"]');
-
-			$title = '@' . $tweet->attr('data-screen-name') . ': ' . $tweet->at(".tweet-text")->all_text;
+			$title = '@' . $tweet->attr('data-screen-name') . ': ' . decode( 'UTF-8', $tweet->at(".tweet-text")->all_text );
 
 		} elsif ( $response->header('Content-Type') =~ /^image/ ) {
 			my ( $width, $height, $type ) = imgsize(\$content);
