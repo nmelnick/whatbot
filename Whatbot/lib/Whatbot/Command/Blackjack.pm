@@ -25,7 +25,9 @@ class Whatbot::Command::Blackjack extends Whatbot::Command {
 	has 'insult'      => ( is => 'ro', isa => 'Whatbot::Command::Insult', handles => ['get_insult'], lazy_build => 1 );
 
 	method _build_insult() {
-		return $self->controller->command_short_name->{'insult'};
+		my $insult = $self->controller->command_short_name->{'insult'};
+		$self->my_config->{insult} = 0 unless ($insult);
+		return $insult;
 	}
 
 	method register() {

@@ -38,6 +38,7 @@ class Whatbot::Controller extends Whatbot::Component with Whatbot::Role::Pluggab
 	use Whatbot::Message;
 	use Class::Inspector;
 	use Class::Load qw(load_class);
+	use Devel::StackTrace;
 
 	has 'command'            => ( is => 'rw', isa => 'HashRef' );
 	has 'command_name'       => ( is => 'rw', isa => 'HashRef' );
@@ -366,6 +367,7 @@ Run incoming event through commands, parse responses, and delivery back to IO.
 
 	method _return_error( $command_name, $message, $error ) {
 		$self->log->error( 'Failure in ' . $command_name . ': ' . $error );
+		$self->log->error( Devel::StackTrace->new->as_string );
 		return $message->reply({
 			'text' => $command_name . ' completely failed at that last remark.',
 		});
