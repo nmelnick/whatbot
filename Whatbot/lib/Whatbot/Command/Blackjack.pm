@@ -284,7 +284,7 @@ class Whatbot::Command::Blackjack extends Whatbot::Command {
 		
 	}
 
-	method generate_insult($is_plural) {
+	method generate_insult($is_plural?) {
 		return '.' unless ( $self->my_config and $self->my_config->{insult} );
 		my $insult = $self->get_insult;
 		if ($is_plural) {
