@@ -1,4 +1,5 @@
-#!/usr/bin/env perl
+﻿#!/usr/bin/env perl
+use utf8;
 use strict;
 use warnings;
 use EV;
