@@ -9,7 +9,8 @@ use Moose;
 BEGIN { extends 'Whatbot::Command' }
 
 use LWP::UserAgent ();
-use Whatbot::Command::Bitcoin;
+use Whatbot::Command::Cryptocurrency;
+use Try::Tiny;
 use namespace::autoclean;
 
 our $VERSION = '0.1';
@@ -59,14 +60,16 @@ sub _doge_to_btc {
 sub _btc_to_currency {
 	my ( $self, $btc_amount, $currency ) = @_;
 
-	my $bc = Whatbot::Command::Bitcoin->new({ name => 'Bitcoin' });
-	my $pricing = $bc->_get_prices($currency);
-	return 'Unable to reach server, sorry.' unless ($pricing);
-	return $pricing unless ( ref($pricing) );
-	my $price = $bc->_average_pricing($pricing);
-	if ( $price and $price =~ /^[\d\.]+$/ ) {
-		return sprintf( '%0.5f', $price * $btc_amount );
+	my $bc = Whatbot::Command::Cryptocurrency->new({ name => 'Cryptocurrency' });
+	$bc->register();
+	my $pricing;
+	try {
+		$pricing = $bc->get_spot_price( 'BTC', uc($currency) );
+	} catch {
+		warn 'nah: ' . $_;
 	}
+	return 'Unable to reach server, sorry.' unless ($pricing);
+	return $pricing * $btc_amount;
 }
 
 sub help {

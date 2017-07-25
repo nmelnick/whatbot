@@ -1,8 +1,8 @@
 use inc::Module::Install;
 
 # Define metadata
-name     'Whatbot-Command-Bitcoin';
-all_from 'lib/Whatbot/Command/Bitcoin.pm';
+name     'Whatbot-Command-Cryptocurrency';
+all_from 'lib/Whatbot/Command/Cryptocurrency.pm';
 author   'Nicholas Melnick <nick@abstractwankery.com>';
 license  'perl';
 

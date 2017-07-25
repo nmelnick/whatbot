@@ -6,6 +6,6 @@ inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
-lib/Whatbot/Command/Bitcoin.pm
+lib/Whatbot/Command/Cryptocurrency.pm
 Makefile.PL
 MANIFEST

@@ -17,6 +17,8 @@ ok( my $dogecoin = Whatbot::Command::Dogecoin->new({
 
 $dogecoin->register();
 
+ok( $dogecoin->parse_message( 'dogecoin', [] ) );
+
 done_testing();
 
 1;
