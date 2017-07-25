@@ -9,21 +9,17 @@
 package Whatbot::Command::Define;
 use Moose;
 use Whatbot::Command;
-BEGIN { extends 'Whatbot::Command' }
+BEGIN {
+	extends 'Whatbot::Command';
+	   with 'Whatbot::Role::UserAgent';
+}
 
 # modules! CPAN! I don't even have to code anymore.
-use LWP::UserAgent ();
 use URI::Escape qw(uri_escape);
 use HTML::Entities qw(decode_entities);
 use Lingua::EN::Sentence qw(get_sentences);
 use Whatbot::Utility;
 use namespace::autoclean;
-
-has 'ua' => (
-	is      => 'ro',
-	isa     => 'LWP::UserAgent',
-	default => sub { LWP::UserAgent->new; }
-);
 
 has 'error' => (
 	is  => 'rw',
