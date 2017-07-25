@@ -68,29 +68,28 @@ class Whatbot::Command::Cryptocurrency extends Whatbot::Command with Whatbot::Ro
 
 	method get_spot_price( $from, $to ) {
 		my $response = $self->ua->get( sprintf('https://api.coinbase.com/v2/prices/%s-%s/spot', $from, $to ) );
+		my $pricing_object = try {
+			JSON::from_json( $response->decoded_content );
+		}
 		if ( $response->is_success ) {
-			my $pricing_object = JSON::from_json( $response->decoded_content );
-			if ($pricing_object->{data}->{amount}) {
+			if ( $pricing_object and $pricing_object->{data}->{amount} ) {
 				return $pricing_object->{data}->{amount};
 			} else {
 				$self->log->error('Coinbase API Error: No data->amount');
 				return;
 			}
 		} else {
-			my $pricing_object = JSON::from_json( $response->decoded_content );
 			if ( $pricing_object and $pricing_object->{errors} ) {
 				my $message = $pricing_object->{errors}->[0]->{message};
-				if ( $message =~ /^Invalid currency/ ) {
-					die $message;
-				}
+				die $message if ( $message =~ /^Invalid currency/ );
+
 				$self->log->error( 'Coinbase API Error: ' . $pricing_object->{errors}->[0]->{message} );
-				return;
+			} else {
+				$self->log->error( 'Error contacting Coinbase: ' . $response->status_line . " - " . $response->decoded_content );
 			}
-			$self->log->error( 'Error contacting Coinbase: ' . $response->status_line . " - " . $response->decoded_content );
 		}
 		return;
 	}
-
 }
 
 1;
