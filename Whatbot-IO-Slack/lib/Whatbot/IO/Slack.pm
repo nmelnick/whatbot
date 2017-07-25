@@ -148,7 +148,7 @@ class Whatbot::IO::Slack extends Whatbot::IO {
 	}
 
 	method _message( $rtm, $message ) {
-		return if ($message->{'hidden'} or not scalar( %{ $self->users } ) );
+		return if ($message->{'hidden'} or $message->{'thread_ts'} or not scalar( %{ $self->users } ) );
 		$self->event_message( $self->_slack_message_to_message($message) );
 		return;
 	}

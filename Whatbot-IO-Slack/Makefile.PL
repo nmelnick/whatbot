@@ -13,7 +13,7 @@ requires      'namespace::autoclean' => 0;
 requires      'Moops'                => 0.034;
 requires      'MooX::HandlesVia'     => 0;
 requires      'JSON::XS'             => 3.01;
-requires      'AnyEvent::SlackRTM'   => 0.152750;
+requires      'AnyEvent::SlackRTM'   => 0.160720;
 test_requires 'Test::More'           => 0;
 
 WriteAll;
