@@ -78,6 +78,7 @@ lib/Whatbot/Log.pm
 lib/Whatbot/Message.pm
 lib/Whatbot/Progress.pm
 lib/Whatbot/Role/Pluggable.pm
+lib/Whatbot/Role/UserAgent.pm
 lib/Whatbot/State.pm
 lib/Whatbot/Test.pm
 lib/Whatbot/Utility.pm
