@@ -9,11 +9,8 @@ use Whatbot::Command;
 
 class Whatbot::Command::Cryptocurrency extends Whatbot::Command with Whatbot::Role::UserAgent {
 	use JSON ();
-	use LWP::UserAgent ();
 	use HTML::Entities qw(decode_entities);
-	use HTTP::Headers;
 	use Try::Tiny;
-	use namespace::autoclean;
 
 	our $VERSION = '0.1';
 
@@ -76,7 +73,7 @@ class Whatbot::Command::Cryptocurrency extends Whatbot::Command with Whatbot::Ro
 			if ($pricing_object->{data}->{amount}) {
 				return $pricing_object->{data}->{amount};
 			} else {
-				$self->log->error( 'Coinbase API Error: No data->amount' );
+				$self->log->error('Coinbase API Error: No data->amount');
 				return;
 			}
 		} else {
