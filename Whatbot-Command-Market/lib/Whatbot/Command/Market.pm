@@ -17,7 +17,7 @@ use Date::Parse;
 
 our $VERSION = '0.1';
 
-my $URL_BASE = 'http://www.google.com/finance?q=';
+my $URL_BASE = 'http://finance.google.com/finance?q=';
 
 # Example data
 # $VAR1 = {
