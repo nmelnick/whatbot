@@ -7,10 +7,9 @@ author   'Nicholas Melnick <nick@abstractwankery.com>';
 license  'perl';
 
 # Specific dependencies
-requires      'Whatbot'              => 0.2;
-requires      'Moose'                => 2.04;
-requires      'namespace::autoclean' => 0;
-requires      'String::IRC'          => 0.04;
+requires      'Whatbot'                  => 0.2;
+requires      'Moose'                    => 2.04;
+requires      'namespace::autoclean'     => 0;
 requires      'HTML::TreeBuilder::XPath' => 0.14;
 requires      'Date::Parse';
 

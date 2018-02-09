@@ -12,7 +12,6 @@ BEGIN { extends 'Whatbot::Command' }
 use namespace::autoclean;
 
 use HTML::TreeBuilder::XPath;
-use String::IRC; # for colors!
 use Date::Parse;
 
 our $VERSION = '0.1';
@@ -95,9 +94,6 @@ sub get_printable_data {
 	foreach (@$fields) {
 		my $v = $data->{$_};
 		$v = "" unless defined($v);
-		if (/change/i and $v =~ /^[\d\.\-\+]+$/) {
-			$v = colorize($v);
-		}
 		push @values, $v;
 	}
 	return sprintf($format, @values);
@@ -131,21 +127,6 @@ sub get_data {
 		$h{$k} = $v;
 	}
 	return \%h;
-}
-
-sub colorize {
-	my ($string) = @_;
-
-	if ($string !~ /^[\-+]/) {
-		$string = "+$string";
-	}	
-	$string = String::IRC->new($string);
-	if ($string =~ /^\-/) {
-		$string->red;
-	} else {
-		$string->green;
-	}
-	return $string;
 }
 
 sub detail : GlobalRegEx('^stockrep (.+)$') {
