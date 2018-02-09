@@ -1,10 +1,9 @@
-FROM debian:jessie
+FROM perl:5.24
 EXPOSE 2301
 
 # Init
-RUN mkdir /whatbot /whatbot/data /whatbot/perl-source /whatbot/perl /whatbot/lib
+RUN mkdir /whatbot /whatbot/data /whatbot/lib
 WORKDIR /whatbot
-ENV PATH="/whatbot/perl/bin:${PATH}"
 ENV PERL5LIB="/whatbot/lib"
 RUN apt-get update \
 	&& apt-get install --no-install-recommends -y \
@@ -15,8 +14,8 @@ RUN apt-get update \
 		gcc \
 		libc-dev-bin \
 		libc6-dev \
-		libgcc-4.9-dev \
-		libstdc++-4.9-dev \
+		libgcc-6-dev \
+		libstdc++-6-dev \
 		linux-libc-dev \
 		make \
 		ca-certificates \
@@ -27,24 +26,12 @@ RUN apt-get update \
 		libidn11-dev \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-	&& curl -SL https://cpan.metacpan.org/authors/id/R/RJ/RJBS/perl-5.24.0.tar.bz2 -o perl-5.24.0.tar.bz2 \
-	&& echo '298fa605138c1a00dab95643130ae0edab369b4d *perl-5.24.0.tar.bz2' | sha1sum -c - \
-	&& tar --strip-components=1 -xjf perl-5.24.0.tar.bz2 -C /whatbot/perl-source \
-	&& rm perl-5.24.0.tar.bz2 \
-	&& cd perl-source \
-	&& ./Configure -Duse64bitall -Duseshrplib -Dprefix=/whatbot/perl -des \
-	&& make -j$(nproc) \
-	&& make install \
-	&& cd .. \
-	&& curl -L https://cpanmin.us | perl - App::cpanminus \
 	&& cpanm -n App::cpm \
-	&& wget https://github.com/nmelnick/whatbot/archive/master.tar.gz \
-	&& tar xf master.tar.gz \
+	&& curl https://codeload.github.com/nmelnick/whatbot/tar.gz/master | tar -xz \
 	&& cd whatbot-master \
-	&& chmod a+x build_all_cpm.sh \
-	&& ./build_all_cpm.sh \
+	&& bash ./build_all_cpm.sh \
 	&& cd .. \
-	&& rm -rf /whatbot/perl-source /whatbot/whatbot-master /whatbot/master.tar.gz /tmp/*
+	&& rm -rf /whatbot/whatbot-master /whatbot/master.tar.gz /tmp/*
 
 # Launch
 WORKDIR /whatbot
