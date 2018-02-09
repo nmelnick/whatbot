@@ -70,7 +70,7 @@ class Whatbot::Command::Cryptocurrency extends Whatbot::Command with Whatbot::Ro
 		my $response = $self->ua->get( sprintf('https://api.coinbase.com/v2/prices/%s-%s/spot', $from, $to ) );
 		my $pricing_object = try {
 			JSON::from_json( $response->decoded_content );
-		}
+		};
 		if ( $response->is_success ) {
 			if ( $pricing_object and $pricing_object->{data}->{amount} ) {
 				return $pricing_object->{data}->{amount};
