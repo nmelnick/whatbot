@@ -34,8 +34,8 @@ is(
 );
 is(
     $c->check_spot( '', '' ),
-    'Unable to reach server or invalid response from server, sorry.',
-    'check_spot with invalid currencies returns generic error'
+    'Invalid currency (-USD)',
+    'check_spot with invalid currencies returns invalid currency error'
 );
 
 done_testing();

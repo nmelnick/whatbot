@@ -3,21 +3,28 @@
 use strict;
 use warnings;
 use Test::More;
+use File::Basename;
 use File::Find;
+use File::Spec;
 use File::Temp qw(tempdir);
+use Cwd qw(abs_path);
 
+my $root_dir = abs_path( File::Spec->catdir( dirname(__FILE__), '..' ) );
+my $lib_dir = File::Spec->catdir( $root_dir, 'lib' );
 my @modules;
 find(
 	sub {
 		return if ( $File::Find::name !~ /\.pm\z/ );
+		my $lib_dirre = $lib_dir;
+		$lib_dirre =~ s/\//\\\//g;
 		my $found = $File::Find::name;
-		$found =~ s{^lib/}{};
+		$found =~ s{^$lib_dirre/}{};
 		$found =~ s{[/\\]}{::}g;
 		$found =~ s/\.pm$//;
 		# nothing to skip
 		push( @modules, $found );
 	},
-	'lib',
+	$lib_dir,
 );
 
 sub _find_scripts {
@@ -38,7 +45,7 @@ sub _find_scripts {
 			push( @found_scripts, $found );
 			close($FH);
 		},
-		$dir,
+		File::Spec->catdir( $root_dir, $dir ),
 	);
 
 	return @found_scripts;
