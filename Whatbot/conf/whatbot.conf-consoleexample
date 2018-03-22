@@ -1,0 +1,22 @@
+{
+   "io" : [{
+      "interface" : "Console",
+      "nick" : "whatbot"
+   }],
+   "database" : {
+      "database" : "/tmp/whatbot.db",
+      "handler" : "SQLite"
+   },
+   "commands" : {
+      "admin" : {
+         "enabled" : false,
+         "user" : "adminuser"
+      },
+      "define" : {
+         "sourcelist" : "wikipedia urbandictionary"
+      }
+   },
+   "log" : {
+      "directory" : "/tmp"
+   }
+}

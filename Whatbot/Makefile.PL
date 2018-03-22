@@ -20,6 +20,7 @@ requires       'AnyEvent'                       => 0;
 requires       'AnyEvent::IRC'                  => 0;
 requires       'AnyEvent::HTTPD'                => 0;
 requires       'AnyEvent::HTTP::LWP::UserAgent' => 0;
+requires       'AnyEvent::ReadLine::Gnu'        => 0;
 requires       'Class::Inspector'               => 0;
 requires       'Class::Load'                    => 0;
 requires       'Crypt::SSLeay'                  => 0;

@@ -24,6 +24,18 @@ each of the child modules.
  - build_all_cpanm.sh uses cpanminus
  - build_all_cpm.sh uses App::cpm, but will also install the child modules
 
+Weird stuff
+-----------
+
+Getting an error that looks a lot like this?
+Can't locate object method "done" via package "Moops::Parser"
+```Can't locate object method "done" via package "Moops::Parser"```
+
+There's a bug in Devel::CallParser that needs to be manually patched for recent
+versions of Perl. See this link for more detail.
+
+https://rt.cpan.org/Public/Bug/Display.html?id=110623
+
 More information
 ----------------
 

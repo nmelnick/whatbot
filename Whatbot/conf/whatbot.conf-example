@@ -1,5 +1,5 @@
 {
-   "io" : {
+   "io" : [{
       "interface" : "IRC",
       "nick" : "whatbot",
       "host" : "localhost",
@@ -15,7 +15,7 @@
          "chanservpassword" : "",
          "name" : "#whatbot"
       }
-   },
+   }],
    "database" : {
       "database" : "/etc/whatbot/whatbot.db",
       "handler" : "SQLite"
