@@ -45,12 +45,10 @@ class Whatbot::Command::Blackjack::Hand {
 
     method busted() {        
         return ( $self->score > 21 ? 1 : 0 );
-        return;
     }
 
     method blackjack() {        
-        return 1 if ( $self->score == 21 and $self->card_count == 2 );
-        return;
+        return ( $self->score == 21 and $self->card_count == 2 );
     }
 
     method card_count() {        

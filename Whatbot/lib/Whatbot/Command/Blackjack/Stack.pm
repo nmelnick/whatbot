@@ -4,19 +4,21 @@ class Whatbot::Command::Blackjack::Stack {
     has 'cards'   => ( is => 'rw', isa => 'ArrayRef' );
     has 'discard' => ( is => 'ro', isa => 'ArrayRef', default => sub { [] } );
 
-    method shuffle() {
-        my %seen;
-        my @cards;
-        my $stack_size = scalar( @{$self->cards} );
-        while ( scalar( keys %seen ) < $stack_size ) {
-            my $index = -1;
-            while ( $index < 0 or $seen{$index} ) {
-                $index = int( rand($stack_size) );
+    method shuffle( Int $iterations = 1 ) {
+        foreach (1 .. $iterations) {
+            my %seen;
+            my @cards;
+            my $stack_size = scalar( @{$self->cards} );
+            while ( scalar( keys %seen ) < $stack_size ) {
+                my $index = -1;
+                while ( $index < 0 or $seen{$index} ) {
+                    $index = int( rand($stack_size) );
+                }
+                push( @cards, $self->cards->[$index] );
+                $seen{$index} = 1;
             }
-            push( @cards, $self->cards->[$index] );
-            $seen{$index} = 1;
+            $self->cards(\@cards);
         }
-        $self->cards(\@cards);
     }
 
     method card_count() {

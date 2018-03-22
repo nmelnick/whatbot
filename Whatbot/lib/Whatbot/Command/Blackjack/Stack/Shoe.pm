@@ -9,9 +9,7 @@ class Whatbot::Command::Blackjack::Stack::Shoe extends Whatbot::Command::Blackja
         my @cards;
         foreach ( 1 .. $self->decks ) {
             my $deck = Whatbot::Command::Blackjack::Stack::Deck->new();
-            foreach my $card ( @{ $deck->cards } ) {
-                push( @cards, $card );
-            }
+            push( @cards, @{ $deck->cards } );
         }
         $self->cards(\@cards);
         $self->shuffle();

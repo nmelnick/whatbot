@@ -150,9 +150,13 @@ class Whatbot::Command::Blackjack::Game {
 		my $second_hand = $hand->clone();
 		$second_hand->give( $hand->second );
 		$self->hit( $second_hand );
+
+		# Replace original hand in cached hands
+		my $hand_index = $self->find_hand($hand);
+		$self->hands->[$hand_index] = $first_hand;
 		
-		# Insert new hand into cached hands
-		push( @{$self->hands}, $second_hand );
+		# Insert new hand into cached hands after first hand
+		splice( @{$self->hands}, $hand_index + 1, 0, $second_hand );
 		
 		return ( $first_hand, $second_hand );
 	}

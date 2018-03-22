@@ -5,12 +5,7 @@ class Whatbot::Command::Blackjack::Stack::Deck extends Whatbot::Command::Blackja
 
     method BUILD(...) {
         my @cards;
-        my @suits = qw/
-            diamonds
-            hearts
-            clubs
-            spades
-        /;
+        my @suits = keys %{ Whatbot::Command::Blackjack::Constants::suits() };
         foreach my $suit (@suits) {
             foreach my $value ( 'A', 2 .. 10, qw/ J Q K / )  {
                 my $card = Whatbot::Command::Blackjack::Card->new(
