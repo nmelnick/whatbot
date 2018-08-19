@@ -20,3 +20,43 @@ export function SimpleCommand() {
         State.addCommand(trigger, target, propertyKey);
     };
 }
+
+/**
+ * The RegexCommand decorator will fire if the given regex is found on any
+ * input, whether the command name is involved or not. This is useful for
+ * parsing any content in a message, or looking for a triggering keyword.
+ */
+export function RegexCommand(regex: RegExp) {
+    return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        State.addCommand(regex, target, propertyKey);
+    };
+}
+
+/**
+ * The MonitorCommand decorator will fire on any incoming, visible message.
+ */
+export function MonitorCommand() {
+    return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        State.addCommand(/./, target, propertyKey);
+    };
+}
+
+/**
+ * The EventCommand decorator will fire on room event types.  To specify
+ * multiple events to respond to, multiple decorators must be provided. The
+ * method called will be provided context, which is the context that the event
+ * was fired from, and eventInfo, an EventInfo object containing event data.
+ * Events are provided by Communicators, so you will want to check those for
+ * additional event types. In general, the possible events are:
+ * 
+ * * enter : eventInfo contains 'nick'
+ * * user_change : eventInfo contains 'nick', 'old_nick'
+ * * leave : eventInfo contains 'nick'
+ * * ping : eventInfo contains 'source'
+ * * topic : eventInfo contains 'nick', 'topic'
+ */
+export function EventCommand() {
+    return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        State.addCommand(/./, target, propertyKey);
+    };
+}

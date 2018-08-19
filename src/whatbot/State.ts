@@ -16,18 +16,31 @@ export namespace State {
 
     /**
      * Add a Command instance to the pool.
-     * @param t RegExp to trigger the method
+     * @param t RegExp or RoomEvent to trigger the method
      * @param c Class prototype
      * @param m Method name
      */
-    export function addCommand(t: RegExp, c: any, m: string) {
+    export function addCommand(t: RegExp | RoomEvent, c: any, m: string) {
         log.debug('Adding command ' + t + ' => ' + c.constructor.name + '::' + m)
-        commands.push({ trigger: t, class: c, method: m });
+        if (t instanceof RegExp) {
+            commands.push({ trigger: t, class: c, method: m });
+        } else {
+            commands.push({ event: t, class: c, method: m });
+        }
     }
 }
 
 class CommandDefinition {
-    trigger: RegExp
+    trigger?: RegExp
+    event?: RoomEvent
     class: any
     method: any
+}
+
+enum RoomEvent {
+    Enter,
+    UserChange,
+    Leave,
+    Topic,
+    Ping
 }
