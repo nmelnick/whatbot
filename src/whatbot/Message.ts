@@ -19,13 +19,18 @@ export class Message {
     /** User or entity the message is to */
     recipient: string;
 
+    /** "Me" according to the communicator this message came from */
+    get me(): string {
+        return State.resolveCommunicator(this.context).me;
+    }
+
     /** The text body of the message, which may contain tags as {!tag=value}. */
     get content(): string {
         return this._content;
     }
 
     set content(newContent: string) {
-        const me = State.resolveCommunicator(this.context).me;
+        const me = this.me;
         const options = [
             ', ?' + me + '[\?\!\. ]*?$',
             '^' + me + '[\:\,\- ]+'

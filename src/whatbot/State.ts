@@ -1,9 +1,17 @@
 import { factory } from './Logger';
 import { Communicator } from './Communicator';
+import { Config } from './Config';
 
 const log = factory.getLogger('State');
 
+/**
+ * Track state of the application.
+ */
 export namespace State {
+    /** Whatbot configuration */
+    export let config = new Config();
+
+    /** Loaded command paths */
     export let commands: Array<CommandDefinition> = [];
 
     /**
@@ -11,6 +19,7 @@ export namespace State {
      * @param context Context identifier
      */
     export function resolveCommunicator(context: string): Communicator {
+        log.debug('Resolving communicator "' + context +'"');
         return null;
     }
 

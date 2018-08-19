@@ -4,8 +4,16 @@ import { State } from './State';
 
 const log = factory.getLogger('Command');
 
-export interface Command {
+export class Command {
     requireDirect: boolean
+
+    /**
+     * Provide a string representing the given user for later parsing.
+     */
+    tagUser(username: string): string {
+        const filtered = username.replace('{', '').replace('}', '');
+        return `{!user=${filtered}}`;
+    }
 }
 
 /**
