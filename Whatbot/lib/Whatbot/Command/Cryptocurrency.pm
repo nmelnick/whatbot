@@ -8,7 +8,7 @@ use Moops;
 use Whatbot::Command;
 
 class Whatbot::Command::Cryptocurrency extends Whatbot::Command with Whatbot::Role::UserAgent {
-	use JSON ();
+	use JSON::XS ();
 	use HTML::Entities qw(decode_entities);
 	use Try::Tiny;
 
@@ -69,7 +69,7 @@ class Whatbot::Command::Cryptocurrency extends Whatbot::Command with Whatbot::Ro
 	method get_spot_price( $from, $to ) {
 		my $response = $self->ua->get( sprintf('https://api.coinbase.com/v2/prices/%s-%s/spot', $from, $to ) );
 		my $pricing_object = try {
-			JSON::from_json( $response->decoded_content );
+			JSON::XS::decode_json( $response->decoded_content );
 		};
 		if ( $response->is_success ) {
 			if ( $pricing_object and $pricing_object->{data}->{amount} ) {

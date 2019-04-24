@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use Test::More;
 use Whatbot::Test;
-use JSON ();
 
 use_ok( 'Whatbot::Command::Cryptocurrency', 'Load Module' );
 
