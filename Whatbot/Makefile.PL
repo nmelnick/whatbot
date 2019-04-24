@@ -53,6 +53,8 @@ requires       'WWW::Mechanize'                 => 0;
 requires       'WWW::Mechanize::GZip'           => 0;
 requires       'XML::Simple'                    => 0;
 
+recommends     'Acme::LOLCAT'                   => 0;
+
 test_requires  'Test::More'                     => 0;
 
 install_script 'bin/whatbot';
