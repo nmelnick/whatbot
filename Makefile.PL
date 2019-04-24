@@ -56,14 +56,14 @@ requires       'WWW::Mechanize'                 => 0;
 requires       'WWW::Mechanize::GZip'           => 0;
 requires       'XML::Simple'                    => 0;
 
-recommends     'AnyEvent::SlackRTM'             => 1.0;
-recommends     'AnyEvent::XMPP'                 => 0;
-recommends     'Acme::LOLCAT'                   => 0;
-recommends     'Convert::Temperature'           => 0;
-recommends     'Math::Trig'                     => 0;
-recommends     'MooX::HandlesVia'               => 0;
-recommends     'Net::Telnet'                    => 0;
-recommends     'XML::Twig'                      => 0;
+requires       'AnyEvent::SlackRTM'             => 1.0;
+requires       'AnyEvent::XMPP'                 => 0;
+requires       'Acme::LOLCAT'                   => 0;
+requires       'Convert::Temperature'           => 0;
+requires       'Math::Trig'                     => 0;
+requires       'MooX::HandlesVia'               => 0;
+requires       'Net::Telnet'                    => 0;
+requires       'XML::Twig'                      => 0;
 
 test_requires  'Test::More'                     => 0;
 
