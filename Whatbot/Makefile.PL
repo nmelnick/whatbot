@@ -47,6 +47,7 @@ requires       'Moops'                          => 0.034;
 requires       'MooX::HandlesVia'               => 0;
 requires       'Number::Format'                 => 0;
 requires       'Template'                       => 0;
+requires       'Try::Tiny'                      => 0;
 requires       'URI::Encode'                    => 0;
 requires       'URI::Escape'                    => 0;
 requires       'WWW::Mechanize'                 => 0;
