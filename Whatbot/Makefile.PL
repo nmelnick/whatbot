@@ -35,7 +35,7 @@ requires       'HTTP::Request'                  => 0;
 requires       'HTML::Strip'                    => 0;
 requires       'Image::Size'                    => 0;
 requires       'IO::Socket::SSL'                => 0;
-requires       'JSON::XS'                       => 0;
+requires       'JSON::XS'                       => 3.01;
 requires       'LWP::Protocol::https'           => 0;
 requires       'Lingua::EN::Sentence'           => 0;
 requires       'Math::Expression'               => 0;
@@ -54,6 +54,7 @@ requires       'WWW::Mechanize'                 => 0;
 requires       'WWW::Mechanize::GZip'           => 0;
 requires       'XML::Simple'                    => 0;
 
+recommends     'AnyEvent::SlackRTM'             => 1.0;
 recommends     'AnyEvent::XMPP'                 => 0;
 recommends     'Acme::LOLCAT'                   => 0;
 recommends     'Math::Trig'                     => 0;
