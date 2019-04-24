@@ -54,6 +54,7 @@ requires       'WWW::Mechanize::GZip'           => 0;
 requires       'XML::Simple'                    => 0;
 
 recommends     'Acme::LOLCAT'                   => 0;
+recommends     'Math::Trig'                     => 0;
 recommends     'Net::Telnet'                    => 0;
 
 test_requires  'Test::More'                     => 0;
