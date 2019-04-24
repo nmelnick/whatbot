@@ -30,14 +30,14 @@ RUN curl -SL https://cpan.metacpan.org/authors/id/R/RJ/RJBS/perl-5.24.0.tar.bz2 
 RUN rm -rf /whatbot/perl-source /tmp/*
 ENV PATH="/whatbot/perl/bin:${PATH}"
 RUN curl -L https://cpanmin.us | perl - App::cpanminus
-RUN cpanm App::cpm
 
 # Prep whatbot
 WORKDIR /whatbot/source
 EXPOSE 2301
 
 # Install dependencies
-RUN ./build_all_cpanm.sh
+RUN cpanm -n Module::Install inc::Module::Install
+RUN cpanm --installdeps --notest --with-recommends .
 
 # Add lib directories to PERL5LIB
 WORKDIR /whatbot/source

@@ -8,5 +8,8 @@ perl:
 services:
   - docker
 
-install: cpanm -n App::cpm; cpm install -g Module::Install inc::Module::Install; for MOD in Whatbot*/; do echo $MOD; cd $MOD; PERL5LIB=../Whatbot/lib perl Makefile.PL; mymeta-cpanfile > cpanfile; cpm install -g --cpanfile=cpanfile; cd ..; done
-script: "export PERL5LIB=$(find `pwd` -name lib | tr '\n' ':').; for MOD in Whatbot*/; do echo $MOD; cd $MOD; perl -Ilib Makefile.PL && make && cpanm --notest .; cd ..; done; prove $(find `pwd` -name t | tr '\n' ' ')"
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y libssl-dev libidn11-dev libexpat1-dev
+install: "cpanm -n Module::Install inc::Module::Install && cpanm --installdeps --notest --with-recommends ."
+script: "prove -Ilib t/"

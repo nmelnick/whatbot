@@ -29,7 +29,8 @@ RUN apt-get update \
 	&& cpanm -n App::cpm \
 	&& curl https://codeload.github.com/nmelnick/whatbot/tar.gz/master | tar -xz \
 	&& cd whatbot-master \
-	&& bash ./build_all_cpm.sh \
+	&& cpanm -n Module::Install inc::Module::Install \
+	&& cpanm --installdeps --notest --with-recommends . \
 	&& cd .. \
 	&& rm -rf /whatbot/whatbot-master /whatbot/master.tar.gz /tmp/*
 

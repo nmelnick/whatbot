@@ -16,6 +16,7 @@ provides
 ;
 
 # Specific dependencies
+requires   'Alt::Devel::CallParser::ButWorking' => 0;
 requires       'AnyEvent'                       => 0;
 requires       'AnyEvent::IRC'                  => 0;
 requires       'AnyEvent::HTTPD'                => 0;
