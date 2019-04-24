@@ -54,9 +54,12 @@ requires       'WWW::Mechanize'                 => 0;
 requires       'WWW::Mechanize::GZip'           => 0;
 requires       'XML::Simple'                    => 0;
 
+recommends     'AnyEvent::XMPP'                 => 0;
 recommends     'Acme::LOLCAT'                   => 0;
 recommends     'Math::Trig'                     => 0;
+recommends     'MooX::HandlesVia'               => 0;
 recommends     'Net::Telnet'                    => 0;
+recommends     'XML::Twig'                      => 0;
 
 test_requires  'Test::More'                     => 0;
 
