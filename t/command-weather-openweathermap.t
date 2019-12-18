@@ -28,12 +28,6 @@ is( $object->display_location, 'Fairfield', 'has correct display location' );
 ok( defined $object->temperature_f, 'has temperature' );
 ok( $object->to_string, 'to_string works' );
 
-my $f = $object->to_celsius(80);
-is( substr( $f, 0, 5 ), '26.66', 'F to C converts properly' );
-
-my $temp_string = $object->temp_string('80');
-is( $temp_string, '80 F (26.67 C)', 'temp_string converts properly' );
-
 throws_ok(
     sub { $openweathermap->get_current('abcd') },
     qr/^Unwilling to figure out what you meant by "abc/,
