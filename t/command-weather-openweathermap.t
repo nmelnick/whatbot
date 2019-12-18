@@ -7,8 +7,8 @@ use Test::Exception;
 use Whatbot::Test;
 
 unless ( $ENV{'WB_OPENWEATHERMAP_API_KEY'} ) {
-	plan skip_all => 'Requires WB_OPENWEATHERMAP_API_KEY environment variable to run live tests.';
-	done_testing();
+    plan skip_all => 'Requires WB_OPENWEATHERMAP_API_KEY environment variable to run live tests.';
+    done_testing();
 }
 
 use_ok( 'Whatbot::Command::Weather::Openweathermap', 'Load Module' );
@@ -17,7 +17,7 @@ my $test = Whatbot::Test->new();
 $test->initialize_state();
 
 ok( my $openweathermap = Whatbot::Command::Weather::Openweathermap->new({
-	'api_key' => $ENV{'WB_OPENWEATHERMAP_API_KEY'},
+    'api_key' => $ENV{'WB_OPENWEATHERMAP_API_KEY'},
 }), 'new' );
 
 my $object = $openweathermap->get_current('05455');
@@ -35,9 +35,9 @@ my $temp_string = $object->temp_string('80');
 is( $temp_string, '80 F (26.67 C)', 'temp_string converts properly' );
 
 throws_ok(
-	sub { $openweathermap->get_current('abcd') },
-	qr/^Unwilling to figure out what you meant by "abc/,
-	'get_current handles bad location'
+    sub { $openweathermap->get_current('abcd') },
+    qr/^Unwilling to figure out what you meant by "abc/,
+    'get_current handles bad location'
 );
 
 $object = $openweathermap->get_forecast('05455');
@@ -51,9 +51,9 @@ ok( defined $first->low_temperature_f, 'has low temperature' );
 ok( $first->to_string, 'to_string works' );
 
 throws_ok(
-	sub { $openweathermap->get_forecast('abcd') },
-	qr/^Unwilling to figure out what you meant by "abc/,
-	'get_forecast handles bad location'
+    sub { $openweathermap->get_forecast('abcd') },
+    qr/^Unwilling to figure out what you meant by "abc/,
+    'get_forecast handles bad location'
 );
 
 done_testing();
