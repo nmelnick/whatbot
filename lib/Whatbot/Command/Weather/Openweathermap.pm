@@ -80,14 +80,12 @@ class Whatbot::Command::Weather::Openweathermap with Whatbot::Command::Weather::
 
         if ( $location =~ /^\d{5}$/) {
             $query = 'zip=' . $location;
-        } elsif ( $location =~ /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/ ) {
-            $location =~ s/ //g;
-            $query = 'zip=' . $location . ',ca';
-        } elsif ( $location =~ /([^,]+), (\w{2})/ ) {
-            $query = 'q=$1,$2'
-        }
-
-        unless ($query) {
+        } elsif ( $location =~ /^([^,]+), (\w{2})/ ) {
+            my $city = $1;
+            my $country = $2;
+            $city =~ s/ /%20/g;
+            $query = 'q=' . $city . ',' . $country;
+        } else {
             die 'Unwilling to figure out what you meant by "' . $location . '"';
         }
 

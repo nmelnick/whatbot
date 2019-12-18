@@ -28,6 +28,22 @@ is( $object->display_location, 'Fairfield', 'has correct display location' );
 ok( defined $object->temperature_f, 'has temperature' );
 ok( $object->to_string, 'to_string works' );
 
+$object = $openweathermap->get_current('seattle, us');
+ok( $object, 'has a response' );
+is( ref($object), 'Whatbot::Command::Weather::Current', 'correct object type' );
+ok( $object->display_location, 'has display location' );
+is( $object->display_location, 'Seattle', 'has correct display location' );
+ok( defined $object->temperature_f, 'has temperature' );
+ok( $object->to_string, 'to_string works' );
+
+$object = $openweathermap->get_current('toronto, ca');
+ok( $object, 'has a response' );
+is( ref($object), 'Whatbot::Command::Weather::Current', 'correct object type' );
+ok( $object->display_location, 'has display location' );
+is( $object->display_location, 'Toronto', 'has correct display location' );
+ok( defined $object->temperature_f, 'has temperature' );
+ok( $object->to_string, 'to_string works' );
+
 throws_ok(
     sub { $openweathermap->get_current('abcd') },
     qr/^Unwilling to figure out what you meant by "abc/,
