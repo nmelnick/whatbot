@@ -35,11 +35,15 @@ class Whatbot::Command::Weather::Current with Whatbot::Command::Weather::Convert
 
 	method to_string() {
 		return sprintf(
-			'Weather for %s: Currently %s and %s, feels like %s. %s',
+			'Weather for %s: Currently %s and %s%s. %s',
 			$self->display_location,
 			$self->conditions,
 			$self->temp_string( $self->temperature_f ),
-			$self->temp_string( $self->feels_like_f ),
+			(
+				$self->feels_like_f ? 
+					', feels like ' . $self->temp_string( $self->feels_like_f )
+					: ''
+			),
 			(
 				$self->has_alerts ?
 					'Alerts: ' . join( ', ', @{ $self->alerts } )
