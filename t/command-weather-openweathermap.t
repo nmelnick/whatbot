@@ -36,7 +36,7 @@ is( $temp_string, '80 F (26.67 C)', 'temp_string converts properly' );
 
 throws_ok(
 	sub { $openweathermap->get_current('abcd') },
-	qr/^Unwilling to figure out what you meant by\: abc/,
+	qr/^Unwilling to figure out what you meant by "abc/,
 	'get_current handles bad location'
 );
 
@@ -52,7 +52,7 @@ ok( $first->to_string, 'to_string works' );
 
 throws_ok(
 	sub { $openweathermap->get_forecast('abcd') },
-	qr/^Unwilling to figure out what you meant by\: abc/,
+	qr/^Unwilling to figure out what you meant by "abc/,
 	'get_forecast handles bad location'
 );
 

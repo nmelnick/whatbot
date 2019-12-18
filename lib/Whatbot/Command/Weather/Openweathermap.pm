@@ -51,22 +51,26 @@ class Whatbot::Command::Weather::Openweathermap with Whatbot::Command::Weather::
 		my $query = $self->_location($location);
 
 		my $json = $self->_fetch_and_decode( $self->_get_uri( 'forecast', $query ) );
-		return unless ( $json and ref($json) and $json->{'forecast'} );
+		return unless ( $json and ref($json) and $json->{'city'} );
 
-		my $forecasts = $json->{'forecast'}->{'simpleforecast'}->{'forecastday'};
+        my %seen_dates;
+		foreach my $forecast (@{$json->{'list'}}) {
+            my $date = substr( $forecast->{'dt_txt'}, 0, 10 );
+            $seen_dates{$date} ||= Whatbot::Command::Weather::Forecast->new({
+                'weekday' => $date
+            });
+            if ( not $seen_dates{$date}->high_temperature_f or $seen_dates{$date}->high_temperature_f < $forecast->{'main'}->{'temp_max'} ) {
+                $seen_dates{$date}->high_temperature_f($forecast->{'main'}->{'temp_max'});
+            }
+            if ( not $seen_dates{$date}->low_temperature_f or $seen_dates{$date}->low_temperature_f > $forecast->{'main'}->{'temp_min'} ) {
+                $seen_dates{$date}->low_temperature_f($forecast->{'main'}->{'temp_min'});
+            }
+            unless ( $seen_dates{$date}->conditions ) {
+                $seen_dates{$date}->conditions( $forecast->{'weather'}->[0]->{'description'} );
+            }
+        }
 
-		my @days;
-		foreach my $forecast ( @$forecasts ) {
-			push(
-				@days,
-				Whatbot::Command::Weather::Forecast->new({
-					'weekday'            => $forecast->{'date'}->{'weekday'},
-					'conditions'         => $forecast->{'conditions'},
-					'high_temperature_f' => $forecast->{'high'}->{'fahrenheit'},
-					'low_temperature_f'  => $forecast->{'low'}->{'fahrenheit'},
-				})
-			)
-		}
+		my @days = map { $seen_dates{$_} } (sort { $a cmp $b } keys %seen_dates);
 
 		return \@days;
 	}
