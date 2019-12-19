@@ -65,8 +65,11 @@ class Whatbot::Command::Weather::Openweathermap with Whatbot::Command::Weather::
             if ( not $seen_dates{$date}->low_temperature_f or $seen_dates{$date}->low_temperature_f > $forecast->{'main'}->{'temp_min'} ) {
                 $seen_dates{$date}->low_temperature_f($forecast->{'main'}->{'temp_min'});
             }
-            unless ( $seen_dates{$date}->conditions ) {
-                $seen_dates{$date}->conditions( $forecast->{'weather'}->[0]->{'description'} );
+            if ( $seen_dates{$date}->conditions !~ $forecast->{'weather'}->[0]->{'description'} ) {
+                if ( $seen_dates{$date}->conditions ) {
+                    $seen_dates{$date}->conditions( $seen_dates{$date}->conditions . ', ' );
+                }
+                $seen_dates{$date}->conditions( $seen_dates{$date}->conditions . $forecast->{'weather'}->[0]->{'description'} );
             }
         }
 
