@@ -70,7 +70,7 @@ class Whatbot::Command::Weather::Openweathermap with Whatbot::Command::Weather::
             }
         }
 
-        my @days = map { $seen_dates{$_} } (sort { $a cmp $b } keys %seen_dates);
+        my @days = map { $seen_dates{$_} } (sort { $a cmp $b } keys %seen_dates)[0..2];
 
         return \@days;
     }
