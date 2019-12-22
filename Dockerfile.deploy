@@ -30,7 +30,7 @@ RUN apt-get update \
 	&& curl https://codeload.github.com/nmelnick/whatbot/tar.gz/master | tar -xz \
 	&& cd whatbot-master \
 	&& cpanm -n Module::Install inc::Module::Install \
-	&& cpanm --installdeps --notest --with-recommends . \
+	&& cpanm --notest --with-recommends . \
 	&& cd .. \
 	&& rm -rf /whatbot/whatbot-master /whatbot/master.tar.gz /tmp/*
 
