@@ -30,6 +30,7 @@ requires       'DBD::SQLite'                    => 0;
 requires       'Devel::StackTrace'              => 0;
 requires       'Digest::SHA1'                   => 0;
 requires       'EV'                             => 0;
+requires       'Geo::Coder::OSM'                => 0;
 requires       'HTTP::Cookies'                  => 0;
 requires       'HTML::Entities'                 => 0;
 requires       'HTTP::Request'                  => 0;
