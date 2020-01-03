@@ -110,7 +110,7 @@ class Whatbot::Command::Weather::Openweathermap with Whatbot::Command::Weather::
 
 =head1 NAME
 
-Whatbot::Command::Weather::Wunderground - Retrieve weather from the Wunderground API
+Whatbot::Command::Weather::Openweathermap - Retrieve weather from the OpenWeatherMap API
 
 =head1 LICENSE/COPYRIGHT
 
