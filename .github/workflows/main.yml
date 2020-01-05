@@ -15,7 +15,7 @@ jobs:
       matrix:
         perl-version:
           - '5.14'
-          - '5.24'
+          - 'latest'
     container:
       image: perl:${{ matrix.perl-version }}
     steps:
@@ -23,7 +23,7 @@ jobs:
       - name: perl -V
         run: perl -V
       - name: Install OS dependencies
-        run: apt-get update && apt-get install -y libssl-dev libidn11* libexpat1-dev
+        run: apt-get update && apt-get install -y libssl-dev libidn11* libexpat1-dev libreadline*
       - name: Install Perl Dependencies
         run: "cpanm -n Module::Install inc::Module::Install && cpanm --installdeps --notest --with-recommends ."
       - name: Run Tests
