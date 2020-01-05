@@ -23,7 +23,7 @@ jobs:
       - name: perl -V
         run: perl -V
       - name: Install OS dependencies
-        run: sudo apt-get install -y libssl-dev libidn11-dev libexpat1-dev
+        run: apt-get install -y libssl-dev libidn11-dev libexpat1-dev
       - name: Install Perl Dependencies
         run: "cpanm -n Module::Install inc::Module::Install && cpanm --installdeps --notest --with-recommends ."
       - name: Run Tests
