@@ -1,0 +1,30 @@
+name: linux
+
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  pull_request:
+
+jobs:
+  perl:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        perl-version:
+          - '5.14'
+          - 'latest'
+    container:
+      image: perl:${{ matrix.perl-version }}
+    steps:
+      - uses: actions/checkout@v1
+      - name: perl -V
+        run: perl -V
+      - name: Install OS dependencies
+        run: sudo apt-get install -y libssl-dev libidn11-dev libexpat1-dev
+      - name: Install Perl Dependencies
+        run: "cpanm -n Module::Install inc::Module::Install && cpanm --installdeps --notest --with-recommends ."
+      - name: Run Tests
+        run: prove -Ilib t/
