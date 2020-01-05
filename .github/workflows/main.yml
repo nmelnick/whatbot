@@ -23,7 +23,7 @@ jobs:
       - name: perl -V
         run: perl -V
       - name: Install OS dependencies
-        run: apt-get update && apt-get install -y libssl-dev libidn11* libexpat1-dev libreadline6*
+        run: apt-get update && apt-get remove libreadline-gplv2* && apt-get install -y libssl-dev libidn11* libexpat1-dev libreadline6-dev
       - name: Install Perl Dependencies
         run: "cpanm -n Module::Install inc::Module::Install && cpanm --installdeps --notest --with-recommends ."
       - name: Run Tests
