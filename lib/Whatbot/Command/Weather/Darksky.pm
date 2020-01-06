@@ -72,7 +72,7 @@ class Whatbot::Command::Weather::Darksky with Whatbot::Command::Weather::SourceR
                 'time_zone' => $json->{'timezone'},
             );
             my $f = Whatbot::Command::Weather::Forecast->new({
-                'weekday'            => $dt->ymd(),
+                'weekday'            => $dt->day_name(),
                 'high_temperature_f' => $forecast->{'temperatureHigh'},
                 'low_temperature_f'  => $forecast->{'temperatureLow'},
                 'conditions'         => $forecast->{'summary'},
