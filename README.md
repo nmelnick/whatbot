@@ -20,6 +20,10 @@ hit 1.0, but it may take some time.
 run one of the build_* scripts in the root directory to install dependencies of
 each of the child modules.
 
+Once the dependencies are installed, copy `conf/whatbot.conf-example` to
+`conf/whatbot.conf` and edit to your liking. To work with whatbot on the console
+without connecting to another service, start with `whatbot.conf-consoleexample`.
+
 ```
 cpanm -n Module::Install inc::Module::Install
 cpanm --installdeps --notest --with-recommends .
