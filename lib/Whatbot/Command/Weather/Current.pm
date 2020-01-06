@@ -20,8 +20,9 @@ class Whatbot::Command::Weather::Current with Whatbot::Command::Weather::Convert
 		default => sub { [] },
 		traits  => [ 'Array' ],
 		handles => {
-			'add_alert'  => 'push',
-			'has_alerts' => 'count',
+			'add_alert'     => 'push',
+			'has_alerts'    => 'count',
+			'unique_alerts' => 'uniq',
 		},
 	);
 
@@ -46,7 +47,7 @@ class Whatbot::Command::Weather::Current with Whatbot::Command::Weather::Convert
 			),
 			(
 				$self->has_alerts ?
-					'Alerts: ' . join( ', ', @{ $self->alerts } )
+					'Alerts: ' . join( ', ', $self->unique_alerts )
 					: ''
 			)
 		);
