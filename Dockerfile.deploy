@@ -26,8 +26,8 @@ RUN apt-get update \
 		libidn11-dev \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-	&& cpanm -n App::cpm \
-	&& curl https://codeload.github.com/nmelnick/whatbot/tar.gz/master | tar -xz \
+	&& cpanm -n App::cpm
+RUN curl https://codeload.github.com/nmelnick/whatbot/tar.gz/master | tar -xz \
 	&& cd whatbot-master \
 	&& cpanm -n Module::Install inc::Module::Install \
 	&& cpanm --notest --with-recommends . \
