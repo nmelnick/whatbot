@@ -36,14 +36,6 @@ is( $object->display_location, 'Fairfield, Vermont, United States', 'has correct
 ok( defined $object->temperature_f, 'has temperature' );
 ok( $object->to_string, 'to_string works' );
 
-$object = $darksky->get_current('seattle, us');
-ok( $object, 'has a response' );
-is( ref($object), 'Whatbot::Command::Weather::Current', 'correct object type' );
-ok( $object->display_location, 'has display location' );
-is( $object->display_location, 'Seattle, Washington, United States of America', 'has correct display location' );
-ok( defined $object->temperature_f, 'has temperature' );
-ok( $object->to_string, 'to_string works' );
-
 $object = $darksky->get_current('toronto, ca');
 ok( $object, 'has a response' );
 is( ref($object), 'Whatbot::Command::Weather::Current', 'correct object type' );
@@ -51,6 +43,10 @@ ok( $object->display_location, 'has display location' );
 is( $object->display_location, 'Toronto, Ontario, Canada', 'has correct display location' );
 ok( defined $object->temperature_f, 'has temperature' );
 ok( $object->to_string, 'to_string works' );
+
+$object = $darksky->get_current('mallacoota, australia');
+ok( $object->display_location, 'has display location' );
+is( $object->display_location, 'Mallacoota, Victoria, Australia', 'has correct display location when provided a town instead of a city' );
 
 throws_ok(
     sub { $darksky->get_current('abcd') },

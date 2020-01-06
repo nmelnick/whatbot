@@ -103,7 +103,7 @@ class Whatbot::Command::Weather::Darksky with Whatbot::Command::Weather::SourceR
                 return {
                     'coordinates' => join( ',', $resolved->{'lat'}, $resolved->{'lon'} ),
                     'display'     => join( ', ',
-                        $resolved->{'address'}->{'city'},
+                        ( $resolved->{'address'}->{'city'} or $resolved->{'address'}->{'town'} ),
                         $resolved->{'address'}->{'state'},
                         $resolved->{'address'}->{'country'}
                     ),
