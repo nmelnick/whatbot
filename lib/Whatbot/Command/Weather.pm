@@ -42,7 +42,7 @@ sub register {
 	return;
 }
 
-sub forecast : GlobalRegEx('^forecast (.*)') {
+sub forecast : GlobalRegEx('(?i)^forecast (.*)') {
 	my ( $self, $message, $captures ) = @_;
 
 	return unless ( $self->source );
@@ -61,7 +61,7 @@ sub forecast : GlobalRegEx('^forecast (.*)') {
 	return 'Iunno.';
 }
 
-sub weather : GlobalRegEx('^weather (.*)') {
+sub weather : GlobalRegEx('(?i)^weather (.*)') {
 	my ( $self, $message, $captures ) = @_;
 
 	return unless ( $self->source );
