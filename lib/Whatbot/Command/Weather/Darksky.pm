@@ -8,9 +8,10 @@
 
 use Moops;
 
-class Whatbot::Command::Weather::Darksky with Whatbot::Command::Weather::SourceRole {
+class Whatbot::Command::Weather::Darksky
+    with Whatbot::Command::Weather::SourceRole
+    with Whatbot::Command::Role::Location {
     use DateTime;
-    use Geo::Coder::OSM;
     use JSON::XS;
     use Whatbot::Command::Weather::Current;
     use Whatbot::Command::Weather::Forecast;
@@ -31,7 +32,7 @@ class Whatbot::Command::Weather::Darksky with Whatbot::Command::Weather::SourceR
     }
 
     method get_current( Str $location ) {
-        my $resolved = $self->_resolve_location_string($location);
+        my $resolved = $self->convert_location($location);
         my $query = $self->_location($resolved->{'coordinates'});
 
         my $json = $self->_fetch_and_decode(
@@ -57,7 +58,7 @@ class Whatbot::Command::Weather::Darksky with Whatbot::Command::Weather::SourceR
     }
 
     method get_forecast( Str $location ) {
-        my $resolved = $self->_resolve_location_string($location);
+        my $resolved = $self->convert_location($location);
         my $query = $self->_location($resolved->{'coordinates'});
 
         my $json = $self->_fetch_and_decode(
@@ -86,35 +87,13 @@ class Whatbot::Command::Weather::Darksky with Whatbot::Command::Weather::SourceR
     method _location( Str $location ) {
         my $query;
 
-        if ( $location =~ /^(\-?[\d\.]+), ?(\-?[\d\.]+)$/ ) {
-            $query = "$1,$2";
+        if ( $location->[0] != 0 and $location->[1] != 0 ) {
+            $query = join( ',', @$location );
         } else {
-            die 'Unwilling to figure out what you meant by "' . $location . '"';
+            die 'Unwilling to figure out what you meant by that location';
         }
 
         return $query;
-    }
-
-    method _resolve_location_string( Str $location ) {
-        if ( $location =~ /,/ or $location =~ /^\d+$/ ) {
-            my $osm = Geo::Coder::OSM->new();
-            my $resolved = $osm->geocode( location => $location );
-            if ($resolved and $resolved->{'lat'}) {
-                return {
-                    'coordinates' => join( ',', $resolved->{'lat'}, $resolved->{'lon'} ),
-                    'display'     => join( ', ',
-                        ( $resolved->{'address'}->{'city'} or $resolved->{'address'}->{'town'} ),
-                        $resolved->{'address'}->{'state'},
-                        $resolved->{'address'}->{'country'}
-                    ),
-                };
-            }
-        }
-        
-        return {
-            'coordinates' => $location,
-            'display'     => $location,
-        };
     }
 
     method _fetch_and_decode( Str $url ) {

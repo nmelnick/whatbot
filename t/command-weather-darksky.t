@@ -50,7 +50,7 @@ is( $object->display_location, 'Mallacoota, Victoria, Australia', 'has correct d
 
 throws_ok(
     sub { $darksky->get_current('abcd') },
-    qr/^Unwilling to figure out what you meant by "abc/,
+    qr/^Unwilling to figure out what you meant by /,
     'get_current handles bad location'
 );
 
@@ -67,7 +67,7 @@ ok( $first->to_string, 'to_string works' );
 
 throws_ok(
     sub { $darksky->get_forecast('abcd') },
-    qr/^Unwilling to figure out what you meant by "abc/,
+    qr/^Unwilling to figure out what you meant by /,
     'get_forecast handles bad location'
 );
 
