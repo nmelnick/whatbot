@@ -53,19 +53,17 @@ provided as [0, 0], and the display will be the provided string.
 =cut
 
     method convert_location( Str $location ) {
-        if ( $location =~ /,/ or $location =~ /^\d+$/ ) {
-            my $osm = Geo::Coder::OSM->new();
-            my $resolved = $osm->geocode( location => $location );
-            if ($resolved and $resolved->{'lat'}) {
-                return {
-                    'coordinates' => [ $resolved->{'lat'}, $resolved->{'lon'} ],
-                    'display'     => join( ', ',
-                        ( $resolved->{'address'}->{'city'} or $resolved->{'address'}->{'town'} ),
-                        $resolved->{'address'}->{'state'},
-                        $resolved->{'address'}->{'country'}
-                    ),
-                };
-            }
+        my $osm = Geo::Coder::OSM->new();
+        my $resolved = $osm->geocode( location => $location );
+        if ($resolved and $resolved->{'lat'}) {
+            return {
+                'coordinates' => [ $resolved->{'lat'}, $resolved->{'lon'} ],
+                'display'     => join( ', ',
+                    ( $resolved->{'address'}->{'city'} or $resolved->{'address'}->{'town'} ),
+                    $resolved->{'address'}->{'state'},
+                    $resolved->{'address'}->{'country'}
+                ),
+            };
         }
         
         return {
