@@ -39,11 +39,9 @@ class Whatbot::Command::Weather::Climacell
             $self->_get_uri( 'realtime', $query ) . '&fields=temp%2Cfeels_like%2Cweather_code'
         );
         if ( $json->{'temp'} ) {
-            my $summary = ucfirst($json->{'weather_code'}->{'value'});
-            $summary =~ s/_/ /g;
             my $current_obj = Whatbot::Command::Weather::Current->new({
                 'display_location' => $resolved->{'display'},
-                'conditions'       => $summary,
+                'conditions'       => $self->_get_summary($json->{'weather_code'}->{'value'}),
                 'temperature_f'    => $json->{'temp'}->{'value'},
                 'feels_like_f'     => $json->{'feels_like'}->{'value'},
 
@@ -65,8 +63,6 @@ class Whatbot::Command::Weather::Climacell
 
         my @days;
         foreach my $forecast (@{$json}[0..2]) {
-            my $summary = ucfirst($forecast->{'weather_code'}->{'value'});
-            $summary =~ s/_/ /g;
             my ($year, $month, $day) = split('-', $forecast->{'observation_time'}->{'value'});
             my $dt = DateTime->new(
                 'year' => $year,
@@ -79,12 +75,18 @@ class Whatbot::Command::Weather::Climacell
                 'weekday'            => $dt->day_name(),
                 'high_temperature_f' => $high,
                 'low_temperature_f'  => $low,
-                'conditions'         => $summary,
+                'conditions'         => $self->_get_summary($forecast->{'weather_code'}->{'value'}),
             });
             push(@days, $f);
         }
 
         return \@days;
+    }
+
+    method _get_summary( Str $weather_code ) {
+        my $summary = ucfirst($weather_code);
+        $summary =~ s/_/ /g;
+        return $summary;
     }
 
     method _location( ArrayRef $location ) {
