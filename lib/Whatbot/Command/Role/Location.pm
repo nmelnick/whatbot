@@ -20,7 +20,7 @@ sub message : Monitor {
    my ( $self, $message_ref ) = @_;
 
    my $location = $self->convert_location($message_ref->content);
-   return join(", ", @);
+   return join(", ", @{$location->{'coordinates'}});
  }
 
 =head1 DESCRIPTION
