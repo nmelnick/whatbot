@@ -27,6 +27,9 @@ class Whatbot::IO::Discord extends Whatbot::IO {
 		is  => 'rw',
 		isa => 'Str',
 	);
+	has '_typing_handle' => (
+		is  => 'rw',
+	);
 
 	method BUILD (...) {
 		die 'IO->Discord is missing an access token' unless ( $self->my_config->{'token'} );
@@ -40,10 +43,11 @@ class Whatbot::IO::Discord extends Whatbot::IO {
       token => $self->token
     );
     $client->on('ready', sub { $self->_connected(@_) });
+    $client->on('disconnected', sub { $self->_disconnected(@_) });
     $client->on('message_create', sub { $self->_message(@_) });
 		$self->handle($client);
 		$self->{'_timer_connect'} = AnyEvent->timer(
-			after    => 4,
+			after    => 3,
 			cb       => sub {
 				$self->log->write('Connecting to Discord.');
 				$client->connect();
@@ -71,6 +75,7 @@ class Whatbot::IO::Discord extends Whatbot::IO {
 			return;
 		}
 		$self->handle->send($to, $message->content);
+		$self->handle->_socket->close();
 		return;
 	}
 
@@ -86,26 +91,36 @@ class Whatbot::IO::Discord extends Whatbot::IO {
 		return $user;
 	}
 
+	method start_typing($message_to) {
+		$self->{_typing_handle} = undef;
+		my $to;
+		foreach my $channel ( keys %{ $self->handle->channels } ) {
+			if ( $self->handle->channels->{$channel} eq $message_to ) {
+				$to = $channel;
+			}
+		}
+		return unless ($to);
+		$self->_typing_handle($self->handle->typing($to));
+	}
+
+	method stop_typing() {
+		$self->{_typing_handle} = undef;
+	}
+
 	### INTERNAL
 
 	method discord_name($name) {
 		$self->name( 'Discord_' . $name );
 		return;
 	}
-  
+
   method _connected($client, $data, $op) {
     $self->log->write('Connected to Discord.');
+		$self->me( $data->{'user'}->{'username'} );
+	}
 
-		# Read metadata soon
-		$self->{'_timer_metadata'} = AnyEvent->timer(
-			after    => 5,
-			cb       => sub {
-				# Set me
-				$self->me( $data->{'user'}->{'username'} );
-
-				$self->log->write('Discord initialized.');
-			}
-		);
+  method _disconnected {
+    $self->log->write('Discord received disconnect.');;
 	}
 
 	method _message( $client, $data, $op ) {
