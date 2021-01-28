@@ -129,11 +129,8 @@ class Whatbot::IO::Discord extends Whatbot::IO {
 		# Strip links
 		$text =~ s/<(http.*?)>/$1/g;
 
-		# # Change users to Slack-provided user readable
-		$text =~ s/<\@\w+?>/$self->_get_user($1)/ge;
-
-		# # Change users to self-provided user readable
-		# $text =~ s/<\@(\w+?)>/$self->_get_user($1)/ge;
+		# Change users to self-provided user readable
+		$text =~ s/<\@(\w+?)>/$self->_get_user($1)/ge;
 
 		my $content = Whatbot::Utility::html_strip($text);
 		return $self->event_message(
@@ -146,7 +143,8 @@ class Whatbot::IO::Discord extends Whatbot::IO {
 	}
 
 	method _get_user($id) {
-		return $self->tag_user( $self->users->{$id} or $id );
+		return unless ($id);
+		return $self->tag_user( $self->handle->users->{$id} or $id );
 	}
 
 }
