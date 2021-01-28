@@ -17,6 +17,7 @@ provides
 
 # Specific dependencies
 requires   'Alt::Devel::CallParser::ButWorking' => 0;
+
 requires       'AnyEvent'                       => 0;
 requires       'AnyEvent::IRC'                  => 0;
 requires       'AnyEvent::HTTPD'                => 0;
@@ -57,6 +58,7 @@ requires       'WWW::Mechanize'                 => 0;
 requires       'WWW::Mechanize::GZip'           => 0;
 requires       'XML::Simple'                    => 0;
 
+requires       'AnyEvent::Discord'              => 0.1;
 requires       'AnyEvent::SlackRTM'             => 1.0;
 requires       'AnyEvent::XMPP'                 => 0;
 requires       'Acme::LOLCAT'                   => 0;
