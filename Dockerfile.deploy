@@ -1,4 +1,4 @@
-FROM perl:5.24
+FROM perl:5.26
 EXPOSE 2301
 
 # Init
@@ -14,8 +14,8 @@ RUN apt-get update \
 		gcc \
 		libc-dev-bin \
 		libc6-dev \
-		libgcc-6-dev \
-		libstdc++-6-dev \
+		libgcc-8-dev \
+		libstdc++-8-dev \
 		linux-libc-dev \
 		make \
 		ca-certificates \
@@ -27,12 +27,12 @@ RUN apt-get update \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
 	&& cpanm -n App::cpm
-RUN curl https://codeload.github.com/nmelnick/whatbot/tar.gz/master | tar -xz \
-	&& cd whatbot-master \
+RUN curl https://codeload.github.com/nmelnick/whatbot/tar.gz/main | tar -xz \
+	&& cd whatbot-main \
 	&& cpanm -n Module::Install inc::Module::Install \
 	&& cpanm --notest --with-recommends . \
 	&& cd .. \
-	&& rm -rf /whatbot/whatbot-master /whatbot/master.tar.gz /tmp/*
+	&& rm -rf /whatbot/whatbot-main /whatbot/main.tar.gz /tmp/*
 
 # Launch
 WORKDIR /whatbot
