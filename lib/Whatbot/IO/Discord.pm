@@ -84,7 +84,7 @@ class Whatbot::IO::Discord extends Whatbot::IO {
 		foreach my $id ( keys %{ $self->handle->users } ) {
 			my $name = $self->handle->users->{$id};
 			if ( $name eq $user ) {
-				return sprintf( '<@%s>', $id );
+				return sprintf( '<@!%s>', $id );
 			}
 		}
 
