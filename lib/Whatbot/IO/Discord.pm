@@ -135,7 +135,7 @@ class Whatbot::IO::Discord extends Whatbot::IO {
 		my $content = Whatbot::Utility::html_strip($text);
 		return $self->event_message(
       $self->get_new_message({
-        'from'    => $data->{'author'}->{'username'},
+        'from'    => ( $data->{'member'}->{'nick'} or $data->{'author'}->{'username'}),
         'to'      => $client->channels->{$data->{'channel_id'}},
         'content' => $content,
       })
