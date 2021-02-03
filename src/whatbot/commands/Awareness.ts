@@ -25,7 +25,7 @@ export class Awareness extends Command {
     lastMessage?: Message = null;
     
     @MonitorCommand()
-    message(message?: Message): string {
+    async message(message?: Message): Promise<string> {
         this.lastMessage = message;
 
         // Self-awareness
@@ -42,7 +42,7 @@ export class Awareness extends Command {
     }
 
     @RegexCommand(/^show last message/i)
-    showLastMessage(message?: Message) {
+    async showLastMessage(message?: Message): Promise<Message> {
         return this.lastMessage;
     }
 }

@@ -7,18 +7,18 @@ const log = factory.getLogger('State');
 /**
  * Track state of the application.
  */
-export namespace State {
+export class State {
     /** Whatbot configuration */
-    export let config = new Config();
+    static config = new Config();
 
     /** Loaded command paths */
-    export let commands: Array<CommandDefinition> = [];
+    static commands: Array<CommandDefinition> = [];
 
     /**
      * Resolve a Communicator instance by context
      * @param context Context identifier
      */
-    export function resolveCommunicator(context: string): Communicator {
+    static resolveCommunicator(context: string): Communicator {
         log.debug('Resolving communicator "' + context +'"');
         return null;
     }
@@ -29,12 +29,12 @@ export namespace State {
      * @param c Class prototype
      * @param m Method name
      */
-    export function addCommand(t: RegExp | RoomEvent, c: any, m: string) {
+    static addCommand(t: RegExp | RoomEvent, c: any, m: string): void {
         log.debug('Adding command ' + t + ' => ' + c.constructor.name + '::' + m)
         if (t instanceof RegExp) {
-            commands.push({ trigger: t, class: c, method: m });
+            this.commands.push({ trigger: t, class: c, method: m });
         } else {
-            commands.push({ event: t, class: c, method: m });
+            this.commands.push({ event: t, class: c, method: m });
         }
     }
 }

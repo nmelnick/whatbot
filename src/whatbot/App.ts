@@ -6,19 +6,19 @@ import * as fs from 'fs';
 const log = factory.getLogger('App');
 
 export class App {
-    start() {
+    async start(): Promise<void> {
         log.info('Starting whatbot ' + version);
-        this.loadCommands();
+        await this.loadCommands();
     }
 
-    loadCommands(directory: string = 'src/whatbot/commands') {
+    async loadCommands(directory: string = 'src/whatbot/commands'): Promise<void> {
         fs.readdir(directory, (err, files) => {
             if (err) {
                 log.error('Error reading commands directory "' + directory + '"', err);
                 return;
             }
             files.forEach(file => {
-                import('./commands/' + file.replace('.ts', '')).then(() => {});
+                import('./commands/' + file.replace('.ts', ''));
             });
           })
     }

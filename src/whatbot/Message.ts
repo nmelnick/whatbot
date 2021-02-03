@@ -12,7 +12,6 @@ const log = factory.getLogger('Message');
 export class Message {
     private _content: string
 
-
     /** User or entity the message is from */
     sender: string;
 
@@ -61,14 +60,7 @@ export class Message {
     /** if this message should not be processed by seen or other monitors */
     isInvisible: boolean = false;
 
-    constructor({sender, recipient, content, context, timestamp, isPrivate = false, isToWhatbot = false, isInvisible = false}) {
-        this.context = context;
-        this.sender = sender;
-        this.recipient = recipient;
-        this.content = content;
-        this.timestamp = timestamp;
-        this.isPrivate = isPrivate;
-        this.isToWhatbot = isToWhatbot;
-        this.isInvisible = isInvisible;
+    constructor(props: Partial<Message>) {
+        Object.assign(this, props);
     }
 }

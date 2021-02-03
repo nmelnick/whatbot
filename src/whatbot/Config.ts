@@ -1,3 +1,5 @@
+import { Communicator } from "./Communicator";
+
 export class Config {
-    communicators: Array<Object>;
+    communicators: Array<Communicator>;
 }
