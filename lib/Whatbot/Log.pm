@@ -54,6 +54,7 @@ class Whatbot::Log {
 
 	method BUILD ( $log_dir ) {
 		binmode( STDOUT, ':utf8' );
+		STDOUT->autoflush(1);
 		$self->fh(*STDOUT);
 		unless ( not $self->log_directory or -e $self->log_directory ) {
 			if ( $self->log_directory and length( $self->log_directory ) > 3 ) {

@@ -39,9 +39,10 @@ class Whatbot::IO::Discord extends Whatbot::IO {
 
 	after connect {
 		my $config = $self->my_config;
-		my $client = AnyEvent::Discord->new(
-      token => $self->token
-    );
+		my $client = AnyEvent::Discord->new({
+      token => $self->token,
+			verbose => 1,
+    });
     $client->on('ready', sub { $self->_connected(@_) });
     $client->on('disconnected', sub { $self->_disconnected(@_) });
     $client->on('message_create', sub { $self->_message(@_) });
@@ -75,7 +76,6 @@ class Whatbot::IO::Discord extends Whatbot::IO {
 			return;
 		}
 		$self->handle->send($to, $message->content);
-		$self->handle->_socket->close();
 		return;
 	}
 

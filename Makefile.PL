@@ -18,11 +18,13 @@ provides
 # Specific dependencies
 requires   'Alt::Devel::CallParser::ButWorking' => 0;
 
+requires       'Algorithm::Backoff::Exponential' => 0;
 requires       'AnyEvent'                       => 0;
 requires       'AnyEvent::IRC'                  => 0;
 requires       'AnyEvent::HTTPD'                => 0;
 requires       'AnyEvent::HTTP::LWP::UserAgent' => 0;
 requires       'AnyEvent::ReadLine::Gnu'        => 0;
+requires       'AnyEvent::WebSocket::Client'    => 0;
 requires       'Class::Inspector'               => 0;
 requires       'Class::Load'                    => 0;
 requires       'DateTime::Format::Natural'      => 0;
@@ -58,7 +60,7 @@ requires       'WWW::Mechanize'                 => 0;
 requires       'WWW::Mechanize::GZip'           => 0;
 requires       'XML::Simple'                    => 0;
 
-requires       'AnyEvent::Discord'              => 0.6;
+requires       'AnyEvent::Discord'              => 0.7;
 requires       'AnyEvent::SlackRTM'             => 1.1;
 requires       'AnyEvent::XMPP'                 => 0;
 requires       'Acme::LOLCAT'                   => 0;
