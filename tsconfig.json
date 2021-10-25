@@ -1,15 +1,17 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-    "module": "commonjs",
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "outDir": "dist",
-    "lib": ["dom", "es2017"],
+    "lib": ["dom", "ES2020"],
     "sourceMap": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "removeComments": true,
     "incremental": true,
+    "allowSyntheticDefaultImports": true,
     "plugins": [
       {
         "transform": "ts-auto-mock/transformer",

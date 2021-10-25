@@ -12,14 +12,17 @@ export class App {
     }
 
     async loadCommands(directory: string = 'src/whatbot/commands'): Promise<void> {
-        fs.readdir(directory, (err, files) => {
-            if (err) {
-                log.error('Error reading commands directory "' + directory + '"', err);
-                return;
-            }
-            files.forEach(file => {
-                import('./commands/' + file.replace('.ts', ''));
-            });
-          })
+        return new Promise((resolve, reject) => {
+            fs.readdir(directory, (err, files) => {
+                if (err) {
+                    log.error('Error reading commands directory "' + directory + '"', err);
+                    reject(err);
+                    return;
+                }
+                for (const file of files) {
+                    import('./commands/' + file.replace('.ts', ''));
+                }
+              })
+        })
     }
 }
