@@ -84,7 +84,7 @@ class Whatbot::Command::Weather::Darksky
         return \@days;
     }
 
-    method _location( Str $location ) {
+    method _location( ArrayRef $location ) {
         my $query;
 
         if ( $location->[0] != 0 and $location->[1] != 0 ) {
