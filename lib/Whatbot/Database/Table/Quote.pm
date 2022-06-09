@@ -6,53 +6,53 @@
 use Moops;
 
 class Whatbot::Database::Table::Quote extends Whatbot::Database::Table {
-	method BUILD(...) {
-		$self->init_table({
-			'name'        => 'quote',
-			'primary_key' => 'quote_id',
-			'indexed'     => [ 'user', 'quoted' ],
-			'defaults'    => {
-				'timestamp' => { 'database' => 'now' }
-			},
-			'columns'     => {
-				'quote_id' => {
-					'type'  => 'integer'
-				},
-				'timestamp' => {
-					'type'  => 'integer'
-				},
-				'user' => {
-					'type'  => 'varchar',
-					'size'  => 255
-				},
-				'quoted' => {
-					'type'  => 'varchar',
-					'size'  => 255
-				},
-				'content' => {
-					'type'  => 'text'
-				},
-			}
-		});
-	}
+  method BUILD(...) {
+    $self->init_table({
+      'name'        => 'quote',
+      'primary_key' => 'quote_id',
+      'indexed'     => [ 'user', 'quoted' ],
+      'defaults'    => {
+        'timestamp' => { 'database' => 'now' }
+      },
+      'columns'     => {
+        'quote_id' => {
+          'type'  => 'integer'
+        },
+        'timestamp' => {
+          'type'  => 'integer'
+        },
+        'user' => {
+          'type'  => 'varchar',
+          'size'  => 255
+        },
+        'quoted' => {
+          'type'  => 'varchar',
+          'size'  => 255
+        },
+        'content' => {
+          'type'  => 'text'
+        },
+      }
+    });
+  }
 
     before create ($column_data) {
-    	my $content = $column_data->{content};
-    	if ( my $quote = $self->search_one({ 'content' => $content }) ) {
-    		die bless( { 'user' => $quote->user }, 'Exception::QuoteExists' );
-    	}
-    	return;
+      my $content = $column_data->{content};
+      if ( my $quote = $self->search_one({ 'content' => $content }) ) {
+        die bless( { 'user' => $quote->user }, 'Exception::QuoteExists' );
+      }
+      return;
     }
 
     method get_random( $user? ) {
-    	my $params = {
-			'_order_by' => 'RANDOM()',
-			'_limit'    => 1,
-		};
-		if ($user) {
-			$params->{'quoted'} = { 'LIKE' => $user },
-		}
-		return $self->search_one($params);
+      my $params = {
+      '_order_by' => 'RANDOM()',
+      '_limit'    => 1,
+    };
+    if ($user) {
+      $params->{'quoted'} = { 'LIKE' => $user },
+    }
+    return $self->search_one($params);
     }
 }
 

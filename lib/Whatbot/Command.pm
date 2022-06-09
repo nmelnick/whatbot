@@ -137,21 +137,21 @@ Provides access to Whatbot::Timer functionality.
 =cut
 
 class Whatbot::Command extends Whatbot::Component {
-	use Whatbot::State;
+  use Whatbot::State;
 
-	has 'name'             => ( is => 'rw', isa => 'Str' );
-	has 'command_priority' => ( is => 'rw', isa => 'Str' );
-	has 'require_direct'   => ( is => 'rw', isa => 'Int', default => 0 );
-	has 'my_config'        => ( is => 'ro', isa => 'Maybe[HashRef]' );
-	has 'timer'            => ( is => 'rw', lazy_build => 1 );
+  has 'name'             => ( is => 'rw', isa => 'Str' );
+  has 'command_priority' => ( is => 'rw', isa => 'Str' );
+  has 'require_direct'   => ( is => 'rw', isa => 'Int', default => 0 );
+  has 'my_config'        => ( is => 'ro', isa => 'Maybe[HashRef]' );
+  has 'timer'            => ( is => 'rw', lazy_build => 1 );
 
-	sub _build_timer {
-		return $_[0]->ios->{Timer};
-	}
+  sub _build_timer {
+    return $_[0]->ios->{Timer};
+  }
 
-	method BUILD(...) {
-		$self->register();
-	}
+  method BUILD(...) {
+    $self->register();
+  }
 
 =item register()
 
@@ -161,11 +161,11 @@ new() or BUILD() for your command.
 
 =cut
 
-	method register() {
-		$self->log->write(
-			ref($self) . ' works without a register method, but it is recommended to make one.'
-		);
-	}
+  method register() {
+    $self->log->write(
+      ref($self) . ' works without a register method, but it is recommended to make one.'
+    );
+  }
 
 =item help()
 
@@ -174,43 +174,43 @@ attribute so someone may ask your command for help directly.
 
 =cut
 
-	method help() {
-		return 'Help is not available for this module.';
-	}
+  method help() {
+    return 'Help is not available for this module.';
+  }
 
-	method fetch_attributes( $coderef ) {
-		return $Whatbot::Command::_attribute_cache->{$coderef};
-	}
+  method fetch_attributes( $coderef ) {
+    return $Whatbot::Command::_attribute_cache->{$coderef};
+  }
 
-	before log() {
-		Whatbot::State->instance->log->name( $self->name );
-	}
+  before log() {
+    Whatbot::State->instance->log->name( $self->name );
+  }
 
 }
 
 {
-	use v5.14;
-	use strict;
-	use warnings FATAL => 'all';
-	package Whatbot::Command;
-	use Attribute::Handlers;
+  use v5.14;
+  use strict;
+  use warnings FATAL => 'all';
+  package Whatbot::Command;
+  use Attribute::Handlers;
 
-	our $_attribute_cache = {};
+  our $_attribute_cache = {};
 
-	sub UNIVERSAL::Command      :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
-	sub UNIVERSAL::CommandRegEx :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
-	sub UNIVERSAL::GlobalRegEx  :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
-	sub UNIVERSAL::Monitor      :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
-	sub UNIVERSAL::StopAfter    :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
-	sub UNIVERSAL::Event        :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
+  sub UNIVERSAL::Command      :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
+  sub UNIVERSAL::CommandRegEx :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
+  sub UNIVERSAL::GlobalRegEx  :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
+  sub UNIVERSAL::Monitor      :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
+  sub UNIVERSAL::StopAfter    :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
+  sub UNIVERSAL::Event        :ATTR(BEGIN) { goto \&Whatbot::Command::handle; }
 
-	sub handle {
-		my ($package, $symbol, $referent, $attr, $data, $phase, $filename, $linenum) = @_;
+  sub handle {
+    my ($package, $symbol, $referent, $attr, $data, $phase, $filename, $linenum) = @_;
 
-		$Whatbot::Command::_attribute_cache->{$referent} ||= [];
-		push( @{ $Whatbot::Command::_attribute_cache->{$referent} }, [ $attr, ( $data ? @$data : () ) ] );
-		return;
-	}
+    $Whatbot::Command::_attribute_cache->{$referent} ||= [];
+    push( @{ $Whatbot::Command::_attribute_cache->{$referent} }, [ $attr, ( $data ? @$data : () ) ] );
+    return;
+  }
 }
 
 1;

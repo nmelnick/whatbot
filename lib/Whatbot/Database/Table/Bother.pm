@@ -20,42 +20,42 @@ Whatbot::Database::Table::Bother provides database functionality for bother.
 =cut
 
 class Whatbot::Database::Table::Bother extends Whatbot::Database::Table {
-	method BUILD(...) {
-		$self->init_table({
-			'name'        => 'bother',
-			'primary_key' => 'bother_id',
-			'indexed'     => ['user'],
-			'defaults'    => {
-				'timestamp'    => { 'database' => 'now' },
-				'acknowledged' => 0,
-			},
-			'columns'     => {
-				'bother_id' => {
-					'type'  => 'serial'
-				},
-				'timestamp' => {
-					'type'  => 'integer'
-				},
-				'user' => {
-					'type'  => 'varchar',
-					'size'  => 255
-				},
-				'about' => {
-					'type'  => 'text'
-				},
-				'every' => {
-					'type'  => 'integer'
-				},
-				'origin' => {
-					'type'  => 'varchar',
-					'size'  => 255,
-				},
-				'acknowledged' => {
-					'type'  => 'integer'
-				}
-			}
-		});
-	}
+  method BUILD(...) {
+    $self->init_table({
+      'name'        => 'bother',
+      'primary_key' => 'bother_id',
+      'indexed'     => ['user'],
+      'defaults'    => {
+        'timestamp'    => { 'database' => 'now' },
+        'acknowledged' => 0,
+      },
+      'columns'     => {
+        'bother_id' => {
+          'type'  => 'serial'
+        },
+        'timestamp' => {
+          'type'  => 'integer'
+        },
+        'user' => {
+          'type'  => 'varchar',
+          'size'  => 255
+        },
+        'about' => {
+          'type'  => 'text'
+        },
+        'every' => {
+          'type'  => 'integer'
+        },
+        'origin' => {
+          'type'  => 'varchar',
+          'size'  => 255,
+        },
+        'acknowledged' => {
+          'type'  => 'integer'
+        }
+      }
+    });
+  }
 
 =item add($user, $about, $every)
 
@@ -64,14 +64,14 @@ of seconds between bothers.
 
 =cut
 
-	method add( $user!, $about!, Int $every!, $origin! ) {
-		$self->create({
-			'user'   => $user,
-			'about'  => $about,
-			'every'  => $every,
-			'origin' => $origin,
-		});
-	}
+  method add( $user!, $about!, Int $every!, $origin! ) {
+    $self->create({
+      'user'   => $user,
+      'about'  => $about,
+      'every'  => $every,
+      'origin' => $origin,
+    });
+  }
 
 =item acknowledge($user, $about)
 
@@ -80,18 +80,18 @@ Returns true if a save occurred.
 
 =cut
 
-	method acknowledge( $user, $about ) {
-		my $object = $self->search_one({
-			'user'      => $user,
-			'about'     => $about,
-		});
-		if ($object) {
-			$object->acknowledged(time);
-			$object->save();
-			return 1;
-		}
-		return;
-	}
+  method acknowledge( $user, $about ) {
+    my $object = $self->search_one({
+      'user'      => $user,
+      'about'     => $about,
+    });
+    if ($object) {
+      $object->acknowledged(time);
+      $object->save();
+      return 1;
+    }
+    return;
+  }
 
 =item acknowledge_all_for($user)
 
@@ -100,13 +100,13 @@ timestamp. Returns all bothers acknowledged.
 
 =cut
 
-	method acknowledge_all_for( $user! ) {
-		my $bothers = $self->get_active_for($user);
-		foreach my $bother (@$bothers) {
-			$self->acknowledge( $bother->user, $bother->about );
-		}
-		return $bothers;
-	}
+  method acknowledge_all_for( $user! ) {
+    my $bothers = $self->get_active_for($user);
+    foreach my $bother (@$bothers) {
+      $self->acknowledge( $bother->user, $bother->about );
+    }
+    return $bothers;
+  }
 
 =item get_active()
 
@@ -114,11 +114,11 @@ Retrieve all active bothers -- bothers that are unacknowledged.
 
 =cut
 
-	method get_active() {
-		return $self->search({
-			'acknowledged' => { '<' => 1 },
-		});
-	}
+  method get_active() {
+    return $self->search({
+      'acknowledged' => { '<' => 1 },
+    });
+  }
 
 =item get_active_for($user)
 
@@ -126,13 +126,13 @@ Retrieve all active bothers -- bothers that are unacknowledged -- for a user.
 
 =cut
 
-	method get_active_for($user!) {
-		return $self->search({
-			'user'         => $user,
-			'acknowledged' => { '>' => 0 },
-		});
+  method get_active_for($user!) {
+    return $self->search({
+      'user'         => $user,
+      'acknowledged' => { '>' => 0 },
+    });
 
-	}
+  }
 
 =item get($user, $about)
 
@@ -140,12 +140,12 @@ Get an individual bother by user and about.
 
 =cut
 
-	method get( $user!, $about! ) {
-		return $self->search_one({
-			'user'  => $user,
-			'about' => $about,
-		});
-	}
+  method get( $user!, $about! ) {
+    return $self->search_one({
+      'user'  => $user,
+      'about' => $about,
+    });
+  }
 }
 
 1;

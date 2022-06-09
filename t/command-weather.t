@@ -11,8 +11,8 @@ my $test = Whatbot::Test->new();
 $test->initialize_state();
 
 ok( my $weather = Whatbot::Command::Weather->new({
-	'my_config'      => {},
-	'name'           => 'Weather',
+  'my_config'      => {},
+  'name'           => 'Weather',
 }), 'new' );
 
 $weather->register();

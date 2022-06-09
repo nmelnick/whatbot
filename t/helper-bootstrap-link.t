@@ -40,9 +40,9 @@ $link->title('Dropdown');
 $link->href('#');
 $link->add_dropdown_item( Whatbot::Helper::Bootstrap::Link->new( 'title' => 'Whee' ) );
 is(
-	$link->render(),
-	'<div class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" id="dropdown-dropdown">Dropdown <span class="caret"></span></a><ul class="dropdown-menu" role="menu" aria-labelledby="dropdown-dropdown"><li role="presentation"><a href="" role="menuitem">Whee</a></li></ul></div>',
-	'has dropdown render'
+  $link->render(),
+  '<div class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" id="dropdown-dropdown">Dropdown <span class="caret"></span></a><ul class="dropdown-menu" role="menu" aria-labelledby="dropdown-dropdown"><li role="presentation"><a href="" role="menuitem">Whee</a></li></ul></div>',
+  'has dropdown render'
 );
 
 done_testing();

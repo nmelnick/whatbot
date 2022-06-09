@@ -37,7 +37,7 @@ to the global menu.
      # Add command to global menu
      Whatbot::Helper::Bootstrap->add_application( 'Example', '/example' );
 
-     # Add an additional menu option, if desired	 
+     # Add an additional menu option, if desired   
      $self->add_menu_item( Whatbot::Helper::Bootstrap::Link->new({
          'title' => 'A fun trick',
          'href'  => '/example/fun',
@@ -55,8 +55,8 @@ to the global menu.
 =cut
 
 BEGIN {
-	$Whatbot::Helper::Bootstrap::VERSION = '0.12';
-	@Whatbot::Helper::Bootstrap::applications = ();
+  $Whatbot::Helper::Bootstrap::VERSION = '0.12';
+  @Whatbot::Helper::Bootstrap::applications = ();
 }
 
 class Whatbot::Helper::Bootstrap {
@@ -68,12 +68,12 @@ Add an application to the global menu.
 
 =cut
 
-	method add_application( Str $name, Str $path ) {
-		foreach ( @Whatbot::Helper::Bootstrap::applications ) {
-			return if ( $_->[0] eq $name );
-		}
-		push( @Whatbot::Helper::Bootstrap::applications, [ $name, $path ] );
-	}
+  method add_application( Str $name, Str $path ) {
+    foreach ( @Whatbot::Helper::Bootstrap::applications ) {
+      return if ( $_->[0] eq $name );
+    }
+    push( @Whatbot::Helper::Bootstrap::applications, [ $name, $path ] );
+  }
 }
 
 1;

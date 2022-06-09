@@ -12,8 +12,8 @@ $test->initialize_state();
 $test->initialize_models();
 
 ok( my $trigger = Whatbot::Command::Trigger->new({
-	'my_config'      => {},
-	'name'           => 'Trigger',
+  'my_config'      => {},
+  'name'           => 'Trigger',
 }), 'new' );
 
 $trigger->register();
@@ -27,14 +27,14 @@ is( ref($triggers), 'HASH', 'triggers are a hash' );
 is( %$triggers, 0, 'triggers are empty' );
 is( $trigger->stats(), 'There are 0 triggers set.', 'stats shows empty/0/plural' );
 is(
-	$trigger->unset( $message, ['random'] ),
-	'I could not find that trigger.',
-	'unset without exists',
+  $trigger->unset( $message, ['random'] ),
+  'I could not find that trigger.',
+  'unset without exists',
 );
 is(
-	@{ $trigger->find( $message, ['a'] ) },
-	0,
-	'find without exists is an empty arrayref',
+  @{ $trigger->find( $message, ['a'] ) },
+  0,
+  'find without exists is an empty arrayref',
 );
 is( $trigger->listener($message), undef, 'no items means listener returns nothing' );
 
@@ -83,14 +83,14 @@ is( $trigger->stats(), 'There are 2 triggers set.', 'stats shows 2/plural' );
 is( @{ $trigger->find( $message, ['ba'] ) }, 2, 'find has 2 results' );
 
 is(
-	$trigger->unset( $message, ['/foo/'] ),
-	'Removed trigger.',
-	'unset foo works',
+  $trigger->unset( $message, ['/foo/'] ),
+  'Removed trigger.',
+  'unset foo works',
 );
 is(
-	$trigger->unset( $message, ['/fo/'] ),
-	'Removed trigger.',
-	'unset foo works',
+  $trigger->unset( $message, ['/fo/'] ),
+  'Removed trigger.',
+  'unset foo works',
 );
 
 is( keys %{$trigger->triggers}, 0, 'triggers are empty' );
@@ -124,8 +124,8 @@ $response = $trigger->set( $message, ['event:enter (foo=bar) foo'] );
 is( $response, 'Trigger set.', 'params in event is valid' );
 
 sub clear_soup {
-	Whatbot::State->instance->database->handle->do('delete from soup');
-	return;
+  Whatbot::State->instance->database->handle->do('delete from soup');
+  return;
 }
 
 done_testing();

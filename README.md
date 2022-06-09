@@ -30,6 +30,21 @@ cpanm --installdeps --notest --with-recommends .
 perl -Ilib bin/whatbot
 ```
 
+Visual Studio Code
+------------------
+
+With the Perl Toolbox installed, the following workspace settings can be useful:
+
+```
+{
+  "perl-toolbox.lint.perlcriticProfile": "$workspaceRoot/.perlcriticrc",
+  "perl-toolbox.lint.severity": "stern",
+  "perl-toolbox.syntax.includePaths": [
+    "$workspaceRoot/lib"
+  ]
+}
+```
+
 More information
 ----------------
 

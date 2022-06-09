@@ -38,27 +38,27 @@ The available L<Whatbot::Log> instance, commonly used as $self->log->write('Foo'
 =cut
 
 class Whatbot::State {
-	has 'parent'     => ( is => 'rw', isa => 'Whatbot' );
-	has 'config'     => ( is => 'rw', isa => 'Whatbot::Config' );
-	has 'ios'        => ( is => 'rw', isa => 'HashRef' );
-	has 'database'   => ( is => 'rw', isa => 'Whatbot::Database' );
-	has 'log'        => ( is => 'rw', isa => 'Whatbot::Log' );
-	has 'controller' => ( is => 'rw', isa => 'Whatbot::Controller' );
-	has 'models'     => ( is => 'rw', isa => 'HashRef' );
+  has 'parent'     => ( is => 'rw', isa => 'Whatbot' );
+  has 'config'     => ( is => 'rw', isa => 'Whatbot::Config' );
+  has 'ios'        => ( is => 'rw', isa => 'HashRef' );
+  has 'database'   => ( is => 'rw', isa => 'Whatbot::Database' );
+  has 'log'        => ( is => 'rw', isa => 'Whatbot::Log' );
+  has 'controller' => ( is => 'rw', isa => 'Whatbot::Controller' );
+  has 'models'     => ( is => 'rw', isa => 'HashRef' );
 
-	sub initialize {
-		my ( $class, $ref ) = @_;
-		no strict 'refs';
-		${'Whatbot::State::singleton'} = Whatbot::State->new($ref);
-	}
+  sub initialize {
+    my ( $class, $ref ) = @_;
+    no strict 'refs';
+    ${'Whatbot::State::singleton'} = Whatbot::State->new($ref);
+  }
 
-	sub instance {
-		no strict 'refs';
-		if ( defined ${'Whatbot::State::singleton'} ) {
-			return ${'Whatbot::State::singleton'};
-		}
-		return;
-	}
+  sub instance {
+    no strict 'refs';
+    if ( defined ${'Whatbot::State::singleton'} ) {
+      return ${'Whatbot::State::singleton'};
+    }
+    return;
+  }
 }
 
 1;

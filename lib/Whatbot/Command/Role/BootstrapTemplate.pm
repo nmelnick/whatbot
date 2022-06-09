@@ -39,27 +39,27 @@ Return true if items exist in the menu_items arrayref.
 =cut
 
 role Whatbot::Command::Role::BootstrapTemplate {
-	use Whatbot::Helper::Bootstrap;
-	use Whatbot::Helper::Bootstrap::Link;
-	use Whatbot::Command::Role::Template;
-	use Moose::Util;
+  use Whatbot::Helper::Bootstrap;
+  use Whatbot::Helper::Bootstrap::Link;
+  use Whatbot::Command::Role::Template;
+  use Moose::Util;
 
-	has menu_items => (
-		'is'      => 'ro',
-		'isa'     => 'ArrayRef[Whatbot::Helper::Bootstrap::Link]',
-		'traits'  => [ 'Array' ],
-		'default' => sub { [] },
-		'handles' => {
-			'add_menu_item'  => 'push',
-			'has_menu_items' => 'count',
-		},
-	);
+  has menu_items => (
+    'is'      => 'ro',
+    'isa'     => 'ArrayRef[Whatbot::Helper::Bootstrap::Link]',
+    'traits'  => [ 'Array' ],
+    'default' => sub { [] },
+    'handles' => {
+      'add_menu_item'  => 'push',
+      'has_menu_items' => 'count',
+    },
+  );
 
-	method BUILD(...) {
-		# Since we can't extend a role, we're forcing the Template role to be
-		# applied to the object that consumes this role.
-		Moose::Util::apply_all_roles( $self, 'Whatbot::Command::Role::Template', 'Whatbot::Command::Role::BootstrapTemplate' );
-	}
+  method BUILD(...) {
+    # Since we can't extend a role, we're forcing the Template role to be
+    # applied to the object that consumes this role.
+    Moose::Util::apply_all_roles( $self, 'Whatbot::Command::Role::Template', 'Whatbot::Command::Role::BootstrapTemplate' );
+  }
 
 =item render( $req, \$tt2, \%params? )
 
@@ -72,13 +72,13 @@ in the container.
 
 =cut
 
-	method render( $req, $tt2, $params ) {
-		my $new_tt2 = $self->combine_content($tt2);
-		# Now, since we didn't extend the Template role, we're calling the 
-		# render method manually with $self, instead of using around, since
-		# around will whine as the role was not applied until BUILD fired.
-		return Whatbot::Command::Role::Template::render( $self, $req, $new_tt2, $params );
-	}
+  method render( $req, $tt2, $params ) {
+    my $new_tt2 = $self->combine_content($tt2);
+    # Now, since we didn't extend the Template role, we're calling the 
+    # render method manually with $self, instead of using around, since
+    # around will whine as the role was not applied until BUILD fired.
+    return Whatbot::Command::Role::Template::render( $self, $req, $new_tt2, $params );
+  }
 
 =item combine_content( $content_tt2 )
 
@@ -87,113 +87,113 @@ string.
 
 =cut
 
-	method combine_content( $content_tt2 ) {
-		my $str = join( "\n", $self->_header_template(), $$content_tt2, $self->_footer_template() );
-		return \$str;
-	}
+  method combine_content( $content_tt2 ) {
+    my $str = join( "\n", $self->_header_template(), $$content_tt2, $self->_footer_template() );
+    return \$str;
+  }
 
-	method _header_template() {
-		return q~<!DOCTYPE html>
+  method _header_template() {
+    return q~<!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<title>[% page_title || 'whatbot' %]</title>
+  <title>[% page_title || 'whatbot' %]</title>
 
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-	<!--[if lt IE 9]>
-		<script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-		<script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-	<![endif]-->
-	<style type="text/css">
-		body { padding-top: 60px; }
-		.bg-success {
-			padding: 10px 6px;
-			margin-bottom: 10px;
-		}
-		.bg-danger {
-			padding: 10px 6px;
-			margin-bottom: 10px;
-		}
-	</style>
+  <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+  <style type="text/css">
+    body { padding-top: 60px; }
+    .bg-success {
+      padding: 10px 6px;
+      margin-bottom: 10px;
+    }
+    .bg-danger {
+      padding: 10px 6px;
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
 <body>
 <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-	<div class="container">
-		<div class="navbar-header">
-			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			</button>
-			<a class="navbar-brand" href="/">[% page_title || 'whatbot' %]</a>
-		</div>
-		<div class="collapse navbar-collapse">
-			<ul class="nav navbar-nav">
-			~ . $self->_navbar_template() . q~
-			</ul>
-		</div><!--/.nav-collapse -->
-	</div>
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">[% page_title || 'whatbot' %]</a>
+    </div>
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+      ~ . $self->_navbar_template() . q~
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div>
 </div>
 
 <div class="container">
 [% IF error %]
-	<div class="bg-danger">
-		[% error %]
-	</div>
+  <div class="bg-danger">
+    [% error %]
+  </div>
 [% END %]
 ~;
-	}
+  }
 
-	method _navbar_template() {
-		my @items;
+  method _navbar_template() {
+    my @items;
 
-		# Global Menu
-		my $applications = Whatbot::Helper::Bootstrap::Link->new({
-			'title'          => 'Commands',
-			'href'           => '#',
-			'dropdown_as_li' => 1,
-		});
-		foreach my $application ( sort { $a cmp $b } @Whatbot::Helper::Bootstrap::applications ) {
-			$applications->add_dropdown_item(
-				Whatbot::Helper::Bootstrap::Link->new({
-					'title' => $application->[0],
-					'href'  => $application->[1],
-				})
-			);
-		}
-		unless ( $applications->has_dropdown_items ) {
-			$applications->add_dropdown_item(
-				Whatbot::Helper::Bootstrap::Link->new({
-					'title' => 'No commands found',
-					'href'  => '#',
-					'class' => 'disabled',
-				})
-			);
-		}
-		push( @items, $applications->render() );
+    # Global Menu
+    my $applications = Whatbot::Helper::Bootstrap::Link->new({
+      'title'          => 'Commands',
+      'href'           => '#',
+      'dropdown_as_li' => 1,
+    });
+    foreach my $application ( sort { $a cmp $b } @Whatbot::Helper::Bootstrap::applications ) {
+      $applications->add_dropdown_item(
+        Whatbot::Helper::Bootstrap::Link->new({
+          'title' => $application->[0],
+          'href'  => $application->[1],
+        })
+      );
+    }
+    unless ( $applications->has_dropdown_items ) {
+      $applications->add_dropdown_item(
+        Whatbot::Helper::Bootstrap::Link->new({
+          'title' => 'No commands found',
+          'href'  => '#',
+          'class' => 'disabled',
+        })
+      );
+    }
+    push( @items, $applications->render() );
 
-		# Other items
-		if ( $self->has_menu_items ) {
-			push( @items, ( map { '<li>' . $_->render() . '</li>' }  @{ $self->menu_items } ) );
-		}
+    # Other items
+    if ( $self->has_menu_items ) {
+      push( @items, ( map { '<li>' . $_->render() . '</li>' }  @{ $self->menu_items } ) );
+    }
 
-		return join( '', @items );
-	}
+    return join( '', @items );
+  }
 
-	method _footer_template() {
-		return q{</div>
+  method _footer_template() {
+    return q{</div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 </body>
 </html>
 };
-	}
-	
+  }
+  
 }
 
 1;

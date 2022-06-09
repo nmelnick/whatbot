@@ -11,14 +11,14 @@ $test->initialize_state();
 use_ok( 'Whatbot::IO::Timer', 'Load Module' );
 
 my $timer = Whatbot::IO::Timer->new({
-	'my_config' => {},
+  'my_config' => {},
 });
 
 my $sub1 = sub {
-	return 1;
+  return 1;
 };
 my $sub2 = sub {
-	return 2;
+  return 2;
 };
 my $ref1 = { foo => 'bar' };
 my $ref2 = { bar => 'foo' };

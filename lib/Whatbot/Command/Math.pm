@@ -16,32 +16,32 @@ use Number::Format;
 use namespace::autoclean;
 
 sub register {
-	my ($self) = @_;
-	
-	$self->command_priority('Extension');
-	$self->require_direct(0);
+  my ($self) = @_;
+  
+  $self->command_priority('Extension');
+  $self->require_direct(0);
 }
 
 sub free_form : GlobalRegEx('^\(*\-?\d[\d\.]*\+[\+\-\*\/][\d\(\)\+\-\*\/\.]*\d\)*$') {
-	my ( $self, $message ) = @_;
-	
-	return $self->parse_message( $message, [ $message->content ]);
+  my ( $self, $message ) = @_;
+  
+  return $self->parse_message( $message, [ $message->content ]);
 }
 
 sub what_the_hell_mike : GlobalRegEx('^\s*\d+\s*[\+\-\*\/]\s*\d+$') {
-	my ( $self, $message ) = @_;
-	
-	return $self->parse_message( $message, [ $message->content ]);
+  my ( $self, $message ) = @_;
+  
+  return $self->parse_message( $message, [ $message->content ]);
 }
 
 sub parse_message : GlobalRegEx('^calc (.*)') {
-	my ( $self, $message, $captures ) = @_;
+  my ( $self, $message, $captures ) = @_;
 
-	my $expression = $captures->[0];
+  my $expression = $captures->[0];
     
-	return undef unless $expression;
+  return undef unless $expression;
 
-	return $message->from . ": " . $self->_parse($expression);
+  return $message->from . ": " . $self->_parse($expression);
 }
 
 sub rand : GlobalRegEx('^rand (.*)') {
@@ -67,34 +67,34 @@ sub roll : GlobalRegEx('^roll ([0-9]+)') {
 }
 
 sub _parse {
-	my ( $self, $expression ) = @_;
+  my ( $self, $expression ) = @_;
 
-	my @lines = split(/;/, $expression);
-	my $multiline = (@lines > 1);
+  my @lines = split(/;/, $expression);
+  my $multiline = (@lines > 1);
 
-	my $env = Math::Expression->new;
+  my $env = Math::Expression->new;
 
-	my @errbuf;
+  my @errbuf;
 
-	$env->SetOpt(
-	    PrintErrFunc => sub { 
-	        my $format = shift;
-	        push(@errbuf, sprintf($format, @_)); 
-	    } 
-	);
+  $env->SetOpt(
+      PrintErrFunc => sub { 
+          my $format = shift;
+          push(@errbuf, sprintf($format, @_)); 
+      } 
+  );
 
-	my $line_n = 0;
-	my @result;
-	foreach my $line (@lines) {
-		$line_n++;
-		my $tree = $env->Parse($line);
+  my $line_n = 0;
+  my @result;
+  foreach my $line (@lines) {
+    $line_n++;
+    my $tree = $env->Parse($line);
 
-		if (!$tree) {
-			return ((@lines > 1 ? "Error line $line_n: " : "Error: ") .
-		 		(@errbuf ? join(', ', @errbuf) : "wtf"));
-		}
-		@result = $env->Eval($tree);
-	}
+    if (!$tree) {
+      return ((@lines > 1 ? "Error line $line_n: " : "Error: ") .
+         (@errbuf ? join(', ', @errbuf) : "wtf"));
+    }
+    @result = $env->Eval($tree);
+  }
 
   my $formatter = new Number::Format();
   my @pretty_results = map { 
@@ -106,7 +106,7 @@ sub _parse {
     
   } @result;
 
-	return join(', ', @pretty_results);
+  return join(', ', @pretty_results);
 }
 
 __PACKAGE__->meta->make_immutable;

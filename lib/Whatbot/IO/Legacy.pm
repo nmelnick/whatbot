@@ -11,21 +11,21 @@
 use Moops;
 
 class Whatbot::IO::Legacy extends Whatbot::IO {
-	has 'instance' => (
-		is => 'rw',
-	);
+  has 'instance' => (
+    is => 'rw',
+  );
 
-	method connect() {
-		my $timer = AnyEvent->timer(
-			'after'    => 3,
-			'interval' => 2,
-			'cb'       => sub {
-				$self->event_loop(),
-			},
-		);
-		$self->instance($timer);
-		return;
-	}
+  method connect() {
+    my $timer = AnyEvent->timer(
+      'after'    => 3,
+      'interval' => 2,
+      'cb'       => sub {
+        $self->event_loop(),
+      },
+    );
+    $self->instance($timer);
+    return;
+  }
 }
 
 1;

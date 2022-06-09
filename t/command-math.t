@@ -12,8 +12,8 @@ $test->initialize_state();
 $test->initialize_models();
 
 ok( my $math = Whatbot::Command::Math->new({
-	'my_config'      => {},
-	'name'           => 'Math',
+  'my_config'      => {},
+  'name'           => 'Math',
 }), 'new' );
 
 $math->register();
