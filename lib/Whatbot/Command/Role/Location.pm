@@ -59,7 +59,7 @@ provided as [0, 0], and the display will be the provided string.
       return {
         'coordinates' => [ $resolved->{'lat'}, $resolved->{'lon'} ],
         'display'     => join( ', ',
-          ( $resolved->{'address'}->{'city'} or $resolved->{'address'}->{'town'} ),
+          ( $resolved->{'address'}->{'city'} or $resolved->{'address'}->{'town'} or $resolved->{'address'}->{'village'} ),
           $resolved->{'address'}->{'state'},
           $resolved->{'address'}->{'country'}
         ),

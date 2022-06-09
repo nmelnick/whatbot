@@ -18,7 +18,7 @@ class Whatbot::Command::Bother extends Whatbot::Command {
     $self->init_timers();
   }
 
-  method bother( $message?, $captures? ) : GlobalRegEx('^(bother|bug) {!user} about (.*?) every (.*)$') {
+  method bother( $message?, $captures? ) : GlobalRegEx('^(bother|bug) \{!user\} about (.*?) every (.*)$') {
     my $user = $captures->[1];
     my $word = $captures->[0];
     my $about = $captures->[2];
@@ -36,7 +36,7 @@ class Whatbot::Command::Bother extends Whatbot::Command {
     return $self->do_stop( $message->from );
   }
 
-  method stop_user( $message?, $captures? ) : GlobalRegEx('^stop b(ugg|other)ing {!user}') {
+  method stop_user( $message?, $captures? ) : GlobalRegEx('^stop b(ugg|other)ing \{!user\}') {
     my $user = $captures->[1];
     return if ( $user eq 'me' );
     return $self->do_stop($user);

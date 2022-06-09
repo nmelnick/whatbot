@@ -266,13 +266,7 @@ GET the given URL using LWP.
   method parse_url_content( $url, $response ) {
     my $content = $response->content;
     my $title = 'No parsable title';
-    if ( $url =~ /twitter\.com.*status/ ) {
-      my $dom = Mojo::DOM->new( charset => 'UTF-8' )->parse($content);
-      my $tweet_id = ( split( '/', $url ) )[-1];
-      my $tweet = $dom->at('[data-tweet-id="' . $tweet_id . '"]');
-      $title = '@' . $tweet->attr('data-screen-name') . ': ' . $tweet->at(".tweet-text")->all_text;
-
-    } elsif ( $response->header('Content-Type') =~ /^image/ ) {
+    if ( $response->header('Content-Type') =~ /^image/ ) {
       my ( $width, $height, $type ) = imgsize(\$content);
       if ($type) {
         $title = $type . ' Image: ' . $width . 'x' . $height;

@@ -12,13 +12,13 @@ my $coordinate_location = Whatbot::Command::Role::Location->convert_location("43
 ok( $coordinate_location, 'coordinate has a response' );
 ok( $coordinate_location->{'coordinates'}, 'coordinate has coordinates' );
 ok( $coordinate_location->{'display'}, 'coordinate has display' );
-is( $coordinate_location->{'display'}, 'Old Toronto, Ontario, Canada', 'coordinate has correct display location' );
+is( $coordinate_location->{'display'}, 'Toronto, Ontario, Canada', 'coordinate has correct display location' );
 
 my $vt_location = Whatbot::Command::Role::Location->convert_location("fairfield, vt");
 ok( $vt_location, 'vt has a response' );
 ok( $vt_location->{'coordinates'}, 'vt has coordinates' );
 ok( $vt_location->{'display'}, 'vt has display' );
-is( $vt_location->{'display'}, 'Fairfield, Vermont, United States of America', 'vt has correct display location' );
+is( $vt_location->{'display'}, 'Fairfield, Vermont, United States', 'vt has correct display location' );
 
 my $toronto_location = Whatbot::Command::Role::Location->convert_location("toronto, ca");
 ok( $toronto_location, 'toronto has a response' );

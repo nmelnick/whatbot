@@ -1,0 +1,29 @@
+name: whatbot test suite
+
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  pull_request:
+
+jobs:
+  perl:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        perl-version:
+          - 'latest'
+    container:
+      image: perldocker/perl-tester:${{ matrix.perl-version }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: perl -V
+        run: perl -V
+      - name: Install OS dependencies
+        run: apt-get update && apt-get install -y libssl-dev libidn11* libexpat1-dev libreadline-dev
+      - name: Install Perl Dependencies
+        run: "cpanm -n -q --metacpan Module::Install inc::Module::Install && cpanm --metacpan --installdeps --notest --with-recommends ."
+      - name: Run Tests
+        run: prove -Ilib t/

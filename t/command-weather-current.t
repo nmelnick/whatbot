@@ -17,6 +17,6 @@ is( $temp_string, '80 F (26.67 C)', 'temp_string converts properly' );
 
 $current->add_alert('The sky is falling');
 $current->add_alert('The sky is falling');
-ok( scalar($current->unique_alerts) == 1, 'unique_alerts deduplicates' );
+ok( scalar(@{$current->unique_alerts}) == 1, 'unique_alerts deduplicates' );
 
 done_testing();
