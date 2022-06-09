@@ -7,16 +7,16 @@ use Whatbot::Test;
 use Moops;
 
 class Whatbot::IO::Test extends Whatbot::IO {
-	has 'delivered' => ( is => 'rw' );
+  has 'delivered' => ( is => 'rw' );
 
-	method BUILD(...) {
-		$self->me('test');
-		$self->name('Test');
-	}
+  method BUILD(...) {
+    $self->me('test');
+    $self->name('Test');
+  }
 
-	method deliver_message($message) {
-		$self->delivered($message);
-	}
+  method deliver_message($message) {
+    $self->delivered($message);
+  }
 }
 
 my $test = Whatbot::Test->new();
@@ -27,7 +27,7 @@ $test->initialize_state();
 use_ok( 'Whatbot::IO', 'Load Module' );
 
 my $io = Whatbot::IO::Test->new({
-	'my_config' => {},
+  'my_config' => {},
 });
 
 is( $io->format_user('example-user'), 'example-user', 'format_user is no-op' );
@@ -44,7 +44,7 @@ is( $io->delivered->content, 'This is for someone, not you', 'format_user called
 
 $message->content('This is for {!user=someone, not you');
 eval {
-	$io->send_message($message);
+  $io->send_message($message);
 };
 ok($@, 'send_message bails on unclosed user tag');
 like( $@, qr/Unclosed user/, 'send_message throws message on unclosed user tag');

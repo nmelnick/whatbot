@@ -9,104 +9,103 @@
 use Moops;
 
 class Whatbot::Command::Weather::Climacell
-    with Whatbot::Command::Weather::SourceRole
-    with Whatbot::Command::Role::Location {
-    use DateTime;
-    use JSON::XS;
-    use Whatbot::Command::Weather::Current;
-    use Whatbot::Command::Weather::Forecast;
+  with Whatbot::Command::Weather::SourceRole
+  with Whatbot::Command::Role::Location {
+  use DateTime;
+  use JSON::XS;
+  use Whatbot::Command::Weather::Current;
+  use Whatbot::Command::Weather::Forecast;
 
-    has 'api_key' => (
-        'is'       => 'rw',
-        'isa'      => 'Str',
-        'required' => 1,
+  has 'api_key' => (
+    'is'       => 'rw',
+    'isa'      => 'Str',
+    'required' => 1,
+  );
+
+  method _get_uri( Str $command, Str $query ) {
+    return sprintf(
+      'https://api.climacell.co/v3/weather/%s?unit_system=us&apikey=%s&%s',
+      $command,
+      $self->api_key,
+      $query
     );
+  }
 
-    method _get_uri( Str $command, Str $query ) {
-        return sprintf(
-            'https://api.climacell.co/v3/weather/%s?unit_system=us&apikey=%s&%s',
-            $command,
-            $self->api_key,
-            $query
-        );
+  method get_current( Str $location ) {
+    my $resolved = $self->convert_location($location);
+    my $query = $self->_location($resolved->{'coordinates'});
+
+    my $json = $self->_fetch_and_decode(
+      $self->_get_uri( 'realtime', $query ) . '&fields=temp%2Cfeels_like%2Cweather_code'
+    );
+    if ( $json->{'temp'} ) {
+      my $current_obj = Whatbot::Command::Weather::Current->new({
+        'display_location' => $resolved->{'display'},
+        'conditions'       => $self->_get_summary($json->{'weather_code'}->{'value'}),
+        'temperature_f'    => $json->{'temp'}->{'value'},
+        'feels_like_f'     => $json->{'feels_like'}->{'value'},
+      });
+      return $current_obj;
+    }
+    return;
+  }
+
+  method get_forecast( Str $location ) {
+    my $resolved = $self->convert_location($location);
+    my $query = $self->_location($resolved->{'coordinates'});
+
+    my $date = DateTime->now()->add( days => 3 );
+    my $json = $self->_fetch_and_decode(
+      $self->_get_uri( 'forecast/daily', $query ) . '&start_time=now&end_time=' . $date->iso8601() . '&fields=temp%2Cweather_code'
+    );
+    return unless ( $json and ref($json) );
+
+    my @days;
+    foreach my $forecast (@{$json}[0..2]) {
+      my ($year, $month, $day) = split('-', $forecast->{'observation_time'}->{'value'});
+      my $dt = DateTime->new(
+        'year' => $year,
+        'month' => $month,
+        'day' => $day,
+      );
+      my $high = $forecast->{'temp'}->[0]->{'max'} ? $forecast->{'temp'}->[0]->{'max'}->{'value'} : $forecast->{'temp'}->[1]->{'max'}->{'value'};
+      my $low = $forecast->{'temp'}->[0]->{'min'} ? $forecast->{'temp'}->[0]->{'min'}->{'value'} : $forecast->{'temp'}->[1]->{'min'}->{'value'};
+      my $f = Whatbot::Command::Weather::Forecast->new({
+        'weekday'            => $dt->day_name(),
+        'high_temperature_f' => $high,
+        'low_temperature_f'  => $low,
+        'conditions'         => $self->_get_summary($forecast->{'weather_code'}->{'value'}),
+      });
+      push(@days, $f);
     }
 
-    method get_current( Str $location ) {
-        my $resolved = $self->convert_location($location);
-        my $query = $self->_location($resolved->{'coordinates'});
+    return \@days;
+  }
 
-        my $json = $self->_fetch_and_decode(
-            $self->_get_uri( 'realtime', $query ) . '&fields=temp%2Cfeels_like%2Cweather_code'
-        );
-        if ( $json->{'temp'} ) {
-            my $current_obj = Whatbot::Command::Weather::Current->new({
-                'display_location' => $resolved->{'display'},
-                'conditions'       => $self->_get_summary($json->{'weather_code'}->{'value'}),
-                'temperature_f'    => $json->{'temp'}->{'value'},
-                'feels_like_f'     => $json->{'feels_like'}->{'value'},
+  method _get_summary( Str $weather_code ) {
+    my $summary = ucfirst($weather_code);
+    $summary =~ s/_/ /g;
+    return $summary;
+  }
 
-            });
-            return $current_obj;
-        }
-        return;
+  method _location( ArrayRef $location ) {
+    my $query;
+
+    if ( $location->[0] != 0 and $location->[1] != 0 ) {
+      $query = 'lat=' . $location->[0] . '&lon=' . $location->[1];
+    } else {
+      die 'Unwilling to figure out what you meant by that location';
     }
 
-    method get_forecast( Str $location ) {
-        my $resolved = $self->convert_location($location);
-        my $query = $self->_location($resolved->{'coordinates'});
+    return $query;
+  }
 
-        my $date = DateTime->now()->add( days => 3 );
-        my $json = $self->_fetch_and_decode(
-            $self->_get_uri( 'forecast/daily', $query ) . '&start_time=now&end_time=' . $date->iso8601() . '&fields=temp%2Cweather_code'
-        );
-        return unless ( $json and ref($json) );
+  method _fetch_and_decode( Str $url ) {
+    my $response = $self->ua->get($url);
+    my $content = $response->decoded_content;
 
-        my @days;
-        foreach my $forecast (@{$json}[0..2]) {
-            my ($year, $month, $day) = split('-', $forecast->{'observation_time'}->{'value'});
-            my $dt = DateTime->new(
-                'year' => $year,
-                'month' => $month,
-                'day' => $day,
-            );
-            my $high = $forecast->{'temp'}->[0]->{'max'} ? $forecast->{'temp'}->[0]->{'max'}->{'value'} : $forecast->{'temp'}->[1]->{'max'}->{'value'};
-            my $low = $forecast->{'temp'}->[0]->{'min'} ? $forecast->{'temp'}->[0]->{'min'}->{'value'} : $forecast->{'temp'}->[1]->{'min'}->{'value'};
-            my $f = Whatbot::Command::Weather::Forecast->new({
-                'weekday'            => $dt->day_name(),
-                'high_temperature_f' => $high,
-                'low_temperature_f'  => $low,
-                'conditions'         => $self->_get_summary($forecast->{'weather_code'}->{'value'}),
-            });
-            push(@days, $f);
-        }
-
-        return \@days;
-    }
-
-    method _get_summary( Str $weather_code ) {
-        my $summary = ucfirst($weather_code);
-        $summary =~ s/_/ /g;
-        return $summary;
-    }
-
-    method _location( ArrayRef $location ) {
-        my $query;
-
-        if ( $location->[0] != 0 and $location->[1] != 0 ) {
-            $query = 'lat=' . $location->[0] . '&lon=' . $location->[1];
-        } else {
-            die 'Unwilling to figure out what you meant by that location';
-        }
-
-        return $query;
-    }
-
-    method _fetch_and_decode( Str $url ) {
-        my $response = $self->ua->get($url);
-        my $content = $response->decoded_content;
-
-        return decode_json( $content );
-    }
+    return decode_json( $content );
+  }
 
 }
 

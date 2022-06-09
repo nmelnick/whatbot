@@ -16,79 +16,79 @@ use Try::Tiny;
 our $VERSION = '0.2';
 
 has 'source' => (
-	'is'   => 'rw',
-	'does' => 'Whatbot::Command::Weather::SourceRole',
+  'is'   => 'rw',
+  'does' => 'Whatbot::Command::Weather::SourceRole',
 );
 
 sub register {
-	my ( $self ) = @_;
-	
-	$self->command_priority('Extension');
-	$self->require_direct(0);
+  my ( $self ) = @_;
+  
+  $self->command_priority('Extension');
+  $self->require_direct(0);
 
-	if ( $self->my_config ) {
-		if ( $self->my_config->{'source'} ) {
-			my $class = 'Whatbot::Command::Weather::' . ucfirst( $self->my_config->{'source'} );
-			if ( Class::Load::try_load_class($class) ) {
-				$self->source(
-					$class->new( $self->my_config )
-				);
-			} else {
-				$self->log->write( 'Invalid source: ' . $class );
-			}
-		}
-	}
+  if ( $self->my_config ) {
+    if ( $self->my_config->{'source'} ) {
+      my $class = 'Whatbot::Command::Weather::' . ucfirst( $self->my_config->{'source'} );
+      if ( Class::Load::try_load_class($class) ) {
+        $self->source(
+          $class->new( $self->my_config )
+        );
+      } else {
+        $self->log->write( 'Invalid source: ' . $class );
+      }
+    }
+  }
 
-	return;
+  return;
 }
 
 sub forecast : GlobalRegEx('(?i)^forecast (.*)') {
-	my ( $self, $message, $captures ) = @_;
+  my ( $self, $message, $captures ) = @_;
 
-	return unless ( $self->source );
+  return unless ( $self->source );
 
-	my $response;
-	try {
-		$response = $self->source->get_forecast( $captures->[0] );
-	} catch {
-		return $_;
-	};
+  my $response;
+  try {
+    $response = $self->source->get_forecast( $captures->[0] );
+  } catch {
+    return $_;
+  };
 
-	if ( $response and ref($response) eq 'ARRAY' ) {
-		return [ map { $_->to_string() } @$response ];
-	}
+  if ( $response and ref($response) eq 'ARRAY' ) {
+    return [ map { $_->to_string() } @$response ];
+  }
 
-	return 'Iunno.';
+  return 'Iunno.';
 }
 
 sub weather : GlobalRegEx('(?i)^weather (.*)') {
-	my ( $self, $message, $captures ) = @_;
+  my ( $self, $message, $captures ) = @_;
 
-	return unless ( $self->source );
+  return unless ( $self->source );
 
-	my $response;
-	try {
-		$response = $self->source->get_current( $captures->[0] );
-	} catch {
-		return $_;
-	};
+  my $response;
+  try {
+    $response = $self->source->get_current( $captures->[0] );
+  } catch {
+    return $_;
+  };
 
-	if ($response) {
-		return $response->to_string();
-	}
+  if ($response) {
+    return $response->to_string();
+  }
 
-	return 'Iunno.';
+  return 'Iunno.';
 }
 
 sub help {
-	my ( $self ) = @_;
-	
-	return [
-		'Weather grabs the temperature and alerts for a zip code or "City, Country".',
-		'Usage: weather 10101',
-		'Usage: weather Toronto, Canada',
-		'Usage: forecast 10101'
-	];
+  my ( $self ) = @_;
+  
+  return [
+    'Weather grabs the temperature and alerts for a zip code or "City, Country".',
+    'Usage: weather 10101',
+    'Usage: weather Toronto, Canada',
+    'Usage: forecast 10101'
+  ];
 }
 
 __PACKAGE__->meta->make_immutable;

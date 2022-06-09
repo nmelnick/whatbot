@@ -18,7 +18,7 @@ ok( my $config = $whatbot->config( $basedir, $basedir . '/example.conf' ), 'conf
 is( $config->config_hash->{'irrelevant'}, JSON::XS::true, 'config read' );
 
 eval {
-	$whatbot->report_error('Example');
+  $whatbot->report_error('Example');
 };
 like( $@, qr/^ERROR: Example/, 'report error' );
 

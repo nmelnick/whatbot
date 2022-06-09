@@ -1,20 +1,20 @@
 use Moops;
 
 class Whatbot::Command::Blackjack::Stack::Shoe extends Whatbot::Command::Blackjack::Stack {
-    use Whatbot::Command::Blackjack::Stack::Deck;
+  use Whatbot::Command::Blackjack::Stack::Deck;
 
-    has 'decks'   => ( is => 'rw', isa => 'Int', default => 4 );
+  has 'decks'   => ( is => 'rw', isa => 'Int', default => 4 );
 
-    method BUILD(...) {
-        my @cards;
-        foreach ( 1 .. $self->decks ) {
-            my $deck = Whatbot::Command::Blackjack::Stack::Deck->new();
-            push( @cards, @{ $deck->cards } );
-        }
-        $self->cards(\@cards);
-        $self->shuffle();
-        $self->shuffle();
+  method BUILD(...) {
+    my @cards;
+    foreach ( 1 .. $self->decks ) {
+      my $deck = Whatbot::Command::Blackjack::Stack::Deck->new();
+      push( @cards, @{ $deck->cards } );
     }
+    $self->cards(\@cards);
+    $self->shuffle();
+    $self->shuffle();
+  }
 }
 
 1;

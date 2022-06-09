@@ -33,28 +33,28 @@ usage() if ($help);
 # Start application
 my $whatbot = Whatbot->new();
 if ( $whatbot->config( $basedir, $config_path ) ) {
-    if ($daemon) {
-    	fork and exit;
-    } else {
-    	print 'whatbot ' . $Whatbot::VERSION . "\n";
-    	print 'Running in interactive mode.' . "\n";
-    }
+  if ($daemon) {
+    fork and exit;
+  } else {
+    print 'whatbot ' . $Whatbot::VERSION . "\n";
+    print 'Running in interactive mode.' . "\n";
+  }
 
-    $SIG{'INT'} = sub { $whatbot->stop(); };
-    $whatbot->run();
+  $SIG{'INT'} = sub { $whatbot->stop(); };
+  $whatbot->run();
 } else {
-    usage();
-    exit(-1);
+  usage();
+  exit(-1);
 }
 
 sub usage {
-	print qq{whatbot $Whatbot::VERSION:
+  print qq{whatbot $Whatbot::VERSION:
 
  -c --config  Path to configuration file (default: conf/whatbot.conf)
  -d --daemon  Daemonize on successful launch
- -h --help	  Print this help screen\n
+ -h --help    Print this help screen\n
 };
-	exit(0);
+  exit(0);
 }
 
 1;

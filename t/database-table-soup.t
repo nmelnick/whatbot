@@ -16,17 +16,17 @@ ok( $soup, 'Object created' );
 is( $soup->count(), 0, 'table has zero records' );
 
 throws_ok(
-	sub { $soup->get() },
-	qr/Expected/,
-	'get requires one param'
+  sub { $soup->get() },
+  qr/Expected/,
+  'get requires one param'
 );
 
 is( $soup->get('example'), undef, 'example is empty' );
 
 throws_ok(
-	sub { $soup->set('example') },
-	qr/Expected/,
-	'set requires one param'
+  sub { $soup->set('example') },
+  qr/Expected/,
+  'set requires one param'
 );
 
 ok( $soup->set( 'example', 'bar' ), 'set example to bar' );
@@ -34,17 +34,17 @@ is( $soup->count(), 1, 'table has one record' );
 is( $soup->get('example'), 'bar', 'example is bar' );
 
 is_deeply(
-	$soup->get_hashref(),
-	{
-		'example' => 'bar',
-	},
-	'get_hashref matches get',
+  $soup->get_hashref(),
+  {
+    'example' => 'bar',
+  },
+  'get_hashref matches get',
 );
 
 throws_ok(
-	sub { $soup->clear() },
-	qr/Expected/,
-	'clear requires one param'
+  sub { $soup->clear() },
+  qr/Expected/,
+  'clear requires one param'
 );
 
 $soup->clear('example');

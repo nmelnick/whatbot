@@ -5,18 +5,18 @@ use Test::More;
 use Whatbot::Test;
 
 {
-	# "mock" AnyEvent::SlackRTM
-	package AnyEvent::Discord;
-	my $lastref;
-	sub send {
-		my ($self, $ref) = @_;
-		$lastref = $ref;
-		return;
-	}
+  # "mock" AnyEvent::SlackRTM
+  package AnyEvent::Discord;
+  my $lastref;
+  sub send {
+    my ($self, $ref) = @_;
+    $lastref = $ref;
+    return;
+  }
 
-	sub lastref {
-		return $lastref;
-	}
+  sub lastref {
+    return $lastref;
+  }
 }
 
 use_ok( 'Whatbot::IO::Discord', 'Load module' );
@@ -26,10 +26,10 @@ $test->initialize_state();
 
 # Prep
 my $discord = Whatbot::IO::Discord->new({
-	'my_config' => {
-		'token' => 'deadbeef',
-	},
-	'handle'    => AnyEvent::Discord->new({ token => 'deadbeef' }),
+  'my_config' => {
+    'token' => 'deadbeef',
+  },
+  'handle'    => AnyEvent::Discord->new({ token => 'deadbeef' }),
 });
 $discord->handle->{users} = {
   'ufoobar' => 'userbar',

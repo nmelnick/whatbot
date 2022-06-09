@@ -3,26 +3,26 @@ EXPOSE 2301
 
 RUN apt-get update && \
     apt-get install -y \
-			binutils \
-			bzip2 \
-			ca-certificates \
-			cpp \
-			curl \
-			g++ \
-			gcc \
-			libc-dev-bin \
-			libc6-dev \
-			libexpat1-dev \
-			libgcc-8-dev \
-			libidn11-dev \
-			libreadline-dev \
-			libssl-dev \
-			libstdc++-8-dev \
-			linux-libc-dev \
-			make \
-			software-properties-common \
-			wget \
-			zlib1g-dev && \
+      binutils \
+      bzip2 \
+      ca-certificates \
+      cpp \
+      curl \
+      g++ \
+      gcc \
+      libc-dev-bin \
+      libc6-dev \
+      libexpat1-dev \
+      libgcc-8-dev \
+      libidn11-dev \
+      libreadline-dev \
+      libssl-dev \
+      libstdc++-8-dev \
+      linux-libc-dev \
+      make \
+      software-properties-common \
+      wget \
+      zlib1g-dev && \
     apt-get clean && \
     rm -rf /var/cache/apt
 
@@ -34,7 +34,7 @@ COPY . /whatbot
 
 # Install dependencies
 RUN cpanm -n -q --metacpan Module::Install inc::Module::Install && \
-		cpanm -n -q --metacpan --with-recommends . && \
+    cpanm -n -q --metacpan --with-recommends . && \
     rm -rf ~/.cpanm
 
 CMD ["whatbot", "-c", "/whatbot/data/whatbot.conf"]

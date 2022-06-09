@@ -1,23 +1,23 @@
 use Moops;
 
 class Whatbot::Command::Blackjack::Stack::Deck extends Whatbot::Command::Blackjack::Stack {
-    use Whatbot::Command::Blackjack::Card;
+  use Whatbot::Command::Blackjack::Card;
 
-    method BUILD(...) {
-        my @cards;
-        my @suits = keys %{ Whatbot::Command::Blackjack::Constants::suits() };
-        foreach my $suit (@suits) {
-            foreach my $value ( 'A', 2 .. 10, qw/ J Q K / )  {
-                my $card = Whatbot::Command::Blackjack::Card->new(
-                    'value' => $value,
-                    'suit'  => $suit
-                );
-                push( @cards, $card );
-            }
-        }
-        $self->cards(\@cards);
-        $self->shuffle();
+  method BUILD(...) {
+    my @cards;
+    my @suits = keys %{ Whatbot::Command::Blackjack::Constants::suits() };
+    foreach my $suit (@suits) {
+      foreach my $value ( 'A', 2 .. 10, qw/ J Q K / )  {
+        my $card = Whatbot::Command::Blackjack::Card->new(
+          'value' => $value,
+          'suit'  => $suit
+        );
+        push( @cards, $card );
+      }
     }
+    $self->cards(\@cards);
+    $self->shuffle();
+  }
 }
 
 1;

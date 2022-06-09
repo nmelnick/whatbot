@@ -9,69 +9,69 @@
 use Moops;
 
 class Whatbot::IO::Log extends Whatbot::IO::Legacy {
-	use Whatbot::Progress;
+  use Whatbot::Progress;
 
-	has 'file_handle'   => ( is => 'rw' );
-	has 'line_count'    => ( is => 'rw' );
-	has 'current_line'  => ( is => 'rw' );
-	has 'progress'      => ( is => 'rw' );
+  has 'file_handle'   => ( is => 'rw' );
+  has 'line_count'    => ( is => 'rw' );
+  has 'current_line'  => ( is => 'rw' );
+  has 'progress'      => ( is => 'rw' );
 
-	method BUILD(...) {
-		my $name = 'Log';
-		$self->name($name);
-		$self->me( $self->my_config->{'me'} );
-	}
+  method BUILD(...) {
+    my $name = 'Log';
+    $self->name($name);
+    $self->me( $self->my_config->{'me'} );
+  }
 
-	after connect {
-		# Open log file, store scalar file_handle
-		$self->log->write( 'Opening ' . $self->my_config->{'filepath'} );
-		my $fh;
-		open ( $fh, $self->my_config->{'filepath'} );
-		$self->file_handle($fh);
-	
-		# Get File Count
-		my $lines = 0;
-		my $buffer;
-		open( FILE, $self->my_config->{'filepath'} ) or die "Can't open: $!";
-		while ( sysread FILE, $buffer, 4096 ) {
-		    $lines += ( $buffer =~ tr/\n// );
-		}
-		close (FILE);
-		$self->line_count($lines);
-	}
+  after connect {
+    # Open log file, store scalar file_handle
+    $self->log->write( 'Opening ' . $self->my_config->{'filepath'} );
+    my $fh;
+    open ( $fh, $self->my_config->{'filepath'} );
+    $self->file_handle($fh);
+  
+    # Get File Count
+    my $lines = 0;
+    my $buffer;
+    open( FILE, $self->my_config->{'filepath'} ) or die "Can't open: $!";
+    while ( sysread FILE, $buffer, 4096 ) {
+        $lines += ( $buffer =~ tr/\n// );
+    }
+    close (FILE);
+    $self->line_count($lines);
+  }
 
-	method disconnect {
-		$self->log->write( 'Closing ' . $self->my_config->{'filepath'} );
-		close( $self->file_handle );
-	}
+  method disconnect {
+    $self->log->write( 'Closing ' . $self->my_config->{'filepath'} );
+    close( $self->file_handle );
+  }
 
-	method event_loop {
-		my $fh = $self->file_handle;
-		$self->progress(
-			Whatbot::Progress->new( 
-				'restrict_updates'  => 1000,
-				'max'               => $self->line_count,
-				'show_count'        => 1
-			)
-		) unless ( defined $self->progress );
-	
-		if ( my $line = <$fh> ) {
-			$self->{'current_line'}++;
-			$self->parse_line($line);
-			$self->progress->update( $self->current_line );
-		} else {
-			$self->progress->finish();
-			$self->parent->stop();
-		}
-	}
+  method event_loop {
+    my $fh = $self->file_handle;
+    $self->progress(
+      Whatbot::Progress->new( 
+        'restrict_updates'  => 1000,
+        'max'               => $self->line_count,
+        'show_count'        => 1
+      )
+    ) unless ( defined $self->progress );
+  
+    if ( my $line = <$fh> ) {
+      $self->{'current_line'}++;
+      $self->parse_line($line);
+      $self->progress->update( $self->current_line );
+    } else {
+      $self->progress->finish();
+      $self->parent->stop();
+    }
+  }
 
-	# Send a message
-	method deliver_message( $message ) {
-	}
+  # Send a message
+  method deliver_message( $message ) {
+  }
 
 
-	method parse_line( $line ) {
-	}
+  method parse_line( $line ) {
+  }
 }
 
 1;

@@ -12,14 +12,14 @@ use JSON::XS;
 
 my ( $config_file ) = @ARGV;
 unless ($config_file) {
-	die 'Requires path to config file.';
+  die 'Requires path to config file.';
 }
 
 my $config = eval {
-	return XMLin( $config_file, KeyAttr => [] );
+  return XMLin( $config_file, KeyAttr => [] );
 };
 if ($@) {
-	die 'ERROR: Error in config file "' . $config_file . '"! Parser reported: ' . $@;
+  die 'ERROR: Error in config file "' . $config_file . '"! Parser reported: ' . $@;
 }
 
 my $json = JSON::XS->new()->pretty(1);
