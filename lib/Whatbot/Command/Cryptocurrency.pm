@@ -49,14 +49,14 @@ class Whatbot::Command::Cryptocurrency extends Whatbot::Command with Whatbot::Ro
     $to = uc( $to or 'USD' );
     $to =~ s/ //g;
     my $amount;
-    my $error = try {
+    my $error;
+    try {
       $amount = $self->get_spot_price( $from, $to );
-      return;
     } catch {
-      if ( $_ =~ /Invalid/ ) {
+      if ( $_ =~ /invalid/i ) {
         s/ at.*$//;
         s/[\r\n]//;
-        return $_;
+        $error = $_;
       }
     };
     return $error if ($error);
@@ -67,6 +67,9 @@ class Whatbot::Command::Cryptocurrency extends Whatbot::Command with Whatbot::Ro
   }
 
   method get_spot_price( $from, $to ) {
+    unless ($from and $to) {
+      die 'Invalid from or to currency';
+    }
     my $response = $self->ua->get( sprintf('https://api.coinbase.com/v2/prices/%s-%s/spot', $from, $to ) );
     my $pricing_object = try {
       JSON::XS::decode_json( $response->decoded_content );
@@ -81,7 +84,7 @@ class Whatbot::Command::Cryptocurrency extends Whatbot::Command with Whatbot::Ro
     } else {
       if ( $pricing_object and $pricing_object->{errors} ) {
         my $message = $pricing_object->{errors}->[0]->{message};
-        die $message if ( $message =~ /^Invalid currency/ );
+        die $message if ( $message =~ /invalid/i and $message =~ /currency/i );
 
         $self->log->error( 'Coinbase API Error: ' . $pricing_object->{errors}->[0]->{message} );
       } else {
