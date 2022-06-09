@@ -66,43 +66,43 @@ Return true if dropdown items exist in the dropdown_items arrayref.
 =cut
 
 class Whatbot::Helper::Bootstrap::Link {
-	use URI::Encode ();
+  use URI::Encode ();
 
-	has title => (
-		'is'  => 'rw',
-		'isa' => 'Str',
-	);
+  has title => (
+    'is'  => 'rw',
+    'isa' => 'Str',
+  );
 
-	has href => (
-		'is'  => 'rw',
-		'isa' => 'Str',
-	);
+  has href => (
+    'is'  => 'rw',
+    'isa' => 'Str',
+  );
 
-	has class => (
-		'is'  => 'rw',
-		'isa' => 'Str',
-	);
+  has class => (
+    'is'  => 'rw',
+    'isa' => 'Str',
+  );
 
-	has role => (
-		'is'  => 'rw',
-		'isa' => 'Str',
-	);
+  has role => (
+    'is'  => 'rw',
+    'isa' => 'Str',
+  );
 
-	has dropdown_as_li => (
-		'is'  => 'rw',
-		'isa' => 'Bool',
-	);
+  has dropdown_as_li => (
+    'is'  => 'rw',
+    'isa' => 'Bool',
+  );
 
-	has dropdown_items => (
-		'is'      => 'ro',
-		'isa'     => 'ArrayRef[Whatbot::Helper::Bootstrap::Link]',
-		'traits'  => [ 'Array' ],
-		'default' => sub { [] },
-		'handles' => {
-			'add_dropdown_item'  => 'push',
-			'has_dropdown_items' => 'count',
-		},
-	);
+  has dropdown_items => (
+    'is'      => 'ro',
+    'isa'     => 'ArrayRef[Whatbot::Helper::Bootstrap::Link]',
+    'traits'  => [ 'Array' ],
+    'default' => sub { [] },
+    'handles' => {
+      'add_dropdown_item'  => 'push',
+      'has_dropdown_items' => 'count',
+    },
+  );
 
 =item render()
 
@@ -110,48 +110,48 @@ Render the link as a string, with the current set of attributes.
 
 =cut
 
-	method render() {
-		my $has_dropdown_items = $self->has_dropdown_items;
-		if ( $has_dropdown_items and ( not $self->class or $self->class !~ /dropdown-toggle/ ) ) {
-			$self->class( ( $self->class ? $self->class . ' ' : '' ) . 'dropdown-toggle' );
-		}
-		my $link = sprintf(
-			'<a href="%s"%s%s%s>%s%s</a>',
-			URI::Encode::uri_encode( $self->href or '' ),
-			( $self->class ? ' class="' . $self->class . '"' : '' ),
-			( $self->role ? ' role="' . $self->role . '"' : '' ),
-			( $has_dropdown_items ? ' data-toggle="dropdown" id="dropdown-' . $self->_title_as_id() . '"' : '' ),
-			( $self->title or '' ),
-			( $has_dropdown_items ? ' <span class="caret"></span>' : '' ),
-		);
-		if ( $has_dropdown_items ) {
-			my $tag = ( $self->dropdown_as_li ? 'li' : 'div' );
-			return sprintf(
-				'<%s class="dropdown">%s%s</%s>',
-				$tag,
-				$link,
-				$self->_render_dropdown_menu(),
-				$tag,
-			);
-		}
-		return $link;
-	}
+  method render() {
+    my $has_dropdown_items = $self->has_dropdown_items;
+    if ( $has_dropdown_items and ( not $self->class or $self->class !~ /dropdown-toggle/ ) ) {
+      $self->class( ( $self->class ? $self->class . ' ' : '' ) . 'dropdown-toggle' );
+    }
+    my $link = sprintf(
+      '<a href="%s"%s%s%s>%s%s</a>',
+      URI::Encode::uri_encode( $self->href or '' ),
+      ( $self->class ? ' class="' . $self->class . '"' : '' ),
+      ( $self->role ? ' role="' . $self->role . '"' : '' ),
+      ( $has_dropdown_items ? ' data-toggle="dropdown" id="dropdown-' . $self->_title_as_id() . '"' : '' ),
+      ( $self->title or '' ),
+      ( $has_dropdown_items ? ' <span class="caret"></span>' : '' ),
+    );
+    if ( $has_dropdown_items ) {
+      my $tag = ( $self->dropdown_as_li ? 'li' : 'div' );
+      return sprintf(
+        '<%s class="dropdown">%s%s</%s>',
+        $tag,
+        $link,
+        $self->_render_dropdown_menu(),
+        $tag,
+      );
+    }
+    return $link;
+  }
 
-	method _title_as_id() {
-		my $id = $self->title;
-		$id =~ s/[^A-Za-z0-9\-_]//g;
-		return lc($id);
-	}
+  method _title_as_id() {
+    my $id = $self->title;
+    $id =~ s/[^A-Za-z0-9\-_]//g;
+    return lc($id);
+  }
 
-	method _render_dropdown_menu() {
-		my @li = map {
-			my $nil = $_->role('menuitem');
-			'<li role="presentation">' . $_->render() . '</li>'
-		} @{ $self->dropdown_items };
-		return '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdown-' . $self->_title_as_id() . '">'
-		     . join( "\n", @li )
-		     . '</ul>';
-	}
+  method _render_dropdown_menu() {
+    my @li = map {
+      my $nil = $_->role('menuitem');
+      '<li role="presentation">' . $_->render() . '</li>'
+    } @{ $self->dropdown_items };
+    return '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdown-' . $self->_title_as_id() . '">'
+         . join( "\n", @li )
+         . '</ul>';
+  }
 }
 
 1;

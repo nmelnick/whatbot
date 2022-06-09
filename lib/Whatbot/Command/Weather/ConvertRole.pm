@@ -9,25 +9,25 @@
 use Moops;
 
 role Whatbot::Command::Weather::ConvertRole {
-	use Convert::Temperature;
+  use Convert::Temperature;
 
-	has 'conv' => (
-		is      => 'ro',
-		isa     => 'Convert::Temperature',
-		default => sub { return Convert::Temperature->new(); },
-	);
+  has 'conv' => (
+    is      => 'ro',
+    isa     => 'Convert::Temperature',
+    default => sub { return Convert::Temperature->new(); },
+  );
 
-	method to_celsius( Num $temperature ) {
-		return $self->conv->from_fahr_to_cel($temperature);
-	}
+  method to_celsius( Num $temperature ) {
+    return $self->conv->from_fahr_to_cel($temperature);
+  }
 
-	method temp_string( Num $temperature ) {
-		return sprintf(
-			'%d F (%0.2f C)',
-			$temperature,
-			$self->to_celsius($temperature)
-		);
-	}
+  method temp_string( Num $temperature ) {
+    return sprintf(
+      '%d F (%0.2f C)',
+      $temperature,
+      $self->to_celsius($temperature)
+    );
+  }
 }
 
 1;

@@ -11,8 +11,8 @@ my $test = Whatbot::Test->new();
 $test->initialize_state();
 
 ok( my $c = Whatbot::Command::Cryptocurrency->new({
-	'my_config'      => {},
-	'name'           => 'Cryptocurrency',
+  'my_config' => {},
+  'name'      => 'Cryptocurrency',
 }), 'new' );
 
 $c->register();
@@ -27,14 +27,14 @@ ok( ( not $c->get_spot_price( 'XP0', 'USD' ) ), 'spot price of xp0->usd does not
 ok( $c->check_spot( 'BTC', 'usd' ) =~ /1 BTC is worth .+? in USD/, 'check_spot with lower case currency works' );
 ok( $c->check_spot( 'BTC', ' usd  ' ) =~ /1 BTC is worth .+? in USD/, 'check_spot with space in currency works' );
 is(
-    $c->check_spot( 'BTC', 'boo' ),
-    'Invalid currency (BOO)',
-    'check_spot with invalid currency returns human currency error'
+  $c->check_spot( 'BTC', 'boo' ),
+  'Invalid currency (BOO)',
+  'check_spot with invalid currency returns human currency error'
 );
 is(
-    $c->check_spot( '', '' ),
-    'Invalid currency (-USD)',
-    'check_spot with invalid currencies returns invalid currency error'
+  $c->check_spot( '', '' ),
+  'Invalid currency (-USD)',
+  'check_spot with invalid currencies returns invalid currency error'
 );
 
 done_testing();

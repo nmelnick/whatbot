@@ -5,18 +5,18 @@ use Test::More;
 use Whatbot::Test;
 
 {
-	# "mock" AnyEvent::SlackRTM
-	package AnyEvent::SlackRTM;
-	my $lastref;
-	sub send {
-		my ($self, $ref) = @_;
-		$lastref = $ref;
-		return;
-	}
+  # "mock" AnyEvent::SlackRTM
+  package AnyEvent::SlackRTM;
+  my $lastref;
+  sub send {
+    my ($self, $ref) = @_;
+    $lastref = $ref;
+    return;
+  }
 
-	sub lastref {
-		return $lastref;
-	}
+  sub lastref {
+    return $lastref;
+  }
 }
 
 use_ok( 'Whatbot::IO::Slack', 'Load module' );
@@ -25,24 +25,24 @@ my $test = Whatbot::Test->new();
 $test->initialize_state();
 
 eval {
-	my $slack = Whatbot::IO::Slack->new({
-		'my_config'      => {},
-	});
+  my $slack = Whatbot::IO::Slack->new({
+    'my_config'      => {},
+  });
 };
 like( $@, qr/IO\->Slack is missing an access token/, 'Error when missing token' );
 
 # Prep
 my $slack = Whatbot::IO::Slack->new({
-	'my_config' => {
-		'token' => 'deadbeef',
-	},
-	'handle'    => AnyEvent::SlackRTM->new(),
-	'users'     => {
-		'ufoobar' => 'userbar',
-	},
-	'channels'     => {
-		'cfoobar' => 'channelbar',
-	},
+  'my_config' => {
+    'token' => 'deadbeef',
+  },
+  'handle'    => AnyEvent::SlackRTM->new(),
+  'users'     => {
+    'ufoobar' => 'userbar',
+  },
+  'channels'     => {
+    'cfoobar' => 'channelbar',
+  },
 });
 
 $slack->slack_name('example');
@@ -50,9 +50,9 @@ is( $slack->name, 'Slack_example', 'slack_name' );
 
 # Messaging
 my $message = {
-	'user'    => 'ufoobar',
-	'channel' => 'cfoobar',
-	'text'    => 'example',
+  'user'    => 'ufoobar',
+  'channel' => 'cfoobar',
+  'text'    => 'example',
 };
 my $slack_message = $slack->_slack_message_to_message($message);
 is( ref($slack_message), 'Whatbot::Message', '_slack_message_to_message is Whatbot::Message' );

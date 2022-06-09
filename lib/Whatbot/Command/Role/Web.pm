@@ -51,7 +51,7 @@ L<Whatbot::Command::Role::Template> and L<Whatbot::Command::Role::BootstrapTempl
 =cut
 
 role Whatbot::Command::Role::Web {
-	requires 'register';
+  requires 'register';
 
 =item web( $path, \&callback )
 
@@ -65,10 +65,10 @@ object.
 
 =cut
 
-	method web( $path, $callback ) {
-		return unless ( $self->ios->{Web} );
-		return $self->ios->{Web}->add_dispatch( $self, $path, $callback );
-	}
+  method web( $path, $callback ) {
+    return unless ( $self->ios->{Web} );
+    return $self->ios->{Web}->add_dispatch( $self, $path, $callback );
+  }
 
 =item web_url()
 
@@ -76,10 +76,10 @@ Returns the URL that the web server is currently responding to.
 
 =cut
 
-	method web_url() {
-		return unless ( $self->ios->{Web} );
-		return sprintf( '%s', $self->ios->{Web}->my_config->{url} );
-	}
+  method web_url() {
+    return unless ( $self->ios->{Web} );
+    return sprintf( '%s', $self->ios->{Web}->my_config->{url} );
+  }
 
 }
 

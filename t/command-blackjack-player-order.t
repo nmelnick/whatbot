@@ -35,20 +35,20 @@ $game->reshoe();
 $game->finish_hand();
 
 for ( my $i = 0; $i < 1000; $i++ ) {
-	my %bets;
-	foreach my $player ( qw( user1 user2 user3 user4 ) ) {
-		$bets{$player} = '0.01';
-	}
-	my $hands = $game->deal(\%bets);
-	unless ($hands) {
-		$game->finish_hand();
-		next;
-	}
-	my $dealer_hand = shift( @$hands );
-	is( $hands->[0]->player, 'user1', 'iter ' . $i . ' hand 0 user1' );
-	is( $hands->[1]->player, 'user2', 'iter ' . $i . ' hand 1 user2' );
-	is( $hands->[2]->player, 'user3', 'iter ' . $i . ' hand 2 user3' );
-	is( $hands->[3]->player, 'user4', 'iter ' . $i . ' hand 3 user4' );
+  my %bets;
+  foreach my $player ( qw( user1 user2 user3 user4 ) ) {
+    $bets{$player} = '0.01';
+  }
+  my $hands = $game->deal(\%bets);
+  unless ($hands) {
+    $game->finish_hand();
+    next;
+  }
+  my $dealer_hand = shift( @$hands );
+  is( $hands->[0]->player, 'user1', 'iter ' . $i . ' hand 0 user1' );
+  is( $hands->[1]->player, 'user2', 'iter ' . $i . ' hand 1 user2' );
+  is( $hands->[2]->player, 'user3', 'iter ' . $i . ' hand 2 user3' );
+  is( $hands->[3]->player, 'user4', 'iter ' . $i . ' hand 3 user4' );
 }
 
 done_testing();

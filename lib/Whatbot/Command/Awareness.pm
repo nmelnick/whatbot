@@ -13,45 +13,45 @@ BEGIN { extends 'Whatbot::Command' }
 use namespace::autoclean;
 
 sub register {
-	my ($self) = @_;
+  my ($self) = @_;
 
-	$self->command_priority('Primary');
-	$self->require_direct(0);
+  $self->command_priority('Primary');
+  $self->require_direct(0);
 }
 
 sub message : Monitor {
-	my ( $self, $message_ref ) = @_;
+  my ( $self, $message_ref ) = @_;
 
-	# Self-awareness
-	my $me = $message_ref->me;
-	return 'what' if ( $message_ref->content =~ /^$me[\?\!\.]?$/i );
+  # Self-awareness
+  my $me = $message_ref->me;
+  return 'what' if ( $message_ref->content =~ /^$me[\?\!\.]?$/i );
 
-	# Greeting
-	my @greetings = (
-		'hey',
-		'sup',
-		"what's up",
-		'yo',
-		'word',
-		'hi',
-		'hello',
-		'greetings',
-		'allo',
-	);
-	if (
-		$message_ref->is_direct
-		and $message_ref->content =~ /^(hey|hi|hello|word|sup|morning|good morning)[\?\!\. ]*?$/
-	) {
-		return $greetings[rand @greetings] . ', ' . $self->tag_user( $message_ref->from ) . '.';
-	}
+  # Greeting
+  my @greetings = (
+    'hey',
+    'sup',
+    "what's up",
+    'yo',
+    'word',
+    'hi',
+    'hello',
+    'greetings',
+    'allo',
+  );
+  if (
+    $message_ref->is_direct
+    and $message_ref->content =~ /^(hey|hi|hello|word|sup|morning|good morning)[\?\!\. ]*?$/
+  ) {
+    return $greetings[rand @greetings] . ', ' . $self->tag_user( $message_ref->from ) . '.';
+  }
 
-	return;
+  return;
 }
 
 sub last_message : GlobalRegEx('^show last message$') {
-	my ( $self ) = @_;
+  my ( $self ) = @_;
 
-	return $self->parent->last_message;
+  return $self->parent->last_message;
 }
 
 __PACKAGE__->meta->make_immutable;

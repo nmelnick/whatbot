@@ -26,31 +26,31 @@ Whatbot::Database::Table::Factoid provides database functionality for seen.
 
 class Whatbot::Database::Table::Seen extends Whatbot::Database::Table {
 
-	method BUILD(...) {
-		$self->init_table({
-			'name'        => 'seen',
-			'primary_key' => 'seen_id',
-			'indexed'     => ['user'],
-			'defaults'    => {
-				'timestamp' => { 'database' => 'now' }
-			},
-			'columns'     => {
-				'seen_id' => {
-					'type'  => 'serial'
-				},
-				'timestamp' => {
-					'type'  => 'integer'
-				},
-				'user' => {
-					'type'  => 'varchar',
-					'size'  => 255
-				},
-				'message' => {
-					'type'  => 'text'
-				}
-			}
-		});
-	}
+  method BUILD(...) {
+    $self->init_table({
+      'name'        => 'seen',
+      'primary_key' => 'seen_id',
+      'indexed'     => ['user'],
+      'defaults'    => {
+        'timestamp' => { 'database' => 'now' }
+      },
+      'columns'     => {
+        'seen_id' => {
+          'type'  => 'serial'
+        },
+        'timestamp' => {
+          'type'  => 'integer'
+        },
+        'user' => {
+          'type'  => 'varchar',
+          'size'  => 255
+        },
+        'message' => {
+          'type'  => 'text'
+        }
+      }
+    });
+  }
 
 =item seen( $user, $message? )
 
@@ -59,22 +59,22 @@ from that user. If a message is provided, store that seen, and return the row.
 
 =cut
 
-	method seen( Str $user, Str $message? ) {
-		$user = lc($user);
-		
-		my $seen_row = $self->search_one({
-			'user' => $user
-		});
-		if ( defined $message ) {
-			$seen_row->delete() if ( defined $seen_row );
-			return $self->create({
-				'user'      => $user,
-				'message'   => $message
-			});
-		}
+  method seen( Str $user, Str $message? ) {
+    $user = lc($user);
+    
+    my $seen_row = $self->search_one({
+      'user' => $user
+    });
+    if ( defined $message ) {
+      $seen_row->delete() if ( defined $seen_row );
+      return $self->create({
+        'user'      => $user,
+        'message'   => $message
+      });
+    }
 
-		return $seen_row;
-	}
+    return $seen_row;
+  }
 }
 
 1;

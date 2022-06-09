@@ -28,7 +28,7 @@ Whatbot::Role::UserAgent provides a LWP::UserAgent to an existing class.
 =cut
 
 role Whatbot::Role::UserAgent {
-	use LWP::UserAgent ();
+  use LWP::UserAgent ();
 
 =item ua()
 
@@ -36,15 +36,15 @@ Returns a single instance of LWP::UserAgent for this class.
 
 =cut
 
-	has 'ua' => (
-		is		=> 'ro',
-		isa		=> 'LWP::UserAgent',
-		default => sub {
-			LWP::UserAgent->new(
-				agent => 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36',
-			);
-		}
-	);
+  has 'ua' => (
+    is      => 'ro',
+    isa     => 'LWP::UserAgent',
+    default => sub {
+      LWP::UserAgent->new(
+        agent => 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36',
+      );
+    }
+  );
 }
 
 1;

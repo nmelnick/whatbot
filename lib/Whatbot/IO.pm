@@ -85,29 +85,29 @@ A list of users or tags to ignore processing of.
 =cut
 
 class Whatbot::IO extends Whatbot::Component {
-	use Whatbot::Message;
+  use Whatbot::Message;
 
-	has 'my_config' => ( is => 'rw', isa => 'HashRef' );
-	has 'name'      => ( is => 'rw', isa => 'Str' );
-	has 'me'        => ( is => 'rw', isa => 'Str', default => '' );
-	has 'ignore'    => ( is => 'rw', isa => 'Maybe[ArrayRef]', lazy_build => 1 );
+  has 'my_config' => ( is => 'rw', isa => 'HashRef' );
+  has 'name'      => ( is => 'rw', isa => 'Str' );
+  has 'me'        => ( is => 'rw', isa => 'Str', default => '' );
+  has 'ignore'    => ( is => 'rw', isa => 'Maybe[ArrayRef]', lazy_build => 1 );
 
-	method _build_ignore(...) {
-		if (
-			$self->my_config->{ignore}
-			and ref( $self->my_config->{ignore} )
-			and ref( $self->my_config->{ignore} ) eq 'ARRAY'
-		) {
-			return $self->my_config->{ignore};
-		}
-		return;
-	}
+  method _build_ignore(...) {
+    if (
+      $self->my_config->{ignore}
+      and ref( $self->my_config->{ignore} )
+      and ref( $self->my_config->{ignore} ) eq 'ARRAY'
+    ) {
+      return $self->my_config->{ignore};
+    }
+    return;
+  }
 
-	method BUILD(...) {
-		unless ( defined $self->my_config ) {
-			die 'No configuration found for ' . ref($self);
-		}
-	}
+  method BUILD(...) {
+    unless ( defined $self->my_config ) {
+      die 'No configuration found for ' . ref($self);
+    }
+  }
 
 =head1 IMPLEMENTATION METHODS
 
@@ -123,8 +123,8 @@ module, whether on first load, or after a disconnection.
 
 =cut
 
-	method connect {
-	}
+  method connect {
+  }
 
 =item disconnect()
 
@@ -133,8 +133,8 @@ attempting to disconnect from this module, generally when Whatbot is exiting.
 
 =cut
 
-	method disconnect {
-	}
+  method disconnect {
+  }
 
 =item deliver_message($message)
 
@@ -143,9 +143,9 @@ send the message out through this service.
 
 =cut
 
-	method deliver_message( $message ) {
-		$self->log->error( ref($self) . ' does not know how to deliver_message' );
-	}
+  method deliver_message( $message ) {
+    $self->log->error( ref($self) . ' does not know how to deliver_message' );
+  }
 
 =item format_user($user)
 
@@ -157,9 +157,9 @@ implementation leaves the username as is.
 
 =cut
 
-	method format_user($user) {
-		return $user;
-	}
+  method format_user($user) {
+    return $user;
+  }
 
 =back
 
@@ -173,16 +173,16 @@ Send a message through this provider.
 
 =cut
 
-	method send_message($message) {
-		my $content = $message->text;
-		if ( $content =~ /\{!user=/ and $content !~ /\{!user=.*?\}/ ) {
-			die 'Unclosed user tag in ' . $message->text;
-		}
-		$content =~ s/\{!user=(.*?)\}/$self->format_user($1)/ge;
-		my $new_message = $message->clone();
-		$new_message->text($content);
-		return $self->deliver_message($new_message);
-	}
+  method send_message($message) {
+    my $content = $message->text;
+    if ( $content =~ /\{!user=/ and $content !~ /\{!user=.*?\}/ ) {
+      die 'Unclosed user tag in ' . $message->text;
+    }
+    $content =~ s/\{!user=(.*?)\}/$self->format_user($1)/ge;
+    my $new_message = $message->clone();
+    $new_message->text($content);
+    return $self->deliver_message($new_message);
+  }
 
 =item notify($context, $message)
 
@@ -191,10 +191,10 @@ of that message.
 
 =cut
 
-	method notify( Str $context, Str $message ) {
-		$self->log->write( sprintf( '(%s) [%s] %s', $self->name, $context, $message ) )
-			unless ( defined $self->my_config->{'silent'} );
-	}
+  method notify( Str $context, Str $message ) {
+    $self->log->write( sprintf( '(%s) [%s] %s', $self->name, $context, $message ) )
+      unless ( defined $self->my_config->{'silent'} );
+  }
 
 =item event_user_enter($context, $nick)
 
@@ -202,19 +202,19 @@ Send a Whatbot event that a user has entered the context.
 
 =cut
 
-	method event_user_enter( $context?, $nick? ) {
-		$self->notify( $context, '** ' . $nick . ' has entered' );
-		$self->parse_response(
-			$self->controller->handle_event(
-				join( ':', $self->name, $context ),
-				'enter',
-				{
-					'nick' => $nick
-				},
-				$self->me
-			)
-		);
-	}
+  method event_user_enter( $context?, $nick? ) {
+    $self->notify( $context, '** ' . $nick . ' has entered' );
+    $self->parse_response(
+      $self->controller->handle_event(
+        join( ':', $self->name, $context ),
+        'enter',
+        {
+          'nick' => $nick
+        },
+        $self->me
+      )
+    );
+  }
 
 =item event_user_change($context, $old_nick, $new_nick)
 
@@ -222,20 +222,20 @@ Send a Whatbot event that a user has changed their name.
 
 =cut
 
-	method event_user_change( $context?, $old_nick?, $new_nick? ) {
-		$self->notify( $context, '** ' . $old_nick . ' is now ' . $new_nick );
-		$self->parse_response(
-			$self->controller->handle_event(
-				join( ':', $self->name, $context ),
-				'user_change',
-				{
-					'nick'     => $new_nick,
-					'old_nick' => $old_nick,
-				},
-				$self->me
-			)
-		);
-	}
+  method event_user_change( $context?, $old_nick?, $new_nick? ) {
+    $self->notify( $context, '** ' . $old_nick . ' is now ' . $new_nick );
+    $self->parse_response(
+      $self->controller->handle_event(
+        join( ':', $self->name, $context ),
+        'user_change',
+        {
+          'nick'     => $new_nick,
+          'old_nick' => $old_nick,
+        },
+        $self->me
+      )
+    );
+  }
 
 =item event_user_leave($context, $nick)
 
@@ -243,19 +243,19 @@ Send a Whatbot event that a user has left the context.
 
 =cut
 
-	method event_user_leave( $context?, $nick?, $message? ) {
-		$self->notify( $context, '** ' . $nick . ' has left ' );
-		$self->parse_response(
-			$self->controller->handle_event(
-				join( ':', $self->name, $context ),
-				'leave',
-				{
-					'nick' => $nick
-				},
-				$self->me
-			)
-		);
-	}
+  method event_user_leave( $context?, $nick?, $message? ) {
+    $self->notify( $context, '** ' . $nick . ' has left ' );
+    $self->parse_response(
+      $self->controller->handle_event(
+        join( ':', $self->name, $context ),
+        'leave',
+        {
+          'nick' => $nick
+        },
+        $self->me
+      )
+    );
+  }
 
 =item event_ping($source)
 
@@ -263,18 +263,18 @@ Send a Whatbot event that someone has sent a ping-like request to Whatbot.
 
 =cut
 
-	method event_ping ( $source? ) {
-		$self->parse_response(
-			$self->controller->handle_event(
-				join( ':', $self->name, '' ),
-				'ping',
-				{
-					'source' => $source
-				},
-				$self->me
-			)
-		);
-	}
+  method event_ping ( $source? ) {
+    $self->parse_response(
+      $self->controller->handle_event(
+        join( ':', $self->name, '' ),
+        'ping',
+        {
+          'source' => $source
+        },
+        $self->me
+      )
+    );
+  }
 
 =item event_topic($context, $topic, $who)
 
@@ -282,19 +282,19 @@ Send a Whatbot event that the topic of this context has changed.
 
 =cut
 
-	method event_topic ( $context, $topic, $who ) {
-		$self->parse_response(
-			$self->controller->handle_event(
-				join( ':', $self->name, $context ),
-				'topic',
-				{
-					'nick'  => $who,
-					'topic' => $topic,
-				},
-				$self->me
-			)
-		);
-	}
+  method event_topic ( $context, $topic, $who ) {
+    $self->parse_response(
+      $self->controller->handle_event(
+        join( ':', $self->name, $context ),
+        'topic',
+        {
+          'nick'  => $who,
+          'topic' => $topic,
+        },
+        $self->me
+      )
+    );
+  }
 
 =item event_message($message)
 
@@ -303,18 +303,18 @@ invoke one or more commands. The $message variable must be a Whatbot::Message.
 
 =cut
 
-	method event_message( Whatbot::Message $message ) {
-		$self->notify( $message->to, '<' . $message->from . '> ' . $message->text );
-		$message->me( $self->me );
-		$message->origin( join( ':', $self->name, ( $message->is_private ? $message->from : $message->to ) ) );
-		if ( $message->from eq $self->me ) {
-			$self->parent->last_message($message);
-		} else {
-			unless ( $self->_is_ignored_user( $message->from ) ) {
-				$self->parse_response( $self->controller->handle_message($message) );
-			}
-		}
-	}
+  method event_message( Whatbot::Message $message ) {
+    $self->notify( $message->to, '<' . $message->from . '> ' . $message->text );
+    $message->me( $self->me );
+    $message->origin( join( ':', $self->name, ( $message->is_private ? $message->from : $message->to ) ) );
+    if ( $message->from eq $self->me ) {
+      $self->parent->last_message($message);
+    } else {
+      unless ( $self->_is_ignored_user( $message->from ) ) {
+        $self->parse_response( $self->controller->handle_message($message) );
+      }
+    }
+  }
 
 =item event_action($to, $from, $content)
 
@@ -324,9 +324,9 @@ that a user is doing something. In IRC, this is triggered when someone sends a
 
 =cut
 
-	method event_action( Str $to, Str $from, Str $content ) {
-		$self->notify( $to, '[ACT] ' . $from . ' ' . $content );
-	}
+  method event_action( Str $to, Str $from, Str $content ) {
+    $self->notify( $to, '[ACT] ' . $from . ' ' . $content );
+  }
 
 =item get_new_message(\%params)
 
@@ -335,28 +335,28 @@ $params, as one would pass into Whatbot::Message->new().
 
 =cut
 
-	method get_new_message( HashRef $params ) {
-		return Whatbot::Message->new({
-			'me' => $self->me,
-			%$params
-		})
-	}
+  method get_new_message( HashRef $params ) {
+    return Whatbot::Message->new({
+      'me' => $self->me,
+      %$params
+    })
+  }
 
-	method parse_response( $messages ) {
-		$messages = [$messages] unless ( ref($messages) and ref($messages) eq 'ARRAY' );
-		foreach my $message ( @{$messages} ) {
-			$self->send_message($message);
-		}
-	}
+  method parse_response( $messages ) {
+    $messages = [$messages] unless ( ref($messages) and ref($messages) eq 'ARRAY' );
+    foreach my $message ( @{$messages} ) {
+      $self->send_message($message);
+    }
+  }
 
-	method _is_ignored_user( Str $user ) {
-		if ( $self->ignore ) {
-			foreach my $ignore_user ( @{ $self->ignore } ) {
-				return 1 if ( $user eq $ignore_user );
-			}
-		}
-		return;
-	}
+  method _is_ignored_user( Str $user ) {
+    if ( $self->ignore ) {
+      foreach my $ignore_user ( @{ $self->ignore } ) {
+        return 1 if ( $user eq $ignore_user );
+      }
+    }
+    return;
+  }
 }
 
 1;

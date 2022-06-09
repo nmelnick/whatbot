@@ -16,31 +16,31 @@ use namespace::autoclean;
 our $VERSION = '0.1';
 
 sub register {
-	my ( $self ) = @_;
-	
-	$self->command_priority('Extension');
-	$self->require_direct(0);
+  my ( $self ) = @_;
+  
+  $self->command_priority('Extension');
+  $self->require_direct(0);
 }
 
 sub parse_message : CommandRegEx('') {
-	my ( $self, $message ) = @_;
-	
-	my $excuseServer = Net::Telnet->new(
-		Host 	=> ( $self->my_config->{'host'} or 'bob.bob.bofh.org' ),
-		Port 	=> ( $self->my_config->{'port'} or '666' ),
-		Errmode => 'return'
-	);
-	if (defined $excuseServer) {
-		$excuseServer->waitfor('/Your excuse is: /');
-		my $excuse = $excuseServer->get;
-		foreach (split(/\n/, $excuse)) {
-			$excuse = $_ if (/Your excuse is/);
-		}
-		chomp($excuse);
-		return $message->from . ': ' . $excuse;
-	} else {
-		return 'The excuse server is down.';
-	}
+  my ( $self, $message ) = @_;
+  
+  my $excuseServer = Net::Telnet->new(
+    Host   => ( $self->my_config->{'host'} or 'bob.bob.bofh.org' ),
+    Port   => ( $self->my_config->{'port'} or '666' ),
+    Errmode => 'return'
+  );
+  if (defined $excuseServer) {
+    $excuseServer->waitfor('/Your excuse is: /');
+    my $excuse = $excuseServer->get;
+    foreach (split(/\n/, $excuse)) {
+      $excuse = $_ if (/Your excuse is/);
+    }
+    chomp($excuse);
+    return $message->from . ': ' . $excuse;
+  } else {
+    return 'The excuse server is down.';
+  }
 }
 
 sub help {
@@ -61,8 +61,8 @@ Whatbot::Command::Excuse - Provide excuses from an excuse server.
 =head1 CONFIG (optional)
 
 "excuse" : {
-	"host" : "bob.bob.bofh.org",
-	"port" : 666
+  "host" : "bob.bob.bofh.org",
+  "port" : 666
 }
 
 =head1 DESCRIPTION

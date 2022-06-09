@@ -12,11 +12,11 @@ Whatbot::Database - Base class for data stores.
 =cut
 
 class Whatbot::Database extends Whatbot::Component {
-	has 'handle' => ( is => 'rw', isa => 'Any' );
+  has 'handle' => ( is => 'rw', isa => 'Any' );
 
-	method connect {
-		$self->log->error( ref($self) . ' does not know how to connect.' );
-	}
+  method connect {
+    $self->log->error( ref($self) . ' does not know how to connect.' );
+  }
 }
 
 1;

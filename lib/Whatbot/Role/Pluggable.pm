@@ -38,9 +38,9 @@ root class name to search from.
 =cut
 
 role Whatbot::Role::Pluggable {
-	use Module::Pluggable::Object;
+  use Module::Pluggable::Object;
 
-	requires 'search_base';
+  requires 'search_base';
 
 =item plugins()
 
@@ -48,11 +48,11 @@ Returns an array of class names from @INC.
 
 =cut
 
-	method plugins() {
-		my $o = Module::Pluggable::Object->new( package => __PACKAGE__ );
-		$o->{'search_path'} = $self->search_base;
-		return $o->plugins;
-	}
+  method plugins() {
+    my $o = Module::Pluggable::Object->new( package => __PACKAGE__ );
+    $o->{'search_path'} = $self->search_base;
+    return $o->plugins;
+  }
 }
 
 1;

@@ -12,25 +12,25 @@ use Template;
 use namespace::autoclean;
 
 has 'template' => (
-	'is'         => 'ro',
-	'lazy_build' => 1,
+  'is'         => 'ro',
+  'lazy_build' => 1,
 );
 
 sub _build_template {
-	my ($self) = @_;
-	my $template = Template->new({});
-	die "$Template::ERROR\n" unless ($template);
-	return $template;
+  my ($self) = @_;
+  my $template = Template->new({});
+  die "$Template::ERROR\n" unless ($template);
+  return $template;
 }
 
 sub render {
-	my ( $self, $req, $tt2, $params ) = @_;
+  my ( $self, $req, $tt2, $params ) = @_;
 
-	my $out;
-	$self->template->process( $tt2, $params, \$out );
-	$req->respond({
-		'content' => [ 'text/html', $out ],
-	});
+  my $out;
+  $self->template->process( $tt2, $params, \$out );
+  $req->respond({
+    'content' => [ 'text/html', $out ],
+  });
 }
 
 1;

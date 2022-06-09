@@ -16,41 +16,41 @@ Whatbot::Database::SQLite - Connect whatbot to a SQLite database.
 
 class Whatbot::Database::SQLite extends Whatbot::Database::DBI {
 
-	before connect() {
-		die 'SQLite requires a database name.' unless ( $self->config->database->{'database'} );
+  before connect() {
+    die 'SQLite requires a database name.' unless ( $self->config->database->{'database'} );
 
-		$self->connect_array([
-			'DBI:SQLite:dbname=' . $self->config->database->{'database'},
-			'',
-			'',
-			{
-				'sqlite_use_immediate_transaction' => 1,
-				'sqlite_unicode' => 1,
-				'AutoCommit' => 1,
-			}
-		]);
-	}
+    $self->connect_array([
+      'DBI:SQLite:dbname=' . $self->config->database->{'database'},
+      '',
+      '',
+      {
+        'sqlite_use_immediate_transaction' => 1,
+        'sqlite_unicode' => 1,
+        'AutoCommit' => 1,
+      }
+    ]);
+  }
 
-	method last_insert_id( $table_name ) {
-		return $self->handle->func('last_insert_rowid');
-	}
+  method last_insert_id( $table_name ) {
+    return $self->handle->func('last_insert_rowid');
+  }
 
-	method timestamp() {
-		return 'integer';
-	}
+  method timestamp() {
+    return 'integer';
+  }
 
-	method serial ( $null? ) {
-		$self->postfix(1);
-		return $self->integer();
-	}
+  method serial ( $null? ) {
+    $self->postfix(1);
+    return $self->integer();
+  }
 
-	method now() {
-		return $self->handle->quote(time);
-	}
+  method now() {
+    return $self->handle->quote(time);
+  }
 
-	method serial_postfix() {
-		return 'autoincrement';
-	}
+  method serial_postfix() {
+    return 'autoincrement';
+  }
 
 }
 

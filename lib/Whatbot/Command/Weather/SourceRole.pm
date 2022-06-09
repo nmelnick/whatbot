@@ -9,28 +9,28 @@
 use Moops;
 
 role Whatbot::Command::Weather::SourceRole {
-	use LWP::UserAgent;
+  use LWP::UserAgent;
 
-	has 'my_config' => (
-		is  => 'ro',
-		isa => 'HashRef',
-	);
+  has 'my_config' => (
+    is  => 'ro',
+    isa => 'HashRef',
+  );
 
-	has 'ua' => (
-		is		=> 'ro',
-		isa		=> 'LWP::UserAgent',
-		default => sub { LWP::UserAgent->new( 'timeout' => 15 ); }
-	);
+  has 'ua' => (
+    is      => 'ro',
+    isa     => 'LWP::UserAgent',
+    default => sub { LWP::UserAgent->new( 'timeout' => 15 ); }
+  );
 
-	method get_current( Str $location ) {
-		die 'Source does not implement get_current';
-		return;
-	}
+  method get_current( Str $location ) {
+    die 'Source does not implement get_current';
+    return;
+  }
 
-	method get_forecast( Str $location ) {
-		die 'Source does not implement get_forecast';
-		return;
-	}
+  method get_forecast( Str $location ) {
+    die 'Source does not implement get_forecast';
+    return;
+  }
 
 }
 
