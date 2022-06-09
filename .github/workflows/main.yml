@@ -24,6 +24,6 @@ jobs:
       - name: Install OS dependencies
         run: apt-get update && apt-get install -y libssl-dev libidn11* libexpat1-dev libreadline-dev
       - name: Install Perl Dependencies
-        run: "cpanm -n -q --metacpan Module::Install inc::Module::Install && cpanm -v Term::ReadLine::Gnu && cpanm --metacpan --installdeps --notest --with-recommends ."
+        run: "cpanm -n -q --metacpan Module::Install inc::Module::Install && cpanm -n -v Term::ReadLine::Gnu && cpanm --metacpan --installdeps --notest --with-recommends ."
       - name: Run Tests
         run: prove -Ilib t/
