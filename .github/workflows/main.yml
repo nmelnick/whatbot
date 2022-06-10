@@ -48,4 +48,4 @@ jobs:
         with:
           push: true
           tags: nmelnick/whatbot:latest
-          file: "{context}/Dockerfile.deploy"
+          file: Dockerfile.deploy
