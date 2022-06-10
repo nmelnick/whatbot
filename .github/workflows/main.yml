@@ -30,10 +30,13 @@ jobs:
       - name: Run Tests
         run: prove -Ilib t/
   deploy_latest:
-    if: github.repository == 'nmelnick/whatbot' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/actions-docker')
+    if: github.repository == 'nmelnick/whatbot' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/actions-docker')
     needs: test
     runs-on: ubuntu-latest
     steps:
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -47,5 +50,5 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: nmelnick/whatbot:latest
+          tags: "nmelnick/whatbot:${{ startsWith(github.ref, 'refs/tags/') && steps.get_version.outputs.VERSION || 'latest' }}"
           file: Dockerfile.deploy
