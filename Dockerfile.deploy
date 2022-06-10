@@ -13,11 +13,9 @@ RUN apt-get update && \
       libc-dev-bin \
       libc6-dev \
       libexpat1-dev \
-      libgcc-8-dev \
       libidn11-dev \
       libreadline-dev \
       libssl-dev \
-      libstdc++-8-dev \
       linux-libc-dev \
       make \
       software-properties-common \
