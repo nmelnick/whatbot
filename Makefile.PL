@@ -5,7 +5,7 @@ name         'Whatbot';
 all_from     'lib/Whatbot.pm';
 author       'Nicholas Melnick <nick@abstractwankery.com>';
 license      'perl';
-perl_version '5.014';
+perl_version '5.016';
 provides 
   'Whatbot' => {
     'file' => 'lib/Whatbot.pm',
@@ -37,7 +37,9 @@ requires 'Geo::Coder::OSM'                 => 0;
 requires 'HTTP::Cookies'                   => 0;
 requires 'HTML::Entities'                  => 0;
 requires 'HTTP::Request'                   => 0;
+requires 'HTML::Element'                   => 0;
 requires 'HTML::Strip'                     => 0;
+requires 'HTML::TreeBuilder'               => 0;
 requires 'Image::Size'                     => 0;
 requires 'IO::Socket::SSL'                 => 0;
 requires 'JSON::XS'                        => 3.01;
