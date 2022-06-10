@@ -31,6 +31,7 @@ jobs:
         run: prove -Ilib t/
   deploy_latest:
     if: github.repository == 'nmelnick/whatbot' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/actions-docker')
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
@@ -47,3 +48,4 @@ jobs:
         with:
           push: true
           tags: nmelnick/whatbot:latest
+          file: "{context}/Dockerfile.deploy"
