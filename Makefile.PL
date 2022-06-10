@@ -5,7 +5,7 @@ name         'Whatbot';
 all_from     'lib/Whatbot.pm';
 author       'Nicholas Melnick <nick@abstractwankery.com>';
 license      'perl';
-perl_version '5.014';
+perl_version '5.016';
 provides 
   'Whatbot' => {
     'file' => 'lib/Whatbot.pm',

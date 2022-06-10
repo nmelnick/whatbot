@@ -16,7 +16,7 @@ It works. Grab it from github, copy over the example configuration, and edit it
 to do what you want. We will try to wrap up some documentation by the time we
 hit 1.0, but it may take some time.
 
-*Perl 5.14.0 or higher is required to get started.* The easiest way to go is to
+*Perl 5.16.0 or higher is required to get started.* The easiest way to go is to
 run one of the build_* scripts in the root directory to install dependencies of
 each of the child modules.
 
