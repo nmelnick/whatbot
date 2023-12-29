@@ -272,8 +272,9 @@ GET the given URL using LWP.
         $title = $type . ' Image: ' . $width . 'x' . $height;
       }
 
-    } elsif ( $content =~ m/<title[^>]*>(.*?)<\/title>/ ) {
+    } elsif ( $content =~ m/<title[^>]*>(.*?)<\/title>/s ) {
       $title = $1;
+      $title =~ s/^\s+|\s+$//g;
     }
     return $title;
   }
