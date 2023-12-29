@@ -19,10 +19,6 @@ This bot was written purely as an exercise in futility, to try, desperately, to
 replace the functionality of infobot without driving us insane. Part of that
 goal has been accomplished, and so we leave it out there for the world to use.
 
-Installing the 'Whatbot' module from CPAN will provide you with a decent set of
-features, but you may actually want L<Task::whatbot> to provide all of the
-plugins available from whatbot.org.
-
 This is the primary entry point for the whatbot application, and is called
 through the whatbot shell script.
 
