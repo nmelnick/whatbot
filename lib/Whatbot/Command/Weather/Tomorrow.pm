@@ -29,7 +29,6 @@ class Whatbot::Command::Weather::Tomorrow
       $self->api_key,
       $query
     );
-    warn $uri;
     return $uri;
   }
 
