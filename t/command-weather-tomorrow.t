@@ -6,21 +6,21 @@ use Test::More;
 use Test::Exception;
 use Whatbot::Test;
 
-unless ( $ENV{'WB_CLIMACELL_API_KEY'} ) {
-    plan skip_all => 'Requires WB_CLIMACELL_API_KEY environment variable to run live tests.';
+unless ( $ENV{'WB_TOMORROW_API_KEY'} ) {
+    plan skip_all => 'Requires WB_TOMORROW_API_KEY environment variable to run live tests.';
     done_testing();
 }
 
-use_ok( 'Whatbot::Command::Weather::Climacell', 'Load Module' );
+use_ok( 'Whatbot::Command::Weather::Tomorrow', 'Load Module' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();
 
-ok( my $climacell = Whatbot::Command::Weather::Climacell->new({
-    'api_key' => $ENV{'WB_CLIMACELL_API_KEY'},
+ok( my $tomorrow = Whatbot::Command::Weather::Tomorrow->new({
+    'api_key' => $ENV{'WB_TOMORROW_API_KEY'},
 }), 'new' );
 
-my $object = $climacell->get_current('43.653,-79.387');
+my $object = $tomorrow->get_current('43.653,-79.387');
 ok( $object, 'has a response' );
 is( ref($object), 'Whatbot::Command::Weather::Current', 'correct object type' );
 ok( $object->display_location, 'has display location' );
@@ -28,33 +28,33 @@ is( $object->display_location, 'Old Toronto, Ontario, Canada', 'has correct disp
 ok( defined $object->temperature_f, 'has temperature' );
 ok( $object->to_string, 'to_string works' );
 
-$object = $climacell->get_current('fairfield, vt');
+$object = $tomorrow->get_current('fairfield, vt');
 ok( $object, 'has a response' );
 is( ref($object), 'Whatbot::Command::Weather::Current', 'correct object type' );
 ok( $object->display_location, 'has display location' );
-is( $object->display_location, 'Fairfield, Vermont, United States of America', 'has correct display location' );
+is( $object->display_location, 'Fairfield, Vermont, United States', 'has correct display location' );
 ok( defined $object->temperature_f, 'has temperature' );
 ok( $object->to_string, 'to_string works' );
 
-$object = $climacell->get_current('toronto, ca');
+$object = $tomorrow->get_current('toronto, ca');
 ok( $object, 'has a response' );
 is( ref($object), 'Whatbot::Command::Weather::Current', 'correct object type' );
 ok( $object->display_location, 'has display location' );
-is( $object->display_location, 'Toronto, Ontario, Canada', 'has correct display location' );
+is( $object->display_location, 'Old Toronto, Ontario, Canada', 'has correct display location' );
 ok( defined $object->temperature_f, 'has temperature' );
 ok( $object->to_string, 'to_string works' );
 
-$object = $climacell->get_current('mallacoota, australia');
+$object = $tomorrow->get_current('mallacoota, australia');
 ok( $object->display_location, 'has display location' );
 is( $object->display_location, 'Mallacoota, Victoria, Australia', 'has correct display location when provided a town instead of a city' );
 
 throws_ok(
-    sub { $climacell->get_current('abcd') },
+    sub { $tomorrow->get_current('abcafw3fae45d') },
     qr/^Unwilling to figure out what you meant by /,
     'get_current handles bad location'
 );
 
-$object = $climacell->get_forecast('43.653,-79.387');
+$object = $tomorrow->get_forecast('43.653,-79.387');
 ok( $object, 'has a response' );
 is( ref($object), 'ARRAY', 'response is array' );
 my $first = $object->[0];
@@ -66,7 +66,7 @@ ok( defined $first->low_temperature_f, 'has low temperature' );
 ok( $first->to_string, 'to_string works' );
 
 throws_ok(
-    sub { $climacell->get_forecast('abcd') },
+    sub { $tomorrow->get_forecast('abcafw3fae45d') },
     qr/^Unwilling to figure out what you meant by /,
     'get_forecast handles bad location'
 );
