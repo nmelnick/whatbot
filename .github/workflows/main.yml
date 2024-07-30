@@ -13,9 +13,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         perl-version:
           - 'latest'
+          - 5.38
           - 5.16
     container:
       image: perldocker/perl-tester:${{ matrix.perl-version }}
