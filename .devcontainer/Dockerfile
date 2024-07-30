@@ -1,7 +1,6 @@
 FROM ubuntu:16.04
 
-# Requires local source directory to be mounted at /whatbot/source
-# ex: docker run -it whatbot -v /path/to/local/source:/whatbot/source /bin/bash
+# Note that 16.04 is not supported anymore by VS Code officially (but isn't EOL until 2025). This might work on 20.04. Or it might not.
 
 # Init
 RUN apt-get update && apt-get install -y software-properties-common && apt-get dist-upgrade -y

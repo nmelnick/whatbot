@@ -66,26 +66,20 @@ sub forecast : GlobalRegEx('(?i)^forecast (.*)') {
 
 sub weather : GlobalRegEx('(?i)^weather (.*)') {
   my ( $self, $message, $captures ) = @_;
-
-  $self->log->write("1111");
+  
   return unless ( $self->source );
 
   my $response;
   try {
-  $self->log->write("2222");
     $response = $self->source->get_current( $captures->[0] );
   } catch {
-  $self->log->write("2222 XXXX");
     return $_;
   };
 
-  $self->log->write("3333");
   if ($response) {
-  $self->log->write("5555");
     return $response->to_string();
   }
 
-  $self->log->write("6666");
   return 'Iunno.';
 }
 
