@@ -223,10 +223,14 @@ class Whatbot::Command::Weather::Openmeteo
 
 =head1 NAME
 
-Whatbot::Command::Weather::Climacell - Retrieve weather from the Dark Sky API
+Whatbot::Command::Weather::Openmeteo - Retrieve weather from the OpenMeteo API
 
 =head1 LICENSE/COPYRIGHT
 
 Be excellent to each other and party on, dudes.
+
+=head1 CONFIG
+
+None.
 
 =cut
