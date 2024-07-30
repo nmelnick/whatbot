@@ -6,12 +6,12 @@ use Test::More;
 use Test::Exception;
 use Whatbot::Test;
 
-use_ok( 'Whatbot::Command::Weather::OpenMeteo', 'Load Module' );
+use_ok( 'Whatbot::Command::Weather::Openmeteo', 'Load Module' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();
 
-ok( my $weather = Whatbot::Command::Weather::OpenMeteo->new({}), 'new' );
+ok( my $weather = Whatbot::Command::Weather::Openmeteo->new({}), 'new' );
 
 my $object = $weather->get_current('43.653,-79.387');
 ok( $object, 'has a response' );
@@ -25,7 +25,7 @@ $object = $weather->get_current('fairfield, vt');
 ok( $object, 'has a response' );
 is( ref($object), 'Whatbot::Command::Weather::Current', 'correct object type' );
 ok( $object->display_location, 'has display location' );
-is( $object->display_location, 'Fairfield, Vermont, United States of America', 'has correct display location' );
+is( $object->display_location, 'Fairfield, Vermont, United States', 'has correct display location' );
 ok( defined $object->temperature_f, 'has temperature' );
 ok( $object->to_string, 'to_string works' );
 
