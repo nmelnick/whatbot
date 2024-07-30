@@ -11,7 +11,7 @@ unless ( $ENV{'WB_DARKSKY_API_KEY'} ) {
     done_testing();
 }
 
-use_ok( 'Whatbot::Command::Weather::Darksky', 'Load Module' );
+require_ok( 'Whatbot::Command::Weather::Darksky' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();

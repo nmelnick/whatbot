@@ -11,7 +11,7 @@ unless ( $ENV{'WB_TOMORROW_API_KEY'} ) {
     done_testing();
 }
 
-use_ok( 'Whatbot::Command::Weather::Tomorrow', 'Load Module' );
+require_ok( 'Whatbot::Command::Weather::Tomorrow' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();

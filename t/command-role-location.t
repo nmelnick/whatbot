@@ -6,7 +6,7 @@ use Test::More;
 use Test::Exception;
 use Whatbot::Test;
 
-use_ok( 'Whatbot::Command::Role::Location', 'Load Module' );
+require_ok( 'Whatbot::Command::Role::Location' );
 
 my $coordinate_location = Whatbot::Command::Role::Location->convert_location("43.653,-79.387");
 ok( $coordinate_location, 'coordinate has a response' );

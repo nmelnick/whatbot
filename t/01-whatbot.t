@@ -8,7 +8,7 @@ use JSON::XS;
 
 my $basedir = $FindBin::Bin;
 
-use_ok( 'Whatbot', 'load' );
+require_ok( 'Whatbot' );
 
 my $whatbot = Whatbot->new();
 

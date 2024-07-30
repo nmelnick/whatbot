@@ -5,7 +5,7 @@ use warnings;
 use Test::More;
 use Whatbot::Test;
 
-use_ok( 'Whatbot::Command::Math', 'Load Module' );
+require_ok( 'Whatbot::Command::Math' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();

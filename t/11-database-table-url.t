@@ -7,7 +7,7 @@ use AnyEvent;
 use Test::More tests => 8;
 
 use Whatbot::Test;
-use_ok( 'Whatbot::Database::Table::URL', 'Load Module' );
+require_ok( 'Whatbot::Database::Table::URL' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();

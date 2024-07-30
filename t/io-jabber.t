@@ -4,7 +4,7 @@ use warnings;
 use Test::More;
 use Whatbot::Test;
 
-use_ok( 'Whatbot::IO::Jabber', 'Load module' );
+require_ok( 'Whatbot::IO::Jabber' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();

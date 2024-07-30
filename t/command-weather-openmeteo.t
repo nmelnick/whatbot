@@ -6,7 +6,7 @@ use Test::More;
 use Test::Exception;
 use Whatbot::Test;
 
-use_ok( 'Whatbot::Command::Weather::Openmeteo', 'Load Module' );
+require_ok( 'Whatbot::Command::Weather::Openmeteo' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();

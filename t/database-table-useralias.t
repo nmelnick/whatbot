@@ -4,7 +4,7 @@ use warnings;
 use Test::More;
 
 use Whatbot::Test;
-use_ok( 'Whatbot::Database::Table::UserAlias', 'Load Module' );
+require_ok( 'Whatbot::Database::Table::UserAlias' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();

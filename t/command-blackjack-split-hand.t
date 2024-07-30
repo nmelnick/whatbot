@@ -5,7 +5,7 @@ use Whatbot::Test;
 use Whatbot::Command::Blackjack::Card;
 use Whatbot::Command::Blackjack::Hand;
 
-use_ok( 'Whatbot::Command::Blackjack', 'Load Module' );
+require_ok( 'Whatbot::Command::Blackjack' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();

@@ -3,7 +3,7 @@ use warnings;
 use Test::More;
 use Whatbot::Test;
 
-use_ok( 'Whatbot::Command::Blackjack::Game', 'Load Game Module' );
+require_ok( 'Whatbot::Command::Blackjack::Game' );
 
 my $game = Whatbot::Command::Blackjack::Game->new();
 
