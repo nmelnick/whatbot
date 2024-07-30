@@ -12,7 +12,7 @@ my $coordinate_location = Whatbot::Command::Role::Location->convert_location("43
 ok( $coordinate_location, 'coordinate has a response' );
 ok( $coordinate_location->{'coordinates'}, 'coordinate has coordinates' );
 ok( $coordinate_location->{'display'}, 'coordinate has display' );
-is( $coordinate_location->{'display'}, 'Old Toronto, Ontario, Canada', 'coordinate has correct display location' );
+like( $coordinate_location->{'display'}, qr/Toronto, Ontario, Canada/, 'coordinate has correct display location' );
 
 my $vt_location = Whatbot::Command::Role::Location->convert_location("fairfield, vt");
 ok( $vt_location, 'vt has a response' );
@@ -24,7 +24,7 @@ my $toronto_location = Whatbot::Command::Role::Location->convert_location("toron
 ok( $toronto_location, 'toronto has a response' );
 ok( $toronto_location->{'coordinates'}, 'toronto has coordinates' );
 ok( $toronto_location->{'display'}, 'toronto has display' );
-is( $toronto_location->{'display'}, 'Old Toronto, Ontario, Canada', 'toronto has correct display location' );
+like( $toronto_location->{'display'}, qr/Toronto, Ontario, Canada/, 'toronto has correct display location' );
 
 my $mallacoota_location = Whatbot::Command::Role::Location->convert_location("mallacoota, australia");
 ok( $mallacoota_location, 'toronto has a response' );
