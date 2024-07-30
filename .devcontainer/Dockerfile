@@ -1,0 +1,34 @@
+FROM ubuntu:16.04
+
+# Requires local source directory to be mounted at /whatbot/source
+# ex: docker run -it whatbot -v /path/to/local/source:/whatbot/source /bin/bash
+
+# Init
+RUN apt-get update && apt-get install -y software-properties-common && apt-get dist-upgrade -y
+RUN apt-get install -y \
+  build-essential \
+  git \
+  wget \
+  curl \
+  cpanminus \
+    libssl-dev \
+    libexpat1-dev \
+    libidn11-dev \
+    libreadline-dev
+
+# Scaffold
+RUN mkdir /whatbot /whatbot/source /whatbot/data /whatbot/perl-source /whatbot/perl
+
+# Install Perl 5.24.0
+WORKDIR /whatbot/perl-source
+RUN curl -SL https://cpan.metacpan.org/authors/id/R/RJ/RJBS/perl-5.24.0.tar.bz2 -o perl-5.24.0.tar.bz2 \
+    && echo '298fa605138c1a00dab95643130ae0edab369b4d *perl-5.24.0.tar.bz2' | sha1sum -c - \
+    && tar --strip-components=1 -xjf perl-5.24.0.tar.bz2 -C /whatbot/perl-source \
+    && rm perl-5.24.0.tar.bz2 \
+    && ./Configure -Duse64bitall -Duseshrplib -Dprefix=/whatbot/perl -des \
+    && make -j$(nproc) \
+    && make install
+RUN rm -rf /whatbot/perl-source /tmp/*
+ENV PATH="/whatbot/perl/bin:${PATH}"
+RUN curl -L https://cpanmin.us | perl - App::cpanminus
+RUN cpanm -n Module::Install inc::Module::Install
