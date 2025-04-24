@@ -19,7 +19,7 @@ use Whatbot::Test;
   }
 }
 
-use_ok( 'Whatbot::IO::Slack', 'Load module' );
+require_ok( 'Whatbot::IO::Slack' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();

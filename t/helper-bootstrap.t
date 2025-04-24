@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Test::More tests => 6;
 
-use_ok( 'Whatbot::Helper::Bootstrap', 'Load Module' );
+require_ok( 'Whatbot::Helper::Bootstrap' );
 
 is( @Whatbot::Helper::Bootstrap::applications, 0, 'no applications' );
 

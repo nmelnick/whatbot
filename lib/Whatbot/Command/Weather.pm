@@ -29,13 +29,16 @@ sub register {
   if ( $self->my_config ) {
     if ( $self->my_config->{'source'} ) {
       my $class = 'Whatbot::Command::Weather::' . ucfirst( $self->my_config->{'source'} );
-      if ( Class::Load::try_load_class($class) ) {
+      my ( $success, $error ) = Class::Load::try_load_class($class);
+      if ( $success ) {
         $self->source(
           $class->new( $self->my_config )
         );
       } else {
-        $self->log->write( 'Invalid source: ' . $class );
+        $self->log->write( 'Invalid source: ' . $class . ': ' . $error );
       }
+    } else {
+      $self->log->write( 'Not adding weather extension, no source configured' );
     }
   }
 
@@ -63,7 +66,7 @@ sub forecast : GlobalRegEx('(?i)^forecast (.*)') {
 
 sub weather : GlobalRegEx('(?i)^weather (.*)') {
   my ( $self, $message, $captures ) = @_;
-
+  
   return unless ( $self->source );
 
   my $response;

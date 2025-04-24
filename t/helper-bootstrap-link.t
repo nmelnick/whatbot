@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Test::More tests => 9;
 
-use_ok( 'Whatbot::Helper::Bootstrap::Link', 'Load Module' );
+require_ok( 'Whatbot::Helper::Bootstrap::Link' );
 
 ok( my $link = Whatbot::Helper::Bootstrap::Link->new(), 'new' );
 is( $link->render(), '<a href=""></a>', 'empty link render' );

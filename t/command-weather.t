@@ -5,7 +5,7 @@ use warnings;
 use Test::More;
 use Whatbot::Test;
 
-use_ok( 'Whatbot::Command::Weather', 'Load Module' );
+require_ok( 'Whatbot::Command::Weather' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();

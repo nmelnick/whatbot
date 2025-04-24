@@ -6,7 +6,7 @@ use Test::More;
 use Test::Exception;
 use Whatbot::Test;
 
-use_ok( 'Whatbot::Command::Weather::Current', 'Load Module' );
+require_ok( 'Whatbot::Command::Weather::Current' );
 
 my $current = Whatbot::Command::Weather::Current->new();
 my $f = $current->to_celsius(80);

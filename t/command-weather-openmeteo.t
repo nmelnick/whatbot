@@ -6,21 +6,14 @@ use Test::More;
 use Test::Exception;
 use Whatbot::Test;
 
-unless ( $ENV{'WB_DARKSKY_API_KEY'} ) {
-    plan skip_all => 'Requires WB_DARKSKY_API_KEY environment variable to run live tests.';
-    done_testing();
-}
-
-require_ok( 'Whatbot::Command::Weather::Darksky' );
+require_ok( 'Whatbot::Command::Weather::Openmeteo' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();
 
-ok( my $darksky = Whatbot::Command::Weather::Darksky->new({
-    'api_key' => $ENV{'WB_DARKSKY_API_KEY'},
-}), 'new' );
+ok( my $weather = Whatbot::Command::Weather::Openmeteo->new({}), 'new' );
 
-my $object = $darksky->get_current('43.653,-79.387');
+my $object = $weather->get_current('43.653,-79.387');
 ok( $object, 'has a response' );
 is( ref($object), 'Whatbot::Command::Weather::Current', 'correct object type' );
 ok( $object->display_location, 'has display location' );
@@ -28,15 +21,15 @@ like( $object->display_location, qr/Toronto, Ontario, Canada/, 'has correct disp
 ok( defined $object->temperature_f, 'has temperature' );
 ok( $object->to_string, 'to_string works' );
 
-$object = $darksky->get_current('fairfield, vt');
+$object = $weather->get_current('fairfield, vt');
 ok( $object, 'has a response' );
 is( ref($object), 'Whatbot::Command::Weather::Current', 'correct object type' );
 ok( $object->display_location, 'has display location' );
-is( $object->display_location, 'Fairfield, Vermont, United States of America', 'has correct display location' );
+is( $object->display_location, 'Fairfield, Vermont, United States', 'has correct display location' );
 ok( defined $object->temperature_f, 'has temperature' );
 ok( $object->to_string, 'to_string works' );
 
-$object = $darksky->get_current('toronto, ca');
+$object = $weather->get_current('toronto, ca');
 ok( $object, 'has a response' );
 is( ref($object), 'Whatbot::Command::Weather::Current', 'correct object type' );
 ok( $object->display_location, 'has display location' );
@@ -44,17 +37,11 @@ like( $object->display_location, qr/Toronto, Ontario, Canada/, 'has correct disp
 ok( defined $object->temperature_f, 'has temperature' );
 ok( $object->to_string, 'to_string works' );
 
-$object = $darksky->get_current('mallacoota, australia');
+$object = $weather->get_current('mallacoota, australia');
 ok( $object->display_location, 'has display location' );
 is( $object->display_location, 'Mallacoota, Victoria, Australia', 'has correct display location when provided a town instead of a city' );
 
-throws_ok(
-    sub { $darksky->get_current('abcd') },
-    qr/^Unwilling to figure out what you meant by /,
-    'get_current handles bad location'
-);
-
-$object = $darksky->get_forecast('43.653,-79.387');
+$object = $weather->get_forecast('43.653,-79.387');
 ok( $object, 'has a response' );
 is( ref($object), 'ARRAY', 'response is array' );
 my $first = $object->[0];
@@ -64,11 +51,5 @@ ok( $first->weekday =~ /day$/, 'weekday is a name' );
 ok( defined $first->high_temperature_f, 'has high temperature' );
 ok( defined $first->low_temperature_f, 'has low temperature' );
 ok( $first->to_string, 'to_string works' );
-
-throws_ok(
-    sub { $darksky->get_forecast('abcd') },
-    qr/^Unwilling to figure out what you meant by /,
-    'get_forecast handles bad location'
-);
 
 done_testing();

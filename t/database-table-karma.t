@@ -5,7 +5,7 @@ use Test::More;
 use Test::Exception;
 use Whatbot::Test;
 
-use_ok( 'Whatbot::Database::Table::Karma', 'Load Module' );
+require_ok( 'Whatbot::Database::Table::Karma' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();

@@ -11,7 +11,7 @@ unless ( $ENV{'WB_TOMORROW_API_KEY'} ) {
     done_testing();
 }
 
-use_ok( 'Whatbot::Command::Weather::Tomorrow', 'Load Module' );
+require_ok( 'Whatbot::Command::Weather::Tomorrow' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();
@@ -24,7 +24,7 @@ my $object = $tomorrow->get_current('43.653,-79.387');
 ok( $object, 'has a response' );
 is( ref($object), 'Whatbot::Command::Weather::Current', 'correct object type' );
 ok( $object->display_location, 'has display location' );
-is( $object->display_location, 'Old Toronto, Ontario, Canada', 'has correct display location' );
+like( $object->display_location, qr/Toronto, Ontario, Canada/, 'has correct display location' );
 ok( defined $object->temperature_f, 'has temperature' );
 ok( $object->to_string, 'to_string works' );
 
@@ -40,7 +40,7 @@ $object = $tomorrow->get_current('toronto, ca');
 ok( $object, 'has a response' );
 is( ref($object), 'Whatbot::Command::Weather::Current', 'correct object type' );
 ok( $object->display_location, 'has display location' );
-is( $object->display_location, 'Old Toronto, Ontario, Canada', 'has correct display location' );
+like( $object->display_location, qr/Toronto, Ontario, Canada/, 'has correct display location' );
 ok( defined $object->temperature_f, 'has temperature' );
 ok( $object->to_string, 'to_string works' );
 

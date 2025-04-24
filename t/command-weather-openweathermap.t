@@ -11,7 +11,7 @@ unless ( $ENV{'WB_OPENWEATHERMAP_API_KEY'} ) {
     done_testing();
 }
 
-use_ok( 'Whatbot::Command::Weather::Openweathermap', 'Load Module' );
+require_ok( 'Whatbot::Command::Weather::Openweathermap' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();

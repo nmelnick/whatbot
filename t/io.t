@@ -24,7 +24,7 @@ $test->initialize_state();
 
 
 
-use_ok( 'Whatbot::IO', 'Load Module' );
+require_ok( 'Whatbot::IO' );
 
 my $io = Whatbot::IO::Test->new({
   'my_config' => {},

@@ -19,7 +19,7 @@ use Whatbot::Test;
   }
 }
 
-use_ok( 'Whatbot::IO::Discord', 'Load module' );
+require_ok( 'Whatbot::IO::Discord' );
 
 my $test = Whatbot::Test->new();
 $test->initialize_state();

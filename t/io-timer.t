@@ -8,7 +8,7 @@ use Whatbot::Test;
 my $test = Whatbot::Test->new();
 $test->initialize_state();
 
-use_ok( 'Whatbot::IO::Timer', 'Load Module' );
+require_ok( 'Whatbot::IO::Timer' );
 
 my $timer = Whatbot::IO::Timer->new({
   'my_config' => {},
