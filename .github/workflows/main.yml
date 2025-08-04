@@ -16,7 +16,6 @@ jobs:
       fail-fast: false
       matrix:
         perl-version:
-          - 'latest'
           - '5.40'
           - '5.16'
     container:
