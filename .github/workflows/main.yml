@@ -17,9 +17,8 @@ jobs:
       matrix:
         perl-version:
           - 'latest'
-          - 5.40
-          - 5.38
-          - 5.16
+          - '5.40'
+          - '5.16'
     container:
       image: perldocker/perl-tester:${{ matrix.perl-version }}
     steps:
