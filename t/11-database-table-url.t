@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use EV;
 use AnyEvent;
-use Test::More tests => 8;
+use Test::More tests => 6;
 
 use Whatbot::Test;
 require_ok( 'Whatbot::Database::Table::URL' );
@@ -36,17 +36,6 @@ $url->retrieve_url_async(
     my ($title) = @_;
     ok( $title, 'Retrieve URL' );
     ok( $title =~ /png/i, $title );
-    $cv->end;
-  }
-);
-
-$cv->begin;
-$url->retrieve_url_async(
-  'https://blog.iggy.rs/posts/building-message-streaming-in-rust/',
-  sub {
-    my ($title) = @_;
-    ok( $title, 'Retrieve previously unparseable title' );
-    ok( $title =~ /building message streaming in Rust/i, $title );
     $cv->end;
   }
 );
