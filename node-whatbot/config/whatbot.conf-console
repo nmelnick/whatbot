@@ -1,0 +1,14 @@
+{
+  "io": [
+    {
+      "interface": "Console"
+    }
+  ],
+  "database": {
+    "database": "/tmp/whatbot-test.db",
+    "handler": "SQLite"
+  },
+  "log": {
+    "directory": "/tmp/whatbot"
+  }
+}
