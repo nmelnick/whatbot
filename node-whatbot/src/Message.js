@@ -50,7 +50,12 @@ class Message extends Component {
   }
 
   set text(value) {
-    value = value.trim();
+    // Handle non-string values
+    if (value != null && typeof value !== 'string') {
+      value = String(value);
+    }
+    
+    value = value ? value.trim() : '';
     this._text = value;
     // Strip {!user=...} tags to plain text for content
     this._content = value.replace(/\{!user=(.*?)\}/g, '$1');

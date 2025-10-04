@@ -110,7 +110,7 @@ class Blackjack extends Command {
     return 'Hax enabled. ' + this.amounts();
   }
 
-  async amounts() {
+  amounts() {
     if (!this.game) return null;
     
     const playerList = Object.keys(this.game.players).map(player => 

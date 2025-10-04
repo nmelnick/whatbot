@@ -25,11 +25,15 @@ class Soup extends Table {
       }
     });
 
-    this.module = new Table();
+    this.module = null;
   }
 
   async init() {
     await super.init?.();
+    
+    // Create module sub-table with database reference
+    this.module = new Table();
+    this.module._database = this._database;
     
     this.module.initTable({
       name: 'soup_module',
@@ -47,7 +51,31 @@ class Soup extends Table {
     });
   }
 
+  async _ensureModuleTable() {
+    if (!this.module) {
+      this.module = new Table();
+      this.module._database = this._database;
+      
+      this.module.initTable({
+        name: 'soup_module',
+        primaryKey: 'module_id',
+        indexed: ['name'],
+        columns: {
+          module_id: {
+            type: 'serial'
+          },
+          name: {
+            type: 'varchar',
+            size: 255
+          }
+        }
+      });
+    }
+  }
+
   async _getModule(caller) {
+    await this._ensureModuleTable();
+    
     let module = await this.module.searchOne({ name: caller });
     if (module) {
       return module.module_id;

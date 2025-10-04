@@ -9,9 +9,12 @@ class FactoidListener extends Command {
   }
 
   async listener(message, captures) {
-    const factoidCommand = this.controller.commands.find(
-      cmd => cmd.name === 'factoid'
-    );
+    const controller = this.controller();
+    if (!controller || !controller.commandShortName) {
+      return null;
+    }
+    
+    const factoidCommand = controller.commandShortName['factoid'];
     
     if (factoidCommand && factoidCommand.retrieve) {
       return await factoidCommand.retrieve(captures[0], message);

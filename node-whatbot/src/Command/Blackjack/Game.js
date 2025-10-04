@@ -83,11 +83,7 @@ class Game {
     }
     
     this.hands = hands;
-    return JSON.parse(JSON.stringify(hands.map(h => ({
-      player: h.player,
-      cards: h.cards,
-      lastDraw: h.lastDraw
-    }))));
+    return hands;
   }
 
   collectHand(hand) {
