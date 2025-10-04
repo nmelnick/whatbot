@@ -6,7 +6,7 @@ class Define extends Command {
     this.priority = 'Extension';
     this.requireDirect = false;
 
-    this.commandRegEx(/^(.*)$/, 'parseMessage');
+    this.commandRegEx('^(.*)$', 'parseMessage');
   }
 
   async parseMessage(message, captures) {

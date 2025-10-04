@@ -5,7 +5,7 @@ class Tell extends Command {
     this.priority = 'Extension';
     this.requireDirect = false;
 
-    this.commandRegEx(/^(.*)$/, 'requestTell', { stopAfter: true });
+    this.commandRegEx('^(.*)$', 'requestTell', { stopAfter: true });
     this.event('enter', 'doTell');
     this.event('user_change', 'doTell');
     this.globalRegEx(/^what are you telling ([^\s\?]+)/i, 'queryTell');

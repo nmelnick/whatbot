@@ -13,7 +13,7 @@ class At extends Command {
     this.priority = 'Extension';
     this.requireDirect = true;
 
-    this.commandRegEx(/^([^,]+), (.+)$/, 'parseMessage');
+    this.commandRegEx('^([^,]+), (.+)$', 'parseMessage');
     this.globalRegEx(/^every ([^,]+), ([^,]+), (.+)$/i, 'parseEvery');
     this.globalRegEx(/^at list$/i, 'doAtList');
     this.globalRegEx(/^every list$/i, 'doEveryList');
