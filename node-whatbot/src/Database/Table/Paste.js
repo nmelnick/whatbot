@@ -6,7 +6,7 @@ class Paste extends Table {
     
     this.initTable({
       name: 'paste',
-      primaryKey: 'paste_id',
+      primary_key: 'paste_id',
       indexed: ['user', 'destination'],
       defaults: {
         timestamp: { database: 'now' }

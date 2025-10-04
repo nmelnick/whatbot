@@ -24,7 +24,7 @@ class Paste extends Command {
     });
 
     if (paste) {
-      return `Paste created with ID ${paste.paste_id}. Use "paste get ${paste.paste_id}" to view.`;
+      return `Paste created with ID ${paste.pasteId}. Use "paste get ${paste.pasteId}" to view.`;
     }
 
     return 'Error creating paste.';
@@ -43,7 +43,7 @@ class Paste extends Command {
 
     const date = new Date(paste.timestamp * 1000).toISOString();
     return [
-      `Paste #${paste.paste_id} by ${paste.user} on ${date}`,
+      `Paste #${paste.pasteId} by ${paste.user} on ${date}`,
       `Summary: ${paste.summary}`,
       `Content: ${paste.content}`
     ];
@@ -62,7 +62,7 @@ class Paste extends Command {
     const out = ['Recent pastes:'];
     for (const paste of pastes) {
       const date = new Date(paste.timestamp * 1000).toISOString().split('T')[0];
-      out.push(`${paste.paste_id}. ${paste.summary} by ${paste.user} (${date})`);
+      out.push(`${paste.pasteId}. ${paste.summary} by ${paste.user} (${date})`);
     }
 
     return out;

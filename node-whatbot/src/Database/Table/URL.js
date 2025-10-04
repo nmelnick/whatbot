@@ -8,7 +8,7 @@ class URL extends Table {
     
     this.initTable({
       name: 'url',
-      primaryKey: 'url_id',
+      primary_key: 'url_id',
       defaults: {
         timestamp: { database: 'now' }
       },
@@ -40,10 +40,19 @@ class URL extends Table {
       }
     });
 
+    this.tableProtocol = null;
+    this.tableDomain = null;
+  }
+
+  async init() {
+    await super.init?.();
+    
+    // Initialize protocol sub-table
     this.tableProtocol = new Table();
+    this.tableProtocol._database = this._database;
     this.tableProtocol.initTable({
       name: 'url_protocol',
-      primaryKey: 'protocol_id',
+      primary_key: 'protocol_id',
       indexed: ['name'],
       columns: {
         protocol_id: {
@@ -56,10 +65,12 @@ class URL extends Table {
       }
     });
 
+    // Initialize domain sub-table
     this.tableDomain = new Table();
+    this.tableDomain._database = this._database;
     this.tableDomain.initTable({
       name: 'url_domain',
-      primaryKey: 'domain_id',
+      primary_key: 'domain_id',
       indexed: ['name'],
       defaults: {
         timestamp: { database: 'now' }
@@ -84,7 +95,7 @@ class URL extends Table {
     if (!protocolRow) {
       protocolRow = await this.tableProtocol.create({ name: protocol });
     }
-    return protocolRow.protocol_id;
+    return protocolRow.protocolId;
   }
 
   async getDomain(domain) {
@@ -92,7 +103,7 @@ class URL extends Table {
     if (!domainRow) {
       domainRow = await this.tableDomain.create({ name: domain });
     }
-    return domainRow.domain_id;
+    return domainRow.domainId;
   }
 
   async urlAsync(url, from) {

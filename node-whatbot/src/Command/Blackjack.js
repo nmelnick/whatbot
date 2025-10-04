@@ -59,7 +59,9 @@ class Blackjack extends Command {
   }
 
   async addPlayer(message) {
-    if (!this.game) return null;
+    if (!this.game) {
+      return null;
+    }
     
     if (this.game.addPlayer(message.from, this.buyIn)) {
       return `Gotcha, ${message.from}.`;
@@ -69,7 +71,13 @@ class Blackjack extends Command {
   }
 
   async start(message) {
-    if (!this.game || message.from !== this.gameAdmin) return null;
+    if (!this.game) {
+      return null;
+    }
+    
+    if (message.from !== this.gameAdmin) {
+      return null;
+    }
     
     if (Object.keys(this.game.players).length === 0) {
       return `I need players before you can deal${this.generateInsult()}.`;

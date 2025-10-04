@@ -17,6 +17,10 @@ class Weather extends Command {
     } else if (config.source === 'openmeteo') {
       this.source = new OpenMeteo(config);
     }
+
+    // Register patterns
+    this.globalRegEx(/^weather\s+forecast\s+(.+)$/i, 'forecast');
+    this.globalRegEx(/^weather\s+(?!forecast\s)(.+)$/i, 'weather');
   }
 
   async forecast(message, captures) {

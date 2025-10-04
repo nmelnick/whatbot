@@ -35,8 +35,8 @@ class URLCommand extends Command {
     const row = await this.model('URL').searchOne({}, { _order_by: 'url_id DESC' });
     
     if (row) {
-      const urlDomain = await this.model('URL').tableDomain.find(row.domain_id);
-      const urlProtocol = await this.model('URL').tableProtocol.find(row.protocol_id);
+      const urlDomain = await this.model('URL').tableDomain.find(row.domainId);
+      const urlProtocol = await this.model('URL').tableProtocol.find(row.protocolId);
       
       const date = new Date(row.timestamp * 1000);
       const dateStr = date.toISOString().split('T')[0] + ' at ' + 
@@ -74,8 +74,8 @@ class URLCommand extends Command {
 
     for (let i = 0; i < Math.min(3, results.length); i++) {
       const row = results[i];
-      const urlDomain = await this.model('URL').tableDomain.find(row.domain_id);
-      const urlProtocol = await this.model('URL').tableProtocol.find(row.protocol_id);
+      const urlDomain = await this.model('URL').tableDomain.find(row.domainId);
+      const urlProtocol = await this.model('URL').tableProtocol.find(row.protocolId);
       
       response.push(
         `${i + 1}) ${urlProtocol.name}://${urlDomain.name}${row.path} - "${row.title}"`

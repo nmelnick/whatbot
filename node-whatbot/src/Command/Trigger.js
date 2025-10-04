@@ -44,7 +44,8 @@ class Trigger extends Command {
     
     if (existing) {
       await soup.clear(unset, 'Trigger');
-      this.triggers = await soup.getHashref('Trigger') || {};
+      this._triggersLoaded = false; // Force reload on next check
+      await this._loadTriggers();
       return 'Removed trigger.';
     }
     
@@ -122,7 +123,8 @@ class Trigger extends Command {
       }
       
       await soup.set(trigger, response, 'Trigger');
-      this.triggers = await soup.getHashref('Trigger') || {};
+      this._triggersLoaded = false; // Force reload on next check
+      await this._loadTriggers();
       return 'Trigger set.';
     }
 

@@ -177,6 +177,7 @@ class Whatbot {
 
     try {
       models.soup = new Soup({ handle: database.handle });
+      await models.soup.init();
       state.log.write('-> Soup model loaded.');
     } catch (error) {
       state.log.error('Error loading Soup model: ' + error.message);
@@ -184,6 +185,7 @@ class Whatbot {
 
     try {
       models.url = new URL({ handle: database.handle });
+      await models.url.init();
       state.log.write('-> URL model loaded.');
     } catch (error) {
       state.log.error('Error loading URL model: ' + error.message);
@@ -271,7 +273,8 @@ class Whatbot {
       commands.push(new APICommand({ name: 'api' }));
       
       const { default: WeatherCommand } = await import('./Command/Weather.js');
-      commands.push(new WeatherCommand({ name: 'weather' }));
+      const weatherConfig = this.initialConfig.configHash.command?.weather || {};
+      commands.push(new WeatherCommand({ name: 'weather', my_config: weatherConfig }));
       
       const { default: TriggerCommand } = await import('./Command/Trigger.js');
       commands.push(new TriggerCommand({ name: 'trigger' }));

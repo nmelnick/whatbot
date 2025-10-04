@@ -6,7 +6,7 @@ class Bother extends Table {
     
     this.initTable({
       name: 'bother',
-      primaryKey: 'bother_id',
+      primary_key: 'bother_id',
       indexed: ['user'],
       defaults: {
         timestamp: { database: 'now' },

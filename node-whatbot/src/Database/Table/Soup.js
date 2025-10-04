@@ -6,7 +6,7 @@ class Soup extends Table {
     
     this.initTable({
       name: 'soup',
-      primaryKey: 'soup_id',
+      primary_key: 'soup_id',
       indexed: ['module_id', 'subject'],
       columns: {
         soup_id: {
@@ -37,7 +37,7 @@ class Soup extends Table {
     
     this.module.initTable({
       name: 'soup_module',
-      primaryKey: 'module_id',
+      primary_key: 'module_id',
       indexed: ['name'],
       columns: {
         module_id: {
@@ -58,7 +58,7 @@ class Soup extends Table {
       
       this.module.initTable({
         name: 'soup_module',
-        primaryKey: 'module_id',
+        primary_key: 'module_id',
         indexed: ['name'],
         columns: {
           module_id: {
@@ -78,10 +78,10 @@ class Soup extends Table {
     
     let module = await this.module.searchOne({ name: caller });
     if (module) {
-      return module.module_id;
+      return module.moduleId;
     } else {
       module = await this.module.create({ name: caller });
-      return module.module_id;
+      return module ? module.moduleId : null;
     }
   }
 
@@ -103,7 +103,7 @@ class Soup extends Table {
       });
     }
     
-    return row.value;
+    return row ? row.value : null;
   }
 
   async get(key, caller) {
@@ -132,6 +132,7 @@ class Soup extends Table {
   }
 
   async getHashref(caller) {
+    await this._ensureModuleTable();
     const moduleId = await this._getModule(caller);
     const rows = await this.search({
       module_id: moduleId
